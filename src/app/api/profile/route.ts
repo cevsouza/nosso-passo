@@ -14,8 +14,7 @@ export async function POST(req: Request) {
     });
 
     if (!profile) {
-      // Keep user-123 for demo email so mock loads properly
-      const uid = email === 'responsavel@exemplo.com' ? 'user-123' : 'user-' + Math.random().toString(36).substring(2, 9);
+      const uid = 'user-' + Math.random().toString(36).substring(2, 9);
       profile = await prisma.userProfile.create({
         data: {
           uid,

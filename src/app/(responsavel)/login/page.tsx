@@ -11,8 +11,8 @@ import Link from 'next/link';
 export default function ParentAuth() {
   const router = useRouter();
   const [isRegister, setIsRegister] = useState(false);
-  const [email, setEmail] = useState('responsavel@exemplo.com');
-  const [password, setPassword] = useState('123456');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -167,9 +167,7 @@ export default function ParentAuth() {
 
         <div className="mt-6 text-center text-[10px] text-slate-400 border-t border-slate-250/40 pt-4 font-bold">
           <p>
-            {isRegister 
-              ? '* A senha deve conter pelo menos 6 caracteres.' 
-              : '* Credenciais de demonstração: responsavel@exemplo.com / 123456'}
+            * A senha deve conter pelo menos 6 caracteres.
           </p>
         </div>
       </motion.div>
