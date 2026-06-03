@@ -14,6 +14,7 @@ const DEFAULT_SEED_TASKS = [
 export async function GET(req: Request) {
   try {
     const userUid = req.headers.get('x-user-uid') || 'user-123';
+    const childId = req.headers.get('x-child-id');
 
     // Verify user profile exists (create if not)
     let user = await prisma.userProfile.findUnique({ where: { uid: userUid } });
@@ -27,24 +28,48 @@ export async function GET(req: Request) {
       });
     }
 
-    let dbTasks = await prisma.task.findMany({
-      where: { userUid },
-      orderBy: [{ day: 'asc' }, { time: 'asc' }],
-    });
-
-    if (dbTasks.length === 0) {
-      // Seed default tasks for this user
-      await prisma.task.createMany({
-        data: DEFAULT_SEED_TASKS.map(t => ({
-          ...t,
-          userUid,
-        })),
+    let dbTasks;
+    if (childId) {
+      dbTasks = await prisma.task.findMany({
+        where: { childId },
+        orderBy: [{ day: 'asc' }, { time: 'asc' }],
       });
 
+      if (dbTasks.length === 0) {
+        // Seed default tasks for this child
+        await prisma.task.createMany({
+          data: DEFAULT_SEED_TASKS.map(t => ({
+            ...t,
+            userUid,
+            childId,
+          })),
+        });
+
+        dbTasks = await prisma.task.findMany({
+          where: { childId },
+          orderBy: [{ day: 'asc' }, { time: 'asc' }],
+        });
+      }
+    } else {
       dbTasks = await prisma.task.findMany({
         where: { userUid },
         orderBy: [{ day: 'asc' }, { time: 'asc' }],
       });
+
+      if (dbTasks.length === 0) {
+        // Seed default tasks for this user
+        await prisma.task.createMany({
+          data: DEFAULT_SEED_TASKS.map(t => ({
+            ...t,
+            userUid,
+          })),
+        });
+
+        dbTasks = await prisma.task.findMany({
+          where: { userUid },
+          orderBy: [{ day: 'asc' }, { time: 'asc' }],
+        });
+      }
     }
 
     return NextResponse.json(dbTasks);
@@ -56,6 +81,7 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
   try {
     const userUid = req.headers.get('x-user-uid') || 'user-123';
+    const childId = req.headers.get('x-child-id');
     const taskData = await req.json();
 
     const newTask = await prisma.task.create({
@@ -66,6 +92,7 @@ export async function POST(req: Request) {
         day: taskData.day,
         order: taskData.order || 1,
         userUid,
+        childId: childId || null,
       },
     });
 
@@ -78,33 +105,61 @@ export async function POST(req: Request) {
 export async function PUT(req: Request) {
   try {
     const userUid = req.headers.get('x-user-uid') || 'user-123';
+    const childId = req.headers.get('x-child-id');
     const body = await req.json();
 
     if (body.overwrite && Array.isArray(body.tasks)) {
       // Bulk overwrite tasks (loadTemplate, resetToDefaults, etc.)
-      await prisma.task.deleteMany({
-        where: { userUid },
-      });
-
-      if (body.tasks.length > 0) {
-        await prisma.task.createMany({
-          data: body.tasks.map((t: any, idx: number) => ({
-            title: t.title,
-            time: t.time,
-            period: t.period,
-            day: t.day,
-            isCompleted: t.isCompleted ?? false,
-            order: idx + 1,
-            userUid,
-          })),
+      if (childId) {
+        await prisma.task.deleteMany({
+          where: { childId },
         });
-      }
 
-      const updatedTasks = await prisma.task.findMany({
-        where: { userUid },
-        orderBy: [{ day: 'asc' }, { time: 'asc' }],
-      });
-      return NextResponse.json(updatedTasks);
+        if (body.tasks.length > 0) {
+          await prisma.task.createMany({
+            data: body.tasks.map((t: any, idx: number) => ({
+              title: t.title,
+              time: t.time,
+              period: t.period,
+              day: t.day,
+              isCompleted: t.isCompleted ?? false,
+              order: idx + 1,
+              userUid,
+              childId,
+            })),
+          });
+        }
+
+        const updatedTasks = await prisma.task.findMany({
+          where: { childId },
+          orderBy: [{ day: 'asc' }, { time: 'asc' }],
+        });
+        return NextResponse.json(updatedTasks);
+      } else {
+        await prisma.task.deleteMany({
+          where: { userUid },
+        });
+
+        if (body.tasks.length > 0) {
+          await prisma.task.createMany({
+            data: body.tasks.map((t: any, idx: number) => ({
+              title: t.title,
+              time: t.time,
+              period: t.period,
+              day: t.day,
+              isCompleted: t.isCompleted ?? false,
+              order: idx + 1,
+              userUid,
+            })),
+          });
+        }
+
+        const updatedTasks = await prisma.task.findMany({
+          where: { userUid },
+          orderBy: [{ day: 'asc' }, { time: 'asc' }],
+        });
+        return NextResponse.json(updatedTasks);
+      }
     }
 
     // Single task update

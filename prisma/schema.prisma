@@ -21,6 +21,26 @@ model UserProfile {
   sensoryVisuals  String   @default("rich")
   createdAt       DateTime @default(now())
   tasks           Task[]
+  children        Child[]
+}
+
+model Child {
+  id              String      @id @default(cuid())
+  name            String
+  birthDate       String?     // YYYY-MM-DD
+  gender          String?     // e.g. Masculino, Feminino, etc.
+  diagnosis       String?     // e.g. TEA Nível 1, TDAH, etc.
+  childHyperfocus String?     @default("Border Collies 🐕")
+  parentPinCode   String      @default("1234")
+  lockType        String      @default("math")
+  sensorySpeed    Float       @default(1.0)
+  sensorySound    String      @default("marimba")
+  sensoryVisuals  String      @default("rich")
+  createdAt       DateTime    @default(now())
+
+  parentUid       String
+  parent          UserProfile @relation(fields: [parentUid], references: [uid], onDelete: Cascade)
+  tasks           Task[]
 }
 
 model Task {
@@ -31,6 +51,8 @@ model Task {
   day         String
   isCompleted Boolean  @default(false)
   order       Int
+  childId     String?
+  child       Child?   @relation(fields: [childId], references: [id], onDelete: Cascade)
   userUid     String
   user        UserProfile @relation(fields: [userUid], references: [uid], onDelete: Cascade)
   createdAt   DateTime @default(now())

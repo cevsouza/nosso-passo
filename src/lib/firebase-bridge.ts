@@ -21,6 +21,21 @@ export interface UserProfile {
   sensoryVisuals?: 'rich' | 'minimal';
 }
 
+export interface Child {
+  id: string;
+  name: string;
+  birthDate?: string;
+  gender?: string;
+  diagnosis?: string;
+  childHyperfocus?: string;
+  parentPinCode?: string;
+  lockType?: 'pin' | 'math' | 'none';
+  sensorySpeed?: number;
+  sensorySound?: 'marimba' | 'bubble' | 'silent';
+  sensoryVisuals?: 'rich' | 'minimal';
+  parentUid: string;
+}
+
 const MOCK_DB_UPDATE_EVENT = 'firebase-mock-db-update';
 const MOCK_AUTH_UPDATE_EVENT = 'firebase-mock-auth-update';
 
@@ -71,6 +86,7 @@ export const firebaseBridge = {
 
     signOut: async (): Promise<void> => {
       saveLocalProfile(null);
+      firebaseBridge.auth.setActiveChild(null);
     },
 
     getCurrentUser: (): UserProfile | null => {
@@ -115,6 +131,90 @@ export const firebaseBridge = {
       if (data.error) throw new Error(data.error);
 
       saveLocalProfile(data);
+    },
+
+    // --- MULTI-CHILD MANAGEMENT API ---
+    getChildren: async (): Promise<Child[]> => {
+      const current = getLocalProfile();
+      if (!current) return [];
+
+      const res = await fetch('/api/children', {
+        headers: { 'x-user-uid': current.uid }
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      return data;
+    },
+
+    addChild: async (childData: { name: string; birthDate?: string; gender?: string; diagnosis?: string }): Promise<Child> => {
+      const current = getLocalProfile();
+      if (!current) throw new Error('Usuário não está logado');
+
+      const res = await fetch('/api/children', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'x-user-uid': current.uid
+        },
+        body: JSON.stringify(childData)
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      return data;
+    },
+
+    updateChildSettings: async (childId: string, updates: Partial<Omit<Child, 'id' | 'parentUid'>>): Promise<Child> => {
+      const res = await fetch('/api/children', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: childId, updates })
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      
+      // If we are updating the active child, sync local storage
+      const activeChild = firebaseBridge.auth.getActiveChild();
+      if (activeChild && activeChild.id === childId) {
+        const merged = { ...activeChild, ...data };
+        localStorage.setItem('tea_active_child', JSON.stringify(merged));
+      }
+
+      return data;
+    },
+
+    deleteChild: async (childId: string): Promise<void> => {
+      const res = await fetch(`/api/children?id=${childId}`, {
+        method: 'DELETE'
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+
+      const activeChild = firebaseBridge.auth.getActiveChild();
+      if (activeChild && activeChild.id === childId) {
+        firebaseBridge.auth.setActiveChild(null);
+      }
+    },
+
+    getActiveChild: (): Child | null => {
+      if (typeof window === 'undefined') return null;
+      const stored = localStorage.getItem('tea_active_child');
+      return stored ? JSON.parse(stored) : null;
+    },
+
+    setActiveChild: (child: Child | null) => {
+      if (typeof window === 'undefined') return;
+      if (child) {
+        localStorage.setItem('tea_active_child', JSON.stringify(child));
+        localStorage.setItem('tea_active_child_id', child.id);
+      } else {
+        localStorage.removeItem('tea_active_child');
+        localStorage.removeItem('tea_active_child_id');
+      }
+      
+      // Broadcast update to sync local tasks
+      firebaseBridge.db.getTasks().then(tasks => {
+        window.dispatchEvent(new CustomEvent(MOCK_DB_UPDATE_EVENT, { detail: tasks }));
+      }).catch(() => {});
     }
   },
 
@@ -123,10 +223,14 @@ export const firebaseBridge = {
     getTasks: async (): Promise<Task[]> => {
       const current = getLocalProfile();
       const userUid = current?.uid || 'user-123';
+      const childId = typeof window !== 'undefined' ? localStorage.getItem('tea_active_child_id') : null;
 
-      const res = await fetch('/api/tasks', {
-        headers: { 'x-user-uid': userUid }
-      });
+      const headers: Record<string, string> = { 'x-user-uid': userUid };
+      if (childId) {
+        headers['x-child-id'] = childId;
+      }
+
+      const res = await fetch('/api/tasks', { headers });
       const data = await res.json();
       if (data.error) throw new Error(data.error);
       return data;
@@ -135,13 +239,19 @@ export const firebaseBridge = {
     addTask: async (taskData: Omit<Task, 'id' | 'isCompleted' | 'order'>): Promise<Task> => {
       const current = getLocalProfile();
       const userUid = current?.uid || 'user-123';
+      const childId = typeof window !== 'undefined' ? localStorage.getItem('tea_active_child_id') : null;
+
+      const headers: Record<string, string> = { 
+        'Content-Type': 'application/json',
+        'x-user-uid': userUid
+      };
+      if (childId) {
+        headers['x-child-id'] = childId;
+      }
 
       const res = await fetch('/api/tasks', {
         method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'x-user-uid': userUid
-        },
+        headers,
         body: JSON.stringify(taskData)
       });
       const data = await res.json();
@@ -171,13 +281,19 @@ export const firebaseBridge = {
     updateTask: async (id: string, updates: Partial<Omit<Task, 'id'>>): Promise<void> => {
       const current = getLocalProfile();
       const userUid = current?.uid || 'user-123';
+      const childId = typeof window !== 'undefined' ? localStorage.getItem('tea_active_child_id') : null;
+
+      const headers: Record<string, string> = { 
+        'Content-Type': 'application/json',
+        'x-user-uid': userUid
+      };
+      if (childId) {
+        headers['x-child-id'] = childId;
+      }
 
       const res = await fetch('/api/tasks', {
         method: 'PUT',
-        headers: { 
-          'Content-Type': 'application/json',
-          'x-user-uid': userUid
-        },
+        headers,
         body: JSON.stringify({ id, updates })
       });
       const data = await res.json();
@@ -199,6 +315,7 @@ export const firebaseBridge = {
     resetToDefaults: async (): Promise<void> => {
       const current = getLocalProfile();
       const userUid = current?.uid || 'user-123';
+      const childId = typeof window !== 'undefined' ? localStorage.getItem('tea_active_child_id') : null;
 
       const DEFAULT_TASKS = [
         { title: 'Escovar os dentes 🪥', time: '08:00', period: 'manhã', day: 'segunda' },
@@ -210,12 +327,17 @@ export const firebaseBridge = {
         { title: 'Tomar Banho e Dormir 😴', time: '21:00', period: 'noite', day: 'segunda' },
       ];
 
+      const headers: Record<string, string> = { 
+        'Content-Type': 'application/json',
+        'x-user-uid': userUid
+      };
+      if (childId) {
+        headers['x-child-id'] = childId;
+      }
+
       const res = await fetch('/api/tasks', {
         method: 'PUT',
-        headers: { 
-          'Content-Type': 'application/json',
-          'x-user-uid': userUid
-        },
+        headers,
         body: JSON.stringify({ overwrite: true, tasks: DEFAULT_TASKS })
       });
       const data = await res.json();
@@ -227,13 +349,19 @@ export const firebaseBridge = {
     loadTemplate: async (templateTasks: Omit<Task, 'id' | 'isCompleted' | 'order'>[]): Promise<void> => {
       const current = getLocalProfile();
       const userUid = current?.uid || 'user-123';
+      const childId = typeof window !== 'undefined' ? localStorage.getItem('tea_active_child_id') : null;
+
+      const headers: Record<string, string> = { 
+        'Content-Type': 'application/json',
+        'x-user-uid': userUid
+      };
+      if (childId) {
+        headers['x-child-id'] = childId;
+      }
 
       const res = await fetch('/api/tasks', {
         method: 'PUT',
-        headers: { 
-          'Content-Type': 'application/json',
-          'x-user-uid': userUid
-        },
+        headers,
         body: JSON.stringify({ overwrite: true, tasks: templateTasks })
       });
       const data = await res.json();
@@ -245,13 +373,19 @@ export const firebaseBridge = {
     clearAllTasks: async (): Promise<void> => {
       const current = getLocalProfile();
       const userUid = current?.uid || 'user-123';
+      const childId = typeof window !== 'undefined' ? localStorage.getItem('tea_active_child_id') : null;
+
+      const headers: Record<string, string> = { 
+        'Content-Type': 'application/json',
+        'x-user-uid': userUid
+      };
+      if (childId) {
+        headers['x-child-id'] = childId;
+      }
 
       const res = await fetch('/api/tasks', {
         method: 'PUT',
-        headers: { 
-          'Content-Type': 'application/json',
-          'x-user-uid': userUid
-        },
+        headers,
         body: JSON.stringify({ overwrite: true, tasks: [] })
       });
       const data = await res.json();

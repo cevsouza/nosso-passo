@@ -20,8 +20,9 @@ const getAudioContext = (): AudioContext | null => {
  * Designed to sound woody, low-frequency, and extremely calming.
  */
 export const playMarimba = (frequency: number = SENSORY_AUDIO.frequencies.marimbaCore, duration: number = 0.5) => {
+  const child = firebaseBridge.auth.getActiveChild();
   const user = firebaseBridge.auth.getCurrentUser();
-  const soundPref = user?.sensorySound ?? 'marimba';
+  const soundPref = child?.sensorySound ?? user?.sensorySound ?? 'marimba';
   if (soundPref === 'silent') return;
   if (soundPref === 'bubble') {
     playBubble();
@@ -44,33 +45,20 @@ export const playMarimba = (frequency: number = SENSORY_AUDIO.frequencies.marimb
   osc1.type = 'sine';
   osc1.frequency.setValueAtTime(frequency, now);
 
-  // Soft Secondary Harmonic (Triangular for warm wooden texture, very low gain)
-  const osc2 = ctx.createOscillator();
-  osc2.type = 'triangle';
-  osc2.frequency.setValueAtTime(frequency * 2, now);
-  const gainHarmonic = ctx.createGain();
-  gainHarmonic.gain.setValueAtTime(0.04, now); // Just a tiny touch of color
-  
-  // Connections
   osc1.connect(masterGain);
-  osc2.connect(gainHarmonic);
-  gainHarmonic.connect(masterGain);
   masterGain.connect(ctx.destination);
 
-  // Start & Stop
   osc1.start(now);
-  osc2.start(now);
-  osc1.stop(now + duration + 0.1);
-  osc2.stop(now + duration + 0.1);
+  osc1.stop(now + duration + 0.05);
 };
 
 /**
- * Plays a soft, cute bubble pop sound.
- * Uses quick sine sweeps to sound fluid, watery, and extremely non-threatening.
+ * Plays a bubbly, rounded pop sound for micro-interactions (e.g. navigation).
  */
 export const playBubble = () => {
+  const child = firebaseBridge.auth.getActiveChild();
   const user = firebaseBridge.auth.getCurrentUser();
-  const soundPref = user?.sensorySound ?? 'marimba';
+  const soundPref = child?.sensorySound ?? user?.sensorySound ?? 'marimba';
   if (soundPref === 'silent') return;
 
   const ctx = getAudioContext();
@@ -106,8 +94,9 @@ export const playBubble = () => {
  * Spaced out and slow to provide smooth cognitive closure.
  */
 export const playCelebration = () => {
+  const child = firebaseBridge.auth.getActiveChild();
   const user = firebaseBridge.auth.getCurrentUser();
-  const soundPref = user?.sensorySound ?? 'marimba';
+  const soundPref = child?.sensorySound ?? user?.sensorySound ?? 'marimba';
   if (soundPref === 'silent') return;
 
   const notes = SENSORY_AUDIO.frequencies.celebrationChord;
@@ -134,8 +123,9 @@ export const speakText = (text: string) => {
   // Cancel any active speech to avoid queues overlapping
   window.speechSynthesis.cancel();
 
+  const child = firebaseBridge.auth.getActiveChild();
   const user = firebaseBridge.auth.getCurrentUser();
-  const rawSpeed = user?.sensorySpeed ?? 1.0;
+  const rawSpeed = child?.sensorySpeed ?? user?.sensorySpeed ?? 1.0;
   
   // Map sensory speed: 0.7 -> 0.65 (very slow), 1.0 -> 0.85 (calm), 1.2 -> 1.05 (normal)
   let speedRate = 0.85;

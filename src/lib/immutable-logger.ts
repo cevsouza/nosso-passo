@@ -2,7 +2,7 @@ export interface AuditLog {
   id: string;
   timestamp: string; // ISO String
   responsibleEmail: string;
-  action: 'ADD_TASK' | 'DELETE_TASK' | 'COMPLETE_TASK' | 'RESET_ROUTINE' | 'UPDATE_PROFILE';
+  action: 'ADD_TASK' | 'DELETE_TASK' | 'COMPLETE_TASK' | 'RESET_ROUTINE' | 'UPDATE_PROFILE' | 'REGISTER_CHILD' | 'DELETE_CHILD';
   details: string; // Description of change
 }
 

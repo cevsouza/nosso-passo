@@ -255,6 +255,16 @@ export default function ParentDashboard() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [logs, setLogs] = useState<AuditLog[]>([]);
   
+  // Child States
+  const [children, setChildren] = useState<any[]>([]);
+  const [activeChild, setActiveChild] = useState<any | null>(null);
+  const [newChildModalOpen, setNewChildModalOpen] = useState(false);
+  const [newChildName, setNewChildName] = useState('');
+  const [newChildBirthDate, setNewChildBirthDate] = useState('');
+  const [newChildGender, setNewChildGender] = useState('Não Informado');
+  const [newChildDiagnosis, setNewChildDiagnosis] = useState('Não Informado');
+  const [registeringChild, setRegisteringChild] = useState(false);
+
   // Form states
   const [title, setTitle] = useState('');
   const [time, setTime] = useState('08:00');
@@ -279,7 +289,7 @@ export default function ParentDashboard() {
   const [savingProfile, setSavingProfile] = useState(false);
   const [statusMessage, setStatusMessage] = useState('');
 
-  // 1. Verification of authentication & fetch profile
+  // 1. Verification of authentication & fetch profile & children
   useEffect(() => {
     const user = firebaseBridge.auth.getCurrentUser();
     if (!user || user.role !== 'responsavel') {
@@ -287,13 +297,36 @@ export default function ParentDashboard() {
       return;
     }
     setCurrentUser(user);
-    setHyperfocus(user.childHyperfocus || '');
-    setLockType(user.lockType || 'math');
-    setParentPinCode(user.parentPinCode || '1234');
     setPlan(user.plan || 'free');
-    setSensorySpeed(user.sensorySpeed || 1.0);
-    setSensorySound(user.sensorySound || 'marimba');
-    setSensoryVisuals(user.sensoryVisuals || 'rich');
+
+    const loadChildren = async () => {
+      try {
+        const fetchedChildren = await firebaseBridge.auth.getChildren();
+        setChildren(fetchedChildren);
+
+        // Determine active child
+        const cachedActiveChild = firebaseBridge.auth.getActiveChild();
+        const active = (cachedActiveChild && fetchedChildren.some(c => c.id === cachedActiveChild.id))
+          ? fetchedChildren.find(c => c.id === cachedActiveChild.id)
+          : fetchedChildren[0] || null;
+
+        if (active) {
+          setActiveChild(active);
+          firebaseBridge.auth.setActiveChild(active);
+          
+          setHyperfocus(active.childHyperfocus || '');
+          setLockType((active.lockType || 'math') as any);
+          setParentPinCode(active.parentPinCode || '1234');
+          setSensorySpeed((active.sensorySpeed || 1.0) as any);
+          setSensorySound((active.sensorySound || 'marimba') as any);
+          setSensoryVisuals((active.sensoryVisuals || 'rich') as any);
+        }
+      } catch (err) {
+        console.error('Erro ao carregar crianças:', err);
+      }
+    };
+
+    loadChildren();
 
     // 2. Subscribe to real-time Tasks updates (onSnapshot)
     const unsubscribeTasks = firebaseBridge.db.onSnapshotTasks((fetchedTasks) => {
@@ -325,6 +358,100 @@ export default function ParentDashboard() {
       unsubscribeCompleted();
     };
   }, [router]);
+
+  const handleSelectChild = async (child: any) => {
+    playMarimba(300, 0.25);
+    setActiveChild(child);
+    firebaseBridge.auth.setActiveChild(child);
+    
+    // Set settings states
+    setHyperfocus(child.childHyperfocus || '');
+    setLockType(child.lockType || 'math');
+    setParentPinCode(child.parentPinCode || '1234');
+    setSensorySpeed(child.sensorySpeed || 1.0);
+    setSensorySound(child.sensorySound || 'marimba');
+    setSensoryVisuals(child.sensoryVisuals || 'rich');
+
+    // Immediately fetch tasks for the new child
+    try {
+      const fetchedTasks = await firebaseBridge.db.getTasks();
+      setTasks(fetchedTasks);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleRegisterChild = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newChildName.trim()) return;
+
+    setRegisteringChild(true);
+    playMarimba(523.25, 0.35); // happy note
+
+    try {
+      const newChild = await firebaseBridge.auth.addChild({
+        name: newChildName.trim(),
+        birthDate: newChildBirthDate,
+        gender: newChildGender,
+        diagnosis: newChildDiagnosis,
+      });
+
+      setChildren(prev => [...prev, newChild]);
+      
+      // Select the newly registered child
+      await handleSelectChild(newChild);
+
+      await immutableLogger.logChange(
+        'REGISTER_CHILD',
+        `Cadastrou uma nova criança: ${newChild.name} (Gênero: ${newChild.gender}, Diagnóstico: ${newChild.diagnosis}, Data de Nasc.: ${newChild.birthDate || 'Não Informado'}).`,
+        currentUser?.email
+      );
+
+      triggerStatus('Criança cadastrada com sucesso!');
+      setNewChildModalOpen(false);
+      
+      // Reset form states
+      setNewChildName('');
+      setNewChildBirthDate('');
+      setNewChildGender('Não Informado');
+      setNewChildDiagnosis('Não Informado');
+    } catch (err) {
+      triggerStatus('Erro ao cadastrar criança.');
+    } finally {
+      setRegisteringChild(false);
+    }
+  };
+
+  const handleDeleteChild = async (childId: string, name: string) => {
+    if (!window.confirm(`Tem certeza que deseja excluir o perfil de ${name}? Todas as tarefas e configurações desta criança serão apagadas permanentemente.`)) return;
+
+    playMarimba(196, 0.4);
+    try {
+      await firebaseBridge.auth.deleteChild(childId);
+      
+      await immutableLogger.logChange(
+        'DELETE_CHILD',
+        `Excluiu o perfil de criança: ${name}.`,
+        currentUser?.email
+      );
+
+      const updatedChildren = children.filter(c => c.id !== childId);
+      setChildren(updatedChildren);
+
+      // Select first remaining child or null
+      if (updatedChildren.length > 0) {
+        handleSelectChild(updatedChildren[0]);
+      } else {
+        setActiveChild(null);
+        firebaseBridge.auth.setActiveChild(null);
+        setTasks([]);
+      }
+
+      triggerStatus('Criança removida com sucesso!');
+    } catch (err) {
+      triggerStatus('Erro ao remover criança.');
+    }
+  };
 
   // Handle Log Out
   const handleLogout = async () => {
@@ -390,14 +517,19 @@ export default function ParentDashboard() {
     }
   };
 
-  // Update Child Profile Hyperfocus
+  // Update Active Child Settings
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!activeChild) {
+      triggerStatus('Por favor, cadastre uma criança primeiro.');
+      return;
+    }
+
     setSavingProfile(true);
     playMarimba(440, 0.3);
 
     try {
-      await firebaseBridge.auth.updateProfileSettings({
+      const updated = await firebaseBridge.auth.updateChildSettings(activeChild.id, {
         childHyperfocus: hyperfocus,
         lockType,
         parentPinCode,
@@ -406,9 +538,13 @@ export default function ParentDashboard() {
         sensoryVisuals
       });
       
+      setActiveChild(updated);
+      firebaseBridge.auth.setActiveChild(updated);
+      setChildren(prev => prev.map(c => c.id === updated.id ? updated : c));
+      
       await immutableLogger.logChange(
         'UPDATE_PROFILE', 
-        `Atualizou o perfil da criança: Hiperfoco: "${hyperfocus}", Bloqueio Infantil: "${lockType}" (PIN: ${parentPinCode}), Velocidade Fala: ${sensorySpeed}x, Efeito Sonoro: "${sensorySound}", Visual: "${sensoryVisuals}".`,
+        `Atualizou o perfil de ${activeChild.name}: Hiperfoco: "${hyperfocus}", Bloqueio Infantil: "${lockType}" (PIN: ${parentPinCode}), Velocidade Fala: ${sensorySpeed}x, Efeito Sonoro: "${sensorySound}", Visual: "${sensoryVisuals}".`,
         currentUser?.email
       );
       
@@ -416,9 +552,9 @@ export default function ParentDashboard() {
       setCollieState('celebrating');
       setTimeout(() => setCollieState('idle'), 2000);
       
-      triggerStatus('Perfil atualizado com sucesso!');
+      triggerStatus('Configurações da criança salvas com sucesso!');
     } catch (err) {
-      triggerStatus('Erro ao salvar perfil.');
+      triggerStatus('Erro ao salvar configurações.');
     } finally {
       setSavingProfile(false);
     }
@@ -495,6 +631,68 @@ export default function ParentDashboard() {
           </div>
         </div>
       </header>
+
+      {/* Child Selector & Management Bar */}
+      <section className="bg-white border-b border-slate-200 py-3 shadow-sm">
+        <div className="max-w-6xl mx-auto px-6 flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-3 flex-wrap">
+            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Crianças:</span>
+            {children.map(child => {
+              const isActive = activeChild?.id === child.id;
+              return (
+                <div key={child.id} className="flex items-center gap-1 bg-slate-50 border border-slate-100 rounded-xl p-1 shadow-xs">
+                  <button
+                    onClick={() => handleSelectChild(child)}
+                    className={`px-4 py-2 rounded-lg text-sm font-extrabold flex items-center gap-2 transition-all cursor-pointer ${
+                      isActive
+                        ? 'bg-indigo-650 text-white shadow-sm border border-indigo-650'
+                        : 'bg-transparent hover:bg-slate-200 text-slate-700 border border-transparent'
+                    }`}
+                  >
+                    <span>👶</span> {child.name}
+                    {child.diagnosis && child.diagnosis !== 'Não Informado' && (
+                      <span className={`text-[9px] px-1.5 py-0.5 rounded-md font-bold uppercase tracking-wider ${isActive ? 'bg-indigo-800 text-indigo-100' : 'bg-slate-200 text-slate-600'}`}>
+                        {child.diagnosis}
+                      </span>
+                    )}
+                  </button>
+                  {children.length > 1 && (
+                    <button
+                      onClick={() => handleDeleteChild(child.id, child.name)}
+                      className="p-1.5 text-slate-350 hover:text-red-500 rounded-lg hover:bg-red-50 transition-colors"
+                      title="Excluir Criança"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                </div>
+              );
+            })}
+            
+            <button
+              onClick={() => setNewChildModalOpen(true)}
+              className="px-4 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-600 border border-emerald-100 text-sm font-bold rounded-xl flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer shadow-xs"
+            >
+              <Plus className="w-4 h-4" /> Cadastrar Criança
+            </button>
+          </div>
+
+          {activeChild ? (
+            <div className="flex items-center gap-3">
+              <a
+                href={`/routine?childId=${activeChild.id}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-5 py-2.5 bg-indigo-600 text-white hover:bg-indigo-700 text-sm font-black rounded-xl shadow-md shadow-indigo-200 transition-all active:scale-95 flex items-center gap-2"
+              >
+                <span>🚀</span> Ir para Tela de {activeChild.name}
+              </a>
+            </div>
+          ) : (
+            <span className="text-xs font-semibold text-slate-400">Nenhuma criança cadastrada</span>
+          )}
+        </div>
+      </section>
 
       {/* Floating Status Notification */}
       <AnimatePresence>
@@ -1169,7 +1367,7 @@ export default function ParentDashboard() {
                           </div>
                           <div className="bg-sky-50/50 border border-sky-100/50 p-4.5 rounded-2xl flex flex-col gap-1.5 shadow-xxs">
                             <span className="text-xxs font-black text-sky-500 uppercase tracking-widest">Hiperfoco Ativo</span>
-                            <span className="text-base font-black text-sky-750 truncate max-w-xs">{currentUser?.childHyperfocus || 'Não cadastrado'}</span>
+                            <span className="text-base font-black text-sky-750 truncate max-w-xs">{activeChild?.childHyperfocus || 'Não cadastrado'}</span>
                             <p className="text-xxs text-slate-400 font-semibold leading-relaxed">Apoio de previsibilidade em execução.</p>
                           </div>
                         </div>
@@ -1234,7 +1432,8 @@ export default function ParentDashboard() {
                               <div>
                                 <h3 className="text-xs font-black uppercase text-slate-400 tracking-widest">Informações Gerais</h3>
                                 <p className="text-sm font-bold text-slate-700 mt-2">Responsável: <span className="font-extrabold">{currentUser?.email}</span></p>
-                                <p className="text-sm font-bold text-slate-700 mt-1">Hiperfoco da Criança: <span className="font-extrabold">{currentUser?.childHyperfocus || 'Não cadastrado'}</span></p>
+                                <p className="text-sm font-bold text-slate-700 mt-2">Criança: <span className="font-extrabold">{activeChild?.name || 'Não cadastrado'}</span></p>
+                                <p className="text-sm font-bold text-slate-700 mt-1">Hiperfoco: <span className="font-extrabold">{activeChild?.childHyperfocus || 'Não cadastrado'}</span></p>
                               </div>
                               <div>
                                 <h3 className="text-xs font-black uppercase text-slate-400 tracking-widest">Resumo de Aderência</h3>
@@ -1330,6 +1529,102 @@ export default function ParentDashboard() {
         </div>
 
       </div>
+
+      {/* Cadastro de Criança Modal */}
+      <AnimatePresence>
+        {newChildModalOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm"
+          >
+            <motion.div
+              initial={{ scale: 0.95, y: 15 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.95, y: 15 }}
+              className="bg-white border border-slate-200 rounded-[28px] p-8 w-full max-w-md shadow-2xl flex flex-col gap-6 text-slate-800 relative overflow-hidden"
+            >
+              <div className="flex justify-between items-center">
+                <h3 className="text-xl font-black text-indigo-950 tracking-tight">Cadastrar Criança 👶</h3>
+                <button
+                  onClick={() => { playBubble(); setNewChildModalOpen(false); }}
+                  className="text-slate-400 hover:text-slate-600 font-extrabold text-sm p-1 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer border-none bg-transparent"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <form onSubmit={handleRegisterChild} className="flex flex-col gap-4">
+                <div className="flex flex-col gap-1.5 text-left">
+                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Nome da Criança</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Ex: Joãozinho"
+                    value={newChildName}
+                    onChange={e => setNewChildName(e.target.value)}
+                    className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl font-semibold text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-850"
+                  />
+                </div>
+
+                <div className="flex flex-col gap-1.5 text-left">
+                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Data de Nascimento</label>
+                  <input
+                    type="date"
+                    value={newChildBirthDate}
+                    onChange={e => setNewChildBirthDate(e.target.value)}
+                    className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl font-semibold text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-850"
+                  />
+                </div>
+
+                <div className="flex flex-col gap-1.5 text-left">
+                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Gênero</label>
+                  <select
+                    value={newChildGender}
+                    onChange={e => setNewChildGender(e.target.value)}
+                    className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl font-semibold text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-850"
+                  >
+                    <option value="Não Informado">Não Informado</option>
+                    <option value="Masculino">Masculino</option>
+                    <option value="Feminino">Feminino</option>
+                    <option value="Outro">Outro</option>
+                  </select>
+                </div>
+
+                <div className="flex flex-col gap-1.5 text-left">
+                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Diagnóstico Clínico (opcional)</label>
+                  <select
+                    value={newChildDiagnosis}
+                    onChange={e => setNewChildDiagnosis(e.target.value)}
+                    className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl font-semibold text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-850"
+                  >
+                    <option value="Não Informado">Não Informado</option>
+                    <option value="TEA Nível 1">TEA Nível 1</option>
+                    <option value="TEA Nível 2">TEA Nível 2</option>
+                    <option value="TEA Nível 3">TEA Nível 3</option>
+                    <option value="TDAH">TDAH</option>
+                    <option value="TEA + TDAH">TEA + TDAH</option>
+                    <option value="Outro">Outro</option>
+                  </select>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={registeringChild}
+                  className="w-full py-3 mt-2 bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-sm rounded-xl shadow-lg shadow-indigo-200 transition-all active:scale-95 flex items-center justify-center gap-2 cursor-pointer border-none"
+                >
+                  {registeringChild ? (
+                    <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                  ) : (
+                    <>🚀 Cadastrar e Ativar</>
+                  )}
+                </button>
+              </form>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* SaaS Paywall & Stripe Checkout Modal */}
       <AnimatePresence>

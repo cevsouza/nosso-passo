@@ -57,6 +57,11 @@ export default function ChildRoutine() {
   const [celebratingTaskId, setCelebratingTaskId] = useState<string | null>(null);
   const [childHyperfocus, setChildHyperfocus] = useState('Border Collies 🐕');
   const [sensoryVisuals, setSensoryVisuals] = useState<'rich' | 'minimal'>('rich');
+
+  // Child Multi-profile states
+  const [children, setChildren] = useState<any[]>([]);
+  const [activeChild, setActiveChild] = useState<any | null>(null);
+  const [loadingChildren, setLoadingChildren] = useState(true);
   
   // Parental Lock states
   const router = useRouter();
@@ -88,8 +93,7 @@ export default function ChildRoutine() {
 
   const handleAttemptExit = (target = '/') => {
     playBubble();
-    const user = firebaseBridge.auth.getCurrentUser();
-    const currentLockType = user?.lockType || 'math';
+    const currentLockType = activeChild?.lockType || lockType || 'math';
     
     if (currentLockType === 'none') {
       router.push(target);
@@ -121,20 +125,52 @@ export default function ChildRoutine() {
     }, 2000);
   };
   
-  // 1. Detect current day of week and subscribe to real-time tasks
+  // 1. Detect current day of week, load children and subscribe to tasks
   useEffect(() => {
     const todayNum = new Date().getDay();
     const todayKey = DAYS_PORTUGUESE[todayNum] || 'segunda';
     setCurrentDay(todayKey);
 
-    // Fetch user hyperfocus if logged in
-    const user = firebaseBridge.auth.getCurrentUser();
-    if (user) {
-      if (user.childHyperfocus) setChildHyperfocus(user.childHyperfocus);
-      setLockType(user.lockType || 'math');
-      setParentPinCode(user.parentPinCode || '1234');
-      setSensoryVisuals(user.sensoryVisuals || 'rich');
-    }
+    const loadPortal = async () => {
+      setLoadingChildren(true);
+      try {
+        const fetchedChildren = await firebaseBridge.auth.getChildren();
+        setChildren(fetchedChildren);
+
+        // Read childId from query string safely on client
+        const searchParams = new URLSearchParams(window.location.search);
+        const childId = searchParams.get('childId');
+
+        let active = null;
+        if (childId) {
+          active = fetchedChildren.find(c => c.id === childId) || null;
+        }
+
+        // Fallback to cached active child if url has no childId
+        if (!active) {
+          const cached = firebaseBridge.auth.getActiveChild();
+          if (cached && fetchedChildren.some(c => c.id === cached.id)) {
+            active = fetchedChildren.find(c => c.id === cached.id) || null;
+          }
+        }
+
+        if (active) {
+          setActiveChild(active);
+          firebaseBridge.auth.setActiveChild(active);
+          
+          if (active.childHyperfocus) setChildHyperfocus(active.childHyperfocus);
+          setLockType((active.lockType || 'math') as any);
+          setParentPinCode(active.parentPinCode || '1234');
+          setSensoryVisuals((active.sensoryVisuals || 'rich') as any);
+        }
+      } catch (err) {
+        console.error('Erro no portal infantil:', err);
+      } finally {
+        setLoadingChildren(false);
+      }
+    };
+
+    loadPortal();
 
     // Subscribe to tasks in real time
     const unsubscribeTasks = firebaseBridge.db.onSnapshotTasks((fetchedTasks) => {
@@ -245,6 +281,79 @@ export default function ChildRoutine() {
     { id: 7, top: "60%", left: "6%", delay: 2.1 },
     { id: 8, top: "45%", left: "92%", delay: 1.7 }
   ];
+
+  // If no active child is selected, show the selection screen
+  if (!activeChild) {
+    return (
+      <main className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6 text-slate-800 relative overflow-hidden">
+        {/* Playful background blobs */}
+        <div className="absolute top-[-100px] left-[-100px] w-[300px] h-[300px] bg-sky-200/55 rounded-full filter blur-3xl -z-10 animate-pulse"></div>
+        <div className="absolute bottom-[-100px] right-[-100px] w-[300px] h-[300px] bg-indigo-200/55 rounded-full filter blur-3xl -z-10 animate-pulse"></div>
+
+        <div className="max-w-2xl w-full text-center flex flex-col items-center gap-8 z-10">
+          <div className="w-24 h-24 bg-indigo-50 text-indigo-600 rounded-3xl flex items-center justify-center font-bold text-4xl shadow-md border border-indigo-100">
+            🐶
+          </div>
+          <div>
+            <h1 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">Quem é você hoje? 🐶</h1>
+            <p className="text-sm font-bold text-slate-400 mt-2">Escolha seu perfil para carregar sua agenda lúdica!</p>
+          </div>
+
+          {loadingChildren ? (
+            <div className="flex flex-col items-center gap-3 py-6">
+              <div className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+              <span className="text-sm font-bold text-slate-400 animate-pulse">Carregando seus dados...</span>
+            </div>
+          ) : children.length === 0 ? (
+            <div className="bg-white border border-slate-200 p-8 rounded-2xl shadow-sm text-center">
+              <p className="text-sm font-bold text-slate-600">Nenhuma criança cadastrada ainda.</p>
+              <p className="text-xs text-slate-400 mt-1 font-semibold">Peça ao seu responsável para cadastrar seu perfil no painel principal.</p>
+              <button 
+                onClick={() => router.push('/dashboard')}
+                className="mt-4 px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl shadow-md transition-all cursor-pointer border-none"
+              >
+                Ir para o Painel do Responsável
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full max-w-lg mt-4">
+              {children.map(child => (
+                <button
+                  key={child.id}
+                  onClick={() => {
+                    playMarimba(392, 0.2);
+                    setActiveChild(child);
+                    firebaseBridge.auth.setActiveChild(child);
+                    
+                    if (child.childHyperfocus) setChildHyperfocus(child.childHyperfocus);
+                    setLockType(child.lockType || 'math');
+                    setParentPinCode(child.parentPinCode || '1234');
+                    setSensoryVisuals(child.sensoryVisuals || 'rich');
+                    
+                    // Redirect to include childId in URL for easy bookmarking
+                    router.replace(`/routine?childId=${child.id}`);
+                  }}
+                  className="bg-white border-2 border-slate-200/80 hover:border-indigo-500/80 rounded-3xl p-6 shadow-sm hover:shadow-xl transition-all hover:-translate-y-1 flex flex-col items-center gap-4 text-center cursor-pointer group"
+                >
+                  <div className="w-20 h-20 bg-indigo-50 text-indigo-650 group-hover:bg-indigo-150 rounded-2xl flex items-center justify-center text-4xl shadow-inner transition-colors">
+                    {child.gender === 'Feminino' ? '👧' : child.gender === 'Masculino' ? '👦' : '👶'}
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-black text-slate-850 group-hover:text-indigo-650 transition-colors">{child.name}</h3>
+                    {child.diagnosis && child.diagnosis !== 'Não Informado' && (
+                      <span className="inline-block text-[10px] mt-1 px-2.5 py-0.5 bg-slate-100 group-hover:bg-indigo-50 group-hover:text-indigo-600 rounded-full font-bold uppercase tracking-wider text-slate-500">
+                        {child.diagnosis}
+                      </span>
+                    )}
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      </main>
+    );
+  }
 
   // Dynamic visual layout for day finished (darker, cozy, resting theme)
   if (isDayFinished) {
