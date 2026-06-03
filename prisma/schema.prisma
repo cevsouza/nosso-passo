@@ -1,0 +1,44 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model UserProfile {
+  uid             String   @id
+  email           String   @unique
+  role            String   @default("responsavel")
+  childHyperfocus String?
+  parentPinCode   String   @default("1234")
+  lockType        String   @default("math")
+  plan            String   @default("free")
+  sensorySpeed    Float    @default(1.0)
+  sensorySound    String   @default("marimba")
+  sensoryVisuals  String   @default("rich")
+  createdAt       DateTime @default(now())
+  tasks           Task[]
+}
+
+model Task {
+  id          String   @id @default(cuid())
+  title       String
+  time        String
+  period      String
+  day         String
+  isCompleted Boolean  @default(false)
+  order       Int
+  userUid     String
+  user        UserProfile @relation(fields: [userUid], references: [uid], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+}
+
+model AuditLog {
+  id               String   @id @default(cuid())
+  timestamp        DateTime @default(now())
+  responsibleEmail String
+  action           String
+  details          String
+}
