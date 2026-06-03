@@ -60,6 +60,8 @@ export async function POST(req: Request) {
         period: taskData.period,
         day: taskData.day,
         order: taskData.order || 1,
+        icon: taskData.icon || "📅",
+        category: taskData.category || "AVD",
         userUid,
         childId: childId || null,
       },
@@ -84,20 +86,20 @@ export async function PUT(req: Request) {
           where: { childId },
         });
 
-        if (body.tasks.length > 0) {
-          await prisma.task.createMany({
-            data: body.tasks.map((t: any, idx: number) => ({
-              title: t.title,
-              time: t.time,
-              period: t.period,
-              day: t.day,
-              isCompleted: t.isCompleted ?? false,
-              order: idx + 1,
-              userUid,
-              childId,
-            })),
-          });
-        }
+        await prisma.task.createMany({
+          data: body.tasks.map((t: any, idx: number) => ({
+            title: t.title,
+            time: t.time,
+            period: t.period,
+            day: t.day,
+            isCompleted: t.isCompleted ?? false,
+            order: idx + 1,
+            icon: t.icon || "📅",
+            category: t.category || "AVD",
+            userUid,
+            childId,
+          })),
+        });
 
         const updatedTasks = await prisma.task.findMany({
           where: { childId },
@@ -118,6 +120,8 @@ export async function PUT(req: Request) {
               day: t.day,
               isCompleted: t.isCompleted ?? false,
               order: idx + 1,
+              icon: t.icon || "📅",
+              category: t.category || "AVD",
               userUid,
             })),
           });
@@ -146,6 +150,8 @@ export async function PUT(req: Request) {
         day: updates.day,
         isCompleted: updates.isCompleted,
         order: updates.order,
+        icon: updates.icon,
+        category: updates.category,
       },
     });
 

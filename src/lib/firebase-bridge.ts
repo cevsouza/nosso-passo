@@ -6,6 +6,8 @@ export interface Task {
   day: string; // "segunda" | "terca" | "quarta" | "quinta" | "sexta" | "sabado" | "domingo"
   isCompleted: boolean;
   order: number;
+  icon?: string;
+  category?: 'AVD' | 'Aprendizado' | 'Lazer';
 }
 
 export interface UserProfile {
@@ -33,7 +35,19 @@ export interface Child {
   sensorySpeed?: number;
   sensorySound?: 'marimba' | 'bubble' | 'silent';
   sensoryVisuals?: 'rich' | 'minimal';
+  rewardName?: string;
+  rewardCost?: number;
+  tokens?: number;
+  transitionMinutes?: number;
   parentUid: string;
+}
+
+export interface SensoryLog {
+  id: string;
+  timestamp: string;
+  mood?: 'feliz' | 'calmo' | 'agitado' | 'triste';
+  crisisOccurred: boolean;
+  notes?: string;
 }
 
 const MOCK_DB_UPDATE_EVENT = 'firebase-mock-db-update';
@@ -215,11 +229,38 @@ export const firebaseBridge = {
       firebaseBridge.db.getTasks().then(tasks => {
         window.dispatchEvent(new CustomEvent(MOCK_DB_UPDATE_EVENT, { detail: tasks }));
       }).catch(() => {});
+    },
+
+    addTokens: async (childId: string, amount: number): Promise<Child> => {
+      const activeChild = firebaseBridge.auth.getActiveChild();
+      const currentTokens = activeChild?.tokens || 0;
+      const updated = await firebaseBridge.auth.updateChildSettings(childId, {
+        tokens: Math.max(0, currentTokens + amount)
+      });
+      return updated;
     }
   },
 
   // --- FIRESTORE DATABASE SERVICE ---
   db: {
+    getSensoryLogs: async (childId: string): Promise<SensoryLog[]> => {
+      const res = await fetch(`/api/sensory-logs?childId=${childId}`);
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      return data;
+    },
+
+    addSensoryLog: async (logData: { childId: string; mood?: string; crisisOccurred?: boolean; notes?: string }): Promise<SensoryLog> => {
+      const res = await fetch('/api/sensory-logs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(logData)
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      return data;
+    },
+
     getTasks: async (): Promise<Task[]> => {
       const current = getLocalProfile();
       const userUid = current?.uid || 'user-123';

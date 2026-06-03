@@ -269,6 +269,8 @@ export default function ParentDashboard() {
   const [title, setTitle] = useState('');
   const [time, setTime] = useState('08:00');
   const [period, setPeriod] = useState<'manhã' | 'tarde' | 'noite'>('manhã');
+  const [taskIcon, setTaskIcon] = useState('📅');
+  const [taskCategory, setTaskCategory] = useState<'AVD' | 'Aprendizado' | 'Lazer'>('AVD');
   const [hyperfocus, setHyperfocus] = useState('');
   const [lockType, setLockType] = useState<'pin' | 'math' | 'none'>('math');
   const [parentPinCode, setParentPinCode] = useState('1234');
@@ -276,6 +278,17 @@ export default function ParentDashboard() {
   const [sensorySpeed, setSensorySpeed] = useState<0.7 | 1.0 | 1.2>(1.0);
   const [sensorySound, setSensorySound] = useState<'marimba' | 'bubble' | 'silent'>('marimba');
   const [sensoryVisuals, setSensoryVisuals] = useState<'rich' | 'minimal'>('rich');
+  
+  // Reward & Transition Timer states
+  const [rewardName, setRewardName] = useState('15 minutos de tablet');
+  const [rewardCost, setRewardCost] = useState(10);
+  const [transitionMinutes, setTransitionMinutes] = useState(5);
+
+  // Emotional sensory log states
+  const [sensoryLogs, setSensoryLogs] = useState<any[]>([]);
+  const [crisisNotes, setCrisisNotes] = useState('');
+  const [savingCrisis, setSavingCrisis] = useState(false);
+
   const [showPaywall, setShowPaywall] = useState(false);
   const [checkingOut, setCheckingOut] = useState(false);
   const [notifications, setNotifications] = useState<{ id: string; message: string; timestamp: Date }[]>([]);
@@ -320,6 +333,12 @@ export default function ParentDashboard() {
           setSensorySpeed((active.sensorySpeed || 1.0) as any);
           setSensorySound((active.sensorySound || 'marimba') as any);
           setSensoryVisuals((active.sensoryVisuals || 'rich') as any);
+          
+          setRewardName(active.rewardName || '15 minutos de tablet');
+          setRewardCost(active.rewardCost || 10);
+          setTransitionMinutes(active.transitionMinutes || 5);
+          
+          firebaseBridge.db.getSensoryLogs(active.id).then(setSensoryLogs).catch(console.error);
         }
       } catch (err) {
         console.error('Erro ao carregar crianças:', err);
@@ -371,11 +390,18 @@ export default function ParentDashboard() {
     setSensorySpeed(child.sensorySpeed || 1.0);
     setSensorySound(child.sensorySound || 'marimba');
     setSensoryVisuals(child.sensoryVisuals || 'rich');
+    
+    setRewardName(child.rewardName || '15 minutos de tablet');
+    setRewardCost(child.rewardCost || 10);
+    setTransitionMinutes(child.transitionMinutes || 5);
 
-    // Immediately fetch tasks for the new child
+    // Immediately fetch tasks and logs for the new child
     try {
       const fetchedTasks = await firebaseBridge.db.getTasks();
       setTasks(fetchedTasks);
+      
+      const sLogs = await firebaseBridge.db.getSensoryLogs(child.id);
+      setSensoryLogs(sLogs);
     } catch (err) {
       console.error(err);
     }
@@ -479,18 +505,22 @@ export default function ParentDashboard() {
         title: title.trim(),
         time,
         period,
-        day: activeDayFilter
+        day: activeDayFilter,
+        icon: taskIcon,
+        category: taskCategory
       });
 
       // Write IMUTABLE LOG trail
       const dayLabel = DAYS_OF_WEEK.find(d => d.key === activeDayFilter)?.label;
       await immutableLogger.logChange(
         'ADD_TASK', 
-        `Adicionou a tarefa "${title.trim()}" às ${time} (${period}) na ${dayLabel}.`,
+        `Adicionou a tarefa "${title.trim()}" (Ícone: ${taskIcon}, Categoria: ${taskCategory}) às ${time} (${period}) na ${dayLabel}.`,
         currentUser?.email
       );
 
       setTitle('');
+      setTaskIcon('📅');
+      setTaskCategory('AVD');
       setFormOpen(false);
       triggerStatus('Tarefa adicionada com sucesso!');
     } catch (err) {
@@ -535,7 +565,10 @@ export default function ParentDashboard() {
         parentPinCode,
         sensorySpeed,
         sensorySound,
-        sensoryVisuals
+        sensoryVisuals,
+        rewardName,
+        rewardCost,
+        transitionMinutes
       });
       
       setActiveChild(updated);
@@ -544,7 +577,7 @@ export default function ParentDashboard() {
       
       await immutableLogger.logChange(
         'UPDATE_PROFILE', 
-        `Atualizou o perfil de ${activeChild.name}: Hiperfoco: "${hyperfocus}", Bloqueio Infantil: "${lockType}" (PIN: ${parentPinCode}), Velocidade Fala: ${sensorySpeed}x, Efeito Sonoro: "${sensorySound}", Visual: "${sensoryVisuals}".`,
+        `Atualizou o perfil de ${activeChild.name}: Hiperfoco: "${hyperfocus}", Bloqueio Infantil: "${lockType}" (PIN: ${parentPinCode}), Velocidade Fala: ${sensorySpeed}x, Efeito Sonoro: "${sensorySound}", Visual: "${sensoryVisuals}", Reforçador: "${rewardName}" (${rewardCost} estrelas), Alerta de Transição: ${transitionMinutes}min.`,
         currentUser?.email
       );
       
@@ -841,6 +874,53 @@ export default function ParentDashboard() {
                   <option value="rich">Interativo e Animado (Padrão) ✨</option>
                   <option value="minimal">Filtro Sensorial Reduzido (Minimalista) 🧘</option>
                 </select>
+              </div>
+
+              {/* Token Economy Config */}
+              <div className="bg-indigo-50/40 border border-indigo-150 p-4.5 rounded-2xl flex flex-col gap-3 shadow-xxs">
+                <span className="text-[10px] font-black uppercase tracking-widest text-indigo-750 flex items-center gap-1 select-none">
+                  🪙 Economia de Fichas (Reforço Positivo ABA)
+                </span>
+                <div>
+                  <label className="block text-xxs font-bold text-slate-500 uppercase mb-1">
+                    Nome do Prêmio / Reforçador
+                  </label>
+                  <input 
+                    type="text" 
+                    value={rewardName}
+                    onChange={e => setRewardName(e.target.value)}
+                    placeholder="Ex: 15 min de tablet"
+                    className="w-full px-4 py-2 bg-white border border-slate-200 focus:border-indigo-400 rounded-xl text-slate-700 outline-none text-xs font-bold"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xxs font-bold text-slate-500 uppercase mb-1">
+                      Meta de Fichas
+                    </label>
+                    <input 
+                      type="number" 
+                      min={1}
+                      max={50}
+                      value={rewardCost}
+                      onChange={e => setRewardCost(parseInt(e.target.value) || 10)}
+                      className="w-full px-4 py-2 bg-white border border-slate-200 focus:border-indigo-400 rounded-xl text-slate-700 outline-none text-xs font-bold"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xxs font-bold text-slate-500 uppercase mb-1">
+                      Antecipação (min)
+                    </label>
+                    <input 
+                      type="number" 
+                      min={1}
+                      max={30}
+                      value={transitionMinutes}
+                      onChange={e => setTransitionMinutes(parseInt(e.target.value) || 5)}
+                      className="w-full px-4 py-2 bg-white border border-slate-200 focus:border-indigo-400 rounded-xl text-slate-700 outline-none text-xs font-bold"
+                    />
+                  </div>
+                </div>
               </div>
 
               <div>
@@ -1174,6 +1254,38 @@ export default function ParentDashboard() {
                           </div>
                         </div>
 
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-1 border-t border-slate-200/60 pt-3">
+                          <div>
+                            <label className="block text-xxs font-bold text-slate-500 uppercase mb-1">Domínio da Atividade (Categoria)</label>
+                            <select
+                              value={taskCategory}
+                              onChange={e => setTaskCategory(e.target.value as any)}
+                              className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-700 outline-none text-sm font-bold cursor-pointer"
+                            >
+                              <option value="AVD">AVD (Vida Diária) 🧼</option>
+                              <option value="Aprendizado">Aprendizado 📚</option>
+                              <option value="Lazer">Lazer 🧸</option>
+                            </select>
+                          </div>
+                          <div>
+                            <label className="block text-xxs font-bold text-slate-500 uppercase mb-1">Cartão PECS (Ícone): {taskIcon}</label>
+                            <div className="flex flex-wrap gap-1.5 p-2 bg-white border border-slate-200 rounded-xl max-h-[82px] overflow-y-auto">
+                              {['🪥', '🍞', '🏫', '🍲', '🧸', '🛌', '🚶', '🚿', '📚', '🐶', '🍕', '🧼', '🎨', '⚽', '🧘', '🦷', '🍎', '💤', '🧴', '👕'].map(emoji => (
+                                <button
+                                  type="button"
+                                  key={emoji}
+                                  onClick={() => setTaskIcon(emoji)}
+                                  className={`w-7 h-7 rounded-lg text-sm flex items-center justify-center transition-all cursor-pointer ${
+                                    taskIcon === emoji ? 'bg-indigo-650 text-white' : 'bg-slate-50 hover:bg-slate-100 text-slate-700'
+                                  }`}
+                                >
+                                  {emoji}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+
                         <div className="flex gap-3 mt-2 self-end">
                           <button
                             type="button"
@@ -1222,14 +1334,19 @@ export default function ParentDashboard() {
                                     style={{ borderLeftColor: taskCat.gradient.includes('2dd4bf') ? '#0d9488' : taskCat.gradient.includes('fbbf24') ? '#ea580c' : taskCat.gradient.includes('38bdf8') ? '#0284c7' : taskCat.gradient.includes('6366f1') ? '#4338ca' : '#db2777' }}
                                   >
                                     <div className="flex items-center gap-3">
-                                      <div className="shrink-0 bg-slate-50 rounded-xl p-0.5 border border-slate-100 shadow-xxs flex items-center justify-center">
-                                        <RoutineIllustration category={task.title} size={36} />
+                                      <div className="w-9 h-9 bg-indigo-50 border border-indigo-100 text-slate-700 rounded-xl flex items-center justify-center text-lg shadow-xxs shrink-0 select-none">
+                                        {task.icon || '📅'}
                                       </div>
                                       <div className="w-9 h-9 bg-slate-50 border border-slate-200/60 text-slate-500 rounded-xl flex items-center justify-center text-xs font-black shadow-xxs shrink-0">
                                         {task.time}
                                       </div>
                                       <div>
-                                        <span className="font-extrabold text-slate-700 text-sm">{task.title}</span>
+                                        <div className="flex items-center gap-2">
+                                          <span className="font-extrabold text-slate-700 text-sm">{task.title}</span>
+                                          <span className="text-[9px] px-2 py-0.5 rounded-full font-black bg-slate-100 text-slate-550 border border-slate-200 uppercase tracking-wider">
+                                            {task.category || 'AVD'}
+                                          </span>
+                                        </div>
                                       </div>
                                     </div>
 
@@ -1373,36 +1490,163 @@ export default function ParentDashboard() {
                         </div>
 
                         {/* Visual Category Compliance Graph */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="bg-slate-50 border border-slate-200/50 p-5 rounded-2xl flex flex-col gap-4 shadow-xxs">
+                            <h4 className="font-extrabold text-xs text-slate-500 uppercase tracking-wider">Aderência por Período de Dia</h4>
+                            <div className="flex flex-col gap-3">
+                              <div>
+                                <div className="flex justify-between text-xs font-bold text-slate-700 mb-1">
+                                  <span>Manhã ☀️</span>
+                                  <span>{morningComp}%</span>
+                                </div>
+                                <div className="w-full bg-slate-200 rounded-full h-2.5 overflow-hidden">
+                                  <div className="bg-amber-500 h-full rounded-full" style={{ width: `${morningComp}%` }} />
+                                </div>
+                              </div>
+                              <div>
+                                <div className="flex justify-between text-xs font-bold text-slate-700 mb-1">
+                                  <span>Tarde ⛅</span>
+                                  <span>{afternoonComp}%</span>
+                                </div>
+                                <div className="w-full bg-slate-200 rounded-full h-2.5 overflow-hidden">
+                                  <div className="bg-blue-500 h-full rounded-full" style={{ width: `${afternoonComp}%` }} />
+                                </div>
+                              </div>
+                              <div>
+                                <div className="flex justify-between text-xs font-bold text-slate-700 mb-1">
+                                  <span>Noite 🌙</span>
+                                  <span>{eveningComp}%</span>
+                                </div>
+                                <div className="w-full bg-slate-200 rounded-full h-2.5 overflow-hidden">
+                                  <div className="bg-indigo-650 h-full rounded-full" style={{ width: `${eveningComp}%` }} />
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="bg-slate-50 border border-slate-200/50 p-5 rounded-2xl flex flex-col gap-4 shadow-xxs">
+                            <h4 className="font-extrabold text-xs text-slate-500 uppercase tracking-wider">Aderência por Domínio de Atividade (ABA)</h4>
+                            <div className="flex flex-col gap-3">
+                              {(() => {
+                                const getCat = (t: Task) => t.category || 'AVD';
+                                const avdTotal = tasks.filter(t => getCat(t) === 'AVD').length;
+                                const avdDone = tasks.filter(t => getCat(t) === 'AVD' && t.isCompleted).length;
+                                const avdRate = avdTotal > 0 ? Math.round((avdDone / avdTotal) * 100) : 0;
+
+                                const studyTotal = tasks.filter(t => getCat(t) === 'Aprendizado').length;
+                                const studyDone = tasks.filter(t => getCat(t) === 'Aprendizado' && t.isCompleted).length;
+                                const studyRate = studyTotal > 0 ? Math.round((studyDone / studyTotal) * 100) : 0;
+
+                                const playTotal = tasks.filter(t => getCat(t) === 'Lazer').length;
+                                const playDone = tasks.filter(t => getCat(t) === 'Lazer' && t.isCompleted).length;
+                                const playRate = playTotal > 0 ? Math.round((playDone / playTotal) * 100) : 0;
+
+                                return (
+                                  <>
+                                    <div>
+                                      <div className="flex justify-between text-xs font-bold text-slate-700 mb-1">
+                                        <span>AVD (Vida Diária) 🧼</span>
+                                        <span>{avdRate}% ({avdDone}/{avdTotal})</span>
+                                      </div>
+                                      <div className="w-full bg-slate-200 rounded-full h-2.5 overflow-hidden">
+                                        <div className="bg-teal-500 h-full rounded-full" style={{ width: `${avdRate}%` }} />
+                                      </div>
+                                    </div>
+                                    <div>
+                                      <div className="flex justify-between text-xs font-bold text-slate-700 mb-1">
+                                        <span>Aprendizado 📚</span>
+                                        <span>{studyRate}% ({studyDone}/{studyTotal})</span>
+                                      </div>
+                                      <div className="w-full bg-slate-200 rounded-full h-2.5 overflow-hidden">
+                                        <div className="bg-indigo-650 h-full rounded-full" style={{ width: `${studyRate}%` }} />
+                                      </div>
+                                    </div>
+                                    <div>
+                                      <div className="flex justify-between text-xs font-bold text-slate-700 mb-1">
+                                        <span>Lazer 🧸</span>
+                                        <span>{playRate}% ({playDone}/{playTotal})</span>
+                                      </div>
+                                      <div className="w-full bg-slate-200 rounded-full h-2.5 overflow-hidden">
+                                        <div className="bg-pink-500 h-full rounded-full" style={{ width: `${playRate}%` }} />
+                                      </div>
+                                    </div>
+                                  </>
+                                );
+                              })()}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Diário de Regulação & Registro de Crises */}
                         <div className="bg-slate-50 border border-slate-200/50 p-5 rounded-2xl flex flex-col gap-4 shadow-xxs">
-                          <h4 className="font-extrabold text-xs text-slate-500 uppercase tracking-wider">Aderência por Período de Dia</h4>
-                          <div className="flex flex-col gap-3">
-                            <div>
-                              <div className="flex justify-between text-xs font-bold text-slate-700 mb-1">
-                                <span>Manhã ☀️</span>
-                                <span>{morningComp}%</span>
-                              </div>
-                              <div className="w-full bg-slate-200 rounded-full h-2.5 overflow-hidden">
-                                <div className="bg-amber-500 h-full rounded-full" style={{ width: `${morningComp}%` }} />
-                              </div>
-                            </div>
-                            <div>
-                              <div className="flex justify-between text-xs font-bold text-slate-700 mb-1">
-                                <span>Tarde ⛅</span>
-                                <span>{afternoonComp}%</span>
-                              </div>
-                              <div className="w-full bg-slate-200 rounded-full h-2.5 overflow-hidden">
-                                <div className="bg-blue-500 h-full rounded-full" style={{ width: `${afternoonComp}%` }} />
-                              </div>
-                            </div>
-                            <div>
-                              <div className="flex justify-between text-xs font-bold text-slate-700 mb-1">
-                                <span>Noite 🌙</span>
-                                <span>{eveningComp}%</span>
-                              </div>
-                              <div className="w-full bg-slate-200 rounded-full h-2.5 overflow-hidden">
-                                <div className="bg-indigo-650 h-full rounded-full" style={{ width: `${eveningComp}%` }} />
-                              </div>
-                            </div>
+                          <h4 className="font-extrabold text-xs text-slate-500 uppercase tracking-wider flex items-center gap-1">
+                            🧠 Registro de Desregulação Sensorial e Crises
+                          </h4>
+                          
+                          <form 
+                            onSubmit={async (e) => {
+                              e.preventDefault();
+                              if (!crisisNotes.trim() || !activeChild) return;
+                              setSavingCrisis(true);
+                              playMarimba(220, 0.35);
+
+                              try {
+                                const newLog = await firebaseBridge.db.addSensoryLog({
+                                  childId: activeChild.id,
+                                  crisisOccurred: true,
+                                  notes: crisisNotes.trim()
+                                });
+
+                                setSensoryLogs(prev => [newLog, ...prev]);
+                                setCrisisNotes('');
+                                triggerStatus('Crise sensorial registrada!');
+                                
+                                await immutableLogger.logChange(
+                                  'ADD_TASK',
+                                  `Registrou desregulação sensorial para ${activeChild.name}: "${crisisNotes.trim()}"`,
+                                  currentUser?.email
+                                );
+                              } catch (err) {
+                                triggerStatus('Erro ao registrar.');
+                              } finally {
+                                setSavingCrisis(false);
+                              }
+                            }}
+                            className="flex flex-col gap-2 bg-red-50/50 border border-red-100 p-3 rounded-xl"
+                          >
+                            <label className="text-[10px] font-black text-red-700 uppercase">Anotar Evento de Desregulação</label>
+                            <textarea
+                              value={crisisNotes}
+                              onChange={e => setCrisisNotes(e.target.value)}
+                              placeholder="Descreva a crise (comportamento, gatilho e estratégias aplicadas)"
+                              className="w-full p-2 bg-white border border-slate-200 rounded-lg text-xs font-semibold outline-none focus:border-red-400 h-16 resize-none"
+                            />
+                            <button
+                              type="submit"
+                              disabled={savingCrisis || !crisisNotes.trim()}
+                              className="self-end px-3.5 py-1.5 bg-red-600 hover:bg-red-750 text-white font-extrabold text-[10px] uppercase rounded-lg shadow-xxs cursor-pointer transition-all active:scale-95 disabled:opacity-50"
+                            >
+                              {savingCrisis ? 'Gravando...' : 'Gravar no diário'}
+                            </button>
+                          </form>
+
+                          <div className="flex flex-col gap-2 max-h-56 overflow-y-auto pr-1">
+                            <span className="text-[9px] font-black text-slate-400 uppercase">Diário Emocional e Crises Recentes</span>
+                            {sensoryLogs.length === 0 ? (
+                              <p className="text-xxs text-slate-400 italic text-center py-2">Sem registros de regulação emocional.</p>
+                            ) : (
+                              sensoryLogs.map(log => (
+                                <div key={log.id} className={`p-2.5 rounded-lg border text-xxs flex flex-col gap-1 ${
+                                  log.crisisOccurred ? 'bg-red-50/30 border-red-100 text-red-805' : 'bg-indigo-50/20 border-indigo-100 text-indigo-805'
+                                }`}>
+                                  <div className="flex justify-between font-bold text-[9px] text-slate-400">
+                                    <span>{new Date(log.timestamp).toLocaleString()}</span>
+                                    <span>{log.crisisOccurred ? '🚨 CRISE' : `🧠 HUMOR: ${log.mood}`}</span>
+                                  </div>
+                                  {log.notes && <p className="font-semibold text-slate-700">{log.notes}</p>}
+                                </div>
+                              ))
+                            )}
                           </div>
                         </div>
 
@@ -1442,12 +1686,62 @@ export default function ParentDashboard() {
                               </div>
                             </div>
 
-                            <div>
-                              <h3 className="text-xs font-black uppercase text-slate-400 tracking-widest mb-3">Aderência por Período de Dia</h3>
-                              <div className="flex flex-col gap-2">
-                                <p className="text-sm text-slate-700 font-bold">☀️ Período da Manhã: <span className="font-extrabold text-indigo-650">{morningComp}% de conclusão</span></p>
-                                <p className="text-sm text-slate-700 font-bold">⛅ Período da Tarde: <span className="font-extrabold text-indigo-650">{afternoonComp}% de conclusão</span></p>
-                                <p className="text-sm text-slate-700 font-bold">🌙 Período da Noite: <span className="font-extrabold text-indigo-650">{eveningComp}% de conclusão</span></p>
+                            <div className="grid grid-cols-2 gap-8">
+                              <div>
+                                <h3 className="text-xs font-black uppercase text-slate-400 tracking-widest mb-3">Aderência por Período de Dia</h3>
+                                <div className="flex flex-col gap-2">
+                                  <p className="text-sm text-slate-700 font-bold">☀️ Período da Manhã: <span className="font-extrabold text-indigo-650">{morningComp}% de conclusão</span></p>
+                                  <p className="text-sm text-slate-700 font-bold">⛅ Período da Tarde: <span className="font-extrabold text-indigo-650">{afternoonComp}% de conclusão</span></p>
+                                  <p className="text-sm text-slate-700 font-bold">🌙 Período da Noite: <span className="font-extrabold text-indigo-650">{eveningComp}% de conclusão</span></p>
+                                </div>
+                              </div>
+                              <div>
+                                <h3 className="text-xs font-black uppercase text-slate-400 tracking-widest mb-3">Aderência por Domínio (ABA)</h3>
+                                <div className="flex flex-col gap-2">
+                                  {(() => {
+                                    const getCat = (t: Task) => t.category || 'AVD';
+                                    const avdTotal = tasks.filter(t => getCat(t) === 'AVD').length;
+                                    const avdDone = tasks.filter(t => getCat(t) === 'AVD' && t.isCompleted).length;
+                                    const avdRate = avdTotal > 0 ? Math.round((avdDone / avdTotal) * 100) : 0;
+
+                                    const studyTotal = tasks.filter(t => getCat(t) === 'Aprendizado').length;
+                                    const studyDone = tasks.filter(t => getCat(t) === 'Aprendizado' && t.isCompleted).length;
+                                    const studyRate = studyTotal > 0 ? Math.round((studyDone / studyTotal) * 100) : 0;
+
+                                    const playTotal = tasks.filter(t => getCat(t) === 'Lazer').length;
+                                    const playDone = tasks.filter(t => getCat(t) === 'Lazer' && t.isCompleted).length;
+                                    const playRate = playTotal > 0 ? Math.round((playDone / playTotal) * 100) : 0;
+
+                                    return (
+                                      <>
+                                        <p className="text-sm text-slate-700 font-bold">🧼 Vida Diária (AVD): <span className="font-extrabold text-indigo-650">{avdRate}% ({avdDone}/{avdTotal})</span></p>
+                                        <p className="text-sm text-slate-700 font-bold">📚 Aprendizado: <span className="font-extrabold text-indigo-650">{studyRate}% ({studyDone}/{studyTotal})</span></p>
+                                        <p className="text-sm text-slate-700 font-bold">🧸 Lazer e Recreação: <span className="font-extrabold text-indigo-650">{playRate}% ({playDone}/{playTotal})</span></p>
+                                      </>
+                                    );
+                                  })()}
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="mt-8 border-t border-slate-100 pt-6">
+                              <h3 className="text-xs font-black uppercase text-slate-400 tracking-widest">Diário Emocional e Registros de Desregulação</h3>
+                              <div className="flex flex-col gap-2 mt-3">
+                                {sensoryLogs.length === 0 ? (
+                                  <p className="text-xs text-slate-400 italic">Sem registros clínicos neste período.</p>
+                                ) : (
+                                  sensoryLogs.map(log => (
+                                    <div key={log.id} className="border-b border-slate-100 pb-2 text-xs">
+                                      <span className="font-extrabold text-slate-500">{new Date(log.timestamp).toLocaleString()}</span>
+                                      <p className="font-bold text-slate-700 mt-1">
+                                        {log.crisisOccurred 
+                                          ? `🚨 CRISE SENSORIAL REGISTRADA: ${log.notes || 'Sem observações'}`
+                                          : `🧠 REGISTRO DE HUMOR DO USUÁRIO: ${log.mood?.toUpperCase()}`
+                                        }
+                                      </p>
+                                    </div>
+                                  ))
+                                )}
                               </div>
                             </div>
 

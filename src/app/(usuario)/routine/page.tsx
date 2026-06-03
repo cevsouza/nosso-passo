@@ -71,6 +71,13 @@ export default function ChildRoutine() {
   const [exitTarget, setExitTarget] = useState('/');
   const [mathProblem, setMathProblem] = useState({ question: '', answer: 0 });
 
+  // Time Timer, Token Economy, and Regulation States
+  const [timerProgress, setTimerProgress] = useState(1.0);
+  const [timerMinutesLeft, setTimerMinutesLeft] = useState(30);
+  const [transitionWarned, setTransitionWarned] = useState<string | null>(null);
+  const [showRewardModal, setShowRewardModal] = useState(false);
+  const [showMoodModal, setShowMoodModal] = useState(false);
+
   const generateMathProblem = () => {
     const num1 = Math.floor(Math.random() * 8) + 2; // 2 to 9
     const num2 = Math.floor(Math.random() * 8) + 2; // 2 to 9
@@ -218,6 +225,66 @@ export default function ChildRoutine() {
     }
   }, [isDayFinished]);
 
+  // Time Timer Countdown calculations
+  useEffect(() => {
+    if (!activeTask) return;
+    
+    const updateTimer = () => {
+      const now = new Date();
+      const [taskH, taskM] = activeTask.time.split(':').map(Number);
+      const taskTime = new Date();
+      taskTime.setHours(taskH, taskM, 0, 0);
+
+      // Find the next task time to determine duration
+      let durationMinutes = 30; // default
+      if (todayTasks.length > 0) {
+        const nextTaskIndex = todayTasks.findIndex(t => t.id === activeTask.id) + 1;
+        if (nextTaskIndex < todayTasks.length) {
+          const nextT = todayTasks[nextTaskIndex];
+          const [nextH, nextM] = nextT.time.split(':').map(Number);
+          const nextTime = new Date();
+          nextTime.setHours(nextH, nextM, 0, 0);
+          const diffMs = nextTime.getTime() - taskTime.getTime();
+          if (diffMs > 0) {
+            durationMinutes = Math.min(120, Math.floor(diffMs / 60000));
+          }
+        }
+      }
+
+      const elapsedMs = now.getTime() - taskTime.getTime();
+      const elapsedMinutes = elapsedMs / 60000;
+      
+      let minutesLeft = durationMinutes - elapsedMinutes;
+      if (minutesLeft < 0) minutesLeft = 0;
+      if (minutesLeft > durationMinutes) minutesLeft = durationMinutes;
+
+      const progress = minutesLeft / durationMinutes;
+      setTimerProgress(progress);
+      setTimerMinutesLeft(Math.ceil(minutesLeft));
+    };
+
+    updateTimer();
+    const interval = setInterval(updateTimer, 5000);
+    return () => clearInterval(interval);
+  }, [activeTask?.id, todayTasks]);
+
+  // Transition Alert
+  useEffect(() => {
+    if (!activeTask || timerMinutesLeft === undefined) return;
+    const warningThreshold = activeChild?.transitionMinutes || 5;
+    
+    if (nextTasks.length > 0 && timerMinutesLeft <= warningThreshold && timerMinutesLeft > 0) {
+      if (transitionWarned !== activeTask.id) {
+        setTransitionWarned(activeTask.id);
+        const nextTaskName = nextTasks[0].title;
+        playMarimba(349.23, 0.3); // soft transition marimba note
+        setTimeout(() => {
+          speakText(`Atenção, em ${timerMinutesLeft} minutos será hora de: ${nextTaskName}`);
+        }, 500);
+      }
+    }
+  }, [timerMinutesLeft, activeTask?.id, nextTasks, activeChild?.transitionMinutes, transitionWarned]);
+
   // Handle task completion click
   const handleCompleteTask = async (task: Task) => {
     if (celebratingTaskId) return; // Prevent double trigger
@@ -235,6 +302,29 @@ export default function ChildRoutine() {
     setTimeout(async () => {
       try {
         await firebaseBridge.db.updateTask(task.id, { isCompleted: true });
+
+        // Add Token to Child for positive behavior reward
+        if (activeChild) {
+          const updatedChild = await firebaseBridge.auth.addTokens(activeChild.id, 1);
+          setActiveChild(updatedChild);
+          firebaseBridge.auth.setActiveChild(updatedChild);
+
+          if (updatedChild.tokens !== undefined && updatedChild.rewardCost !== undefined && updatedChild.tokens >= updatedChild.rewardCost) {
+            playCelebration();
+            setShowRewardModal(true);
+          }
+        }
+
+        // Check if all tasks in the period are now completed
+        const period = task.period;
+        const periodTasks = todayTasks.filter(t => t.period === period);
+        const isPeriodFinished = periodTasks.every(t => t.isCompleted || t.id === task.id);
+        
+        if (isPeriodFinished) {
+          setTimeout(() => {
+            setShowMoodModal(true);
+          }, 600);
+        }
       } catch (err) {
         console.error('Erro ao completar tarefa:', err);
       } finally {
@@ -242,6 +332,35 @@ export default function ChildRoutine() {
         setCollieState('idle');
       }
     }, 2000);
+  };
+
+  const handleClaimReward = async () => {
+    if (!activeChild) return;
+    playMarimba(523.25, 0.25);
+    try {
+      const updatedChild = await firebaseBridge.auth.addTokens(activeChild.id, -(activeChild.rewardCost || 10));
+      setActiveChild(updatedChild);
+      firebaseBridge.auth.setActiveChild(updatedChild);
+      setShowRewardModal(false);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleSelectMood = async (selectedMood: 'feliz' | 'calmo' | 'agitado' | 'triste') => {
+    if (!activeChild) return;
+    playMarimba(440, 0.25);
+    try {
+      await firebaseBridge.db.addSensoryLog({
+        childId: activeChild.id,
+        mood: selectedMood,
+        notes: 'Humor registrado pelo próprio usuário na rotina.'
+      });
+      speakText("Obrigado por me contar como você está se sentindo! Estou muito orgulhoso de você.");
+      setShowMoodModal(false);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
 
@@ -492,6 +611,45 @@ export default function ChildRoutine() {
 
       <div className="w-full max-w-2xl flex flex-col gap-6 z-10">
         
+        {/* Token Economy Stars Row */}
+        {activeChild && (
+          <div className="bg-white/80 border border-white/60 p-4.5 rounded-[24px] shadow-premium flex flex-col sm:flex-row items-center justify-between gap-3 w-full border-t-white">
+            <div className="flex items-center gap-2">
+              <span className="text-xl">🪙</span>
+              <div>
+                <h4 className="font-extrabold text-xs text-slate-700 leading-tight text-left">Estrelas do Reforço Positivo</h4>
+                <p className="text-[10px] text-slate-400 font-semibold mt-0.5 text-left">
+                  Ganhe {activeChild.rewardCost || 10} estrelas para: <strong className="text-indigo-650 font-bold">{activeChild.rewardName || 'Prêmio'}</strong>
+                </p>
+              </div>
+            </div>
+
+            {/* Stars rendering */}
+            <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200/50 px-3.5 py-1.5 rounded-full shadow-xxs">
+              {(() => {
+                const earned = activeChild.tokens || 0;
+                const cost = activeChild.rewardCost || 10;
+                return Array.from({ length: Math.min(15, cost) }).map((_, idx) => {
+                  const isGold = idx < earned;
+                  return (
+                    <span 
+                      key={idx} 
+                      className={`text-base select-none transition-all ${
+                        isGold ? 'text-yellow-450 scale-110 drop-shadow-[0_1px_3px_rgba(234,179,8,0.25)] font-black' : 'text-slate-200'
+                      }`}
+                    >
+                      ★
+                    </span>
+                  );
+                });
+              })()}
+              <span className="text-[10px] font-black text-slate-450 ml-1.5 uppercase">
+                {activeChild.tokens || 0} / {activeChild.rewardCost || 10}
+              </span>
+            </div>
+          </div>
+        )}
+        
         {/* If no tasks entered yet */}
         {todayTasks.length === 0 ? (
           <motion.div 
@@ -529,7 +687,14 @@ export default function ChildRoutine() {
                     <div className={`absolute top-0 inset-x-0 h-2 bg-gradient-to-r ${category.gradient}`}></div>
 
                     <div className="flex flex-col items-center gap-2">
-                      <RoutineIllustration category={activeTask.title} size={150} />
+                      <div className="relative">
+                        <RoutineIllustration category={activeTask.title} size={150} />
+                        {activeTask.icon && (
+                          <div className="absolute top-0 right-0 w-14 h-14 bg-white border-4 border-indigo-100 text-slate-700 rounded-2xl flex items-center justify-center text-4xl shadow-md select-none transform rotate-12">
+                            {activeTask.icon}
+                          </div>
+                        )}
+                      </div>
                       
                       <div className="flex gap-2 items-center flex-wrap justify-center mt-2">
                         <span className="text-[10px] font-black uppercase tracking-widest text-slate-800 bg-slate-100 border border-slate-200/60 px-3.5 py-1.5 rounded-full shadow-xxs flex items-center gap-1">
@@ -547,7 +712,7 @@ export default function ChildRoutine() {
                     <div className="flex flex-col items-center gap-3 w-full">
                       <h1 
                         onClick={() => { playBubble(); speakText(activeTask.title); }}
-                        className="text-3.5xl md:text-4.5xl font-black tracking-tight text-slate-850 max-w-md break-words px-2 cursor-pointer hover:text-indigo-650 transition-all select-none hover:scale-[1.01]"
+                        className="text-3.5xl md:text-4.5xl font-black tracking-tight text-slate-855 max-w-md break-words px-2 cursor-pointer hover:text-indigo-650 transition-all select-none hover:scale-[1.01]"
                         title="Clique para ouvir"
                       >
                         {activeTask.title}
@@ -560,6 +725,54 @@ export default function ChildRoutine() {
                       >
                         🔊 Falar Atividade
                       </button>
+                    </div>
+
+                    {/* Time Timer and Transition Banner */}
+                    <div className="w-full flex flex-col md:flex-row items-center justify-center gap-4 border-t border-b border-slate-100 py-4 my-2">
+                      {/* Time Timer ring */}
+                      <div className="flex flex-col items-center gap-1.5">
+                        <span className="text-[9px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-1 select-none">
+                          ⏱️ Tempo Restante
+                        </span>
+                        <div className="relative w-20 h-20 flex items-center justify-center">
+                          <svg viewBox="0 0 100 100" className="w-full h-full transform -rotate-90">
+                            <circle cx="50" cy="50" r="40" fill="none" stroke="#e2e8f0" strokeWidth="8" />
+                            <circle 
+                              cx="50" 
+                              cy="50" 
+                              r="40" 
+                              fill="none" 
+                              stroke="#ef4444" 
+                              strokeWidth="8" 
+                              strokeDasharray="251.2" 
+                              strokeDashoffset={251.2 * (1 - timerProgress)} 
+                              strokeLinecap="round"
+                              className="transition-all duration-1000 ease-linear"
+                            />
+                          </svg>
+                          <div className="absolute inset-0 flex flex-col items-center justify-center font-bold">
+                            <span className="text-base font-black text-slate-700">{timerMinutesLeft}</span>
+                            <span className="text-[7px] text-slate-400 uppercase tracking-wider font-extrabold">min</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Transition Warning / Next Task Banner */}
+                      {nextTasks.length > 0 && (
+                        <div className="flex-1 flex flex-col gap-1.5 text-left bg-slate-50 border border-slate-150 p-3 rounded-2xl shadow-xxs">
+                          <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">Próxima Atividade:</span>
+                          <span className="text-sm font-black text-slate-700 flex items-center gap-1.5">
+                            <span className="text-base">{nextTasks[0].icon || '📅'}</span> {nextTasks[0].title}
+                          </span>
+                          {timerMinutesLeft <= (activeChild?.transitionMinutes || 5) ? (
+                            <span className="text-[10px] text-amber-600 font-extrabold flex items-center gap-1 bg-amber-50 border border-amber-100 px-2.5 py-1 rounded-lg animate-pulse">
+                              ⚠️ Prepare-se para a transição!
+                            </span>
+                          ) : (
+                            <span className="text-[9px] text-slate-400 font-semibold">Em seguida, após terminar a missão atual.</span>
+                          )}
+                        </div>
+                      )}
                     </div>
 
                     {/* Mascot Collie in Interactive Pedestal with category color background and rewarding stars */}
@@ -677,6 +890,8 @@ export default function ChildRoutine() {
                       >
                         {isCompleted ? (
                           <Check className="w-5 h-5 text-white" />
+                        ) : task.icon ? (
+                          <span className="text-xl select-none">{task.icon}</span>
                         ) : (
                           <taskCat.icon className={`w-5 h-5 ${isActive ? 'text-indigo-600 animate-pulse' : 'text-slate-450'}`} />
                         )}
@@ -727,6 +942,111 @@ export default function ChildRoutine() {
               }}
               generateMathProblem={generateMathProblem}
             />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Economia de Fichas (Token Economy) Reward Modal */}
+      <AnimatePresence>
+        {showRewardModal && activeChild && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md"
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="bg-white border-4 border-indigo-200 rounded-[32px] p-8 w-full max-w-sm shadow-2xl flex flex-col items-center text-center gap-6 relative overflow-hidden"
+            >
+              {/* Confetti celebration bg hints */}
+              <div className="absolute inset-0 bg-gradient-to-tr from-yellow-50 via-white to-indigo-50/50 opacity-60 -z-10" />
+              
+              <div className="w-18 h-18 bg-yellow-100 text-yellow-500 rounded-full flex items-center justify-center text-4xl shadow-md animate-bounce select-none">
+                🎁
+              </div>
+
+              <div>
+                <h3 className="text-2xl font-black text-slate-800 tracking-tight">Parabéns, você conseguiu! 🎉</h3>
+                <p className="text-xs text-slate-400 font-semibold mt-1">
+                  Você completou suas missões e desbloqueou seu prêmio:
+                </p>
+                <div className="mt-3.5 px-6 py-3 bg-indigo-50 border border-indigo-100 text-indigo-700 font-extrabold text-sm rounded-2xl shadow-xxs">
+                  {activeChild.rewardName || 'Prêmio'}
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-2 w-full">
+                <button
+                  onClick={handleClaimReward}
+                  className="w-full py-4 bg-gradient-to-r from-yellow-450 via-yellow-400 to-amber-500 text-indigo-950 font-black text-sm rounded-2xl shadow-md cursor-pointer transition-all active:scale-95 border-b-4 border-amber-600/70"
+                >
+                  RESGATAR PRÊMIO! 🐾
+                </button>
+                <button
+                  onClick={() => setShowRewardModal(false)}
+                  className="text-xs font-bold text-slate-400 hover:text-slate-650 cursor-pointer bg-transparent border-none mt-1"
+                >
+                  Guardar estrelas para depois
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Mood Selection Dialog (Diário de Regulação) */}
+      <AnimatePresence>
+        {showMoodModal && activeChild && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md"
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="bg-white border-4 border-indigo-200 rounded-[32px] p-8 w-full max-w-md shadow-2xl flex flex-col items-center text-center gap-6"
+            >
+              <div className="w-14 h-14 bg-indigo-50 border border-indigo-100 rounded-2xl flex items-center justify-center text-2xl shadow-sm">
+                🧠
+              </div>
+
+              <div>
+                <h3 className="text-xl font-black text-slate-800">Como você está se sentindo agora?</h3>
+                <p className="text-xs text-slate-400 font-semibold mt-1">
+                  Marque sua emoção para ajudar a acompanhar seu dia!
+                </p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 w-full">
+                {[
+                  { key: 'feliz', label: 'Feliz 😊', color: 'bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border-emerald-150' },
+                  { key: 'calmo', label: 'Calmo 🧘', color: 'bg-sky-50 hover:bg-sky-100 text-sky-700 border-sky-150' },
+                  { key: 'agitado', label: 'Agitado 🌀', color: 'bg-amber-50 hover:bg-amber-100 text-amber-700 border-amber-150' },
+                  { key: 'triste', label: 'Triste 😢', color: 'bg-red-50 hover:bg-red-100 text-red-700 border-red-150' }
+                ].map(moodOption => (
+                  <button
+                    key={moodOption.key}
+                    onClick={() => handleSelectMood(moodOption.key as any)}
+                    className={`p-4 rounded-2xl border-2 font-black text-sm shadow-xxs transition-all active:scale-95 hover:scale-[1.02] cursor-pointer text-center ${moodOption.color}`}
+                  >
+                    {moodOption.label}
+                  </button>
+                ))}
+              </div>
+
+              <button
+                onClick={() => setShowMoodModal(false)}
+                className="text-xs font-bold text-slate-450 hover:text-slate-650 underline cursor-pointer bg-transparent border-none"
+              >
+                Pular check-in
+              </button>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>

@@ -36,11 +36,16 @@ model Child {
   sensorySpeed    Float       @default(1.0)
   sensorySound    String      @default("marimba")
   sensoryVisuals  String      @default("rich")
+  rewardName      String      @default("15 minutos de tablet")
+  rewardCost      Int         @default(10)
+  tokens          Int         @default(0)
+  transitionMinutes Int       @default(5)
   createdAt       DateTime    @default(now())
 
   parentUid       String
   parent          UserProfile @relation(fields: [parentUid], references: [uid], onDelete: Cascade)
   tasks           Task[]
+  sensoryLogs     SensoryLog[]
 }
 
 model Task {
@@ -51,11 +56,23 @@ model Task {
   day         String
   isCompleted Boolean  @default(false)
   order       Int
+  icon        String   @default("📅")
+  category    String   @default("AVD") // 'AVD' | 'Aprendizado' | 'Lazer'
   childId     String?
   child       Child?   @relation(fields: [childId], references: [id], onDelete: Cascade)
   userUid     String
   user        UserProfile @relation(fields: [userUid], references: [uid], onDelete: Cascade)
   createdAt   DateTime @default(now())
+}
+
+model SensoryLog {
+  id             String      @id @default(cuid())
+  timestamp      DateTime    @default(now())
+  mood           String?     // 'feliz' | 'calmo' | 'agitado' | 'triste'
+  crisisOccurred Boolean     @default(false)
+  notes          String?
+  childId        String
+  child          Child       @relation(fields: [childId], references: [id], onDelete: Cascade)
 }
 
 model AuditLog {
