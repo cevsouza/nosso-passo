@@ -34,42 +34,11 @@ export async function GET(req: Request) {
         where: { childId },
         orderBy: [{ day: 'asc' }, { time: 'asc' }],
       });
-
-      if (dbTasks.length === 0) {
-        // Seed default tasks for this child
-        await prisma.task.createMany({
-          data: DEFAULT_SEED_TASKS.map(t => ({
-            ...t,
-            userUid,
-            childId,
-          })),
-        });
-
-        dbTasks = await prisma.task.findMany({
-          where: { childId },
-          orderBy: [{ day: 'asc' }, { time: 'asc' }],
-        });
-      }
     } else {
       dbTasks = await prisma.task.findMany({
         where: { userUid },
         orderBy: [{ day: 'asc' }, { time: 'asc' }],
       });
-
-      if (dbTasks.length === 0) {
-        // Seed default tasks for this user
-        await prisma.task.createMany({
-          data: DEFAULT_SEED_TASKS.map(t => ({
-            ...t,
-            userUid,
-          })),
-        });
-
-        dbTasks = await prisma.task.findMany({
-          where: { userUid },
-          orderBy: [{ day: 'asc' }, { time: 'asc' }],
-        });
-      }
     }
 
     return NextResponse.json(dbTasks);
