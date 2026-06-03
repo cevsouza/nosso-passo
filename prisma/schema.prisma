@@ -10,6 +10,7 @@ generator client {
 model UserProfile {
   uid             String   @id
   email           String   @unique
+  passwordHash    String   @default("")
   role            String   @default("responsavel")
   childHyperfocus String?
   parentPinCode   String   @default("1234")

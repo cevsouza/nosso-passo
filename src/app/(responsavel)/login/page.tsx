@@ -8,14 +8,15 @@ import { BorderCollie } from '../../../components/ludic/BorderCollie';
 import { Lock, Mail, ArrowLeft, ShieldAlert } from 'lucide-react';
 import Link from 'next/link';
 
-export default function ParentLogin() {
+export default function ParentAuth() {
   const router = useRouter();
+  const [isRegister, setIsRegister] = useState(false);
   const [email, setEmail] = useState('responsavel@exemplo.com');
   const [password, setPassword] = useState('123456');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
@@ -29,14 +30,28 @@ export default function ParentLogin() {
         throw new Error('A senha deve conter no mínimo 6 caracteres.');
       }
 
-      await firebaseBridge.auth.signIn(email);
-      playMarimba(523.25, 0.4); // Sucess tone
-      router.push('/dashboard');
+      if (isRegister) {
+        await firebaseBridge.auth.signUp(email, password);
+        playMarimba(523.25, 0.4); // Success chime
+        router.push('/dashboard');
+      } else {
+        await firebaseBridge.auth.signIn(email, password);
+        playMarimba(523.25, 0.4); // Success chime
+        router.push('/dashboard');
+      }
     } catch (err: any) {
       setError(err.message || 'Falha ao autenticar.');
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleToggleMode = () => {
+    playBubble();
+    setIsRegister(!isRegister);
+    setError('');
+    // Clear passwords but keep email for convenience
+    setPassword('');
   };
 
   return (
@@ -64,15 +79,19 @@ export default function ParentLogin() {
         transition={{ duration: 0.6, ease: "easeOut" }}
         className="w-full max-w-md bg-white/85 backdrop-blur-3xl border border-white/70 rounded-[36px] p-8 shadow-[0_30px_60px_rgba(99,102,241,0.06)] z-10 border-t-white relative mt-24"
       >
-        {/* Collie Peek Mascot - Espiando no topo do Card */}
+        {/* Collie Peek Mascot */}
         <div className="absolute top-[-95px] left-1/2 -translate-x-1/2 z-20 drop-shadow-[0_8px_16px_rgba(0,0,0,0.05)] pointer-events-none">
-          <BorderCollie state="idle" size={135} />
+          <BorderCollie state={loading ? "celebrating" : "idle"} size={135} />
         </div>
 
         <div className="text-center mb-6">
-          <h1 className="text-2.5xl font-black text-slate-800 tracking-tight">Portal do Responsável</h1>
+          <h1 className="text-2.5xl font-black text-slate-800 tracking-tight">
+            {isRegister ? 'Criar Conta de Responsável' : 'Portal do Responsável'}
+          </h1>
           <p className="text-slate-500 text-xs mt-1.5 leading-relaxed font-semibold max-w-xs mx-auto">
-            Acesse as ferramentas de agendamento semanal e acompanhe o registro imutável de rotinas do seu filho.
+            {isRegister 
+              ? 'Cadastre-se para gerenciar a rotina semanal, configurar filtros sensoriais e acompanhar laudos clínicos.'
+              : 'Acesse as ferramentas de agendamento semanal e acompanhe o registro imutável de rotinas do seu filho.'}
           </p>
         </div>
 
@@ -80,14 +99,14 @@ export default function ParentLogin() {
           <motion.div
             initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="bg-red-50 text-red-655 p-4 rounded-2xl text-xs font-bold flex items-start gap-2 mb-5 border border-red-100"
+            className="bg-red-50 text-red-600 p-4 rounded-2xl text-xs font-bold flex items-start gap-2 mb-5 border border-red-100"
           >
             <ShieldAlert className="w-4 h-4 shrink-0 mt-0.5" />
             <span>{error}</span>
           </motion.div>
         )}
 
-        <form onSubmit={handleLogin} className="flex flex-col gap-4">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div>
             <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 pl-1">
               E-mail do Responsável
@@ -116,7 +135,7 @@ export default function ParentLogin() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="******"
+                placeholder="Mínimo 6 caracteres"
                 className="w-full pl-11 pr-4 py-3.5 bg-slate-50/60 border-2 border-slate-200/60 focus:border-indigo-400 focus:bg-white rounded-xl text-slate-800 placeholder-slate-400 outline-none transition-all text-xs font-bold shadow-xxs focus:ring-4 focus:ring-indigo-50"
               />
             </div>
@@ -127,17 +146,33 @@ export default function ParentLogin() {
             disabled={loading}
             className="w-full mt-3 py-4 bg-indigo-650 hover:bg-indigo-700 active:scale-95 text-white font-black rounded-xl text-xs shadow-glow-indigo transition-all flex items-center justify-center gap-2 cursor-pointer uppercase tracking-widest border-b-3 border-indigo-850"
           >
-            {loading ? 'Validando...' : 'Acessar Painel'}
+            {loading 
+              ? 'Processando...' 
+              : isRegister 
+              ? 'Concluir Cadastro ✓' 
+              : 'Acessar Painel'}
           </button>
         </form>
 
+        <div className="mt-5 text-center">
+          <button
+            onClick={handleToggleMode}
+            className="text-xs font-black text-indigo-600 hover:text-indigo-850 hover:underline cursor-pointer bg-transparent border-none outline-none"
+          >
+            {isRegister 
+              ? 'Já possui uma conta? Entrar no Painel' 
+              : 'Novo por aqui? Criar conta de responsável'}
+          </button>
+        </div>
+
         <div className="mt-6 text-center text-[10px] text-slate-400 border-t border-slate-250/40 pt-4 font-bold">
           <p>
-            * Credenciais de demonstração pré-configuradas.
+            {isRegister 
+              ? '* A senha deve conter pelo menos 6 caracteres.' 
+              : '* Credenciais de demonstração: responsavel@exemplo.com / 123456'}
           </p>
         </div>
       </motion.div>
     </main>
   );
 }
-

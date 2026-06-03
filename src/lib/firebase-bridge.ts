@@ -43,11 +43,11 @@ const saveLocalProfile = (profile: UserProfile | null) => {
 export const firebaseBridge = {
   // --- AUTH SERVICE ---
   auth: {
-    signUp: async (email: string, role: 'responsavel' | 'usuario'): Promise<UserProfile> => {
-      const res = await fetch('/api/profile', {
+    signUp: async (email: string, password?: string): Promise<UserProfile> => {
+      const res = await fetch('/api/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, role })
+        body: JSON.stringify({ email, password: password || '123456' })
       });
       const data = await res.json();
       if (data.error) throw new Error(data.error);
@@ -56,11 +56,11 @@ export const firebaseBridge = {
       return data;
     },
 
-    signIn: async (email: string): Promise<UserProfile> => {
-      const res = await fetch('/api/profile', {
+    signIn: async (email: string, password?: string): Promise<UserProfile> => {
+      const res = await fetch('/api/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email })
+        body: JSON.stringify({ email, password: password || '123456' })
       });
       const data = await res.json();
       if (data.error) throw new Error(data.error);
