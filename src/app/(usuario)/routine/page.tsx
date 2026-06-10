@@ -1418,6 +1418,157 @@ export default function ChildRoutine() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Social Stories Modal Dialog */}
+      <AnimatePresence>
+        {showStoriesModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md"
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="bg-white border-4 border-indigo-400 rounded-[32px] p-6 w-full max-w-lg shadow-2xl flex flex-col gap-6 relative overflow-hidden"
+            >
+              {/* Close button at top right */}
+              <button
+                onClick={() => { playBubble(); setShowStoriesModal(false); setSelectedStory(null); setCurrentStoryStep(0); }}
+                className="absolute top-4 right-4 w-9 h-9 bg-slate-100 hover:bg-slate-200 border-2 border-slate-200 text-slate-500 rounded-full flex items-center justify-center font-black transition-all active:scale-90 cursor-pointer text-sm"
+              >
+                ✕
+              </button>
+
+              {!selectedStory ? (
+                // Story Selection Screen
+                <div className="flex flex-col gap-5">
+                  <div className="text-center mt-2">
+                    <span className="text-3xl">📖</span>
+                    <h3 className="text-xl font-black text-slate-850 mt-2 font-Outfit">Histórias Sociais do Mascote</h3>
+                    <p className="text-xs text-slate-400 font-semibold mt-1">
+                      Escolha uma história para ver com o seu mascote!
+                    </p>
+                  </div>
+
+                  <div className="flex flex-col gap-3 max-h-[350px] overflow-y-auto pr-1 scrollbar-thin">
+                    {SOCIAL_STORIES.map(story => (
+                      <button
+                        key={story.id}
+                        onClick={() => {
+                          playBubble();
+                          setSelectedStory(story);
+                          setCurrentStoryStep(0);
+                          speakText(story.steps[0].text);
+                        }}
+                        className="p-4 bg-slate-50 hover:bg-indigo-50/40 hover:border-indigo-300 border-2 border-slate-200/80 rounded-2xl transition-all active:scale-98 text-left cursor-pointer flex items-center gap-4 group"
+                      >
+                        <div className="w-12 h-12 bg-indigo-50 border border-indigo-100 rounded-xl flex items-center justify-center text-2xl shadow-xxs shrink-0 group-hover:scale-105 transition-all">
+                          {story.steps[0].img}
+                        </div>
+                        <div>
+                          <h4 className="font-extrabold text-sm text-slate-850 font-Outfit group-hover:text-indigo-750 transition-all">{story.title}</h4>
+                          <p className="text-[10px] text-slate-500 font-semibold mt-0.5 leading-normal">{story.desc}</p>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                // Story Reading Screen
+                <div className="flex flex-col items-center gap-5">
+                  <div className="flex items-center justify-between w-full border-b border-slate-100 pb-3">
+                    <button
+                      onClick={() => { playBubble(); setSelectedStory(null); setCurrentStoryStep(0); }}
+                      className="text-xxs font-black uppercase tracking-wider text-slate-400 hover:text-slate-650 flex items-center gap-1 cursor-pointer bg-transparent border-none"
+                    >
+                      ← Voltar
+                    </button>
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest font-Outfit">
+                      Etapa {currentStoryStep + 1} de {selectedStory.steps.length}
+                    </span>
+                  </div>
+
+                  {/* Visual Scene */}
+                  <div className="flex flex-col items-center gap-3 py-4 w-full bg-slate-50/50 border-2 border-slate-150 rounded-[24px] relative min-h-[220px] justify-center">
+                    {/* Big illustration emoji */}
+                    <motion.div 
+                      key={currentStoryStep}
+                      initial={{ scale: 0.7, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      transition={{ type: "spring", stiffness: 200, damping: 15 }}
+                      className="text-7xl select-none"
+                    >
+                      {selectedStory.steps[currentStoryStep].img}
+                    </motion.div>
+                    
+                    {/* Active hyperfocus mascot is guide here */}
+                    <div className="absolute bottom-2 right-4 flex items-center gap-1.5 bg-white border border-slate-200 px-2.5 py-1.5 rounded-full shadow-xxs max-w-[80%]">
+                      <span className="text-xs">🐾</span>
+                      <span className="text-[9px] font-black text-indigo-700 uppercase tracking-wider font-Outfit">Guia {childHyperfocus.split(' ')[0]}</span>
+                    </div>
+                  </div>
+
+                  {/* Narration Text */}
+                  <motion.p 
+                    key={`text-${currentStoryStep}`}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="text-sm text-slate-700 leading-relaxed font-extrabold text-center px-2 min-h-[60px]"
+                  >
+                    {selectedStory.steps[currentStoryStep].text}
+                  </motion.p>
+
+                  {/* Navigation Buttons */}
+                  <div className="flex gap-3 w-full border-t border-slate-100 pt-4 mt-1">
+                    {currentStoryStep > 0 ? (
+                      <button
+                        onClick={() => {
+                          playBubble();
+                          const prevStep = currentStoryStep - 1;
+                          setCurrentStoryStep(prevStep);
+                          speakText(selectedStory.steps[prevStep].text);
+                        }}
+                        className="flex-1 py-3 bg-slate-100 hover:bg-slate-200 border-2 border-slate-350 text-slate-750 text-xs font-black rounded-2xl active:scale-95 transition-all cursor-pointer font-Outfit flex items-center justify-center gap-1"
+                      >
+                        ⬅️ Anterior
+                      </button>
+                    ) : null}
+
+                    {currentStoryStep < selectedStory.steps.length - 1 ? (
+                      <button
+                        onClick={() => {
+                          playBubble();
+                          const nextStep = currentStoryStep + 1;
+                          setCurrentStoryStep(nextStep);
+                          speakText(selectedStory.steps[nextStep].text);
+                        }}
+                        className="flex-1 py-3 bg-indigo-650 hover:bg-indigo-750 text-white text-xs font-black rounded-2xl active:scale-95 transition-all cursor-pointer font-Outfit flex items-center justify-center gap-1"
+                      >
+                        Próximo ➡️
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => {
+                          playCelebration();
+                          setShowStoriesModal(false);
+                          setSelectedStory(null);
+                          setCurrentStoryStep(0);
+                        }}
+                        className="flex-1 py-3 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black rounded-2xl active:scale-95 transition-all cursor-pointer font-Outfit flex items-center justify-center gap-1 shadow-md shadow-emerald-100"
+                      >
+                        Concluir 🏆
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </main>
   );
 }
