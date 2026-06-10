@@ -708,6 +708,69 @@ export default function ParentDashboard() {
     }
   };
 
+  const handleExportABAData = () => {
+    playBubble();
+    if (!activeChild) {
+      triggerStatus('Selecione uma criança primeiro para exportar.');
+      return;
+    }
+
+    // CSV header with metadata
+    let csvContent = `RELATORIO DE EVOLUCAO CLINICA ABA - ${activeChild.name.toUpperCase()}\n`;
+    csvContent += `Data de Emissao:;${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}\n`;
+    csvContent += `Responsavel:;${currentUser?.email || 'N/A'}\n`;
+    csvContent += `Hiperfoco:;${activeChild.childHyperfocus || 'N/A'}\n`;
+    csvContent += `Diagnostico:;${activeChild.diagnosis || 'N/A'}\n\n`;
+
+    // 1. Routine activities section
+    csvContent += `--- GRADE DE TAREFAS DA SEMANA ---\n`;
+    csvContent += `Dia da Semana;Periodo;Horario;Atividade;Categoria;Status de Conclusao\n`;
+    
+    // Sort tasks logically by day index and then by time
+    const dayIndices: { [key: string]: number } = { segunda: 1, terca: 2, quarta: 3, quinta: 4, sexta: 5, sabado: 6, domingo: 7 };
+    const sortedTasks = [...tasks].sort((a, b) => {
+      const dayDiff = (dayIndices[a.day] || 0) - (dayIndices[b.day] || 0);
+      if (dayDiff !== 0) return dayDiff;
+      return a.time.localeCompare(b.time);
+    });
+
+    sortedTasks.forEach(task => {
+      const status = task.isCompleted ? 'CONCLUIDO' : 'PENDENTE';
+      const category = task.category || 'AVD';
+      csvContent += `"${task.day.toUpperCase()}";"${task.period.toUpperCase()}";"${task.time}";"${task.title.replace(/"/g, '""')}";"${category}";"${status}"\n`;
+    });
+
+    csvContent += `\n`;
+
+    // 2. Sensory logs & crises section
+    csvContent += `--- REGISTROS SENSORIAIS E DIARIO EMOCIONAL ---\n`;
+    csvContent += `Data/Hora;Tipo de Registro;Descricao/Notas\n`;
+
+    const sortedLogs = [...sensoryLogs].sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+    sortedLogs.forEach(log => {
+      const dateStr = new Date(log.timestamp).toLocaleString();
+      const type = log.crisisOccurred ? 'CRISE SENSORIAL / DESREGULACAO' : `HUMOR: ${log.mood?.toUpperCase()}`;
+      const notes = log.notes ? log.notes.replace(/"/g, '""') : 'Sem observacoes';
+      csvContent += `"${dateStr}";"${type}";"${notes}"\n`;
+    });
+
+    // Generate blob and download
+    try {
+      const blob = new Blob([new Uint8Array([0xEF, 0xBB, 0xBF]), csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute('download', `laudo_aba_${activeChild.name.toLowerCase().replace(/\s+/g, '_')}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      triggerStatus('Planilha ABA (CSV) exportada com sucesso!');
+    } catch (err) {
+      console.error(err);
+      triggerStatus('Erro ao exportar planilha CSV.');
+    }
+  };
+
   const triggerStatus = (msg: string) => {
     setStatusMessage(msg);
     setTimeout(() => setStatusMessage(''), 4000);
@@ -1546,12 +1609,20 @@ export default function ParentDashboard() {
                         Métricas analíticas consolidadas de conformidade de rotina.
                       </p>
                     </div>
-                    <button
-                      onClick={() => { playBubble(); window.print(); }}
-                      className="flex items-center gap-1.5 px-4.5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-black rounded-full shadow-md transition-all cursor-pointer self-end md:self-auto"
-                    >
-                      🖨️ Imprimir / Exportar PDF
-                    </button>
+                    <div className="flex gap-2 items-center flex-wrap self-end md:self-auto">
+                      <button
+                        onClick={handleExportABAData}
+                        className="flex items-center gap-1.5 px-4.5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black rounded-full shadow-md transition-all cursor-pointer"
+                      >
+                        📊 Exportar Planilha ABA (CSV)
+                      </button>
+                      <button
+                        onClick={() => { playBubble(); window.print(); }}
+                        className="flex items-center gap-1.5 px-4.5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-black rounded-full shadow-md transition-all cursor-pointer"
+                      >
+                        🖨️ Imprimir / Exportar PDF
+                      </button>
+                    </div>
                   </div>
 
                   {/* Clinician Summary cards */}

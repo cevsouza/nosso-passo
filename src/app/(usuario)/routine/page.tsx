@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { firebaseBridge, Task } from '../../../lib/firebase-bridge';
 import { CollieState } from '../../../components/ludic/BorderCollie';
 import { HyperfocusMascot } from '../../../components/ludic/HyperfocusMascot';
-import { playBubble, playMarimba, playCelebration, speakText } from '../../../lib/audio-synth';
+import { playBubble, playMarimba, playCelebration, speakText, startAmbientSound, stopAmbientSound } from '../../../lib/audio-synth';
 import { getTaskCategory, TaskCategory } from '../../../lib/sensory-standards';
 import { RoutineIllustration } from '../../../components/ludic/RoutineIllustration';
 import { 
@@ -78,6 +78,20 @@ export default function ChildRoutine() {
   const [transitionWarned, setTransitionWarned] = useState<string | null>(null);
   const [showRewardModal, setShowRewardModal] = useState(false);
   const [showMoodModal, setShowMoodModal] = useState(false);
+  const [activeAmbientType, setActiveAmbientType] = useState<'none' | 'rain' | 'binaural'>('none');
+  const [selectedChoice, setSelectedChoice] = useState<string | null>(null);
+
+  useEffect(() => {
+    return () => {
+      stopAmbientSound();
+    };
+  }, []);
+
+  const handleAmbientChange = (type: 'none' | 'rain' | 'binaural') => {
+    playBubble();
+    setActiveAmbientType(type);
+    startAmbientSound(type);
+  };
 
   const generateMathProblem = () => {
     const num1 = Math.floor(Math.random() * 8) + 2; // 2 to 9
@@ -552,6 +566,48 @@ export default function ChildRoutine() {
             </div>
           </div>
 
+          {/* TEACCH Choice Board (Painel de Escolhas Lúdicas) */}
+          <div className="w-full bg-slate-800/50 border border-slate-700/40 p-5 rounded-3xl flex flex-col gap-4 text-left shadow-2xl">
+            <h4 className="font-extrabold text-slate-200 text-xs uppercase tracking-widest flex items-center gap-1.5 select-none font-Outfit">
+              🪁 Painel de Escolhas Lúdicas (O que quer fazer agora?):
+            </h4>
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                { id: 'draw', label: 'Desenhar 🎨', speech: 'Você escolheu desenhar! Divirta-se com as cores!', icon: '🎨' },
+                { id: 'read', label: 'Ler Livro 📚', speech: 'Você escolheu ler um livro! Uma ótima história te espera!', icon: '📚' },
+                { id: 'blocks', label: 'Montar Blocos 🧱', speech: 'Você escolheu brincar de blocos! Que tal construir um castelo?', icon: '🧱' },
+                { id: 'puzzle', label: 'Quebra-cabeça 🧩', speech: 'Você escolheu jogar quebra-cabeça! Vamos encaixar as peças!', icon: '🧩' },
+              ].map(choice => {
+                const isSelected = selectedChoice === choice.id;
+                return (
+                  <motion.button
+                    key={choice.id}
+                    whileHover={{ scale: 1.03 }}
+                    whileTap={{ scale: 0.97 }}
+                    onClick={() => {
+                      playBubble();
+                      setSelectedChoice(choice.id);
+                      speakText(choice.speech);
+                    }}
+                    className={`p-4.5 rounded-2xl flex flex-col items-center justify-center text-center gap-2 border-2 transition-all cursor-pointer ${
+                      isSelected
+                        ? 'bg-indigo-650/80 border-indigo-500 text-white shadow-lg shadow-indigo-950/50'
+                        : 'bg-slate-700/30 border-slate-600/30 text-slate-200 hover:bg-slate-700/50'
+                    }`}
+                  >
+                    <span className="text-4.5xl select-none">{choice.icon}</span>
+                    <span className="font-black text-xs tracking-tight font-Outfit mt-1">{choice.label}</span>
+                  </motion.button>
+                );
+              })}
+            </div>
+            {selectedChoice && (
+              <p className="text-[10px] text-center text-indigo-300 font-extrabold animate-pulse uppercase tracking-wider">
+                Boa escolha! Aproveite seu momento de descanso!
+              </p>
+            )}
+          </div>
+
           <div className="w-full bg-slate-800/40 backdrop-blur-md border border-slate-700/40 p-5 rounded-3xl shadow-xl flex flex-col gap-4 text-left">
             <h3 className="font-extrabold text-slate-200 text-xs flex items-center gap-2">
               ⭐ Suas Conquistas de Hoje ({completedTasks.length}/{todayTasks.length})
@@ -633,8 +689,42 @@ export default function ChildRoutine() {
           {DAY_LABELS[currentDay] || 'Rotina Semanal'}
         </h2>
         
-        {/* Spacer to align */}
-        <div className="w-20"></div>
+        {/* Ambient Sound Selector */}
+        <div className="flex bg-white border-2 border-slate-350 p-1 rounded-full shadow-premium gap-1 items-center z-10">
+          <button
+            onClick={() => handleAmbientChange('none')}
+            className={`px-3 py-1.5 rounded-full text-xs font-black transition-all ${
+              activeAmbientType === 'none'
+                ? 'bg-slate-200 text-slate-800'
+                : 'bg-transparent text-slate-400 hover:text-slate-600'
+            }`}
+            title="Silencioso"
+          >
+            🔈
+          </button>
+          <button
+            onClick={() => handleAmbientChange('rain')}
+            className={`px-3 py-1.5 rounded-full text-xs font-black transition-all ${
+              activeAmbientType === 'rain'
+                ? 'bg-blue-100 text-blue-800'
+                : 'bg-transparent text-slate-400 hover:text-blue-500'
+            }`}
+            title="Som de Chuva"
+          >
+            🌧️
+          </button>
+          <button
+            onClick={() => handleAmbientChange('binaural')}
+            className={`px-3 py-1.5 rounded-full text-xs font-black transition-all ${
+              activeAmbientType === 'binaural'
+                ? 'bg-indigo-100 text-indigo-800'
+                : 'bg-transparent text-slate-400 hover:text-indigo-500'
+            }`}
+            title="Foco Binaural"
+          >
+            🧠
+          </button>
+        </div>
       </div>
 
       <div className="w-full max-w-2xl flex flex-col gap-6 z-10">

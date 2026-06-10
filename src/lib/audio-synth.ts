@@ -146,3 +146,121 @@ export const speakText = (text: string) => {
 
   window.speechSynthesis.speak(utterance);
 };
+
+// Global ambient sound state variables
+let activeAmbientSource: { stop: () => void } | null = null;
+let activeAmbientGain: GainNode | null = null;
+
+/**
+ * Starts a procedural sensory ambient sound loop (brown noise or binaural beats).
+ * Safe from missing audio asset issues as it synthesizes audio nodes dynamically.
+ */
+export const startAmbientSound = (type: 'rain' | 'binaural' | 'none') => {
+  if (typeof window === 'undefined') return;
+  stopAmbientSound(); // Stop any existing loop first
+  
+  if (type === 'none') return;
+  
+  const ctx = getAudioContext();
+  if (!ctx) return;
+  
+  const now = ctx.currentTime;
+  const mainGain = ctx.createGain();
+  mainGain.gain.setValueAtTime(0, now);
+  mainGain.gain.linearRampToValueAtTime(0.08, now + 1.0); // Smooth fade in over 1 second, keep volume low
+  
+  let sourceNode: { stop: () => void };
+  
+  if (type === 'rain') {
+    // Generate Brown Noise (simulates rain/ocean)
+    const bufferSize = 2 * ctx.sampleRate;
+    const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const output = noiseBuffer.getChannelData(0);
+    let lastOut = 0.0;
+    for (let i = 0; i < bufferSize; i++) {
+      const white = Math.random() * 2 - 1;
+      output[i] = (lastOut + (0.02 * white)) / 1.02;
+      lastOut = output[i];
+      output[i] *= 3.5; // Gain compensation
+    }
+    const noiseSource = ctx.createBufferSource();
+    noiseSource.buffer = noiseBuffer;
+    noiseSource.loop = true;
+    noiseSource.connect(mainGain);
+    mainGain.connect(ctx.destination);
+    noiseSource.start(now);
+    
+    sourceNode = {
+      stop: () => {
+        try {
+          noiseSource.stop();
+        } catch(e) {}
+      }
+    };
+  } else {
+    // Binaural Beats (200Hz Left / 210Hz Right for 10Hz Alpha waves)
+    const leftOsc = ctx.createOscillator();
+    leftOsc.type = 'sine';
+    leftOsc.frequency.setValueAtTime(200, now);
+    
+    const rightOsc = ctx.createOscillator();
+    rightOsc.type = 'sine';
+    rightOsc.frequency.setValueAtTime(210, now);
+    
+    const merger = ctx.createChannelMerger(2);
+    
+    // Connect oscillators to merger channels
+    const leftGain = ctx.createGain();
+    const rightGain = ctx.createGain();
+    leftGain.gain.setValueAtTime(0.5, now);
+    rightGain.gain.setValueAtTime(0.5, now);
+    
+    leftOsc.connect(leftGain);
+    rightOsc.connect(rightGain);
+    
+    leftGain.connect(merger, 0, 0); // left channel
+    rightGain.connect(merger, 0, 1); // right channel
+    
+    merger.connect(mainGain);
+    mainGain.connect(ctx.destination);
+    
+    leftOsc.start(now);
+    rightOsc.start(now);
+    
+    sourceNode = {
+      stop: () => {
+        try {
+          leftOsc.stop();
+          rightOsc.stop();
+        } catch(e) {}
+      }
+    };
+  }
+  
+  activeAmbientSource = sourceNode;
+  activeAmbientGain = mainGain;
+};
+
+/**
+ * Stops any active sensory ambient sound loop with a soft gain fadeout.
+ */
+export const stopAmbientSound = () => {
+  if (activeAmbientGain && audioCtx) {
+    const now = audioCtx.currentTime;
+    try {
+      activeAmbientGain.gain.cancelScheduledValues(now);
+      activeAmbientGain.gain.setValueAtTime(activeAmbientGain.gain.value, now);
+      activeAmbientGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.5);
+    } catch(e) {}
+  }
+  
+  const sourceToStop = activeAmbientSource;
+  setTimeout(() => {
+    if (sourceToStop) {
+      sourceToStop.stop();
+    }
+  }, 550);
+  
+  activeAmbientSource = null;
+  activeAmbientGain = null;
+};
