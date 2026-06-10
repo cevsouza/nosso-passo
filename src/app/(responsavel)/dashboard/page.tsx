@@ -281,6 +281,8 @@ export default function ParentDashboard() {
   const [sensorySpeed, setSensorySpeed] = useState<0.7 | 1.0 | 1.2>(1.0);
   const [sensorySound, setSensorySound] = useState<'marimba' | 'bubble' | 'silent'>('marimba');
   const [sensoryVisuals, setSensoryVisuals] = useState<'rich' | 'minimal'>('rich');
+  const [sensoryProfile, setSensoryProfile] = useState<'balanced' | 'hypersensitive' | 'hyposensitive'>('balanced');
+  const [timerStyle, setTimerStyle] = useState<'circle' | 'hourglass' | 'droplets'>('circle');
   
   // Reward & Transition Timer states
   const [rewardName, setRewardName] = useState('15 minutos de tablet');
@@ -407,6 +409,8 @@ export default function ParentDashboard() {
           setSensorySpeed((active.sensorySpeed || 1.0) as any);
           setSensorySound((active.sensorySound || 'marimba') as any);
           setSensoryVisuals((active.sensoryVisuals || 'rich') as any);
+          setSensoryProfile((active.sensoryProfile || 'balanced') as any);
+          setTimerStyle((active.timerStyle || 'circle') as any);
           
           setRewardName(active.rewardName || '15 minutos de tablet');
           setRewardCost(active.rewardCost || 10);
@@ -465,6 +469,8 @@ export default function ParentDashboard() {
     setSensorySpeed(child.sensorySpeed || 1.0);
     setSensorySound(child.sensorySound || 'marimba');
     setSensoryVisuals(child.sensoryVisuals || 'rich');
+    setSensoryProfile(child.sensoryProfile || 'balanced');
+    setTimerStyle(child.timerStyle || 'circle');
     
     setRewardName(child.rewardName || '15 minutos de tablet');
     setRewardCost(child.rewardCost || 10);
@@ -642,6 +648,8 @@ export default function ParentDashboard() {
         sensorySpeed,
         sensorySound,
         sensoryVisuals,
+        sensoryProfile,
+        timerStyle,
         rewardName,
         rewardCost,
         transitionMinutes,
@@ -654,7 +662,7 @@ export default function ParentDashboard() {
       
       await immutableLogger.logChange(
         'UPDATE_PROFILE', 
-        `Atualizou o perfil de ${activeChild.name}: Hiperfoco: "${hyperfocus}", Bloqueio Infantil: "${lockType}" (PIN: ${parentPinCode}), Velocidade Fala: ${sensorySpeed}x, Efeito Sonoro: "${sensorySound}", Visual: "${sensoryVisuals}", Reforçador: "${rewardName}" (${rewardCost} estrelas), Alerta de Transição: ${transitionMinutes}min.`,
+        `Atualizou o perfil de ${activeChild.name}: Hiperfoco: "${hyperfocus}", Bloqueio Infantil: "${lockType}" (PIN: ${parentPinCode}), Velocidade Fala: ${sensorySpeed}x, Efeito Sonoro: "${sensorySound}", Visual: "${sensoryVisuals}", Perfil Sensorial: "${sensoryProfile}", Estilo Timer: "${timerStyle}", Reforçador: "${rewardName}" (${rewardCost} estrelas), Alerta de Transição: ${transitionMinutes}min.`,
         currentUser?.email
       );
       
@@ -768,6 +776,58 @@ export default function ParentDashboard() {
     } catch (err) {
       console.error(err);
       triggerStatus('Erro ao exportar planilha CSV.');
+    }
+  };
+
+  const getSensoryOverloadRisk = () => {
+    if (!activeChild) return { level: 'Baixo 🟢', percentage: 15, class: 'text-emerald-600 bg-emerald-50 border-emerald-200', desc: 'Agenda fluindo bem. Sem indicativos de fadiga ou resistência.' };
+    
+    let score = 0;
+    
+    // 1. Completion Rate Factor
+    const total = tasks.length;
+    const completed = tasks.filter(t => t.isCompleted).length;
+    const pendingRate = total > 0 ? (total - completed) / total : 0;
+    score += pendingRate * 40;
+
+    // 2. Sensory/Mood logs factor
+    const recentLogs = sensoryLogs.slice(0, 5);
+    let crisisCount = 0;
+    let agitatedOrSadCount = 0;
+    recentLogs.forEach(log => {
+      if (log.crisisOccurred) {
+        crisisCount++;
+      } else if (log.mood === 'agitado' || log.mood === 'triste') {
+        agitatedOrSadCount++;
+      }
+    });
+
+    score += crisisCount * 25;
+    score += agitatedOrSadCount * 12;
+
+    const finalScore = Math.min(100, Math.max(5, Math.round(score)));
+
+    if (finalScore >= 70) {
+      return {
+        level: 'ALTO 🚨',
+        percentage: finalScore,
+        class: 'text-red-705 bg-red-50 border-red-200',
+        desc: 'Alta probabilidade de esgotamento nervoso ou meltdown. Recomendado: reduzir cobrança, ativar o modelo de Regulação Sensorial e oferecer pausas no refúgio.'
+      };
+    } else if (finalScore >= 35) {
+      return {
+        level: 'Moderado ⚠️',
+        percentage: finalScore,
+        class: 'text-amber-705 bg-amber-50 border-amber-250',
+        desc: 'Sinais sutis de resistência ou oscilação de humor. Fique atento a sinais físicos de agitação. Evite transições sem o aviso visual de 5 minutos.'
+      };
+    } else {
+      return {
+        level: 'Baixo 🟢',
+        percentage: finalScore,
+        class: 'text-emerald-705 bg-emerald-50 border-emerald-200',
+        desc: 'Comportamento regulado e conformidade estável. Continue com o reforço positivo!'
+      };
     }
   };
 
@@ -1023,6 +1083,48 @@ export default function ParentDashboard() {
                 >
                   <option value="rich">Interativo e Animado (Padrão) ✨</option>
                   <option value="minimal">Filtro Sensorial Reduzido (Quadro Primeiro-Depois) 🧘</option>
+                </select>
+              </div>
+
+              {/* Sensory Profile selection */}
+              <div>
+                <label className="block text-xs font-black text-slate-700 uppercase tracking-wider mb-1.5 font-Outfit">
+                  Limiar de Sensibilidade Sensorial (Perfil) 🧠
+                </label>
+                <select
+                  value={sensoryProfile}
+                  onChange={e => {
+                    const val = e.target.value as 'balanced' | 'hypersensitive' | 'hyposensitive';
+                    setSensoryProfile(val);
+                    if (val === 'hypersensitive') {
+                      setSensoryVisuals('minimal');
+                      setSensorySpeed(0.7);
+                    } else if (val === 'hyposensitive') {
+                      setSensoryVisuals('rich');
+                      setSensorySpeed(1.2);
+                    }
+                  }}
+                  className="w-full px-4 py-2.5 bg-white border-2 border-slate-350 focus:border-indigo-600 focus:bg-white rounded-xl text-slate-900 outline-none text-sm transition-all shadow-xxs font-bold cursor-pointer focus:ring-4 focus:ring-indigo-100"
+                >
+                  <option value="balanced">Perfil Equilibrado (Padrão) 🧘</option>
+                  <option value="hypersensitive">Perfil Hipersensível (Baixa Estimulação) 🔇</option>
+                  <option value="hyposensitive">Perfil Hipossensível (Estímulo Adicional) ⚡</option>
+                </select>
+              </div>
+
+              {/* Timer Style selection */}
+              <div>
+                <label className="block text-xs font-black text-slate-700 uppercase tracking-wider mb-1.5 font-Outfit">
+                  Estilo de Temporizador Visual ⏱️
+                </label>
+                <select
+                  value={timerStyle}
+                  onChange={e => setTimerStyle(e.target.value as any)}
+                  className="w-full px-4 py-2.5 bg-white border-2 border-slate-350 focus:border-indigo-600 focus:bg-white rounded-xl text-slate-900 outline-none text-sm transition-all shadow-xxs font-bold cursor-pointer focus:ring-4 focus:ring-indigo-100"
+                >
+                  <option value="circle">Time Timer Tradicional (Círculo Vermelho) ⏱️</option>
+                  <option value="hourglass">Ampulheta Lúdica (Areia caindo) ⏳</option>
+                  <option value="droplets">Gotas de Água (Gotas enchendo vaso) 💧</option>
                 </select>
               </div>
 
@@ -1747,6 +1849,43 @@ export default function ParentDashboard() {
                             </div>
                           </div>
                         </div>
+
+                        {/* AI Sensory Overload Predictor Panel */}
+                        {(() => {
+                          const riskInfo = getSensoryOverloadRisk();
+                          return (
+                            <div className="bg-slate-50 border border-slate-200/50 p-5 rounded-2xl flex flex-col gap-4 shadow-xxs">
+                              <h4 className="font-extrabold text-xs text-slate-500 uppercase tracking-wider flex items-center gap-1.5 select-none font-Outfit">
+                                🤖 IA Preditora de Sobrecarga (Risco de Meltdown)
+                              </h4>
+                              
+                              <div className={`p-4 rounded-xl border flex flex-col gap-2 ${riskInfo.class}`}>
+                                <div className="flex justify-between items-center">
+                                  <span className="text-xs font-black uppercase text-slate-800">Termômetro de Risco:</span>
+                                  <span className="text-sm font-black uppercase tracking-wider">{riskInfo.level}</span>
+                                </div>
+                                
+                                {/* Visual Gauge Bar */}
+                                <div className="w-full bg-slate-200/80 rounded-full h-3 overflow-hidden border border-slate-300/30 mt-1">
+                                  <div 
+                                    className={`h-full rounded-full transition-all duration-1000 ${
+                                      riskInfo.percentage >= 70 ? 'bg-red-500' : riskInfo.percentage >= 35 ? 'bg-amber-500' : 'bg-emerald-500'
+                                    }`} 
+                                    style={{ width: `${riskInfo.percentage}%` }}
+                                  />
+                                </div>
+                                <span className="text-[10px] text-slate-400 font-semibold text-right block mt-0.5">Probabilidade: {riskInfo.percentage}%</span>
+
+                                <p className="text-xs font-bold leading-relaxed mt-1 text-slate-700">
+                                  {riskInfo.desc}
+                                </p>
+                              </div>
+                              <span className="text-[9px] text-slate-450 italic font-semibold">
+                                *Nota: Este cálculo utiliza dados comportamentais de latência de rotina e diários emocionais. Não substitui consulta médica.
+                              </span>
+                            </div>
+                          );
+                        })()}
 
                         {/* Diário de Regulação & Registro de Crises */}
                         <div className="bg-slate-50 border border-slate-200/50 p-5 rounded-2xl flex flex-col gap-4 shadow-xxs">

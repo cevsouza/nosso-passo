@@ -19,6 +19,8 @@ model UserProfile {
   sensorySpeed    Float    @default(1.0)
   sensorySound    String   @default("marimba")
   sensoryVisuals  String   @default("rich")
+  sensoryProfile  String   @default("balanced")
+  timerStyle      String   @default("circle")
   createdAt       DateTime @default(now())
   tasks           Task[]
   children        Child[]
@@ -36,6 +38,8 @@ model Child {
   sensorySpeed    Float       @default(1.0)
   sensorySound    String      @default("marimba")
   sensoryVisuals  String      @default("rich")
+  sensoryProfile  String      @default("balanced")
+  timerStyle      String      @default("circle")
   rewardName      String      @default("15 minutos de tablet")
   rewardCost      Int         @default(10)
   tokens          Int         @default(0)

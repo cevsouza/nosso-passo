@@ -33,6 +33,8 @@ export async function GET(req: Request) {
           sensorySpeed: parent?.sensorySpeed || 1.0,
           sensorySound: parent?.sensorySound || 'marimba',
           sensoryVisuals: parent?.sensoryVisuals || 'rich',
+          sensoryProfile: parent?.sensoryProfile || 'balanced',
+          timerStyle: parent?.timerStyle || 'circle',
           parentUid: userUid,
         }
       });
@@ -79,6 +81,8 @@ export async function POST(req: Request) {
         sensorySpeed: body.sensorySpeed || 1.0,
         sensorySound: body.sensorySound || 'marimba',
         sensoryVisuals: body.sensoryVisuals || 'rich',
+        sensoryProfile: body.sensoryProfile || 'balanced',
+        timerStyle: body.timerStyle || 'circle',
         rewardName: body.rewardName || '15 minutos de tablet',
         rewardCost: body.rewardCost !== undefined ? Number(body.rewardCost) : 10,
         tokens: body.tokens !== undefined ? Number(body.tokens) : 0,
@@ -134,6 +138,8 @@ export async function PUT(req: Request) {
         sensorySpeed: updates.sensorySpeed,
         sensorySound: updates.sensorySound,
         sensoryVisuals: updates.sensoryVisuals,
+        sensoryProfile: updates.sensoryProfile,
+        timerStyle: updates.timerStyle,
         rewardName: updates.rewardName,
         rewardCost: updates.rewardCost !== undefined ? Number(updates.rewardCost) : undefined,
         tokens: updates.tokens !== undefined ? Number(updates.tokens) : undefined,

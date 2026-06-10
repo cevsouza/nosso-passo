@@ -27,6 +27,8 @@ export async function POST(req: Request) {
           sensorySpeed: 1.0,
           sensorySound: 'marimba',
           sensoryVisuals: 'rich',
+          sensoryProfile: 'balanced',
+          timerStyle: 'circle',
         },
       });
     }
@@ -54,6 +56,8 @@ export async function PUT(req: Request) {
         sensorySpeed: updates.sensorySpeed,
         sensorySound: updates.sensorySound,
         sensoryVisuals: updates.sensoryVisuals,
+        sensoryProfile: updates.sensoryProfile,
+        timerStyle: updates.timerStyle,
       },
     });
 

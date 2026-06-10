@@ -50,6 +50,146 @@ const BADGES = [
 ];
 
 
+const SOCIAL_STORIES = [
+  {
+    id: 'haircut',
+    title: 'Cortar o Cabelo ✂️',
+    desc: 'O que acontece no salão de cabeleireiro? Vamos ver com nosso amigo!',
+    steps: [
+      {
+        text: 'Hoje vamos visitar o cabeleireiro. Cortar o cabelo é como dar um abraço nos fios para que cresçam fortes e saudáveis!',
+        img: '💇',
+      },
+      {
+        text: 'Lá, você vai sentar em uma cadeira especial que pode subir e descer como um brinquedo.',
+        img: '💺',
+      },
+      {
+        text: 'O cabeleireiro vai usar uma tesoura ou maquininha. Eles fazem um barulhinho suave. Se o som incomodar, você pode usar seu fone ou pedir para ir mais devagar!',
+        img: '🎧',
+      },
+      {
+        text: 'Depois que terminar, você vai se olhar no espelho e ver como seu cabelo ficou incrível! E você ganhará um super abraço!',
+        img: '✨',
+      }
+    ]
+  },
+  {
+    id: 'doctor',
+    title: 'Consulta com o Médico 🩺',
+    desc: 'Visitar o consultório para medir nossa altura e ver se somos fortes!',
+    steps: [
+      {
+        text: 'Ir ao médico serve para ver como nosso corpo está crescendo forte e saudável como um super-herói.',
+        img: '🦸',
+      },
+      {
+        text: 'O médico usa um estetoscópio. Ele parece uma moedinha fria que escuta o coração fazendo: tum-tum, tum-tum!',
+        img: '💓',
+      },
+      {
+        text: 'Ele vai pedir para você respirar fundo, como se estivesse soprando uma velinha de aniversário.',
+        img: '🎂',
+      },
+      {
+        text: 'Pronto! A consulta terminou rápido. Você ganha uma estrela por ser tão forte e cooperativo!',
+        img: '⭐',
+      }
+    ]
+  },
+  {
+    id: 'vaccine',
+    title: 'Hora da Vacina 💉',
+    desc: 'Uma picadinha de mosquito rápida que nos protege de todas as gripes!',
+    steps: [
+      {
+        text: 'A vacina é como um escudo invisível de proteção. Ela ensina nosso corpo a afastar os bichinhos da gripe.',
+        img: '🛡️',
+      },
+      {
+        text: 'A enfermeira limpa o braço com um algodão geladinho. É muito refrescante!',
+        img: '❄️',
+      },
+      {
+        text: 'Depois, vem uma picadinha rápida, como um beliscão de formiguinha de apenas 3 segundos. Vamos contar: um, dois, três!',
+        img: '🐜',
+      },
+      {
+        text: 'Já acabou! Colocamos um adesivo divertido por cima e seu escudo está ativo para te proteger!',
+        img: '🏅',
+      }
+    ]
+  }
+];
+
+interface TimerProps {
+  progress: number;
+  minutesLeft: number;
+}
+
+const HourglassTimer: React.FC<TimerProps> = ({ progress, minutesLeft }) => {
+  const topPercent = progress * 100;
+  const bottomPercent = (1 - progress) * 100;
+
+  return (
+    <div className="flex flex-col items-center gap-1.5">
+      <span className="text-[9px] font-black uppercase tracking-widest text-slate-700 select-none">
+        ⏳ Ampulheta Lúdica
+      </span>
+      <div className="relative w-20 h-20 flex items-center justify-center bg-white rounded-full p-2 border-2 border-slate-300 shadow-xxs">
+        <svg viewBox="0 0 100 120" className="w-full h-full">
+          <path d="M20,10 L80,10 L80,20 Q80,55 55,60 Q80,65 80,100 L80,110 L20,110 L20,100 Q20,65 45,60 Q20,55 20,20 Z" fill="none" stroke="#64748b" strokeWidth="6" strokeLinejoin="round" />
+          <clipPath id="top-clip">
+            <rect x="0" y={10 + (90 - topPercent * 0.45)} width="100" height="50" />
+          </clipPath>
+          <path d="M25,15 L75,15 Q75,52 50,57 Q25,52 25,15 Z" fill="#eab308" opacity="0.85" clipPath="url(#top-clip)" />
+          <clipPath id="bottom-clip">
+            <rect x="0" y={105 - bottomPercent * 0.45} width="100" height="50" />
+          </clipPath>
+          <path d="M50,63 Q75,68 75,105 L25,105 Q25,68 50,63 Z" fill="#eab308" opacity="0.95" clipPath="url(#bottom-clip)" />
+          {progress > 0 && progress < 1 && (
+            <line x1="50" y1="55" x2="50" y2="95" stroke="#eab308" strokeWidth="3" strokeDasharray="5,5" strokeLinecap="round">
+              <animate attributeName="stroke-dashoffset" values="10;0" dur="1s" repeatCount="indefinite" />
+            </line>
+          )}
+        </svg>
+        <div className="absolute inset-0 flex flex-col items-center justify-center font-bold pointer-events-none mt-2">
+          <span className="text-sm font-black text-slate-900 bg-white/70 px-1.5 py-0.5 rounded">{minutesLeft}m</span>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const DropletsTimer: React.FC<TimerProps> = ({ progress, minutesLeft }) => {
+  const fillHeight = (1 - progress) * 35;
+
+  return (
+    <div className="flex flex-col items-center gap-1.5">
+      <span className="text-[9px] font-black uppercase tracking-widest text-slate-700 select-none">
+        💧 Gotas de Água
+      </span>
+      <div className="relative w-20 h-20 flex items-center justify-center bg-white rounded-full p-2 border-2 border-slate-300 shadow-xxs">
+        <svg viewBox="0 0 100 100" className="w-full h-full">
+          <rect x="42" y="5" width="16" height="10" rx="3" fill="#94a3b8" />
+          <path d="M25,40 L25,85 A10,10 0 0,0 35,95 L65,95 A10,10 0 0,0 75,85 L75,40 Z" fill="none" stroke="#64748b" strokeWidth="5" />
+          {progress > 0 && (
+            <motion.path
+              d="M50,15 C47,15 45,20 45,23 C45,26 47,28 50,28 C53,28 55,26 55,23 C55,20 53,15 50,15 Z"
+              fill="#0ea5e9"
+              animate={{ y: [0, 50] }}
+              transition={{ repeat: Infinity, duration: 2.2, ease: "easeIn" }}
+            />
+          )}
+          <rect x="28" y={92 - fillHeight} width="44" height={fillHeight} fill="#0ea5e9" opacity="0.75" rx="2" />
+        </svg>
+        <div className="absolute inset-0 flex flex-col items-center justify-center font-bold pointer-events-none mt-2">
+          <span className="text-sm font-black text-slate-900 bg-white/70 px-1.5 py-0.5 rounded">{minutesLeft}m</span>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export default function ChildRoutine() {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -80,6 +220,11 @@ export default function ChildRoutine() {
   const [showMoodModal, setShowMoodModal] = useState(false);
   const [activeAmbientType, setActiveAmbientType] = useState<'none' | 'rain' | 'binaural'>('none');
   const [selectedChoice, setSelectedChoice] = useState<string | null>(null);
+  const [sensoryProfile, setSensoryProfile] = useState<'balanced' | 'hypersensitive' | 'hyposensitive'>('balanced');
+  const [timerStyle, setTimerStyle] = useState<'circle' | 'hourglass' | 'droplets'>('circle');
+  const [showStoriesModal, setShowStoriesModal] = useState(false);
+  const [selectedStory, setSelectedStory] = useState<any | null>(null);
+  const [currentStoryStep, setCurrentStoryStep] = useState(0);
 
   useEffect(() => {
     return () => {
@@ -184,6 +329,8 @@ export default function ChildRoutine() {
           setLockType((active.lockType || 'math') as any);
           setParentPinCode(active.parentPinCode || '1234');
           setSensoryVisuals((active.sensoryVisuals || 'rich') as any);
+          setSensoryProfile((active.sensoryProfile || 'balanced') as any);
+          setTimerStyle((active.timerStyle || 'circle') as any);
         }
       } catch (err) {
         console.error('Erro no portal infantil:', err);
@@ -463,6 +610,8 @@ export default function ChildRoutine() {
                     setLockType(child.lockType || 'math');
                     setParentPinCode(child.parentPinCode || '1234');
                     setSensoryVisuals(child.sensoryVisuals || 'rich');
+                    setSensoryProfile(child.sensoryProfile || 'balanced');
+                    setTimerStyle(child.timerStyle || 'circle');
                     
                     // Redirect to include childId in URL for easy bookmarking
                     router.replace(`/routine?childId=${child.id}`);
@@ -491,8 +640,14 @@ export default function ChildRoutine() {
 
   // Dynamic visual layout for day finished (darker, cozy, resting theme)
   if (isDayFinished) {
+    const profileClass = sensoryProfile === 'hypersensitive'
+      ? 'saturate-[60%] brightness-[90%] contrast-[88%]'
+      : sensoryProfile === 'hyposensitive'
+      ? 'saturate-[125%] contrast-[110%]'
+      : '';
+
     return (
-      <main className="min-h-screen flex flex-col items-center justify-center p-6 bg-gradient-to-b from-[#0b0f19] via-[#1a2035] to-[#2b1f3d] text-white relative overflow-hidden">
+      <main className={`min-h-screen flex flex-col items-center justify-center p-6 bg-gradient-to-b from-[#0b0f19] via-[#1a2035] to-[#2b1f3d] text-white relative overflow-hidden ${profileClass}`}>
         {/* Twinkling stars in the background */}
         {sensoryVisuals === 'rich' && (
           <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
@@ -665,8 +820,14 @@ export default function ChildRoutine() {
     );
   }
 
+  const profileClass = sensoryProfile === 'hypersensitive'
+    ? 'saturate-[65%] brightness-[92%] contrast-[88%]'
+    : sensoryProfile === 'hyposensitive'
+    ? 'saturate-[120%] contrast-[108%]'
+    : '';
+
   return (
-    <main className="min-h-screen bg-gradient-to-tr from-[#f8fafc] via-[#eff6ff] to-[#f0fdf4] animate-gradient-flow text-[#0f172a] p-6 pb-12 flex flex-col items-center relative overflow-hidden">
+    <main className={`min-h-screen bg-gradient-to-tr from-[#f8fafc] via-[#eff6ff] to-[#f0fdf4] animate-gradient-flow text-[#0f172a] p-6 pb-12 flex flex-col items-center relative overflow-hidden ${profileClass}`}>
       {/* Background Soft Glows */}
       {sensoryVisuals === 'rich' && (
         <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
@@ -677,13 +838,23 @@ export default function ChildRoutine() {
 
       {/* Top Navigation */}
       <div className="w-full max-w-2xl flex items-center justify-between mb-8 z-10">
-        <button 
-          onClick={() => handleAttemptExit('/')}
-          onMouseEnter={playBubble}
-          className="flex items-center gap-1.5 px-5 py-2.5 bg-white hover:bg-slate-50 text-xs font-black rounded-full border-2 border-slate-350 shadow-premium transition-all active:scale-95 cursor-pointer text-slate-800"
-        >
-          🏠 Início
-        </button>
+        <div className="flex gap-2 items-center">
+          <button 
+            onClick={() => handleAttemptExit('/')}
+            onMouseEnter={playBubble}
+            className="flex items-center gap-1.5 px-5 py-2.5 bg-white hover:bg-slate-50 text-xs font-black rounded-full border-2 border-slate-350 shadow-premium transition-all active:scale-95 cursor-pointer text-slate-800"
+          >
+            🏠 Início
+          </button>
+          
+          <button
+            onClick={() => { playBubble(); setShowStoriesModal(true); }}
+            onMouseEnter={playBubble}
+            className="flex items-center gap-1.5 px-5 py-2.5 bg-white hover:bg-indigo-50 border-2 border-indigo-250 text-indigo-700 text-xs font-black rounded-full shadow-premium transition-all active:scale-95 cursor-pointer"
+          >
+            📖 Histórias
+          </button>
+        </div>
 
         <h2 className="text-xs font-black bg-white border-2 border-slate-350 text-slate-800 px-5 py-2.5 rounded-full shadow-premium uppercase tracking-widest font-Outfit">
           {DAY_LABELS[currentDay] || 'Rotina Semanal'}
@@ -847,33 +1018,39 @@ export default function ChildRoutine() {
 
                     {/* Time Timer and Transition Banner */}
                     <div className="w-full flex flex-col md:flex-row items-center justify-center gap-4 border-t border-b border-slate-100 py-4 my-2">
-                      {/* Time Timer ring */}
-                      <div className="flex flex-col items-center gap-1.5">
-                        <span className="text-[9px] font-black uppercase tracking-widest text-slate-700 flex items-center gap-1 select-none">
-                          ⏱️ Tempo Restante
-                        </span>
-                        <div className="relative w-20 h-20 flex items-center justify-center">
-                          <svg viewBox="0 0 100 100" className="w-full h-full transform -rotate-90">
-                            <circle cx="50" cy="50" r="40" fill="none" stroke="#cbd5e1" strokeWidth="8" />
-                            <circle 
-                              cx="50" 
-                              cy="50" 
-                              r="40" 
-                              fill="none" 
-                              stroke="#dc2626" 
-                              strokeWidth="8" 
-                              strokeDasharray="251.2" 
-                              strokeDashoffset={251.2 * (1 - timerProgress)} 
-                              strokeLinecap="round"
-                              className="transition-all duration-1000 ease-linear"
-                            />
-                          </svg>
-                          <div className="absolute inset-0 flex flex-col items-center justify-center font-bold">
-                            <span className="text-base font-black text-slate-950">{timerMinutesLeft}</span>
-                            <span className="text-[8px] text-slate-700 uppercase tracking-wider font-extrabold">min</span>
+                      {/* Time Timer selector */}
+                      {timerStyle === 'hourglass' ? (
+                        <HourglassTimer progress={timerProgress} minutesLeft={timerMinutesLeft} />
+                      ) : timerStyle === 'droplets' ? (
+                        <DropletsTimer progress={timerProgress} minutesLeft={timerMinutesLeft} />
+                      ) : (
+                        <div className="flex flex-col items-center gap-1.5">
+                          <span className="text-[9px] font-black uppercase tracking-widest text-slate-700 flex items-center gap-1 select-none">
+                            ⏱️ Tempo Restante
+                          </span>
+                          <div className="relative w-20 h-20 flex items-center justify-center">
+                            <svg viewBox="0 0 100 100" className="w-full h-full transform -rotate-90">
+                              <circle cx="50" cy="50" r="40" fill="none" stroke="#cbd5e1" strokeWidth="8" />
+                              <circle 
+                                cx="50" 
+                                cy="50" 
+                                r="40" 
+                                fill="none" 
+                                stroke="#dc2626" 
+                                strokeWidth="8" 
+                                strokeDasharray="251.2" 
+                                strokeDashoffset={251.2 * (1 - timerProgress)} 
+                                strokeLinecap="round"
+                                className="transition-all duration-1000 ease-linear"
+                              />
+                            </svg>
+                            <div className="absolute inset-0 flex flex-col items-center justify-center font-bold">
+                              <span className="text-base font-black text-slate-950">{timerMinutesLeft}</span>
+                              <span className="text-[8px] text-slate-700 uppercase tracking-wider font-extrabold">min</span>
+                            </div>
                           </div>
                         </div>
-                      </div>
+                      )}
 
                       {/* Transition Warning / Next Task Banner */}
                       {nextTasks.length > 0 && (

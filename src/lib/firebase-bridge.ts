@@ -21,6 +21,8 @@ export interface UserProfile {
   sensorySpeed?: 0.7 | 1.0 | 1.2;
   sensorySound?: 'marimba' | 'bubble' | 'silent';
   sensoryVisuals?: 'rich' | 'minimal';
+  sensoryProfile?: 'balanced' | 'hypersensitive' | 'hyposensitive';
+  timerStyle?: 'circle' | 'hourglass' | 'droplets';
 }
 
 export interface Child {
@@ -35,6 +37,8 @@ export interface Child {
   sensorySpeed?: number;
   sensorySound?: 'marimba' | 'bubble' | 'silent';
   sensoryVisuals?: 'rich' | 'minimal';
+  sensoryProfile?: 'balanced' | 'hypersensitive' | 'hyposensitive';
+  timerStyle?: 'circle' | 'hourglass' | 'droplets';
   rewardName?: string;
   rewardCost?: number;
   tokens?: number;
@@ -132,6 +136,8 @@ export const firebaseBridge = {
       sensorySpeed?: 0.7 | 1.0 | 1.2;
       sensorySound?: 'marimba' | 'bubble' | 'silent';
       sensoryVisuals?: 'rich' | 'minimal';
+      sensoryProfile?: 'balanced' | 'hypersensitive' | 'hyposensitive';
+      timerStyle?: 'circle' | 'hourglass' | 'droplets';
     }): Promise<void> => {
       const current = getLocalProfile();
       if (!current) return;
