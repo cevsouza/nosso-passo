@@ -31,6 +31,12 @@ export const HyperfocusMascot: React.FC<MascotProps> = ({
   if (focus.includes("carro") || focus.includes("car")) {
     return <CarMascot state={state} size={size} />;
   }
+  if (focus.includes("trem") || focus.includes("train") || focus.includes("locomotiva")) {
+    return <TrainMascot state={state} size={size} />;
+  }
+  if (focus.includes("herói") || focus.includes("heroi") || focus.includes("hero") || focus.includes("super")) {
+    return <HeroMascot state={state} size={size} />;
+  }
 
   // Default fallback to the beautiful Border Collie
   return <BorderCollie state={state} size={size} />;
@@ -563,6 +569,228 @@ const CarMascot: React.FC<{ state: CollieState; size: number }> = ({ state, size
           <line x1="145" y1="155" x2="145" y2="175" stroke="#313244" strokeWidth="2" />
           <line x1="135" y1="165" x2="155" y2="165" stroke="#313244" strokeWidth="2" />
         </motion.g>
+      </motion.svg>
+    </div>
+  );
+};
+
+/* --- TRAIN MASCOT COMPONENT --- */
+const TrainMascot: React.FC<{ state: CollieState; size: number }> = ({ state, size }) => {
+  return (
+    <div className="flex flex-col items-center justify-center relative select-none" style={{ width: size, height: size }}>
+      <motion.svg
+        viewBox="0 0 200 200"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        className="w-full h-full"
+        animate={
+          state === 'celebrating' 
+            ? { y: [0, -10, 0, -10, 0], scale: [1, 1.04, 1] } 
+            : state === 'sleeping' 
+            ? { y: 2, scale: 0.98 } 
+            : { y: [0, -2, 0] }
+        }
+        transition={
+          state === 'celebrating'
+            ? { duration: 1.2, ease: "easeInOut" }
+            : state === 'sleeping'
+            ? { duration: 0.5 }
+            : { duration: 3.5, repeat: Infinity, ease: "easeInOut" }
+        }
+      >
+        {/* Zzz for sleeping / Smoke for celebrating */}
+        {state === 'sleeping' ? (
+          <>
+            <motion.text x="145" y="45" fill="#f9e2af" fontSize="16" fontWeight="bold" animate={{ opacity: [0, 1, 0], y: [45, 30] }} transition={{ duration: 2, repeat: Infinity, delay: 0 }}>z</motion.text>
+            <motion.text x="160" y="35" fill="#f9e2af" fontSize="22" fontWeight="bold" animate={{ opacity: [0, 1, 0], y: [35, 15] }} transition={{ duration: 2, repeat: Infinity, delay: 0.6 }}>Z</motion.text>
+          </>
+        ) : (
+          <>
+            {/* Little dynamic steam puffs */}
+            <motion.circle cx="143" cy="50" r="6" fill="#e2e8f0" animate={{ y: [50, 25], x: [143, 138], scale: [1, 1.8], opacity: [0, 0.7, 0] }} transition={{ duration: 1.8, repeat: Infinity, delay: 0 }} />
+            <motion.circle cx="143" cy="50" r="5" fill="#e2e8f0" animate={{ y: [50, 20], x: [143, 148], scale: [1, 1.5], opacity: [0, 0.7, 0] }} transition={{ duration: 1.8, repeat: Infinity, delay: 0.9 }} />
+          </>
+        )}
+
+        {/* Smoke Stack */}
+        <rect x="135" y="60" width="16" height="25" rx="3" fill="#313244" stroke="#313244" strokeWidth="2.5" />
+        
+        {/* Boiler */}
+        <rect x="65" y="80" width="80" height="55" rx="15" fill="#89b4fa" stroke="#313244" strokeWidth="4" />
+        
+        {/* Cabin */}
+        <rect x="35" y="60" width="45" height="75" rx="5" fill="#f9e2af" stroke="#313244" strokeWidth="4" />
+        <rect x="45" y="70" width="25" height="30" rx="3" fill="#89dceb" stroke="#313244" strokeWidth="2.5" />
+
+        {/* Cowcatcher (Front grill) */}
+        <path d="M 145 120 L 168 135 L 145 135 Z" fill="#f38ba8" stroke="#313244" strokeWidth="3" />
+
+        {/* Eyes on Boiler */}
+        {state === 'sleeping' ? (
+          <path d="M 118 95 Q 124 100 130 95 M 132 95 Q 138 100 144 95" stroke="#313244" strokeWidth="3.5" fill="none" strokeLinecap="round" />
+        ) : (
+          <>
+            <circle cx="124" cy="95" r="7" fill="white" stroke="#313244" strokeWidth="2" />
+            <circle cx="125" cy="95" r="3.5" fill="#1e1e2e" />
+            <circle cx="138" cy="95" r="7" fill="white" stroke="#313244" strokeWidth="2" />
+            <circle cx="139" cy="95" r="3.5" fill="#1e1e2e" />
+          </>
+        )}
+
+        {/* Smile on Boiler */}
+        <path d="M 125 110 Q 131 116 137 110" stroke="#313244" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+
+        {/* Wheels */}
+        {/* Back Wheel */}
+        <motion.g
+          animate={state === 'celebrating' ? { rotate: 360 } : {}}
+          transition={{ duration: 0.8, repeat: Infinity, ease: "linear" }}
+          style={{ originX: "58px", originY: "155px" }}
+        >
+          <circle cx="58" cy="155" r="20" fill="#f38ba8" stroke="#313244" strokeWidth="3" />
+          <circle cx="58" cy="155" r="6" fill="#bac2de" />
+          <line x1="58" y1="145" x2="58" y2="165" stroke="#313244" strokeWidth="2" />
+          <line x1="48" y1="155" x2="68" y2="155" stroke="#313244" strokeWidth="2" />
+        </motion.g>
+
+        {/* Middle Wheel */}
+        <motion.g
+          animate={state === 'celebrating' ? { rotate: 360 } : {}}
+          transition={{ duration: 0.8, repeat: Infinity, ease: "linear" }}
+          style={{ originX: "98px", originY: "155px" }}
+        >
+          <circle cx="98" cy="155" r="20" fill="#f38ba8" stroke="#313244" strokeWidth="3" />
+          <circle cx="98" cy="155" r="6" fill="#bac2de" />
+          <line x1="98" y1="145" x2="98" y2="165" stroke="#313244" strokeWidth="2" />
+          <line x1="88" y1="155" x2="108" y2="155" stroke="#313244" strokeWidth="2" />
+        </motion.g>
+
+        {/* Front Wheel */}
+        <motion.g
+          animate={state === 'celebrating' ? { rotate: 360 } : {}}
+          transition={{ duration: 0.8, repeat: Infinity, ease: "linear" }}
+          style={{ originX: "138px", originY: "155px" }}
+        >
+          <circle cx="138" cy="155" r="16" fill="#f38ba8" stroke="#313244" strokeWidth="3" />
+          <circle cx="138" cy="155" r="5" fill="#bac2de" />
+          <line x1="138" y1="147" x2="138" y2="163" stroke="#313244" strokeWidth="1.5" />
+          <line x1="130" y1="155" x2="146" y2="155" stroke="#313244" strokeWidth="1.5" />
+        </motion.g>
+        
+        {/* Connector Rod */}
+        <motion.line 
+          x1="58" y1="155" x2="138" y2="155" 
+          stroke="#313244" strokeWidth="4" strokeLinecap="round"
+          animate={state === 'celebrating' ? { y: [0, -3, 3, 0] } : {}}
+          transition={{ duration: 0.4, repeat: Infinity, ease: "linear" }}
+        />
+      </motion.svg>
+    </div>
+  );
+};
+
+/* --- HERO MASCOT COMPONENT --- */
+const HeroMascot: React.FC<{ state: CollieState; size: number }> = ({ state, size }) => {
+  return (
+    <div className="flex flex-col items-center justify-center relative select-none" style={{ width: size, height: size }}>
+      <motion.svg
+        viewBox="0 0 200 200"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        className="w-full h-full"
+        animate={
+          state === 'celebrating'
+            ? { y: [0, -15, 0, -15, 0], scale: [1, 1.05, 1] }
+            : state === 'sleeping'
+            ? { y: 4, scale: 0.97 }
+            : { y: [0, -5, 0] }
+        }
+        transition={
+          state === 'celebrating'
+            ? { duration: 1.2, ease: "easeInOut" }
+            : state === 'sleeping'
+            ? { duration: 0.5 }
+            : { duration: 3, repeat: Infinity, ease: "easeInOut" }
+        }
+      >
+        {/* Zzz for sleeping */}
+        {state === 'sleeping' && (
+          <>
+            <motion.text x="145" y="45" fill="#cba6f7" fontSize="16" fontWeight="bold" animate={{ opacity: [0, 1, 0], y: [45, 30] }} transition={{ duration: 2, repeat: Infinity, delay: 0 }}>z</motion.text>
+            <motion.text x="160" y="35" fill="#cba6f7" fontSize="22" fontWeight="bold" animate={{ opacity: [0, 1, 0], y: [35, 15] }} transition={{ duration: 2, repeat: Infinity, delay: 0.6 }}>Z</motion.text>
+          </>
+        )}
+
+        {/* Cape */}
+        <motion.path
+          d="M 68 110 Q 15 110 25 155 Q 65 155 75 125 Z"
+          fill="#f38ba8"
+          stroke="#313244"
+          strokeWidth="4"
+          style={{ originX: 0.75, originY: 0.6 }}
+          animate={state === 'celebrating' ? { skewY: [-10, 15, -10, 15, -10] } : { skewY: [-2, 5, -2] }}
+          transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut" }}
+        />
+        
+        {/* Suit Body */}
+        <circle cx="100" cy="110" r="42" fill="#cba6f7" stroke="#313244" strokeWidth="4" />
+        
+        {/* Star symbol on chest */}
+        <motion.text x="91" y="132" fill="#f9e2af" fontSize="20" fontWeight="bold" animate={state === 'celebrating' ? { scale: [1, 1.2, 1] } : {}}>⭐</motion.text>
+
+        {/* Arms */}
+        {/* Left Arm (raised in excitement) */}
+        <motion.path
+          d="M 60 115 Q 40 100 45 80"
+          stroke="#cba6f7"
+          strokeWidth="12"
+          strokeLinecap="round"
+          fill="none"
+          style={{ originX: 0.6, originY: 0.9 }}
+          animate={state === 'celebrating' ? { rotate: [-10, 30, -10] } : {}}
+          transition={{ duration: 0.5, repeat: Infinity, repeatType: "reverse" }}
+        />
+        
+        {/* Right Arm (hero flying pose!) */}
+        <motion.path
+          d="M 140 115 Q 165 95 160 70"
+          stroke="#cba6f7"
+          strokeWidth="12"
+          strokeLinecap="round"
+          fill="none"
+          style={{ originX: 0.7, originY: 0.9 }}
+          animate={
+            state === 'celebrating'
+              ? { rotate: [0, -30, 0, -30, 0], y: [0, -5, 0] }
+              : state === 'guiding'
+              ? { rotate: -40 }
+              : { rotate: 0 }
+          }
+          transition={{ duration: 0.4 }}
+        />
+
+        {/* Mask */}
+        <path d="M 62 100 Q 100 112 138 100 Q 142 90 138 80 Q 100 95 62 80 Q 58 90 62 100 Z" fill="#89b4fa" stroke="#313244" strokeWidth="3.5" />
+
+        {/* Mask Eyes */}
+        {state === 'sleeping' ? (
+          <path d="M 80 90 Q 86 95 92 90 M 108 90 Q 114 95 120 90" stroke="#313244" strokeWidth="3" fill="none" strokeLinecap="round" />
+        ) : (
+          <>
+            <circle cx="85" cy="90" r="7" fill="white" stroke="#313244" strokeWidth="2" />
+            <circle cx="86" cy="90" r="3.5" fill="#1e1e2e" />
+            
+            <circle cx="115" cy="90" r="7" fill="white" stroke="#313244" strokeWidth="2" />
+            <circle cx="116" cy="90" r="3.5" fill="#1e1e2e" />
+          </>
+        )}
+
+        {/* Mouth */}
+        <path d="M 94 116 Q 100 121 106 116" stroke="#313244" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+        
+        {/* Boots */}
+        <rect x="70" y="150" width="22" height="15" rx="5" fill="#f38ba8" stroke="#313244" strokeWidth="3" />
+        <rect x="108" y="150" width="22" height="15" rx="5" fill="#f38ba8" stroke="#313244" strokeWidth="3" />
       </motion.svg>
     </div>
   );

@@ -67,6 +67,12 @@ export default function Home() {
     if (focus.includes("carro") || focus.includes("car")) {
       return 'Vrum! 🏁';
     }
+    if (focus.includes("trem") || focus.includes("train") || focus.includes("locomotiva")) {
+      return 'Tchutchu! 🚂';
+    }
+    if (focus.includes("herói") || focus.includes("heroi") || focus.includes("hero") || focus.includes("super")) {
+      return 'Super! 🌟';
+    }
     return 'Au au! 🎉';
   };
 

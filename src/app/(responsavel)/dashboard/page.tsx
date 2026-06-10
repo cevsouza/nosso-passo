@@ -337,6 +337,18 @@ export default function ParentDashboard() {
         text: collieState === 'celebrating' ? 'Vrum! 🏁' : 'Mascote (Dicas)'
       };
     }
+    if (focus.includes("trem") || focus.includes("train") || focus.includes("locomotiva")) {
+      return {
+        emoji: '🚂',
+        text: collieState === 'celebrating' ? 'Tchutchu! 🚂' : 'Mascote (Dicas)'
+      };
+    }
+    if (focus.includes("herói") || focus.includes("heroi") || focus.includes("hero") || focus.includes("super")) {
+      return {
+        emoji: '🦸',
+        text: collieState === 'celebrating' ? 'Super! 🌟' : 'Mascote (Dicas)'
+      };
+    }
     return {
       emoji: '🐶',
       text: collieState === 'celebrating' ? 'Au Au! 🐾' : 'Companheiro (Dicas)'
@@ -833,13 +845,20 @@ export default function ParentDashboard() {
                 <label className="block text-xs font-black text-slate-700 uppercase tracking-wider mb-1.5 font-Outfit">
                   Hiperfoco Principal do Usuário
                 </label>
-                <input 
-                  type="text" 
+                <select
                   value={hyperfocus}
                   onChange={e => setHyperfocus(e.target.value)}
-                  placeholder="Ex: Trens, Dinossauros, Espaço"
-                  className="w-full px-4 py-2.5 bg-white border-2 border-slate-300 focus:border-indigo-600 focus:bg-white rounded-xl text-slate-900 placeholder-slate-400 outline-none text-sm transition-all shadow-xxs font-bold focus:ring-4 focus:ring-indigo-100"
-                />
+                  className="w-full px-4 py-2.5 bg-white border-2 border-slate-300 focus:border-indigo-600 focus:bg-white rounded-xl text-slate-900 outline-none text-sm transition-all shadow-xxs font-bold cursor-pointer focus:ring-4 focus:ring-indigo-100"
+                >
+                  <option value="Border Collies 🐕">Cachorro Border Collie 🐶</option>
+                  <option value="Dinossauro 🦖">Dinossauro 🦖</option>
+                  <option value="Astronauta / Espaço 🚀">Espaço / Astronauta 🚀</option>
+                  <option value="Minecraft / Blocos 🟩">Minecraft / Blocos 🟩</option>
+                  <option value="Gato 🐱">Gato 🐱</option>
+                  <option value="Carro 🚗">Carro 🚗</option>
+                  <option value="Trem / Locomotiva 🚂">Trem / Locomotiva 🚂</option>
+                  <option value="Super-herói 🦸">Super-herói 🦸</option>
+                </select>
               </div>
               <div>
                 <label className="block text-xs font-black text-slate-700 uppercase tracking-wider mb-1.5 font-Outfit">
