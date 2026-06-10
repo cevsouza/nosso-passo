@@ -1,15 +1,28 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { BorderCollie } from '../components/ludic/BorderCollie';
+import { HyperfocusMascot } from '../components/ludic/HyperfocusMascot';
 import { playBubble, playMarimba } from '../lib/audio-synth';
 import { BookOpen, ShieldAlert, Sparkles, User2, ArrowRight } from 'lucide-react';
+import { firebaseBridge } from '../lib/firebase-bridge';
 
 const MotionLink = motion(Link);
 
 export default function Home() {
   const [collieState, setCollieState] = useState<'idle' | 'guiding' | 'celebrating'>('idle');
+  const [childHyperfocus, setChildHyperfocus] = useState('Border Collies 🐕');
+
+  useEffect(() => {
+    try {
+      const active = firebaseBridge.auth.getActiveChild();
+      if (active && active.childHyperfocus) {
+        setChildHyperfocus(active.childHyperfocus);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  }, []);
 
   // Calming, low-contrast, sensory-safe bubbles rising slowly
   const bubbles = [
@@ -35,6 +48,20 @@ export default function Home() {
 
   const handleHoverLeave = () => {
     setCollieState('idle');
+  };
+
+  const getMascotCelebrationText = (hyperfocusStr: string) => {
+    const focus = (hyperfocusStr || "").toLowerCase().trim();
+    if (focus.includes("dino") || focus.includes("dinossauro") || focus.includes("dinosaur")) {
+      return 'Roar! 🦖';
+    }
+    if (focus.includes("espaço") || focus.includes("astronauta") || focus.includes("space") || focus.includes("estrela") || focus.includes("star") || focus.includes("foguete") || focus.includes("rocket")) {
+      return 'Bip bip! 🚀';
+    }
+    if (focus.includes("minecraft") || focus.includes("bloco") || focus.includes("block")) {
+      return 'Tlec! 🟩';
+    }
+    return 'Au au! 🎉';
   };
 
   return (
@@ -99,7 +126,7 @@ export default function Home() {
           <span className="text-3xl animate-bounce">🐶</span>
           <span className="text-xl font-black tracking-tight text-slate-900 font-Outfit">Rotina Animada</span>
         </div>
-        <span className="text-xs font-black uppercase tracking-widest text-indigo-750 bg-indigo-100 border-2 border-indigo-250 px-4 py-2 rounded-full shadow-sm">
+        <span className="text-xs font-black uppercase tracking-widest text-indigo-750 bg-indigo-100 border-2 border-indigo-255 px-4 py-2 rounded-full shadow-sm">
           ✨ Neurodiversidade
         </span>
       </header>
@@ -148,10 +175,10 @@ export default function Home() {
               whileTap={{ scale: 0.96 }}
               transition={{ type: "spring", stiffness: 400, damping: 20 }}
             >
-              <BorderCollie state={collieState} size={170} />
+              <HyperfocusMascot hyperfocus={childHyperfocus} state={collieState} size={170} />
               
               <span className="absolute bottom-2 text-[10px] font-black bg-slate-950 text-white px-3 py-1.5 rounded-full shadow-md select-none border border-slate-750 uppercase tracking-widest font-Outfit">
-                {collieState === 'celebrating' ? 'Au au! 🎉' : collieState === 'guiding' ? 'Olha lá! 👉' : 'Toca em mim! 👋'}
+                {collieState === 'celebrating' ? getMascotCelebrationText(childHyperfocus) : collieState === 'guiding' ? 'Olha lá! 👉' : 'Toca em mim! 👋'}
               </span>
             </motion.div>
           </div>

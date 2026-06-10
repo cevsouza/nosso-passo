@@ -138,6 +138,8 @@ export default function ParentDashboard() {
     }, 2000);
   };
 
+
+
   // Add Preset Task automatically with 1-click
   const handleAddPreset = async (preset: typeof PRESETS[0]) => {
     const activeDayTasks = tasks.filter(t => t.day === activeDayFilter);
@@ -302,6 +304,34 @@ export default function ParentDashboard() {
   const [formOpen, setFormOpen] = useState(false);
   const [savingProfile, setSavingProfile] = useState(false);
   const [statusMessage, setStatusMessage] = useState('');
+
+  const getMascotLabelInfo = () => {
+    const focus = (hyperfocus || activeChild?.childHyperfocus || 'Border Collies 🐕').toLowerCase().trim();
+    if (focus.includes("dino") || focus.includes("dinossauro") || focus.includes("dinosaur")) {
+      return {
+        emoji: '🦖',
+        text: collieState === 'celebrating' ? 'Roar! 🦖' : 'Mascote (Dicas)'
+      };
+    }
+    if (focus.includes("espaço") || focus.includes("astronauta") || focus.includes("space") || focus.includes("estrela") || focus.includes("star") || focus.includes("foguete") || focus.includes("rocket")) {
+      return {
+        emoji: '🚀',
+        text: collieState === 'celebrating' ? 'Bip bip! 🚀' : 'Mascote (Dicas)'
+      };
+    }
+    if (focus.includes("minecraft") || focus.includes("bloco") || focus.includes("block")) {
+      return {
+        emoji: '🟩',
+        text: collieState === 'celebrating' ? 'Tlec! 🟩' : 'Mascote (Dicas)'
+      };
+    }
+    return {
+      emoji: '🐶',
+      text: collieState === 'celebrating' ? 'Au Au! 🐾' : 'Companheiro (Dicas)'
+    };
+  };
+
+  const mascotLabel = getMascotLabelInfo();
 
   // 1. Verification of authentication & fetch profile & children
   useEffect(() => {
@@ -990,7 +1020,7 @@ export default function ParentDashboard() {
                 <HyperfocusMascot hyperfocus={hyperfocus || activeChild?.childHyperfocus || 'Border Collies 🐕'} state={collieState} size={110} />
               </div>
               <span className="text-[9px] font-extrabold text-slate-400 mt-2 tracking-widest uppercase flex items-center gap-1 select-none">
-                🐶 {collieState === 'celebrating' ? 'Au Au! 🐾' : 'Companheiro (Dicas)'}
+                {mascotLabel.emoji} {mascotLabel.text}
               </span>
             </div>
           </div>
