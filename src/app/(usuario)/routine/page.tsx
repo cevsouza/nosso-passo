@@ -747,7 +747,7 @@ export default function ChildRoutine() {
         )}
 
         {/* Top Navigation Header (styled for Dark/Night view) */}
-        <div className="w-full max-w-2xl flex items-center justify-between mb-8 z-10">
+        <div className="w-full max-w-2xl md:max-w-4xl flex items-center justify-between mb-8 z-10 px-4 md:px-6">
           <div className="flex gap-2 items-center">
             <button 
               onClick={() => handleAttemptExit('/')}
@@ -812,7 +812,7 @@ export default function ChildRoutine() {
           initial={{ scale: 0.96, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={transitionConfig}
-          className="z-10 w-full max-w-lg text-center flex flex-col items-center gap-6"
+          className="z-10 w-full max-w-lg md:max-w-4xl text-center flex flex-col items-center gap-6 px-4 md:px-6"
         >
           {/* Night indicator */}
           <span className="text-xs font-black uppercase tracking-wider text-indigo-300 bg-indigo-950/70 px-4.5 py-2 rounded-full border border-indigo-700/50 shadow-inner flex items-center gap-1.5">
@@ -833,66 +833,68 @@ export default function ChildRoutine() {
             <HyperfocusMascot hyperfocus={childHyperfocus} state="sleeping" size={240} />
           </div>
 
-          {/* Badges Gallery Reward */}
-          <div className="w-full bg-slate-800/50 border border-slate-700/40 p-5 rounded-3xl flex flex-col gap-4 text-left shadow-2xl">
-            <h4 className="font-extrabold text-slate-200 text-xs uppercase tracking-widest flex items-center gap-1.5 select-none">
-              🏅 Medalhas conquistadas hoje:
-            </h4>
-            <div className="grid grid-cols-3 gap-3">
-              {BADGES.map(badge => (
-                <motion.div 
-                  key={badge.id}
-                  whileHover={{ scale: 1.05 }}
-                  className="bg-slate-700/40 border border-slate-600/30 p-3 rounded-2xl flex flex-col items-center text-center gap-1 shadow-md"
-                >
-                  <span className="text-3xl animate-pulse select-none">{badge.icon}</span>
-                  <h5 className="font-black text-slate-100 text-[10px] leading-tight mt-1">{badge.label}</h5>
-                  <span className="text-[8px] text-slate-400 leading-tight mt-0.5">{badge.desc}</span>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-
-          {/* TEACCH Choice Board (Painel de Escolhas Lúdicas) */}
-          <div className="w-full bg-slate-800/50 border border-slate-700/40 p-5 rounded-3xl flex flex-col gap-4 text-left shadow-2xl">
-            <h4 className="font-extrabold text-slate-200 text-xs uppercase tracking-widest flex items-center gap-1.5 select-none font-Outfit">
-              🪁 Painel de Escolhas Lúdicas (O que quer fazer agora?):
-            </h4>
-            <div className="grid grid-cols-2 gap-3">
-              {[
-                { id: 'draw', label: 'Desenhar 🎨', speech: 'Você escolheu desenhar! Divirta-se com as cores!', icon: '🎨' },
-                { id: 'read', label: 'Ler Livro 📚', speech: 'Você escolheu ler um livro! Uma ótima história te espera!', icon: '📚' },
-                { id: 'blocks', label: 'Montar Blocos 🧱', speech: 'Você escolheu brincar de blocos! Que tal construir um castelo?', icon: '🧱' },
-                { id: 'puzzle', label: 'Quebra-cabeça 🧩', speech: 'Você escolheu jogar quebra-cabeça! Vamos encaixar as peças!', icon: '🧩' },
-              ].map(choice => {
-                const isSelected = selectedChoice === choice.id;
-                return (
-                  <motion.button
-                    key={choice.id}
-                    whileHover={{ scale: 1.03 }}
-                    whileTap={{ scale: 0.97 }}
-                    onClick={() => {
-                      playBubble();
-                      setSelectedChoice(choice.id);
-                      speakText(choice.speech);
-                    }}
-                    className={`p-4.5 rounded-2xl flex flex-col items-center justify-center text-center gap-2 border-2 transition-all cursor-pointer ${
-                      isSelected
-                        ? 'bg-indigo-650/80 border-indigo-500 text-white shadow-lg shadow-indigo-950/50'
-                        : 'bg-slate-700/30 border-slate-600/30 text-slate-200 hover:bg-slate-700/50'
-                    }`}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+            {/* Badges Gallery Reward */}
+            <div className="w-full bg-slate-800/50 border border-slate-700/40 p-5 rounded-3xl flex flex-col gap-4 text-left shadow-2xl">
+              <h4 className="font-extrabold text-slate-200 text-xs uppercase tracking-widest flex items-center gap-1.5 select-none">
+                🏅 Medalhas conquistadas hoje:
+              </h4>
+              <div className="grid grid-cols-3 gap-3">
+                {BADGES.map(badge => (
+                  <motion.div 
+                    key={badge.id}
+                    whileHover={{ scale: 1.05 }}
+                    className="bg-slate-700/40 border border-slate-600/30 p-3 rounded-2xl flex flex-col items-center text-center gap-1 shadow-md"
                   >
-                    <span className="text-4.5xl select-none">{choice.icon}</span>
-                    <span className="font-black text-xs tracking-tight font-Outfit mt-1">{choice.label}</span>
-                  </motion.button>
-                );
-              })}
+                    <span className="text-3xl animate-pulse select-none">{badge.icon}</span>
+                    <h5 className="font-black text-slate-100 text-[10px] leading-tight mt-1">{badge.label}</h5>
+                    <span className="text-[8px] text-slate-400 leading-tight mt-0.5">{badge.desc}</span>
+                  </motion.div>
+                ))}
+              </div>
             </div>
-            {selectedChoice && (
-              <p className="text-[10px] text-center text-indigo-300 font-extrabold animate-pulse uppercase tracking-wider">
-                Boa escolha! Aproveite seu momento de descanso!
-              </p>
-            )}
+
+            {/* TEACCH Choice Board (Painel de Escolhas Lúdicas) */}
+            <div className="w-full bg-slate-800/50 border border-slate-700/40 p-5 rounded-3xl flex flex-col gap-4 text-left shadow-2xl">
+              <h4 className="font-extrabold text-slate-200 text-xs uppercase tracking-widest flex items-center gap-1.5 select-none font-Outfit">
+                🪁 Painel de Escolhas Lúdicas (O que quer fazer agora?):
+              </h4>
+              <div className="grid grid-cols-2 gap-3">
+                {[
+                  { id: 'draw', label: 'Desenhar 🎨', speech: 'Você escolheu desenhar! Divirta-se com as cores!', icon: '🎨' },
+                  { id: 'read', label: 'Ler Livro 📚', speech: 'Você escolheu ler um livro! Uma ótima história te espera!', icon: '📚' },
+                  { id: 'blocks', label: 'Montar Blocos 🧱', speech: 'Você escolheu brincar de blocos! Que tal construir um castelo?', icon: '🧱' },
+                  { id: 'puzzle', label: 'Quebra-cabeça 🧩', speech: 'Você escolheu jogar quebra-cabeça! Vamos encaixar as peças!', icon: '🧩' },
+                ].map(choice => {
+                  const isSelected = selectedChoice === choice.id;
+                  return (
+                    <motion.button
+                      key={choice.id}
+                      whileHover={{ scale: 1.03 }}
+                      whileTap={{ scale: 0.97 }}
+                      onClick={() => {
+                        playBubble();
+                        setSelectedChoice(choice.id);
+                        speakText(choice.speech);
+                      }}
+                      className={`p-4.5 rounded-2xl flex flex-col items-center justify-center text-center gap-2 border-2 transition-all cursor-pointer ${
+                        isSelected
+                          ? 'bg-indigo-650/80 border-indigo-500 text-white shadow-lg shadow-indigo-950/50'
+                          : 'bg-slate-700/30 border-slate-600/30 text-slate-200 hover:bg-slate-700/50'
+                      }`}
+                    >
+                      <span className="text-4.5xl select-none">{choice.icon}</span>
+                      <span className="font-black text-xs tracking-tight font-Outfit mt-1">{choice.label}</span>
+                    </motion.button>
+                  );
+                })}
+              </div>
+              {selectedChoice && (
+                <p className="text-[10px] text-center text-indigo-300 font-extrabold animate-pulse uppercase tracking-wider">
+                  Boa escolha! Aproveite seu momento de descanso!
+                </p>
+              )}
+            </div>
           </div>
 
           <div className="w-full bg-slate-800/40 backdrop-blur-md border border-slate-700/40 p-5 rounded-3xl shadow-xl flex flex-col gap-4 text-left">
@@ -1120,7 +1122,7 @@ export default function ChildRoutine() {
       )}
 
       {/* Top Navigation */}
-      <div className="w-full max-w-2xl flex items-center justify-between mb-8 z-10">
+      <div className="w-full max-w-2xl md:max-w-5xl flex items-center justify-between mb-8 z-10 px-4 md:px-6">
         <div className="flex gap-2 items-center">
           <button 
             onClick={() => handleAttemptExit('/')}
@@ -1161,7 +1163,7 @@ export default function ChildRoutine() {
             className={`px-3 py-1.5 rounded-full text-xs font-black transition-all ${
               activeAmbientType === 'rain'
                 ? 'bg-blue-100 text-blue-800'
-                : 'bg-transparent text-slate-400 hover:text-blue-500'
+                : 'bg-transparent text-slate-405 hover:text-blue-500'
             }`}
             title="Som de Chuva"
           >
@@ -1181,11 +1183,11 @@ export default function ChildRoutine() {
         </div>
       </div>
 
-      <div className="w-full max-w-2xl flex flex-col gap-6 z-10">
+      <div className="w-full max-w-2xl md:max-w-5xl flex flex-col md:grid md:grid-cols-12 gap-6 z-10 px-4 md:px-6">
         
         {/* Token Economy Stars Row */}
         {activeChild && (
-          <div className="bg-white border-2 border-slate-300 p-4.5 rounded-[24px] shadow-premium flex flex-col sm:flex-row items-center justify-between gap-3 w-full">
+          <div className="bg-white border-2 border-slate-300 p-4.5 rounded-[24px] shadow-premium flex flex-col sm:flex-row items-center justify-between gap-3 w-full md:col-span-12">
             <div className="flex items-center gap-2">
               <span className="text-xl">🪙</span>
               <div>
@@ -1227,7 +1229,7 @@ export default function ChildRoutine() {
           <motion.div 
             initial={{ scale: 0.98, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="bg-white/80 border border-white/50 p-12 rounded-[32px] shadow-premium text-center flex flex-col items-center gap-4"
+            className="bg-white/80 border border-white/50 p-12 rounded-[32px] shadow-premium text-center flex flex-col items-center gap-4 md:col-span-12"
           >
             <HyperfocusMascot hyperfocus={childHyperfocus} state="idle" size={170} />
             <h3 className="text-xl font-extrabold text-slate-700 mt-2">Nenhuma atividade hoje!</h3>
@@ -1248,7 +1250,7 @@ export default function ChildRoutine() {
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.97 }}
                     transition={transitionConfig}
-                    className={`bg-white border-4 rounded-[36px] p-8 shadow-premium flex flex-col items-center text-center gap-6 relative overflow-hidden transition-all duration-500 border-t-8 border-t-transparent ${category.shadow}`}
+                    className={`bg-white border-4 rounded-[36px] p-8 shadow-premium flex flex-col items-center text-center gap-6 relative overflow-hidden transition-all duration-500 border-t-8 border-t-transparent md:col-span-7 ${category.shadow}`}
                   >
                     {/* Glowing outer soft neon reflection underneath */}
                     {sensoryVisuals === 'rich' && (
@@ -1436,7 +1438,7 @@ export default function ChildRoutine() {
             {/* 2. PROGRESS TRACKER OR CLINICAL FIRST-THEN BOARD */}
             {sensoryVisuals === 'minimal' ? (
               /* TEACCH FIRST-THEN (PRIMEIRO-DEPOIS) BOARD */
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full mt-2">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 w-full mt-2 md:col-span-5 md:mt-0">
                 {/* FIRST CARD (CURRENT ACTIVE TASK) */}
                 {activeTask ? (() => {
                   const category = getTaskCategory(activeTask.title);
@@ -1515,7 +1517,7 @@ export default function ChildRoutine() {
               </div>
             ) : (
               /* THE ROUTINE TRAIL - GAMIFIED PROGRESS TRACKER (RICH VISUALS) */
-              <div className="bg-white border-2 border-slate-300 p-6.5 rounded-[32px] shadow-premium flex flex-col gap-4 text-left w-full">
+              <div className="bg-white border-2 border-slate-300 p-6.5 rounded-[32px] shadow-premium flex flex-col gap-4 text-left w-full md:col-span-5 md:mt-0">
                 <h3 className="font-black text-xs text-slate-655 uppercase tracking-widest flex items-center gap-1.5 select-none font-Outfit">
                   🚂 Trilha das Minhas Missões:
                 </h3>

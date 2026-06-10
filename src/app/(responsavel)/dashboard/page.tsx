@@ -1009,7 +1009,7 @@ export default function ParentDashboard() {
     <main className="min-h-screen bg-[#f8fafc] text-slate-900 pb-16">
       {/* Header bar */}
       <header className="bg-white border-b-2 border-slate-250 sticky top-0 z-30 shadow-premium">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div className="max-w-6xl mx-auto px-4 md:px-6 py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-indigo-100 text-indigo-850 rounded-xl flex items-center justify-center font-bold text-lg shadow-sm border-2 border-indigo-200">
               PA
@@ -1036,7 +1036,7 @@ export default function ParentDashboard() {
 
       {/* Child Selector & Management Bar */}
       <section className="bg-white border-b-2 border-slate-250 py-4 shadow-sm">
-        <div className="max-w-6xl mx-auto px-6 flex flex-wrap items-center justify-between gap-4">
+        <div className="max-w-6xl mx-auto px-4 md:px-6 flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-3 flex-wrap">
             <span className="text-xs font-black text-slate-500 uppercase tracking-wider font-Outfit">Crianças:</span>
             {children.map(child => {
@@ -1114,7 +1114,7 @@ export default function ParentDashboard() {
       {/* Real-time Task Completion Notification Feed for Parents */}
       <AnimatePresence>
         {notifications.length > 0 && (
-          <div className="max-w-6xl mx-auto px-6 mt-4">
+          <div className="max-w-6xl mx-auto px-4 md:px-6 mt-4">
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -1142,10 +1142,10 @@ export default function ParentDashboard() {
         )}
       </AnimatePresence>
 
-      <div className="max-w-6xl mx-auto px-6 mt-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="max-w-6xl mx-auto px-4 md:px-6 mt-8 grid grid-cols-1 md:grid-cols-12 gap-6 lg:gap-8">
         
         {/* Left Side: Child Settings & Fast Actions */}
-        <div className="lg:col-span-1 flex flex-col gap-6">
+        <div className="md:col-span-4 flex flex-col gap-6">
           
           {/* Child Hyperfocus Profile Card */}
           <div className="bg-white border-2 border-slate-250 rounded-[28px] p-6 shadow-premium flex flex-col gap-4">
@@ -1497,7 +1497,7 @@ export default function ParentDashboard() {
         </div>
 
         {/* Right Side: Routine Composer / Logs */}
-        <div className="lg:col-span-2 flex flex-col gap-6">
+        <div className="md:col-span-8 flex flex-col gap-6">
           
           {/* Tabs for switching Tasks Routine vs Reports vs Audit Logs */}
           <div className="bg-white border-2 border-slate-250 p-2 rounded-2xl flex shadow-sm gap-1 overflow-x-auto scrollbar-none">
@@ -2050,7 +2050,7 @@ export default function ParentDashboard() {
                     Nenhuma sessão configurada. Certifique-se de selecionar uma criança válida no menu lateral.
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     {checkpoints.map((cp) => {
                       const isEditing = editingCheckpointId === cp.id;
                       return (
@@ -2332,7 +2332,7 @@ export default function ParentDashboard() {
                         </div>
 
                         {/* Visual Category Compliance Graph */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                           <div className="bg-slate-50 border border-slate-200/50 p-5 rounded-2xl flex flex-col gap-4 shadow-xxs">
                             <h4 className="font-extrabold text-xs text-slate-500 uppercase tracking-wider">Aderência por Período de Dia</h4>
                             <div className="flex flex-col gap-3">
