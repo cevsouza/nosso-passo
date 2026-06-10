@@ -119,6 +119,75 @@ const SOCIAL_STORIES = [
         img: '🏅',
       }
     ]
+  },
+  {
+    id: 'making_friends',
+    title: 'Fazer Novos Amigos 🤝',
+    desc: 'Como podemos nos aproximar e brincar com outras crianças na escola ou no parque!',
+    steps: [
+      {
+        text: 'Na escola ou no parque, há muitas crianças que também querem brincar. Fazer amigos é como começar um jogo divertido em equipe!',
+        img: '🏫',
+      },
+      {
+        text: 'Você pode se aproximar devagar, olhar nos olhos com um sorriso amigável e dizer: "Olá! Meu nome é [Mascote], posso brincar com você?"',
+        img: '👋',
+      },
+      {
+        text: 'Se o outro amigo disser que sim, vocês podem compartilhar as brincadeiras! Dividir blocos de montar ou esperar a sua vez no balanço torna tudo divertido.',
+        img: '🧩',
+      },
+      {
+        text: 'Se ele preferir brincar sozinho agora, tudo bem! Há muitas outras crianças e outros momentos para tentarmos. Você foi super corajoso ao tentar!',
+        img: '❤️',
+      }
+    ]
+  },
+  {
+    id: 'sharing_toys',
+    title: 'Compartilhar e Cooperar 🧸',
+    desc: 'Aprender a dividir brinquedos e esperar a nossa vez deixa a brincadeira muito melhor!',
+    steps: [
+      {
+        text: 'Brincar com carrinhos ou blocos é muito legal! Mas quando compartilhamos, podemos construir pistas de corrida ainda maiores juntos.',
+        img: '🚗',
+      },
+      {
+        text: 'Se outro amigo quiser o brinquedo que você está usando, você pode dizer: "Vou brincar mais um pouquinho, e depois é a sua vez!" Isso ajuda a acalmar.',
+        img: '⏳',
+      },
+      {
+        text: 'Quando entregamos o brinquedo com calma, nosso amigo fica muito feliz. E logo ele vai compartilhar um brinquedo legal com você também!',
+        img: '🙌',
+      },
+      {
+        text: 'Parabéns! Brincar juntos respeitando os tempos é uma super missão de amizade concluída com sucesso!',
+        img: '🥳',
+      }
+    ]
+  },
+  {
+    id: 'dealing_with_frustration',
+    title: 'Quando Algo Muda 🌀',
+    desc: 'Nem sempre as coisas saem como planejamos, e tudo bem! Vamos ver como respirar e acalmar.',
+    steps: [
+      {
+        text: 'Às vezes, nós queremos brincar lá fora, mas começa a chover. Ou uma atividade muda de horário de repente. Isso pode dar um friozinho na barriga.',
+        img: '🌧️',
+      },
+      {
+        text: 'Quando isso acontecer, você pode fechar os olhos e respirar fundo 3 vezes. Puxe o ar como se cheirasse uma flor, e solte como se soprasse uma vela.',
+        img: '🧘',
+      },
+      {
+        text: 'Pensar em um plano B ajuda nosso cérebro! Se não dá para ir ao parque, que tal desenhar o seu mascote favorito no papel?',
+        img: '🎨',
+      },
+      {
+        text: 'As mudanças acontecem, mas nós somos flexíveis e fortes como super-heróis. Logo o sol volta a brilhar!',
+        img: '☀️',
+      }
+    ]
   }
 ];
 
@@ -646,7 +715,7 @@ export default function ChildRoutine() {
       : '';
 
     return (
-      <main className={`min-h-screen flex flex-col items-center justify-center p-6 bg-gradient-to-b from-[#0b0f19] via-[#1a2035] to-[#2b1f3d] text-white relative overflow-hidden ${profileClass}`}>
+      <main className={`min-h-screen flex flex-col items-center p-6 pb-12 bg-gradient-to-b from-[#0b0f19] via-[#1a2035] to-[#2b1f3d] text-white relative overflow-hidden ${profileClass}`}>
         {/* Twinkling stars in the background */}
         {sensoryVisuals === 'rich' && (
           <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
@@ -674,6 +743,68 @@ export default function ChildRoutine() {
             </svg>
           </motion.div>
         )}
+
+        {/* Top Navigation Header (styled for Dark/Night view) */}
+        <div className="w-full max-w-2xl flex items-center justify-between mb-8 z-10">
+          <div className="flex gap-2 items-center">
+            <button 
+              onClick={() => handleAttemptExit('/')}
+              onMouseEnter={playBubble}
+              className="flex items-center gap-1.5 px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-xs font-black rounded-full border-2 border-slate-700 shadow-premium transition-all active:scale-95 cursor-pointer text-slate-200"
+            >
+              🏠 Início
+            </button>
+            
+            <button
+              onClick={() => { playBubble(); setShowStoriesModal(true); }}
+              onMouseEnter={playBubble}
+              className="flex items-center gap-1.5 px-5 py-2.5 bg-indigo-950 hover:bg-indigo-900 border-2 border-indigo-800 text-indigo-200 text-xs font-black rounded-full shadow-premium transition-all active:scale-95 cursor-pointer"
+            >
+              📖 Histórias
+            </button>
+          </div>
+
+          <h2 className="text-xs font-black bg-slate-800 border-2 border-slate-700 text-slate-200 px-5 py-2.5 rounded-full shadow-premium uppercase tracking-widest font-Outfit">
+            {DAY_LABELS[currentDay] || `Dia ${currentDay} 📅`}
+          </h2>
+          
+          {/* Ambient Sound Selector */}
+          <div className="flex bg-slate-800 border-2 border-slate-700 p-1 rounded-full shadow-premium gap-1 items-center z-10">
+            <button
+              onClick={() => handleAmbientChange('none')}
+              className={`px-3 py-1.5 rounded-full text-xs font-black transition-all ${
+                activeAmbientType === 'none'
+                  ? 'bg-slate-700 text-slate-100'
+                  : 'bg-transparent text-slate-405 hover:text-slate-200'
+              }`}
+              title="Silencioso"
+            >
+              🔈
+            </button>
+            <button
+              onClick={() => handleAmbientChange('rain')}
+              className={`px-3 py-1.5 rounded-full text-xs font-black transition-all ${
+                activeAmbientType === 'rain'
+                  ? 'bg-blue-900 text-blue-105'
+                  : 'bg-transparent text-slate-405 hover:text-blue-300'
+              }`}
+              title="Som de Chuva"
+            >
+              🌧️
+            </button>
+            <button
+              onClick={() => handleAmbientChange('binaural')}
+              className={`px-3 py-1.5 rounded-full text-xs font-black transition-all ${
+                activeAmbientType === 'binaural'
+                  ? 'bg-indigo-900 text-indigo-105'
+                  : 'bg-transparent text-slate-405 hover:text-indigo-300'
+              }`}
+              title="Foco Binaural"
+            >
+              🧠
+            </button>
+          </div>
+        </div>
 
         <motion.div
           initial={{ scale: 0.96, opacity: 0 }}
@@ -812,6 +943,157 @@ export default function ChildRoutine() {
                 }}
                 generateMathProblem={generateMathProblem}
               />
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Social Stories Modal Dialog (also available on Day Finished Screen) */}
+        <AnimatePresence>
+          {showStoriesModal && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md"
+            >
+              <motion.div
+                initial={{ scale: 0.9, y: 20 }}
+                animate={{ scale: 1, y: 0 }}
+                exit={{ scale: 0.9, y: 20 }}
+                className="bg-white border-4 border-indigo-400 rounded-[32px] p-6 w-full max-w-lg shadow-2xl flex flex-col gap-6 relative overflow-hidden text-[#0f172a]"
+              >
+                {/* Close button at top right */}
+                <button
+                  onClick={() => { playBubble(); setShowStoriesModal(false); setSelectedStory(null); setCurrentStoryStep(0); }}
+                  className="absolute top-4 right-4 w-9 h-9 bg-slate-100 hover:bg-slate-200 border-2 border-slate-200 text-slate-500 rounded-full flex items-center justify-center font-black transition-all active:scale-90 cursor-pointer text-sm"
+                >
+                  ✕
+                </button>
+
+                {!selectedStory ? (
+                  // Story Selection Screen
+                  <div className="flex flex-col gap-5">
+                    <div className="text-center mt-2">
+                      <span className="text-3xl">📖</span>
+                      <h3 className="text-xl font-black text-slate-850 mt-2 font-Outfit">Histórias Sociais do Mascote</h3>
+                      <p className="text-xs text-slate-400 font-semibold mt-1">
+                        Escolha uma história para ver com o seu mascote!
+                      </p>
+                    </div>
+
+                    <div className="flex flex-col gap-3 max-h-[350px] overflow-y-auto pr-1 scrollbar-thin">
+                      {SOCIAL_STORIES.map(story => (
+                        <button
+                          key={story.id}
+                          onClick={() => {
+                            playBubble();
+                            setSelectedStory(story);
+                            setCurrentStoryStep(0);
+                            speakText(story.steps[0].text.replace('[Mascote]', childHyperfocus.split(' ')[0]));
+                          }}
+                          className="p-4 bg-slate-50 hover:bg-indigo-50/40 hover:border-indigo-300 border-2 border-slate-200/80 rounded-2xl transition-all active:scale-98 text-left cursor-pointer flex items-center gap-4 group"
+                        >
+                          <div className="w-12 h-12 bg-indigo-50 border border-indigo-100 rounded-xl flex items-center justify-center text-2xl shadow-xxs shrink-0 group-hover:scale-105 transition-all">
+                            {story.steps[0].img}
+                          </div>
+                          <div>
+                            <h4 className="font-extrabold text-sm text-slate-850 font-Outfit group-hover:text-indigo-750 transition-all">{story.title}</h4>
+                            <p className="text-[10px] text-slate-500 font-semibold mt-0.5 leading-normal">{story.desc}</p>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  // Story Reading Screen
+                  <div className="flex flex-col items-center gap-5">
+                    <div className="flex items-center justify-between w-full border-b border-slate-100 pb-3">
+                      <button
+                        onClick={() => { playBubble(); setSelectedStory(null); setCurrentStoryStep(0); }}
+                        className="text-xxs font-black uppercase tracking-wider text-slate-400 hover:text-slate-650 flex items-center gap-1 cursor-pointer bg-transparent border-none"
+                      >
+                        ← Voltar
+                      </button>
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest font-Outfit">
+                        Etapa {currentStoryStep + 1} de {selectedStory.steps.length}
+                      </span>
+                    </div>
+
+                    {/* Visual Scene */}
+                    <div className="flex flex-col items-center gap-3 py-4 w-full bg-slate-50/50 border-2 border-slate-150 rounded-[24px] relative min-h-[220px] justify-center">
+                      {/* Big illustration emoji */}
+                      <motion.div 
+                        key={currentStoryStep}
+                        initial={{ scale: 0.7, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        transition={{ type: "spring", stiffness: 200, damping: 15 }}
+                        className="text-7xl select-none"
+                      >
+                        {selectedStory.steps[currentStoryStep].img}
+                      </motion.div>
+                      
+                      {/* Active hyperfocus mascot is guide here */}
+                      <div className="absolute bottom-2 right-4 flex items-center gap-1.5 bg-white border border-slate-200 px-2.5 py-1.5 rounded-full shadow-xxs max-w-[80%]">
+                        <span className="text-xs">🐾</span>
+                        <span className="text-[9px] font-black text-indigo-700 uppercase tracking-wider font-Outfit">Guia {childHyperfocus.split(' ')[0]}</span>
+                      </div>
+                    </div>
+
+                    {/* Narration Text */}
+                    <motion.p 
+                      key={`text-${currentStoryStep}`}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="text-sm text-slate-700 leading-relaxed font-extrabold text-center px-2 min-h-[60px]"
+                    >
+                      {selectedStory.steps[currentStoryStep].text.replace('[Mascote]', childHyperfocus.split(' ')[0])}
+                    </motion.p>
+
+                    {/* Navigation Buttons */}
+                    <div className="flex gap-3 w-full border-t border-slate-100 pt-4 mt-1">
+                      {currentStoryStep > 0 ? (
+                        <button
+                          onClick={() => {
+                            playBubble();
+                            const prevStep = currentStoryStep - 1;
+                            setCurrentStoryStep(prevStep);
+                            speakText(selectedStory.steps[prevStep].text.replace('[Mascote]', childHyperfocus.split(' ')[0]));
+                          }}
+                          className="flex-1 py-3 bg-slate-100 hover:bg-slate-200 border-2 border-slate-350 text-slate-750 text-xs font-black rounded-2xl active:scale-95 transition-all cursor-pointer font-Outfit flex items-center justify-center gap-1"
+                        >
+                          ⬅️ Anterior
+                        </button>
+                      ) : null}
+
+                      {currentStoryStep < selectedStory.steps.length - 1 ? (
+                        <button
+                          onClick={() => {
+                            playBubble();
+                            const nextStep = currentStoryStep + 1;
+                            setCurrentStoryStep(nextStep);
+                            speakText(selectedStory.steps[nextStep].text.replace('[Mascote]', childHyperfocus.split(' ')[0]));
+                          }}
+                          className="flex-1 py-3 bg-indigo-650 hover:bg-indigo-750 text-white text-xs font-black rounded-2xl active:scale-95 transition-all cursor-pointer font-Outfit flex items-center justify-center gap-1"
+                        >
+                          Próximo ➡️
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => {
+                            playCelebration();
+                            setShowStoriesModal(false);
+                            setSelectedStory(null);
+                            setCurrentStoryStep(0);
+                          }}
+                          className="flex-1 py-3 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black rounded-2xl active:scale-95 transition-all cursor-pointer font-Outfit flex items-center justify-center gap-1 shadow-md shadow-emerald-100"
+                        >
+                          Concluir 🏆
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </motion.div>
             </motion.div>
           )}
         </AnimatePresence>
@@ -1461,7 +1743,7 @@ export default function ChildRoutine() {
                           playBubble();
                           setSelectedStory(story);
                           setCurrentStoryStep(0);
-                          speakText(story.steps[0].text);
+                          speakText(story.steps[0].text.replace('[Mascote]', childHyperfocus.split(' ')[0]));
                         }}
                         className="p-4 bg-slate-50 hover:bg-indigo-50/40 hover:border-indigo-300 border-2 border-slate-200/80 rounded-2xl transition-all active:scale-98 text-left cursor-pointer flex items-center gap-4 group"
                       >
@@ -1518,7 +1800,7 @@ export default function ChildRoutine() {
                     animate={{ opacity: 1, y: 0 }}
                     className="text-sm text-slate-700 leading-relaxed font-extrabold text-center px-2 min-h-[60px]"
                   >
-                    {selectedStory.steps[currentStoryStep].text}
+                    {selectedStory.steps[currentStoryStep].text.replace('[Mascote]', childHyperfocus.split(' ')[0])}
                   </motion.p>
 
                   {/* Navigation Buttons */}
@@ -1529,7 +1811,7 @@ export default function ChildRoutine() {
                           playBubble();
                           const prevStep = currentStoryStep - 1;
                           setCurrentStoryStep(prevStep);
-                          speakText(selectedStory.steps[prevStep].text);
+                          speakText(selectedStory.steps[prevStep].text.replace('[Mascote]', childHyperfocus.split(' ')[0]));
                         }}
                         className="flex-1 py-3 bg-slate-100 hover:bg-slate-200 border-2 border-slate-350 text-slate-750 text-xs font-black rounded-2xl active:scale-95 transition-all cursor-pointer font-Outfit flex items-center justify-center gap-1"
                       >
@@ -1543,7 +1825,7 @@ export default function ChildRoutine() {
                           playBubble();
                           const nextStep = currentStoryStep + 1;
                           setCurrentStoryStep(nextStep);
-                          speakText(selectedStory.steps[nextStep].text);
+                          speakText(selectedStory.steps[nextStep].text.replace('[Mascote]', childHyperfocus.split(' ')[0]));
                         }}
                         className="flex-1 py-3 bg-indigo-650 hover:bg-indigo-750 text-white text-xs font-black rounded-2xl active:scale-95 transition-all cursor-pointer font-Outfit flex items-center justify-center gap-1"
                       >

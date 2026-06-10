@@ -6,14 +6,32 @@ let audioCtx: AudioContext | null = null;
 // Initialize or get the AudioContext lazily (must be triggered by user gesture)
 const getAudioContext = (): AudioContext | null => {
   if (typeof window === 'undefined') return null;
-  if (!audioCtx) {
-    audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+  
+  const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+  if (!AudioContextClass) {
+    console.warn('Web Audio API is not supported in this browser.');
+    return null;
   }
-  if (audioCtx.state === 'suspended') {
-    audioCtx.resume();
+
+  if (!audioCtx) {
+    try {
+      audioCtx = new AudioContextClass();
+    } catch (e) {
+      console.error('Failed to create AudioContext:', e);
+      return null;
+    }
+  }
+
+  if (audioCtx && audioCtx.state === 'suspended') {
+    try {
+      audioCtx.resume();
+    } catch (e) {
+      console.warn('Failed to resume AudioContext:', e);
+    }
   }
   return audioCtx;
 };
+
 
 /**
  * Plays a warm, organic marimba note of a specific frequency.
