@@ -286,6 +286,7 @@ export default function ParentDashboard() {
   const [rewardName, setRewardName] = useState('15 minutos de tablet');
   const [rewardCost, setRewardCost] = useState(10);
   const [transitionMinutes, setTransitionMinutes] = useState(5);
+  const [tokens, setTokens] = useState(0);
 
   // Emotional sensory log states
   const [sensoryLogs, setSensoryLogs] = useState<any[]>([]);
@@ -410,6 +411,7 @@ export default function ParentDashboard() {
           setRewardName(active.rewardName || '15 minutos de tablet');
           setRewardCost(active.rewardCost || 10);
           setTransitionMinutes(active.transitionMinutes || 5);
+          setTokens(active.tokens || 0);
           
           firebaseBridge.db.getSensoryLogs(active.id).then(setSensoryLogs).catch(console.error);
         }
@@ -467,6 +469,7 @@ export default function ParentDashboard() {
     setRewardName(child.rewardName || '15 minutos de tablet');
     setRewardCost(child.rewardCost || 10);
     setTransitionMinutes(child.transitionMinutes || 5);
+    setTokens(child.tokens || 0);
 
     // Immediately fetch tasks and logs for the new child
     try {
@@ -641,7 +644,8 @@ export default function ParentDashboard() {
         sensoryVisuals,
         rewardName,
         rewardCost,
-        transitionMinutes
+        transitionMinutes,
+        tokens
       });
       
       setActiveChild(updated);
@@ -955,7 +959,7 @@ export default function ParentDashboard() {
                   className="w-full px-4 py-2.5 bg-white border-2 border-slate-350 focus:border-indigo-600 focus:bg-white rounded-xl text-slate-900 outline-none text-sm transition-all shadow-xxs font-bold cursor-pointer focus:ring-4 focus:ring-indigo-100"
                 >
                   <option value="rich">Interativo e Animado (Padrão) ✨</option>
-                  <option value="minimal">Filtro Sensorial Reduzido (Minimalista) 🧘</option>
+                  <option value="minimal">Filtro Sensorial Reduzido (Quadro Primeiro-Depois) 🧘</option>
                 </select>
               </div>
 
@@ -976,9 +980,22 @@ export default function ParentDashboard() {
                     className="w-full px-4 py-2.5 bg-white border-2 border-slate-300 focus:border-indigo-650 rounded-xl text-slate-900 outline-none text-xs font-bold focus:ring-4 focus:ring-indigo-100"
                   />
                 </div>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-3 gap-2">
                   <div>
-                    <label className="block text-xxs font-black text-slate-700 uppercase mb-1 font-Outfit">
+                    <label className="block text-[9px] font-black text-slate-700 uppercase mb-1 font-Outfit truncate">
+                      Estrelas Atuais
+                    </label>
+                    <input 
+                      type="number" 
+                      min={0}
+                      max={100}
+                      value={tokens}
+                      onChange={e => setTokens(parseInt(e.target.value) || 0)}
+                      className="w-full px-2.5 py-2.5 bg-white border-2 border-slate-300 focus:border-indigo-650 rounded-xl text-slate-900 outline-none text-xs font-bold focus:ring-4 focus:ring-indigo-100"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[9px] font-black text-slate-700 uppercase mb-1 font-Outfit truncate">
                       Meta de Fichas
                     </label>
                     <input 
@@ -987,12 +1004,12 @@ export default function ParentDashboard() {
                       max={50}
                       value={rewardCost}
                       onChange={e => setRewardCost(parseInt(e.target.value) || 10)}
-                      className="w-full px-4 py-2.5 bg-white border-2 border-slate-300 focus:border-indigo-650 rounded-xl text-slate-900 outline-none text-xs font-bold focus:ring-4 focus:ring-indigo-100"
+                      className="w-full px-2.5 py-2.5 bg-white border-2 border-slate-300 focus:border-indigo-650 rounded-xl text-slate-900 outline-none text-xs font-bold focus:ring-4 focus:ring-indigo-100"
                     />
                   </div>
                   <div>
-                    <label className="block text-xxs font-black text-slate-700 uppercase mb-1 font-Outfit">
-                      Antecipação (min)
+                    <label className="block text-[9px] font-black text-slate-700 uppercase mb-1 font-Outfit truncate">
+                      Aviso (min)
                     </label>
                     <input 
                       type="number" 
@@ -1000,7 +1017,7 @@ export default function ParentDashboard() {
                       max={30}
                       value={transitionMinutes}
                       onChange={e => setTransitionMinutes(parseInt(e.target.value) || 5)}
-                      className="w-full px-4 py-2.5 bg-white border-2 border-slate-300 focus:border-indigo-650 rounded-xl text-slate-900 outline-none text-xs font-bold focus:ring-4 focus:ring-indigo-100"
+                      className="w-full px-2.5 py-2.5 bg-white border-2 border-slate-300 focus:border-indigo-650 rounded-xl text-slate-900 outline-none text-xs font-bold focus:ring-4 focus:ring-indigo-100"
                     />
                   </div>
                 </div>
