@@ -2,6 +2,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { HyperfocusMascot } from './HyperfocusMascot';
+import { getTaskCategory } from '../../lib/sensory-standards';
 
 interface RoutineIllustrationProps {
   category: string;
@@ -14,13 +15,14 @@ export const RoutineIllustration: React.FC<RoutineIllustrationProps> = ({
   size = 150,
   hyperfocus = 'Border Collies 🐕'
 }) => {
-  // Normalize category key
+  // Normalize category key based on the standard sensory-standards task categories
   const getNormCategory = (): 'hygiene' | 'meal' | 'study' | 'rest' | 'play' => {
-    const text = category.toLowerCase();
-    if (text.includes('higiene') || text.includes('dente') || text.includes('banho') || text.includes('lavar')) return 'hygiene';
-    if (text.includes('refeição') || text.includes('comer') || text.includes('almoço') || text.includes('jantar') || text.includes('café')) return 'meal';
-    if (text.includes('estudo') || text.includes('escola') || text.includes('dever') || text.includes('ler')) return 'study';
-    if (text.includes('descanso') || text.includes('dormir') || text.includes('sono') || text.includes('cama')) return 'rest';
+    const taskCat = getTaskCategory(category);
+    const label = taskCat.label;
+    if (label.includes('Higiene')) return 'hygiene';
+    if (label.includes('Refeição')) return 'meal';
+    if (label.includes('Estudo')) return 'study';
+    if (label.includes('Descanso')) return 'rest';
     return 'play';
   };
 
