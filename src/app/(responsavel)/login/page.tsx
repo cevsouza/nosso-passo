@@ -55,11 +55,11 @@ export default function ParentAuth() {
   };
 
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center p-6 bg-gradient-to-tr from-[#f0f4f8] via-[#e2edf8] to-[#ebf8f1] animate-gradient-flow relative overflow-hidden">
+    <main className="min-h-screen flex flex-col items-center justify-center p-6 bg-gradient-to-tr from-[#f8fafc] via-[#eff6ff] to-[#f0fdf4] animate-gradient-flow relative overflow-hidden">
       {/* Background Soft Glows */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-        <div className="absolute top-[-5%] left-[-5%] w-80 h-80 bg-blue-100/40 rounded-full mix-blend-multiply filter blur-3xl opacity-60 animate-pulse"></div>
-        <div className="absolute bottom-[-5%] right-[-5%] w-96 h-96 bg-indigo-100/30 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-pulse" style={{ animationDelay: '2s' }}></div>
+        <div className="absolute top-[-5%] left-[-5%] w-80 h-80 bg-blue-200/40 rounded-full mix-blend-multiply filter blur-3xl opacity-60 animate-pulse"></div>
+        <div className="absolute bottom-[-5%] right-[-5%] w-96 h-96 bg-indigo-200/30 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-pulse" style={{ animationDelay: '2s' }}></div>
       </div>
 
       {/* Back button */}
@@ -67,9 +67,9 @@ export default function ParentAuth() {
         <Link 
           href="/" 
           onMouseEnter={playBubble}
-          className="flex items-center gap-2 px-5 py-2.5 bg-white hover:bg-slate-50 text-slate-600 rounded-full border border-slate-200/60 shadow-premium transition-all text-xs font-black active:scale-95 cursor-pointer"
+          className="flex items-center gap-2 px-5 py-2.5 bg-white hover:bg-slate-50 text-slate-800 rounded-full border-2 border-slate-300 shadow-premium transition-all text-xs font-black active:scale-95 cursor-pointer"
         >
-          <ArrowLeft className="w-4 h-4 text-slate-500" /> Voltar
+          <ArrowLeft className="w-4 h-4 text-slate-600" /> Voltar
         </Link>
       </div>
 
@@ -77,7 +77,7 @@ export default function ParentAuth() {
         initial={{ opacity: 0, y: 35 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
-        className="w-full max-w-md bg-white/85 backdrop-blur-3xl border border-white/70 rounded-[36px] p-8 shadow-[0_30px_60px_rgba(99,102,241,0.06)] z-10 border-t-white relative mt-24"
+        className="w-full max-w-md bg-white border-2 border-slate-300/80 rounded-[36px] p-8 shadow-[0_30px_60px_rgba(15,23,42,0.06)] z-10 relative mt-24"
       >
         {/* Collie Peek Mascot */}
         <div className="absolute top-[-95px] left-1/2 -translate-x-1/2 z-20 drop-shadow-[0_8px_16px_rgba(0,0,0,0.05)] pointer-events-none">
@@ -85,10 +85,10 @@ export default function ParentAuth() {
         </div>
 
         <div className="text-center mb-6">
-          <h1 className="text-2.5xl font-black text-slate-800 tracking-tight">
+          <h1 className="text-2.5xl font-black text-slate-905 tracking-tight font-Outfit">
             {isRegister ? 'Criar Conta de Responsável' : 'Portal do Responsável'}
           </h1>
-          <p className="text-slate-500 text-xs mt-1.5 leading-relaxed font-semibold max-w-xs mx-auto">
+          <p className="text-slate-600 text-xs mt-2.5 leading-relaxed font-semibold max-w-xs mx-auto">
             {isRegister 
               ? 'Cadastre-se para gerenciar a rotina semanal, configurar filtros sensoriais e acompanhar laudos clínicos.'
               : 'Acesse as ferramentas de agendamento semanal e acompanhe o registro imutável de rotinas do seu filho.'}
@@ -99,7 +99,7 @@ export default function ParentAuth() {
           <motion.div
             initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="bg-red-50 text-red-600 p-4 rounded-2xl text-xs font-bold flex items-start gap-2 mb-5 border border-red-100"
+            className="bg-red-50 text-red-700 p-4 rounded-2xl text-xs font-bold flex items-start gap-2 mb-5 border-2 border-red-200"
           >
             <ShieldAlert className="w-4 h-4 shrink-0 mt-0.5" />
             <span>{error}</span>
@@ -108,35 +108,35 @@ export default function ParentAuth() {
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div>
-            <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 pl-1">
+            <label className="block text-[11px] font-black text-slate-700 uppercase tracking-widest mb-2 pl-1 font-Outfit">
               E-mail do Responsável
             </label>
             <div className="relative">
-              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-slate-400" />
+              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-slate-500" />
               <input
                 type="email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="nome@exemplo.com"
-                className="w-full pl-11 pr-4 py-3.5 bg-slate-50/60 border-2 border-slate-200/60 focus:border-indigo-400 focus:bg-white rounded-xl text-slate-800 placeholder-slate-400 outline-none transition-all text-xs font-bold shadow-xxs focus:ring-4 focus:ring-indigo-50"
+                className="w-full pl-11 pr-4 py-3.5 bg-white border-2 border-slate-300 focus:border-indigo-600 focus:bg-white rounded-xl text-slate-900 placeholder-slate-400 outline-none transition-all text-xs font-bold shadow-xxs focus:ring-4 focus:ring-indigo-100"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 pl-1">
+            <label className="block text-[11px] font-black text-slate-700 uppercase tracking-widest mb-2 pl-1 font-Outfit">
               Senha de Acesso
             </label>
             <div className="relative">
-              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-slate-400" />
+              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-slate-500" />
               <input
                 type="password"
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Mínimo 6 caracteres"
-                className="w-full pl-11 pr-4 py-3.5 bg-slate-50/60 border-2 border-slate-200/60 focus:border-indigo-400 focus:bg-white rounded-xl text-slate-800 placeholder-slate-400 outline-none transition-all text-xs font-bold shadow-xxs focus:ring-4 focus:ring-indigo-50"
+                className="w-full pl-11 pr-4 py-3.5 bg-white border-2 border-slate-300 focus:border-indigo-600 focus:bg-white rounded-xl text-slate-900 placeholder-slate-400 outline-none transition-all text-xs font-bold shadow-xxs focus:ring-4 focus:ring-indigo-100"
               />
             </div>
           </div>
@@ -144,7 +144,7 @@ export default function ParentAuth() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full mt-3 py-4 bg-indigo-650 hover:bg-indigo-700 active:scale-95 text-white font-black rounded-xl text-xs shadow-glow-indigo transition-all flex items-center justify-center gap-2 cursor-pointer uppercase tracking-widest border-b-3 border-indigo-850"
+            className="w-full mt-3 py-4 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white font-black rounded-xl text-xs shadow-glow-indigo transition-all flex items-center justify-center gap-2 cursor-pointer uppercase tracking-widest border-b-4 border-indigo-900 font-Outfit"
           >
             {loading 
               ? 'Processando...' 
@@ -157,7 +157,7 @@ export default function ParentAuth() {
         <div className="mt-5 text-center">
           <button
             onClick={handleToggleMode}
-            className="text-xs font-black text-indigo-600 hover:text-indigo-850 hover:underline cursor-pointer bg-transparent border-none outline-none"
+            className="text-xs font-black text-indigo-700 hover:text-indigo-900 hover:underline cursor-pointer bg-transparent border-none outline-none font-Outfit"
           >
             {isRegister 
               ? 'Já possui uma conta? Entrar no Painel' 
@@ -165,7 +165,7 @@ export default function ParentAuth() {
           </button>
         </div>
 
-        <div className="mt-6 text-center text-[10px] text-slate-400 border-t border-slate-250/40 pt-4 font-bold">
+        <div className="mt-6 text-center text-[10px] text-slate-500 border-t border-slate-200 pt-4 font-bold">
           <p>
             * A senha deve conter pelo menos 6 caracteres.
           </p>

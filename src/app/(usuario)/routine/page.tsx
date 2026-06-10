@@ -404,32 +404,32 @@ export default function ChildRoutine() {
   // If no active child is selected, show the selection screen
   if (!activeChild) {
     return (
-      <main className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6 text-slate-800 relative overflow-hidden">
+      <main className="min-h-screen bg-gradient-to-tr from-[#f8fafc] via-[#eff6ff] to-[#f0fdf4] flex flex-col items-center justify-center p-6 text-slate-900 relative overflow-hidden">
         {/* Playful background blobs */}
-        <div className="absolute top-[-100px] left-[-100px] w-[300px] h-[300px] bg-sky-200/55 rounded-full filter blur-3xl -z-10 animate-pulse"></div>
-        <div className="absolute bottom-[-100px] right-[-100px] w-[300px] h-[300px] bg-indigo-200/55 rounded-full filter blur-3xl -z-10 animate-pulse"></div>
+        <div className="absolute top-[-100px] left-[-100px] w-[300px] h-[300px] bg-blue-200/50 rounded-full filter blur-3xl -z-10 animate-pulse"></div>
+        <div className="absolute bottom-[-100px] right-[-100px] w-[300px] h-[300px] bg-indigo-200/40 rounded-full filter blur-3xl -z-10 animate-pulse"></div>
 
         <div className="max-w-2xl w-full text-center flex flex-col items-center gap-8 z-10">
-          <div className="w-24 h-24 bg-indigo-50 text-indigo-600 rounded-3xl flex items-center justify-center font-bold text-4xl shadow-md border border-indigo-100">
+          <div className="w-24 h-24 bg-indigo-100 text-indigo-700 rounded-3xl flex items-center justify-center font-bold text-4xl shadow-md border-2 border-indigo-200">
             🐶
           </div>
           <div>
-            <h1 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">Quem é você hoje? 🐶</h1>
-            <p className="text-sm font-bold text-slate-400 mt-2">Escolha seu perfil para carregar sua agenda lúdica!</p>
+            <h1 className="text-3xl md:text-4xl font-black text-slate-950 tracking-tight font-Outfit">Quem é você hoje? 🐶</h1>
+            <p className="text-sm font-bold text-slate-750 mt-3 font-semibold">Escolha seu perfil para carregar sua agenda lúdica!</p>
           </div>
 
           {loadingChildren ? (
             <div className="flex flex-col items-center gap-3 py-6">
               <div className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
-              <span className="text-sm font-bold text-slate-400 animate-pulse">Carregando seus dados...</span>
+              <span className="text-sm font-bold text-slate-700 animate-pulse">Carregando seus dados...</span>
             </div>
           ) : children.length === 0 ? (
-            <div className="bg-white border border-slate-200 p-8 rounded-2xl shadow-sm text-center">
-              <p className="text-sm font-bold text-slate-600">Nenhuma criança cadastrada ainda.</p>
-              <p className="text-xs text-slate-400 mt-1 font-semibold">Peça ao seu responsável para cadastrar seu perfil no painel principal.</p>
+            <div className="bg-white border-2 border-slate-300 p-8 rounded-2xl shadow-md text-center">
+              <p className="text-sm font-bold text-slate-700">Nenhuma criança cadastrada ainda.</p>
+              <p className="text-xs text-slate-600 mt-2 font-semibold">Peça ao seu responsável para cadastrar seu perfil no painel principal.</p>
               <button 
                 onClick={() => router.push('/dashboard')}
-                className="mt-4 px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl shadow-md transition-all cursor-pointer border-none"
+                className="mt-5 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-black rounded-xl shadow-md transition-all cursor-pointer border-none font-Outfit"
               >
                 Ir para o Painel do Responsável
               </button>
@@ -452,15 +452,15 @@ export default function ChildRoutine() {
                     // Redirect to include childId in URL for easy bookmarking
                     router.replace(`/routine?childId=${child.id}`);
                   }}
-                  className="bg-white border-2 border-slate-200/80 hover:border-indigo-500/80 rounded-3xl p-6 shadow-sm hover:shadow-xl transition-all hover:-translate-y-1 flex flex-col items-center gap-4 text-center cursor-pointer group"
+                  className="bg-white border-2 border-slate-350 hover:border-indigo-600 rounded-3xl p-6 shadow-md hover:shadow-2xl transition-all hover:-translate-y-1 flex flex-col items-center gap-4 text-center cursor-pointer group"
                 >
-                  <div className="w-20 h-20 bg-indigo-50 text-indigo-650 group-hover:bg-indigo-150 rounded-2xl flex items-center justify-center text-4xl shadow-inner transition-colors">
+                  <div className="w-20 h-20 bg-indigo-50 text-indigo-650 group-hover:bg-indigo-100 rounded-2xl flex items-center justify-center text-4xl shadow-inner transition-colors border border-transparent group-hover:border-indigo-200">
                     {child.gender === 'Feminino' ? '👧' : child.gender === 'Masculino' ? '👦' : '👶'}
                   </div>
                   <div>
-                    <h3 className="text-lg font-black text-slate-850 group-hover:text-indigo-650 transition-colors">{child.name}</h3>
+                    <h3 className="text-lg font-black text-slate-900 group-hover:text-indigo-900 transition-colors font-Outfit">{child.name}</h3>
                     {child.diagnosis && child.diagnosis !== 'Não Informado' && (
-                      <span className="inline-block text-[10px] mt-1 px-2.5 py-0.5 bg-slate-100 group-hover:bg-indigo-50 group-hover:text-indigo-600 rounded-full font-bold uppercase tracking-wider text-slate-500">
+                      <span className="inline-block text-[10px] mt-2.5 px-3 py-1 bg-slate-200 group-hover:bg-indigo-100 group-hover:text-indigo-800 rounded-full font-black uppercase tracking-wider text-slate-750">
                         {child.diagnosis}
                       </span>
                     )}
@@ -582,12 +582,12 @@ export default function ChildRoutine() {
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-tr from-[#f0f4f8] via-[#e2edf8] to-[#e6effb] animate-gradient-flow text-[#2d3748] p-6 pb-12 flex flex-col items-center relative overflow-hidden">
+    <main className="min-h-screen bg-gradient-to-tr from-[#f8fafc] via-[#eff6ff] to-[#f0fdf4] animate-gradient-flow text-[#0f172a] p-6 pb-12 flex flex-col items-center relative overflow-hidden">
       {/* Background Soft Glows */}
       {sensoryVisuals === 'rich' && (
         <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-          <div className="absolute top-[20%] left-[-15%] w-80 h-80 bg-blue-200/30 rounded-full filter blur-3xl opacity-60"></div>
-          <div className="absolute bottom-[20%] right-[-15%] w-96 h-96 bg-purple-200/30 rounded-full filter blur-3xl opacity-50"></div>
+          <div className="absolute top-[20%] left-[-15%] w-80 h-80 bg-blue-200/40 rounded-full filter blur-3xl opacity-60 animate-pulse"></div>
+          <div className="absolute bottom-[20%] right-[-15%] w-96 h-96 bg-indigo-200/30 rounded-full filter blur-3xl opacity-50 animate-pulse" style={{ animationDelay: '2s' }}></div>
         </div>
       )}
 
@@ -596,12 +596,12 @@ export default function ChildRoutine() {
         <button 
           onClick={() => handleAttemptExit('/')}
           onMouseEnter={playBubble}
-          className="flex items-center gap-1.5 px-4.5 py-2.5 bg-white hover:bg-slate-50 text-xs font-black rounded-full border border-slate-200/60 shadow-premium transition-all active:scale-95 cursor-pointer border-none"
+          className="flex items-center gap-1.5 px-5 py-2.5 bg-white hover:bg-slate-50 text-xs font-black rounded-full border-2 border-slate-350 shadow-premium transition-all active:scale-95 cursor-pointer text-slate-800"
         >
           🏠 Início
         </button>
 
-        <h2 className="text-xs font-black bg-white border border-slate-200/60 text-slate-700 px-4.5 py-2.5 rounded-full shadow-premium uppercase tracking-widest">
+        <h2 className="text-xs font-black bg-white border-2 border-slate-350 text-slate-800 px-5 py-2.5 rounded-full shadow-premium uppercase tracking-widest font-Outfit">
           {DAY_LABELS[currentDay] || 'Rotina Semanal'}
         </h2>
         
@@ -613,19 +613,19 @@ export default function ChildRoutine() {
         
         {/* Token Economy Stars Row */}
         {activeChild && (
-          <div className="bg-white/80 border border-white/60 p-4.5 rounded-[24px] shadow-premium flex flex-col sm:flex-row items-center justify-between gap-3 w-full border-t-white">
+          <div className="bg-white border-2 border-slate-300 p-4.5 rounded-[24px] shadow-premium flex flex-col sm:flex-row items-center justify-between gap-3 w-full">
             <div className="flex items-center gap-2">
               <span className="text-xl">🪙</span>
               <div>
-                <h4 className="font-extrabold text-xs text-slate-700 leading-tight text-left">Estrelas do Reforço Positivo</h4>
-                <p className="text-[10px] text-slate-400 font-semibold mt-0.5 text-left">
-                  Ganhe {activeChild.rewardCost || 10} estrelas para: <strong className="text-indigo-650 font-bold">{activeChild.rewardName || 'Prêmio'}</strong>
+                <h4 className="font-extrabold text-xs text-slate-900 leading-tight text-left font-Outfit">Estrelas do Reforço Positivo</h4>
+                <p className="text-[10px] text-slate-705 font-semibold mt-0.5 text-left">
+                  Ganhe {activeChild.rewardCost || 10} estrelas para: <strong className="text-indigo-700 font-black">{activeChild.rewardName || 'Prêmio'}</strong>
                 </p>
               </div>
             </div>
 
             {/* Stars rendering */}
-            <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200/50 px-3.5 py-1.5 rounded-full shadow-xxs">
+            <div className="flex items-center gap-1.5 bg-slate-50 border-2 border-slate-300 px-3.5 py-1.5 rounded-full shadow-xxs">
               {(() => {
                 const earned = activeChild.tokens || 0;
                 const cost = activeChild.rewardCost || 10;
@@ -643,7 +643,7 @@ export default function ChildRoutine() {
                   );
                 });
               })()}
-              <span className="text-[10px] font-black text-slate-450 ml-1.5 uppercase">
+              <span className="text-[10px] font-black text-slate-750 ml-1.5 uppercase">
                 {activeChild.tokens || 0} / {activeChild.rewardCost || 10}
               </span>
             </div>
@@ -712,7 +712,7 @@ export default function ChildRoutine() {
                     <div className="flex flex-col items-center gap-3 w-full">
                       <h1 
                         onClick={() => { playBubble(); speakText(activeTask.title); }}
-                        className="text-3.5xl md:text-4.5xl font-black tracking-tight text-slate-855 max-w-md break-words px-2 cursor-pointer hover:text-indigo-650 transition-all select-none hover:scale-[1.01]"
+                        className="text-3.5xl md:text-4.5xl font-black tracking-tight text-slate-950 max-w-md break-words px-2 cursor-pointer hover:text-indigo-700 transition-all select-none hover:scale-[1.01] font-Outfit"
                         title="Clique para ouvir"
                       >
                         {activeTask.title}
@@ -721,9 +721,9 @@ export default function ChildRoutine() {
                       {/* Big Tactile Audio Speaker Pill */}
                       <button 
                         onClick={() => { playBubble(); speakText(activeTask.title); }}
-                        className="flex items-center gap-1.5 px-4.5 py-2.5 bg-indigo-50 hover:bg-indigo-100/80 border border-indigo-150 text-indigo-700 text-xs font-black rounded-full shadow-xxs cursor-pointer transition-all active:scale-95 hover:scale-[1.03]"
+                        className="flex items-center gap-1.5 px-5 py-3 bg-indigo-100 hover:bg-indigo-200 border-2 border-indigo-350 text-indigo-950 text-xs font-black rounded-full shadow-xxs cursor-pointer transition-all active:scale-95 hover:scale-[1.03] font-Outfit"
                       >
-                        🔊 Falar Atividade
+                        🔊 Ouvir Atividade
                       </button>
                     </div>
 
@@ -731,18 +731,18 @@ export default function ChildRoutine() {
                     <div className="w-full flex flex-col md:flex-row items-center justify-center gap-4 border-t border-b border-slate-100 py-4 my-2">
                       {/* Time Timer ring */}
                       <div className="flex flex-col items-center gap-1.5">
-                        <span className="text-[9px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-1 select-none">
+                        <span className="text-[9px] font-black uppercase tracking-widest text-slate-700 flex items-center gap-1 select-none">
                           ⏱️ Tempo Restante
                         </span>
                         <div className="relative w-20 h-20 flex items-center justify-center">
                           <svg viewBox="0 0 100 100" className="w-full h-full transform -rotate-90">
-                            <circle cx="50" cy="50" r="40" fill="none" stroke="#e2e8f0" strokeWidth="8" />
+                            <circle cx="50" cy="50" r="40" fill="none" stroke="#cbd5e1" strokeWidth="8" />
                             <circle 
                               cx="50" 
                               cy="50" 
                               r="40" 
                               fill="none" 
-                              stroke="#ef4444" 
+                              stroke="#dc2626" 
                               strokeWidth="8" 
                               strokeDasharray="251.2" 
                               strokeDashoffset={251.2 * (1 - timerProgress)} 
@@ -751,25 +751,25 @@ export default function ChildRoutine() {
                             />
                           </svg>
                           <div className="absolute inset-0 flex flex-col items-center justify-center font-bold">
-                            <span className="text-base font-black text-slate-700">{timerMinutesLeft}</span>
-                            <span className="text-[7px] text-slate-400 uppercase tracking-wider font-extrabold">min</span>
+                            <span className="text-base font-black text-slate-950">{timerMinutesLeft}</span>
+                            <span className="text-[8px] text-slate-700 uppercase tracking-wider font-extrabold">min</span>
                           </div>
                         </div>
                       </div>
 
                       {/* Transition Warning / Next Task Banner */}
                       {nextTasks.length > 0 && (
-                        <div className="flex-1 flex flex-col gap-1.5 text-left bg-slate-50 border border-slate-150 p-3 rounded-2xl shadow-xxs">
-                          <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">Próxima Atividade:</span>
-                          <span className="text-sm font-black text-slate-700 flex items-center gap-1.5">
+                        <div className="flex-1 flex flex-col gap-1.5 text-left bg-slate-100 border-2 border-slate-300 p-3 rounded-2xl shadow-xxs">
+                          <span className="text-[9px] font-black uppercase tracking-widest text-slate-500 font-Outfit">Próxima Atividade:</span>
+                          <span className="text-sm font-black text-slate-800 flex items-center gap-1.5">
                             <span className="text-base">{nextTasks[0].icon || '📅'}</span> {nextTasks[0].title}
                           </span>
                           {timerMinutesLeft <= (activeChild?.transitionMinutes || 5) ? (
-                            <span className="text-[10px] text-amber-600 font-extrabold flex items-center gap-1 bg-amber-50 border border-amber-100 px-2.5 py-1 rounded-lg animate-pulse">
+                            <span className="text-[10px] text-amber-950 font-black flex items-center gap-1 bg-amber-100 border-2 border-amber-400 px-2.5 py-1 rounded-lg animate-pulse">
                               ⚠️ Prepare-se para a transição!
                             </span>
                           ) : (
-                            <span className="text-[9px] text-slate-400 font-semibold">Em seguida, após terminar a missão atual.</span>
+                            <span className="text-[9px] text-slate-500 font-semibold">Em seguida, após terminar a missão atual.</span>
                           )}
                         </div>
                       )}
@@ -823,10 +823,10 @@ export default function ChildRoutine() {
                       whileTap={{ scale: 0.985 }}
                       onClick={() => handleCompleteTask(activeTask)}
                       disabled={celebratingTaskId !== null}
-                      className={`w-full py-5 text-xl font-black rounded-2xl shadow-lg cursor-pointer transform transition-all duration-300 flex items-center justify-center gap-2 border-b-4 ${
+                      className={`w-full py-5 text-xl font-black rounded-2xl shadow-lg cursor-pointer transform transition-all duration-300 flex items-center justify-center gap-2 border-b-4 border-slate-950/20 ${
                         celebratingTaskId === activeTask.id
                           ? 'bg-gradient-to-r from-emerald-400 to-emerald-500 text-white animate-pulse border-emerald-600/70'
-                          : `bg-gradient-to-r ${category.gradient} text-white hover:opacity-95 shadow-md border-slate-800/10`
+                          : `bg-gradient-to-r ${category.gradient} text-white hover:opacity-95 shadow-md`
                       }`}
                     >
                       {celebratingTaskId === activeTask.id ? (
@@ -843,15 +843,15 @@ export default function ChildRoutine() {
             </AnimatePresence>
 
             {/* 2. THE ROUTINE TRAIL - GAMIFIED PROGRESS TRACKER */}
-            <div className="bg-white/90 backdrop-blur-xl border border-white/60 p-6.5 rounded-[32px] shadow-premium flex flex-col gap-4 text-left border-t-white w-full">
-              <h3 className="font-black text-xs text-slate-500 uppercase tracking-widest flex items-center gap-1.5 select-none">
+            <div className="bg-white border-2 border-slate-300 p-6.5 rounded-[32px] shadow-premium flex flex-col gap-4 text-left w-full">
+              <h3 className="font-black text-xs text-slate-655 uppercase tracking-widest flex items-center gap-1.5 select-none font-Outfit">
                 🚂 Trilha das Minhas Missões:
               </h3>
               
               <div className="relative flex items-center justify-between px-4 py-6 overflow-x-auto min-h-[100px] scrollbar-none gap-6">
                 
                 {/* Visual Connector Line */}
-                <div className="absolute top-[48px] left-[40px] right-[40px] h-1.5 bg-slate-200/80 -z-10 rounded-full" />
+                <div className="absolute top-[48px] left-[40px] right-[40px] h-2 bg-slate-300 -z-10 rounded-full" />
                 
                 {todayTasks.map((task, idx) => {
                   const taskCat = getTaskCategory(task.title);
@@ -882,10 +882,10 @@ export default function ChildRoutine() {
                         }}
                         className={`w-12 h-12 rounded-full flex items-center justify-center border-2 transition-all cursor-pointer relative ${
                           isCompleted
-                            ? 'bg-gradient-to-tr from-emerald-450 to-green-500 text-white border-white shadow-glow-green scale-95'
+                            ? 'bg-gradient-to-tr from-emerald-600 to-green-700 text-white border-2 border-white shadow-glow-green scale-95'
                             : isActive
-                            ? `bg-white text-indigo-650 border-indigo-500 scale-110 shadow-lg ring-4 ring-indigo-100`
-                            : 'bg-slate-100 text-slate-400 border-slate-200'
+                            ? `bg-white text-indigo-900 border-3 border-indigo-650 scale-110 shadow-lg ring-4 ring-indigo-250`
+                            : 'bg-slate-200 text-slate-700 border-2 border-slate-350'
                         }`}
                       >
                         {isCompleted ? (
@@ -959,7 +959,7 @@ export default function ChildRoutine() {
               initial={{ scale: 0.9, y: 20 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.9, y: 20 }}
-              className="bg-white border-4 border-indigo-200 rounded-[32px] p-8 w-full max-w-sm shadow-2xl flex flex-col items-center text-center gap-6 relative overflow-hidden"
+              className="bg-white border-4 border-indigo-400 rounded-[32px] p-8 w-full max-w-sm shadow-2xl flex flex-col items-center text-center gap-6 relative overflow-hidden"
             >
               {/* Confetti celebration bg hints */}
               <div className="absolute inset-0 bg-gradient-to-tr from-yellow-50 via-white to-indigo-50/50 opacity-60 -z-10" />
@@ -973,7 +973,7 @@ export default function ChildRoutine() {
                 <p className="text-xs text-slate-400 font-semibold mt-1">
                   Você completou suas missões e desbloqueou seu prêmio:
                 </p>
-                <div className="mt-3.5 px-6 py-3 bg-indigo-50 border border-indigo-100 text-indigo-700 font-extrabold text-sm rounded-2xl shadow-xxs">
+                <div className="mt-3.5 px-6 py-3 bg-indigo-100 border-2 border-indigo-300 text-indigo-950 font-black text-sm rounded-2xl shadow-xxs font-Outfit">
                   {activeChild.rewardName || 'Prêmio'}
                 </div>
               </div>
@@ -981,7 +981,7 @@ export default function ChildRoutine() {
               <div className="flex flex-col gap-2 w-full">
                 <button
                   onClick={handleClaimReward}
-                  className="w-full py-4 bg-gradient-to-r from-yellow-450 via-yellow-400 to-amber-500 text-indigo-950 font-black text-sm rounded-2xl shadow-md cursor-pointer transition-all active:scale-95 border-b-4 border-amber-600/70"
+                  className="w-full py-4 bg-gradient-to-r from-yellow-500 via-amber-500 to-amber-600 text-slate-950 font-black text-sm rounded-2xl shadow-md cursor-pointer transition-all active:scale-95 border-b-4 border-amber-800 font-Outfit"
                 >
                   RESGATAR PRÊMIO! 🐾
                 </button>
@@ -1010,7 +1010,7 @@ export default function ChildRoutine() {
               initial={{ scale: 0.9, y: 20 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.9, y: 20 }}
-              className="bg-white border-4 border-indigo-200 rounded-[32px] p-8 w-full max-w-md shadow-2xl flex flex-col items-center text-center gap-6"
+              className="bg-white border-4 border-indigo-400 rounded-[32px] p-8 w-full max-w-md shadow-2xl flex flex-col items-center text-center gap-6"
             >
               <div className="w-14 h-14 bg-indigo-50 border border-indigo-100 rounded-2xl flex items-center justify-center text-2xl shadow-sm">
                 🧠
@@ -1025,15 +1025,15 @@ export default function ChildRoutine() {
 
               <div className="grid grid-cols-2 gap-4 w-full">
                 {[
-                  { key: 'feliz', label: 'Feliz 😊', color: 'bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border-emerald-150' },
-                  { key: 'calmo', label: 'Calmo 🧘', color: 'bg-sky-50 hover:bg-sky-100 text-sky-700 border-sky-150' },
-                  { key: 'agitado', label: 'Agitado 🌀', color: 'bg-amber-50 hover:bg-amber-100 text-amber-700 border-amber-150' },
-                  { key: 'triste', label: 'Triste 😢', color: 'bg-red-50 hover:bg-red-100 text-red-700 border-red-150' }
+                  { key: 'feliz', label: 'Feliz 😊', color: 'bg-emerald-100 hover:bg-emerald-200 text-emerald-950 border-2 border-emerald-450' },
+                  { key: 'calmo', label: 'Calmo 🧘', color: 'bg-sky-100 hover:bg-sky-200 text-sky-950 border-2 border-sky-450' },
+                  { key: 'agitado', label: 'Agitado 🌀', color: 'bg-amber-100 hover:bg-amber-200 text-amber-950 border-2 border-amber-450' },
+                  { key: 'triste', label: 'Triste 😢', color: 'bg-red-100 hover:bg-red-200 text-red-950 border-2 border-red-450' }
                 ].map(moodOption => (
                   <button
                     key={moodOption.key}
                     onClick={() => handleSelectMood(moodOption.key as any)}
-                    className={`p-4 rounded-2xl border-2 font-black text-sm shadow-xxs transition-all active:scale-95 hover:scale-[1.02] cursor-pointer text-center ${moodOption.color}`}
+                    className={`p-4 rounded-2xl font-black text-sm shadow-xxs transition-all active:scale-95 hover:scale-[1.02] cursor-pointer text-center font-Outfit ${moodOption.color}`}
                   >
                     {moodOption.label}
                   </button>
@@ -1134,7 +1134,7 @@ const ParentalLockOverlay: React.FC<ParentalLockOverlayProps> = ({
     <motion.div
       animate={errorWiggle ? { x: [-10, 10, -10, 10, -5, 5, 0] } : { x: 0 }}
       transition={{ duration: 0.5 }}
-      className="bg-white/95 backdrop-blur-2xl border border-slate-200/80 rounded-[32px] p-8 w-full max-w-sm shadow-2xl flex flex-col items-center text-center gap-6"
+      className="bg-white border-2 border-slate-350 rounded-[32px] p-8 w-full max-w-sm shadow-2xl flex flex-col items-center text-center gap-6"
     >
       <div className="w-14 h-14 bg-indigo-50 border border-indigo-100 rounded-2xl flex items-center justify-center text-2xl shadow-sm">
         🔐
@@ -1180,27 +1180,27 @@ const ParentalLockOverlay: React.FC<ParentalLockOverlayProps> = ({
           <button
             key={val}
             onClick={() => handleKeypadPress(val)}
-            className="w-full py-3 bg-slate-50 border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50/20 text-slate-700 font-black rounded-2xl text-lg shadow-xxs transition-all active:scale-95 cursor-pointer"
+            className="w-full py-3 bg-slate-100 border-2 border-slate-300 hover:border-indigo-600 hover:bg-indigo-50 text-slate-900 font-black rounded-2xl text-lg shadow-xxs transition-all active:scale-95 cursor-pointer font-Outfit"
           >
             {val}
           </button>
         ))}
         <button
           onClick={handleBackspace}
-          className="w-full py-3 bg-rose-50 border border-rose-100 hover:bg-rose-100 text-rose-600 font-black rounded-2xl text-sm shadow-xxs transition-all active:scale-95 cursor-pointer"
+          className="w-full py-3 bg-red-100 border-2 border-red-300 hover:bg-red-200 text-red-750 font-black rounded-2xl text-sm shadow-xxs transition-all active:scale-95 cursor-pointer"
         >
           ⌫
         </button>
         <button
           onClick={() => handleKeypadPress('0')}
-          className="w-full py-3 bg-slate-50 border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50/20 text-slate-700 font-black rounded-2xl text-lg shadow-xxs transition-all active:scale-95 cursor-pointer"
+          className="w-full py-3 bg-slate-100 border-2 border-slate-300 hover:border-indigo-600 hover:bg-indigo-50 text-slate-900 font-black rounded-2xl text-lg shadow-xxs transition-all active:scale-95 cursor-pointer font-Outfit"
         >
           0
         </button>
         {lockType === 'math' ? (
           <button
             onClick={handleConfirmMath}
-            className="w-full py-3 bg-indigo-600 border border-indigo-700 text-white font-black rounded-2xl text-sm shadow-sm hover:bg-indigo-700 transition-all active:scale-95 cursor-pointer"
+            className="w-full py-3 bg-indigo-650 hover:bg-indigo-700 text-white font-black rounded-2xl text-sm shadow-sm hover:bg-indigo-700 transition-all active:scale-95 cursor-pointer border-2 border-indigo-850 font-Outfit"
           >
             Ok ✓
           </button>

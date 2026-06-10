@@ -637,27 +637,27 @@ export default function ParentDashboard() {
   };
 
   return (
-    <main className="min-h-screen bg-slate-50 text-slate-800 pb-16">
+    <main className="min-h-screen bg-[#f8fafc] text-slate-900 pb-16">
       {/* Header bar */}
-      <header className="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm shadow-slate-100">
+      <header className="bg-white border-b-2 border-slate-250 sticky top-0 z-30 shadow-premium">
         <div className="max-w-6xl mx-auto px-6 py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center font-bold text-lg shadow-sm border border-indigo-100">
+            <div className="w-10 h-10 bg-indigo-100 text-indigo-850 rounded-xl flex items-center justify-center font-bold text-lg shadow-sm border-2 border-indigo-200">
               PA
             </div>
             <div>
-              <h1 className="text-xl font-bold text-slate-800">Painel do Responsável</h1>
-              <p className="text-xs text-slate-500 font-medium">Controle de Rotina & Segurança Sensorial</p>
+              <h1 className="text-xl font-black text-slate-955 font-Outfit">Painel do Responsável</h1>
+              <p className="text-xs text-slate-655 font-semibold">Controle de Rotina & Segurança Sensorial</p>
             </div>
           </div>
 
           <div className="flex items-center gap-3 self-end md:self-auto">
-            <span className="text-xs font-semibold bg-indigo-50 border border-indigo-100 text-indigo-600 px-3 py-1.5 rounded-full shadow-sm">
+            <span className="text-xs font-bold bg-indigo-50 border-2 border-indigo-200 text-indigo-800 px-3 py-1.5 rounded-full shadow-sm">
               🧑‍💻 {currentUser?.email}
             </span>
             <button 
               onClick={handleLogout}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-red-50 border border-red-100 hover:bg-red-100 text-red-600 text-xs font-bold rounded-full transition-all active:scale-95"
+              className="flex items-center gap-1.5 px-4 py-2 bg-red-50 border-2 border-red-200 hover:bg-red-100 hover:text-red-800 text-red-700 text-xs font-black rounded-full transition-all active:scale-95 font-Outfit cursor-pointer"
             >
               <LogOut className="w-3.5 h-3.5" /> Sair
             </button>
@@ -666,25 +666,25 @@ export default function ParentDashboard() {
       </header>
 
       {/* Child Selector & Management Bar */}
-      <section className="bg-white border-b border-slate-200 py-3 shadow-sm">
+      <section className="bg-white border-b-2 border-slate-250 py-4 shadow-sm">
         <div className="max-w-6xl mx-auto px-6 flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-3 flex-wrap">
-            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Crianças:</span>
+            <span className="text-xs font-black text-slate-500 uppercase tracking-wider font-Outfit">Crianças:</span>
             {children.map(child => {
               const isActive = activeChild?.id === child.id;
               return (
-                <div key={child.id} className="flex items-center gap-1 bg-slate-50 border border-slate-100 rounded-xl p-1 shadow-xs">
+                <div key={child.id} className="flex items-center gap-1 bg-slate-50 border-2 border-slate-250 rounded-xl p-1 shadow-xs">
                   <button
                     onClick={() => handleSelectChild(child)}
-                    className={`px-4 py-2 rounded-lg text-sm font-extrabold flex items-center gap-2 transition-all cursor-pointer ${
+                    className={`px-4 py-2 rounded-lg text-sm font-black flex items-center gap-2 transition-all cursor-pointer font-Outfit ${
                       isActive
-                        ? 'bg-indigo-650 text-white shadow-sm border border-indigo-650'
-                        : 'bg-transparent hover:bg-slate-200 text-slate-700 border border-transparent'
+                        ? 'bg-indigo-600 text-white border-2 border-indigo-850 shadow-md'
+                        : 'bg-slate-100 hover:bg-slate-200 text-slate-800 border-2 border-slate-300'
                     }`}
                   >
                     <span>👶</span> {child.name}
                     {child.diagnosis && child.diagnosis !== 'Não Informado' && (
-                      <span className={`text-[9px] px-1.5 py-0.5 rounded-md font-bold uppercase tracking-wider ${isActive ? 'bg-indigo-800 text-indigo-100' : 'bg-slate-200 text-slate-600'}`}>
+                      <span className={`text-[9px] px-2 py-0.5 rounded-md font-black uppercase tracking-wider ${isActive ? 'bg-indigo-855 text-indigo-100 border border-indigo-700' : 'bg-slate-250 text-slate-700 border border-slate-350'}`}>
                         {child.diagnosis}
                       </span>
                     )}
@@ -692,7 +692,7 @@ export default function ParentDashboard() {
                   {children.length > 1 && (
                     <button
                       onClick={() => handleDeleteChild(child.id, child.name)}
-                      className="p-1.5 text-slate-350 hover:text-red-500 rounded-lg hover:bg-red-50 transition-colors"
+                      className="p-1.5 text-slate-450 hover:text-red-655 rounded-lg hover:bg-red-50 transition-colors border border-transparent hover:border-red-200"
                       title="Excluir Criança"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
@@ -704,7 +704,7 @@ export default function ParentDashboard() {
             
             <button
               onClick={() => setNewChildModalOpen(true)}
-              className="px-4 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-600 border border-emerald-100 text-sm font-bold rounded-xl flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer shadow-xs"
+              className="px-4 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-855 border-2 border-emerald-350 text-sm font-black rounded-xl flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer shadow-xs font-Outfit"
             >
               <Plus className="w-4 h-4" /> Cadastrar Criança
             </button>
@@ -716,13 +716,13 @@ export default function ParentDashboard() {
                 href={`/routine?childId=${activeChild.id}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-5 py-2.5 bg-indigo-600 text-white hover:bg-indigo-700 text-sm font-black rounded-xl shadow-md shadow-indigo-200 transition-all active:scale-95 flex items-center gap-2"
+                className="px-5 py-2.5 bg-indigo-600 text-white hover:bg-indigo-750 text-sm font-black rounded-xl shadow-md border-b-4 border-indigo-900 transition-all active:scale-95 flex items-center gap-2 font-Outfit"
               >
                 <span>🚀</span> Ir para Tela de {activeChild.name}
               </a>
             </div>
           ) : (
-            <span className="text-xs font-semibold text-slate-400">Nenhuma criança cadastrada</span>
+            <span className="text-xs font-bold text-slate-500">Nenhuma criança cadastrada</span>
           )}
         </div>
       </section>
@@ -779,15 +779,15 @@ export default function ParentDashboard() {
         <div className="lg:col-span-1 flex flex-col gap-6">
           
           {/* Child Hyperfocus Profile Card */}
-          <div className="bg-white border border-slate-200 rounded-[28px] p-6 shadow-md shadow-slate-100 flex flex-col gap-3">
+          <div className="bg-white border-2 border-slate-250 rounded-[28px] p-6 shadow-premium flex flex-col gap-4">
             <div className="flex items-center gap-2.5 text-indigo-600">
               <Sparkles className="w-5 h-5" />
-              <h2 className="font-bold text-slate-800 text-lg">Perfil da Criança</h2>
+              <h2 className="font-bold text-slate-900 text-lg font-Outfit">Perfil da Criança</h2>
             </div>
             
             <form onSubmit={handleSaveProfile} className="flex flex-col gap-3">
               <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">
+                <label className="block text-xs font-black text-slate-700 uppercase tracking-wider mb-1.5 font-Outfit">
                   Hiperfoco Principal do Usuário
                 </label>
                 <input 
@@ -795,17 +795,17 @@ export default function ParentDashboard() {
                   value={hyperfocus}
                   onChange={e => setHyperfocus(e.target.value)}
                   placeholder="Ex: Trens, Dinossauros, Espaço"
-                  className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 focus:border-indigo-400 focus:bg-white rounded-xl text-slate-700 placeholder-slate-400 outline-none text-sm transition-all shadow-xxs font-bold"
+                  className="w-full px-4 py-2.5 bg-white border-2 border-slate-300 focus:border-indigo-600 focus:bg-white rounded-xl text-slate-900 placeholder-slate-400 outline-none text-sm transition-all shadow-xxs font-bold focus:ring-4 focus:ring-indigo-100"
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">
+                <label className="block text-xs font-black text-slate-700 uppercase tracking-wider mb-1.5 font-Outfit">
                   Tipo de Bloqueio Infantil
                 </label>
                 <select
                   value={lockType}
                   onChange={e => setLockType(e.target.value as any)}
-                  className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 focus:border-indigo-400 focus:bg-white rounded-xl text-slate-700 outline-none text-sm transition-all shadow-xxs font-bold cursor-pointer"
+                  className="w-full px-4 py-2.5 bg-white border-2 border-slate-300 focus:border-indigo-600 focus:bg-white rounded-xl text-slate-900 outline-none text-sm transition-all shadow-xxs font-bold cursor-pointer focus:ring-4 focus:ring-indigo-100"
                 >
                   <option value="math">Desafio de Matemática 🧮</option>
                   <option value="pin">PIN de 4 dígitos 🔑</option>
@@ -815,7 +815,7 @@ export default function ParentDashboard() {
 
               {lockType === 'pin' && (
                 <div>
-                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">
+                  <label className="block text-xs font-black text-slate-700 uppercase tracking-wider mb-1.5 font-Outfit">
                     PIN do Responsável (4 dígitos)
                   </label>
                   <input 
@@ -824,20 +824,20 @@ export default function ParentDashboard() {
                     value={parentPinCode}
                     onChange={e => setParentPinCode(e.target.value.replace(/\D/g, ''))}
                     placeholder="Ex: 1234"
-                    className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 focus:border-indigo-400 focus:bg-white rounded-xl text-slate-700 placeholder-slate-400 outline-none text-sm transition-all shadow-xxs font-bold text-center tracking-widest text-lg"
+                    className="w-full px-4 py-2.5 bg-white border-2 border-slate-300 focus:border-indigo-600 focus:bg-white rounded-xl text-slate-900 placeholder-slate-400 outline-none text-sm transition-all shadow-xxs font-bold text-center tracking-widest text-lg focus:ring-4 focus:ring-indigo-100"
                   />
                 </div>
               )}
 
               {/* Sensory speed select */}
               <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">
+                <label className="block text-xs font-black text-slate-700 uppercase tracking-wider mb-1.5 font-Outfit">
                   Velocidade da Fala do Mascote (TTS) 🗣️
                 </label>
                 <select
                   value={sensorySpeed}
                   onChange={e => setSensorySpeed(parseFloat(e.target.value) as any)}
-                  className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 focus:border-indigo-400 focus:bg-white rounded-xl text-slate-700 outline-none text-sm transition-all shadow-xxs font-bold cursor-pointer"
+                  className="w-full px-4 py-2.5 bg-white border-2 border-slate-300 focus:border-indigo-600 focus:bg-white rounded-xl text-slate-900 outline-none text-sm transition-all shadow-xxs font-bold cursor-pointer focus:ring-4 focus:ring-indigo-100"
                 >
                   <option value={0.7}>Muito Calma / Lenta (0.7x) 🐢</option>
                   <option value={1.0}>Calma Recomendada (1.0x) ☕</option>
@@ -847,13 +847,13 @@ export default function ParentDashboard() {
 
               {/* Sensory sound selection */}
               <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">
+                <label className="block text-xs font-black text-slate-700 uppercase tracking-wider mb-1.5 font-Outfit">
                   Estilo de Efeito Sonoro 🔊
                 </label>
                 <select
                   value={sensorySound}
                   onChange={e => setSensorySound(e.target.value as any)}
-                  className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 focus:border-indigo-400 focus:bg-white rounded-xl text-slate-700 outline-none text-sm transition-all shadow-xxs font-bold cursor-pointer"
+                  className="w-full px-4 py-2.5 bg-white border-2 border-slate-300 focus:border-indigo-600 focus:bg-white rounded-xl text-slate-900 outline-none text-sm transition-all shadow-xxs font-bold cursor-pointer focus:ring-4 focus:ring-indigo-100"
                 >
                   <option value="marimba">Instrumento de Madeira (Marimba) 🪵</option>
                   <option value="bubble">Bolhas Fluidas (Suave) 🫧</option>
@@ -863,13 +863,13 @@ export default function ParentDashboard() {
 
               {/* Sensory visuals selection */}
               <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">
+                <label className="block text-xs font-black text-slate-700 uppercase tracking-wider mb-1.5 font-Outfit">
                   Nível de Estímulos Visuais 🎨
                 </label>
                 <select
                   value={sensoryVisuals}
                   onChange={e => setSensoryVisuals(e.target.value as any)}
-                  className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 focus:border-indigo-400 focus:bg-white rounded-xl text-slate-700 outline-none text-sm transition-all shadow-xxs font-bold cursor-pointer"
+                  className="w-full px-4 py-2.5 bg-white border-2 border-slate-350 focus:border-indigo-600 focus:bg-white rounded-xl text-slate-900 outline-none text-sm transition-all shadow-xxs font-bold cursor-pointer focus:ring-4 focus:ring-indigo-100"
                 >
                   <option value="rich">Interativo e Animado (Padrão) ✨</option>
                   <option value="minimal">Filtro Sensorial Reduzido (Minimalista) 🧘</option>
@@ -877,12 +877,12 @@ export default function ParentDashboard() {
               </div>
 
               {/* Token Economy Config */}
-              <div className="bg-indigo-50/40 border border-indigo-150 p-4.5 rounded-2xl flex flex-col gap-3 shadow-xxs">
-                <span className="text-[10px] font-black uppercase tracking-widest text-indigo-750 flex items-center gap-1 select-none">
+              <div className="bg-indigo-50 border-2 border-indigo-200 p-4.5 rounded-2xl flex flex-col gap-3 shadow-xxs">
+                <span className="text-[10px] font-black uppercase tracking-widest text-indigo-900 flex items-center gap-1 select-none font-Outfit">
                   🪙 Economia de Fichas (Reforço Positivo ABA)
                 </span>
                 <div>
-                  <label className="block text-xxs font-bold text-slate-500 uppercase mb-1">
+                  <label className="block text-xxs font-black text-slate-700 uppercase mb-1 font-Outfit">
                     Nome do Prêmio / Reforçador
                   </label>
                   <input 
@@ -890,12 +890,12 @@ export default function ParentDashboard() {
                     value={rewardName}
                     onChange={e => setRewardName(e.target.value)}
                     placeholder="Ex: 15 min de tablet"
-                    className="w-full px-4 py-2 bg-white border border-slate-200 focus:border-indigo-400 rounded-xl text-slate-700 outline-none text-xs font-bold"
+                    className="w-full px-4 py-2.5 bg-white border-2 border-slate-300 focus:border-indigo-650 rounded-xl text-slate-900 outline-none text-xs font-bold focus:ring-4 focus:ring-indigo-100"
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xxs font-bold text-slate-500 uppercase mb-1">
+                    <label className="block text-xxs font-black text-slate-700 uppercase mb-1 font-Outfit">
                       Meta de Fichas
                     </label>
                     <input 
@@ -904,11 +904,11 @@ export default function ParentDashboard() {
                       max={50}
                       value={rewardCost}
                       onChange={e => setRewardCost(parseInt(e.target.value) || 10)}
-                      className="w-full px-4 py-2 bg-white border border-slate-200 focus:border-indigo-400 rounded-xl text-slate-700 outline-none text-xs font-bold"
+                      className="w-full px-4 py-2.5 bg-white border-2 border-slate-300 focus:border-indigo-650 rounded-xl text-slate-900 outline-none text-xs font-bold focus:ring-4 focus:ring-indigo-100"
                     />
                   </div>
                   <div>
-                    <label className="block text-xxs font-bold text-slate-500 uppercase mb-1">
+                    <label className="block text-xxs font-black text-slate-700 uppercase mb-1 font-Outfit">
                       Antecipação (min)
                     </label>
                     <input 
@@ -917,7 +917,7 @@ export default function ParentDashboard() {
                       max={30}
                       value={transitionMinutes}
                       onChange={e => setTransitionMinutes(parseInt(e.target.value) || 5)}
-                      className="w-full px-4 py-2 bg-white border border-slate-200 focus:border-indigo-400 rounded-xl text-slate-700 outline-none text-xs font-bold"
+                      className="w-full px-4 py-2.5 bg-white border-2 border-slate-300 focus:border-indigo-650 rounded-xl text-slate-900 outline-none text-xs font-bold focus:ring-4 focus:ring-indigo-100"
                     />
                   </div>
                 </div>
@@ -964,7 +964,7 @@ export default function ParentDashboard() {
               <button 
                 type="submit" 
                 disabled={savingProfile}
-                className="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-xl shadow-sm transition-all active:scale-95 flex items-center justify-center gap-2 cursor-pointer border-b-2 border-indigo-700/50"
+                className="w-full py-3 bg-indigo-600 hover:bg-indigo-755 text-white text-sm font-black rounded-xl shadow-md transition-all active:scale-95 flex items-center justify-center gap-2 cursor-pointer border-b-4 border-indigo-900 font-Outfit"
               >
                 {savingProfile ? 'Salvando...' : 'Atualizar Perfil'}
               </button>
@@ -997,16 +997,16 @@ export default function ParentDashboard() {
 
 
           {/* Quick Actions Card */}
-          <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-md shadow-slate-100">
+          <div className="bg-white border-2 border-slate-250 rounded-3xl p-6 shadow-premium">
             <div className="flex items-center gap-2.5 mb-4 text-indigo-600">
               <Settings className="w-5 h-5" />
-              <h2 className="font-bold text-slate-800 text-lg">Ações Rápidas</h2>
+              <h2 className="font-bold text-slate-900 text-lg font-Outfit">Ações Rápidas</h2>
             </div>
 
             <div className="flex flex-col gap-2">
               <button 
                 onClick={handleResetToDefaults}
-                className="w-full flex items-center justify-between px-4 py-3 bg-slate-50 hover:bg-indigo-50/50 text-slate-700 hover:text-indigo-600 border border-slate-100 hover:border-indigo-100 rounded-xl text-xs font-bold transition-all text-left"
+                className="w-full flex items-center justify-between px-4 py-3 bg-slate-50 hover:bg-indigo-50 text-slate-800 hover:text-indigo-700 border-2 border-slate-200 hover:border-indigo-300 rounded-xl text-xs font-extrabold transition-all text-left cursor-pointer font-Outfit"
               >
                 <span className="flex items-center gap-2">
                   <RotateCcw className="w-4 h-4 text-indigo-500" /> Restaurar Rotina Clínica Padrão
@@ -1015,7 +1015,7 @@ export default function ParentDashboard() {
               </button>
               <button 
                 onClick={handleClearAll}
-                className="w-full flex items-center justify-between px-4 py-3 bg-slate-50 hover:bg-red-50 text-slate-700 hover:text-red-600 border border-slate-100 hover:border-red-100 rounded-xl text-xs font-bold transition-all text-left"
+                className="w-full flex items-center justify-between px-4 py-3 bg-slate-50 hover:bg-red-50 text-slate-800 hover:text-red-600 border border-slate-100 hover:border-red-100 rounded-xl text-xs font-bold transition-all text-left"
               >
                 <span className="flex items-center gap-2">
                   <Trash2 className="w-4 h-4 text-red-400" /> Limpar Toda a Grade
@@ -1030,21 +1030,21 @@ export default function ParentDashboard() {
               </span>
               
               {Object.entries(CLINICAL_TEMPLATES).map(([key, tmpl]) => (
-                <div key={key} className="bg-slate-50/50 border border-slate-150 p-3 rounded-2xl flex flex-col gap-2 shadow-xxs">
+                <div key={key} className="bg-slate-100 border-2 border-slate-250 p-3.5 rounded-2xl flex flex-col gap-2 shadow-xxs">
                   <div>
-                    <h4 className="font-bold text-[11px] text-slate-700">{tmpl.name}</h4>
-                    <p className="text-[9px] text-slate-400 leading-normal mt-0.5 font-semibold">{tmpl.description}</p>
+                    <h4 className="font-black text-[12px] text-slate-900 font-Outfit">{tmpl.name}</h4>
+                    <p className="text-[10px] text-slate-700 leading-normal mt-0.5 font-semibold">{tmpl.description}</p>
                   </div>
                   <div className="flex gap-2">
                     <button
                       onClick={() => handleLoadTemplate(key as any, 'day')}
-                      className="flex-1 py-1 bg-white border border-slate-200 hover:border-indigo-250 hover:text-indigo-600 text-[9px] font-black rounded-lg shadow-xxs cursor-pointer transition-all active:scale-95 text-slate-600"
+                      className="flex-1 py-2 bg-white border-2 border-slate-300 hover:border-indigo-500 hover:text-indigo-700 text-[10px] font-black rounded-lg shadow-xxs cursor-pointer transition-all active:scale-95 text-slate-750 font-Outfit"
                     >
                       Aplicar no Dia
                     </button>
                     <button
                       onClick={() => handleLoadTemplate(key as any, 'week')}
-                      className="flex-1 py-1 bg-white border border-slate-200 hover:border-indigo-250 hover:text-indigo-600 text-[9px] font-black rounded-lg shadow-xxs cursor-pointer transition-all active:scale-95 text-slate-600"
+                      className="flex-1 py-2 bg-white border-2 border-slate-300 hover:border-indigo-500 hover:text-indigo-700 text-[10px] font-black rounded-lg shadow-xxs cursor-pointer transition-all active:scale-95 text-slate-750 font-Outfit"
                     >
                       Aplicar na Semana
                     </button>
@@ -1066,37 +1066,37 @@ export default function ParentDashboard() {
         <div className="lg:col-span-2 flex flex-col gap-6">
           
           {/* Tabs for switching Tasks Routine vs Reports vs Audit Logs */}
-          <div className="bg-white border border-slate-200 p-1.5 rounded-2xl flex shadow-sm gap-1 overflow-x-auto scrollbar-none">
+          <div className="bg-white border-2 border-slate-250 p-2 rounded-2xl flex shadow-sm gap-1 overflow-x-auto scrollbar-none">
             <button
               onClick={() => { playBubble(); setActivePanelTab('tasks'); }}
-              className={`flex-1 py-3 text-sm font-bold rounded-xl transition-all flex items-center justify-center gap-2 shrink-0 ${
+              className={`flex-1 py-3 text-sm font-black rounded-xl transition-all flex items-center justify-center gap-2 shrink-0 font-Outfit cursor-pointer ${
                 activePanelTab === 'tasks' 
-                  ? 'bg-slate-800 text-white shadow-md' 
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                  ? 'bg-slate-900 text-white border-2 border-slate-950 shadow-md' 
+                  : 'text-slate-700 hover:text-slate-955 hover:bg-slate-50 border-2 border-transparent'
               }`}
             >
               <ListTodo className="w-4 h-4" /> Agenda Semanal
             </button>
             <button
               onClick={() => { playBubble(); setActivePanelTab('reports'); }}
-              className={`flex-1 py-3 text-sm font-bold rounded-xl transition-all flex items-center justify-center gap-2 shrink-0 ${
+              className={`flex-1 py-3 text-sm font-black rounded-xl transition-all flex items-center justify-center gap-2 shrink-0 font-Outfit cursor-pointer ${
                 activePanelTab === 'reports' 
-                  ? 'bg-slate-800 text-white shadow-md' 
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                  ? 'bg-slate-900 text-white border-2 border-slate-950 shadow-md' 
+                  : 'text-slate-700 hover:text-slate-955 hover:bg-slate-50 border-2 border-transparent'
               }`}
             >
               <span>📊</span> Relatório Clínico
             </button>
             <button
               onClick={() => { playBubble(); setActivePanelTab('logs'); }}
-              className={`flex-1 py-3 text-sm font-bold rounded-xl transition-all flex items-center justify-center gap-2 shrink-0 ${
+              className={`flex-1 py-3 text-sm font-black rounded-xl transition-all flex items-center justify-center gap-2 shrink-0 font-Outfit cursor-pointer ${
                 activePanelTab === 'logs' 
-                  ? 'bg-slate-800 text-white shadow-md' 
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                  ? 'bg-slate-900 text-white border-2 border-slate-950 shadow-md' 
+                  : 'text-slate-700 hover:text-slate-955 hover:bg-slate-50 border-2 border-transparent'
               }`}
             >
               <History className="w-4 h-4" /> Logs de Segurança
-              <span className="text-xxs bg-indigo-50 border border-indigo-200 text-indigo-600 px-2 py-0.5 rounded-full font-extrabold shadow-sm">
+              <span className="text-xxs bg-indigo-100 border-2 border-indigo-300 text-indigo-955 px-2 py-0.5 rounded-full font-extrabold shadow-sm">
                 {logs.length}
               </span>
             </button>

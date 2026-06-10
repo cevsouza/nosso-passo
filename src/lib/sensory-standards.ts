@@ -3,16 +3,16 @@
  * Centralizes sensory safety constants for animation and sound.
  */
 
-// Soft, low-contrast, harmonious pastel palette for TEA children to avoid visual overstimulation
+// High-contrast, accessibility-checked palette for readable text and components
 export const SENSORY_PALETTE = {
-  bgSoft: 'hsl(210, 30%, 96%)',      // Soft grayish blue
-  primarySoft: 'hsl(207, 85%, 60%)', // Calm soft blue
-  successSoft: 'hsl(145, 63%, 45%)', // Gentle pastel green
-  warningSoft: 'hsl(35, 85%, 62%)',   // Warm soft orange
-  textPrimary: 'hsl(220, 20%, 25%)',  // Low contrast charcoal
-  textSecondary: 'hsl(218, 12%, 45%)',// Distanced grayish slate
-  whiteGlass: 'rgba(255, 255, 255, 0.88)',
-  borderGlass: 'rgba(255, 255, 255, 0.45)',
+  bgSoft: 'hsl(210, 40%, 98%)',      // Clean soft off-white background
+  primarySoft: 'hsl(225, 75%, 50%)', // Indigo-600 equivalent, high contrast
+  successSoft: 'hsl(142, 72%, 29%)', // Deep success green, high contrast
+  warningSoft: 'hsl(38, 92%, 40%)',   // Rich warning amber, high contrast
+  textPrimary: 'hsl(220, 25%, 10%)',  // Near-black charcoal for supreme readability
+  textSecondary: 'hsl(215, 20%, 32%)',// Slate-700 for accessible subtext
+  whiteGlass: 'rgba(255, 255, 255, 0.95)',
+  borderGlass: 'rgba(148, 163, 184, 0.45)', // Defined slate borders
 };
 
 // Strict animation standards to prevent visual triggers (flashes, shakes, fast movements)
@@ -70,9 +70,9 @@ export const getTaskCategory = (title: string): TaskCategory => {
   // Hygiene
   if (text.includes('escovar') || text.includes('banho') || text.includes('dente') || text.includes('lavar') || text.includes('higiene') || text.includes('vestir') || text.includes('trocar') || text.includes('pentear')) {
     return {
-      gradient: 'from-[#2dd4bf] to-[#0d9488]', // Teal to Emerald
-      shadow: 'shadow-teal-100 border-teal-200/80',
-      tagClass: 'text-teal-700 bg-teal-50 border-teal-100',
+      gradient: 'from-teal-500 to-teal-800', // High-contrast teal to deep emerald
+      shadow: 'shadow-teal-100 border-teal-400',
+      tagClass: 'text-teal-950 bg-teal-100 border-teal-300 font-extrabold',
       label: 'Higiene 🫧',
       icon: Sparkles
     };
@@ -81,9 +81,9 @@ export const getTaskCategory = (title: string): TaskCategory => {
   // Meals
   if (text.includes('comer') || text.includes('café') || text.includes('almoço') || text.includes('jantar') || text.includes('lanche') || text.includes('bebida') || text.includes('água') || text.includes('refeição') || text.includes('suco') || text.includes('fruta')) {
     return {
-      gradient: 'from-[#fbbf24] to-[#ea580c]', // Amber to Orange
-      shadow: 'shadow-orange-100 border-orange-200/80',
-      tagClass: 'text-orange-700 bg-orange-50 border-orange-100',
+      gradient: 'from-amber-500 to-orange-650', // High-contrast amber to orange
+      shadow: 'shadow-orange-100 border-orange-400',
+      tagClass: 'text-orange-950 bg-orange-100 border-orange-300 font-extrabold',
       label: 'Refeição 🍎',
       icon: Utensils
     };
@@ -92,9 +92,9 @@ export const getTaskCategory = (title: string): TaskCategory => {
   // Study/School
   if (text.includes('escola') || text.includes('estudar') || text.includes('aula') || text.includes('dever') || text.includes('lição') || text.includes('ler') || text.includes('livro') || text.includes('tarefa') || text.includes('curso')) {
     return {
-      gradient: 'from-[#38bdf8] to-[#0284c7]', // Sky to Blue
-      shadow: 'shadow-blue-100 border-blue-200/80',
-      tagClass: 'text-blue-700 bg-blue-50 border-blue-100',
+      gradient: 'from-sky-500 to-blue-800', // High-contrast sky to blue
+      shadow: 'shadow-blue-100 border-blue-400',
+      tagClass: 'text-blue-950 bg-blue-100 border-blue-300 font-extrabold',
       label: 'Estudo 📝',
       icon: BookOpen
     };
@@ -103,9 +103,9 @@ export const getTaskCategory = (title: string): TaskCategory => {
   // Sleep/Rest
   if (text.includes('dormir') || text.includes('cama') || text.includes('deitar') || text.includes('sono') || text.includes('descansar') || text.includes('cochilar') || text.includes('relaxar')) {
     return {
-      gradient: 'from-[#6366f1] to-[#4338ca]', // Indigo to Dark Indigo
-      shadow: 'shadow-indigo-100 border-indigo-200/80',
-      tagClass: 'text-indigo-700 bg-indigo-50 border-indigo-100',
+      gradient: 'from-indigo-500 to-indigo-850', // High-contrast indigo to dark blue
+      shadow: 'shadow-indigo-100 border-indigo-400',
+      tagClass: 'text-indigo-950 bg-indigo-100 border-indigo-300 font-extrabold',
       label: 'Descanso 🌙',
       icon: Bed
     };
@@ -113,9 +113,9 @@ export const getTaskCategory = (title: string): TaskCategory => {
   
   // Play/Default Play
   return {
-    gradient: 'from-[#c084fc] to-[#db2777]', // Purple to Pink
-    shadow: 'shadow-pink-100 border-purple-200/80',
-    tagClass: 'text-purple-700 bg-purple-50 border-purple-100',
+    gradient: 'from-purple-500 to-pink-700', // High-contrast purple to pink
+    shadow: 'shadow-pink-100 border-purple-400',
+    tagClass: 'text-purple-950 bg-purple-100 border-purple-300 font-extrabold',
     label: 'Diversão 🎮',
     icon: Gamepad2
   };

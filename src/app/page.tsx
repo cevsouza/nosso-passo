@@ -38,30 +38,30 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen flex flex-col items-center justify-between p-6 md:p-12 bg-gradient-to-tr from-[#eef2f7] via-[#e0ebf5] to-[#e8f5ed] animate-gradient-flow relative overflow-hidden font-sans">
+    <main className="min-h-screen flex flex-col items-center justify-between p-6 md:p-12 bg-gradient-to-tr from-[#f8fafc] via-[#eff6ff] to-[#f0fdf4] animate-gradient-flow relative overflow-hidden font-sans">
       
       {/* Decorative slow floating SVGs clouds for sensory calmness */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
         {/* Soft Cloud 1 */}
         <motion.div
-          className="absolute opacity-15"
+          className="absolute opacity-20"
           style={{ top: "12%", left: "-15%", width: 160 }}
           animate={{ x: ["-10vw", "110vw"] }}
           transition={{ duration: 90, repeat: Infinity, ease: "linear" }}
         >
-          <svg viewBox="0 0 100 100" fill="#ffffff">
+          <svg viewBox="0 0 100 100" fill="#cbd5e1">
             <path d="M 20 60 C 20 48, 32 38, 48 38 C 55 28, 75 28, 80 38 C 92 38, 98 48, 98 60 C 98 72, 88 82, 50 82 C 22 82, 20 72, 20 60 Z" />
           </svg>
         </motion.div>
 
         {/* Soft Cloud 2 */}
         <motion.div
-          className="absolute opacity-10"
+          className="absolute opacity-15"
           style={{ top: "45%", left: "-25%", width: 220 }}
           animate={{ x: ["-20vw", "110vw"] }}
           transition={{ duration: 130, repeat: Infinity, ease: "linear", delay: 15 }}
         >
-          <svg viewBox="0 0 100 100" fill="#ffffff">
+          <svg viewBox="0 0 100 100" fill="#cbd5e1">
             <path d="M 20 60 C 20 48, 32 38, 48 38 C 55 28, 75 28, 80 38 C 92 38, 98 48, 98 60 C 98 72, 88 82, 50 82 C 22 82, 20 72, 20 60 Z" />
           </svg>
         </motion.div>
@@ -72,7 +72,7 @@ export default function Home() {
         {bubbles.map(b => (
           <motion.div
             key={b.id}
-            className="absolute bottom-[-10%] rounded-full bg-indigo-200/20 border border-indigo-300/10 backdrop-blur-[0.5px]"
+            className="absolute bottom-[-10%] rounded-full bg-indigo-300/20 border border-indigo-400/20 backdrop-blur-[0.5px]"
             style={{
               width: b.size,
               height: b.size,
@@ -95,11 +95,11 @@ export default function Home() {
 
       {/* Header Info */}
       <header className="z-10 w-full max-w-5xl flex items-center justify-between pointer-events-auto">
-        <div className="flex items-center gap-2">
-          <span className="text-2xl animate-bounce">🐶</span>
-          <span className="text-lg font-black tracking-tight text-slate-800">Rotina Animada</span>
+        <div className="flex items-center gap-2 select-none">
+          <span className="text-3xl animate-bounce">🐶</span>
+          <span className="text-xl font-black tracking-tight text-slate-900 font-Outfit">Rotina Animada</span>
         </div>
-        <span className="text-[10px] font-black uppercase tracking-widest text-indigo-600 bg-indigo-50 border border-indigo-100/60 px-3 py-1.5 rounded-full shadow-xxs">
+        <span className="text-xs font-black uppercase tracking-widest text-indigo-750 bg-indigo-100 border-2 border-indigo-250 px-4 py-2 rounded-full shadow-sm">
           ✨ Neurodiversidade
         </span>
       </header>
@@ -115,15 +115,15 @@ export default function Home() {
             transition={{ duration: 0.6 }}
             className="flex flex-col items-center lg:items-start"
           >
-            <span className="text-[10px] font-black uppercase tracking-widest text-emerald-700 bg-emerald-50 border border-emerald-100 px-3.5 py-1.5 rounded-full mb-3 flex items-center gap-1.5 shadow-xxs select-none">
-              <Sparkles className="w-3.5 h-3.5 text-emerald-500 animate-pulse" /> 100% Sensorialmente Seguro
+            <span className="text-[11px] font-black uppercase tracking-widest text-emerald-950 bg-emerald-100 border-2 border-emerald-300 px-4 py-2 rounded-full mb-4 flex items-center gap-1.5 shadow-sm select-none">
+              <Sparkles className="w-4 h-4 text-emerald-600 animate-pulse" /> 100% Sensorialmente Seguro
             </span>
-            <h1 className="text-4xl md:text-5.5xl font-black tracking-tight text-slate-850 leading-tight">
+            <h1 className="text-4xl md:text-5.5xl font-black tracking-tight text-slate-900 leading-tight font-Outfit">
               Previsibilidade <br />
-              <span className="bg-gradient-to-r from-emerald-500 to-indigo-600 bg-clip-text text-transparent">que Diverte!</span>
+              <span className="bg-gradient-to-r from-emerald-600 via-teal-600 to-indigo-700 bg-clip-text text-transparent">que Diverte!</span>
             </h1>
-            <p className="text-slate-500 text-sm md:text-base mt-3 leading-relaxed font-semibold max-w-md">
-              Uma agenda semanal e diária estruturada de forma lúdica com reforço positivo do Border Collie para reduzir a sobrecarga cognitiva e ansiedade.
+            <p className="text-slate-700 text-sm md:text-base mt-4 leading-relaxed font-semibold max-w-md">
+              Uma agenda semanal e diária estruturada de forma lúdica com reforço positivo do Border Collie para reduzir a sobrecarga cognitiva e a ansiedade.
             </p>
           </motion.div>
 
@@ -132,16 +132,16 @@ export default function Home() {
             
             {/* Pulsing orbital rings */}
             <motion.div 
-              className="absolute w-[220px] h-[220px] rounded-full border-2 border-dashed border-indigo-400/20 -z-10"
+              className="absolute w-[220px] h-[220px] rounded-full border-2 border-dashed border-indigo-400/30 -z-10"
               animate={{ rotate: 360 }}
               transition={{ duration: 35, repeat: Infinity, ease: "linear" }}
             />
             
-            <div className="absolute w-[180px] h-[180px] bg-gradient-to-tr from-emerald-100 to-indigo-100 rounded-full filter blur-2xl opacity-40 -z-10 animate-pulse"></div>
+            <div className="absolute w-[180px] h-[180px] bg-gradient-to-tr from-emerald-100 to-indigo-150 rounded-full filter blur-2xl opacity-40 -z-10 animate-pulse"></div>
 
             {/* Pedestal Base Glass Circle */}
             <motion.div
-              className="cursor-pointer relative flex flex-col items-center justify-center p-5 bg-white/90 backdrop-blur-2xl rounded-full border-3 border-white shadow-[0_25px_50px_rgba(99,102,241,0.06)] hover:shadow-[0_30px_60px_rgba(99,102,241,0.12)] hover:scale-[1.04] transition-all"
+              className="cursor-pointer relative flex flex-col items-center justify-center p-5 bg-white border-2 border-slate-300/60 rounded-full shadow-[0_20px_40px_rgba(15,23,42,0.06)] hover:shadow-[0_30px_60px_rgba(79,70,229,0.12)] hover:scale-[1.04] transition-all"
               onClick={handleMascotClick}
               onMouseEnter={handleHover}
               onMouseLeave={handleHoverLeave}
@@ -150,7 +150,7 @@ export default function Home() {
             >
               <BorderCollie state={collieState} size={170} />
               
-              <span className="absolute bottom-2 text-[9px] font-black bg-slate-850 text-white px-3 py-1.5 rounded-full shadow-md select-none border border-slate-700/50 uppercase tracking-widest">
+              <span className="absolute bottom-2 text-[10px] font-black bg-slate-950 text-white px-3 py-1.5 rounded-full shadow-md select-none border border-slate-750 uppercase tracking-widest font-Outfit">
                 {collieState === 'celebrating' ? 'Au au! 🎉' : collieState === 'guiding' ? 'Olha lá! 👉' : 'Toca em mim! 👋'}
               </span>
             </motion.div>
@@ -165,16 +165,16 @@ export default function Home() {
             initial={{ opacity: 0, x: 30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="bg-gradient-to-br from-emerald-400 via-teal-500 to-emerald-600 p-8 rounded-[36px] text-white shadow-[0_25px_50px_-10px_rgba(16,185,129,0.22)] border-b-6 border-emerald-600 flex flex-col justify-between min-h-[300px] transform hover:scale-[1.015] hover:shadow-[0_30px_60px_-10px_rgba(16,185,129,0.28)] transition-all group"
+            className="bg-gradient-to-br from-emerald-600 via-teal-700 to-emerald-850 p-8 rounded-[36px] text-white shadow-[0_25px_50px_-10px_rgba(4,120,87,0.35)] border-b-8 border-emerald-900 flex flex-col justify-between min-h-[320px] transform hover:scale-[1.02] hover:shadow-[0_30px_60px_-10px_rgba(4,120,87,0.45)] transition-all group"
           >
             <div className="flex flex-col gap-4">
-              <div className="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center text-3xl shadow-inner group-hover:scale-110 transition-all select-none">
+              <div className="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center text-3xl shadow-inner group-hover:scale-110 transition-all select-none border border-white/20">
                 🐾
               </div>
               <div>
-                <h3 className="text-2xl font-black tracking-tight leading-tight">Área da Criança</h3>
-                <p className="text-emerald-50 text-xs font-bold leading-relaxed mt-2.5">
-                  Painel de missões diárias com visual super divertido, voz nativa automática e estrelas de conquista.
+                <h3 className="text-2.5xl font-black tracking-tight leading-tight font-Outfit text-white">Área da Criança</h3>
+                <p className="text-emerald-100 text-xs font-semibold leading-relaxed mt-3">
+                  Painel de missões diárias com visual super divertido, voz nativa automática e estrelas de conquista para reforço positivo.
                 </p>
               </div>
             </div>
@@ -183,9 +183,9 @@ export default function Home() {
               href="/routine"
               onMouseEnter={playBubble}
               onClick={() => playMarimba(261.63, 0.5)}
-              className="mt-6 flex items-center justify-center gap-2 py-4 bg-white text-emerald-700 hover:bg-slate-50 rounded-2xl font-black text-sm shadow-md cursor-pointer transition-all active:scale-95 border-b-3 border-emerald-100"
+              className="mt-6 flex items-center justify-center gap-2 py-4 bg-white text-emerald-900 hover:bg-emerald-50 rounded-2xl font-black text-sm shadow-md cursor-pointer transition-all active:scale-95 border-b-4 border-emerald-200 font-Outfit"
             >
-              Iniciar Rotina <ArrowRight className="w-4 h-4" />
+              Iniciar Rotina <ArrowRight className="w-4 h-4 text-emerald-800" />
             </MotionLink>
           </motion.div>
 
@@ -194,16 +194,16 @@ export default function Home() {
             initial={{ opacity: 0, x: 30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="bg-white/90 backdrop-blur-2xl border border-white/60 p-8 rounded-[36px] text-slate-800 shadow-[0_25px_50px_rgba(0,0,0,0.03)] border-b-6 border-slate-200/80 flex flex-col justify-between min-h-[300px] transform hover:scale-[1.015] hover:shadow-[0_30px_60px_rgba(0,0,0,0.05)] transition-all group"
+            className="bg-white border-2 border-slate-350 p-8 rounded-[36px] text-slate-900 shadow-[0_25px_50px_rgba(15,23,42,0.04)] border-b-8 border-slate-300 flex flex-col justify-between min-h-[320px] transform hover:scale-[1.02] hover:border-indigo-400 hover:shadow-[0_30px_60px_rgba(79,70,229,0.08)] transition-all group"
           >
             <div className="flex flex-col gap-4">
-              <div className="w-14 h-14 bg-indigo-50 border border-indigo-150 text-indigo-500 rounded-2xl flex items-center justify-center shadow-sm group-hover:scale-110 transition-all">
-                <User2 className="w-6.5 h-6.5" />
+              <div className="w-14 h-14 bg-indigo-50 border-2 border-indigo-150 text-indigo-600 rounded-2xl flex items-center justify-center shadow-inner group-hover:scale-110 transition-all">
+                <User2 className="w-7 h-7" />
               </div>
               <div>
-                <h3 className="text-2xl font-black tracking-tight leading-tight text-slate-800">Cuidadores</h3>
-                <p className="text-slate-500 text-xs font-bold leading-relaxed mt-2.5">
-                  Painel para configurar tarefas com presets automáticos, gerenciar o perfil e acompanhar logs de segurança de rotina.
+                <h3 className="text-2.5xl font-black tracking-tight leading-tight text-slate-900 font-Outfit">Cuidadores</h3>
+                <p className="text-slate-600 text-xs font-semibold leading-relaxed mt-3">
+                  Painel completo para configurar tarefas com presets recomendados, gerenciar múltiplos perfis e acompanhar relatórios comportamentais.
                 </p>
               </div>
             </div>
@@ -212,9 +212,9 @@ export default function Home() {
               href="/login"
               onMouseEnter={playBubble}
               onClick={() => playMarimba(329.63, 0.4)}
-              className="mt-6 flex items-center justify-center gap-2 py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-black text-sm shadow-glow-indigo cursor-pointer transition-all active:scale-95 border-b-3 border-indigo-850"
+              className="mt-6 flex items-center justify-center gap-2 py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-black text-sm shadow-glow-indigo cursor-pointer transition-all active:scale-95 border-b-4 border-indigo-900 font-Outfit"
             >
-              Acessar Painel <ArrowRight className="w-4 h-4" />
+              Acessar Painel <ArrowRight className="w-4 h-4 text-indigo-200" />
             </MotionLink>
           </motion.div>
 
@@ -222,11 +222,11 @@ export default function Home() {
       </div>
 
       {/* Footer Info */}
-      <footer className="z-10 w-full text-center flex flex-col md:flex-row items-center justify-between gap-2 border-t border-slate-200/40 pt-4 pointer-events-none">
-        <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">
+      <footer className="z-10 w-full text-center flex flex-col md:flex-row items-center justify-between gap-2 border-t border-slate-300/60 pt-6 pointer-events-none mt-10">
+        <span className="text-[10px] text-slate-500 font-extrabold uppercase tracking-widest">
           neurodiversidade amigável • sem arquivos externos
         </span>
-        <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">
+        <span className="text-[10px] text-slate-500 font-extrabold uppercase tracking-widest">
           © 2026 Rotina Animada
         </span>
       </footer>
@@ -234,5 +234,3 @@ export default function Home() {
     </main>
   );
 }
-
-
