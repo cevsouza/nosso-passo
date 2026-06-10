@@ -716,7 +716,7 @@ export default function ChildRoutine() {
 
                     <div className="flex flex-col items-center gap-2">
                       <div className="relative">
-                        <RoutineIllustration category={activeTask.title} size={150} />
+                        <RoutineIllustration category={activeTask.title} size={150} hyperfocus={childHyperfocus} />
                         {activeTask.icon && (
                           <div className="absolute top-0 right-0 w-14 h-14 bg-white border-4 border-indigo-100 text-slate-700 rounded-2xl flex items-center justify-center text-4xl shadow-md select-none transform rotate-12">
                             {activeTask.icon}

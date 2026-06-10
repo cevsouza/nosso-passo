@@ -73,6 +73,15 @@ export default function Home() {
     if (focus.includes("herói") || focus.includes("heroi") || focus.includes("hero") || focus.includes("super")) {
       return 'Super! 🌟';
     }
+    if (focus.includes("tubarão") || focus.includes("tubarao") || focus.includes("shark") || focus.includes("mar")) {
+      return 'Splash! 🌊';
+    }
+    if (focus.includes("unicórnio") || focus.includes("unicornio") || focus.includes("unicorn")) {
+      return 'Brilho! ✨';
+    }
+    if (focus.includes("robô") || focus.includes("robo") || focus.includes("robot")) {
+      return 'Bip bop! 🤖';
+    }
     return 'Au au! 🎉';
   };
 

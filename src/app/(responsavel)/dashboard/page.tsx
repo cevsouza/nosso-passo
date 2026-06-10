@@ -349,6 +349,24 @@ export default function ParentDashboard() {
         text: collieState === 'celebrating' ? 'Super! 🌟' : 'Mascote (Dicas)'
       };
     }
+    if (focus.includes("tubarão") || focus.includes("tubarao") || focus.includes("shark") || focus.includes("mar")) {
+      return {
+        emoji: '🦈',
+        text: collieState === 'celebrating' ? 'Splash! 🌊' : 'Mascote (Dicas)'
+      };
+    }
+    if (focus.includes("unicórnio") || focus.includes("unicornio") || focus.includes("unicorn")) {
+      return {
+        emoji: '🦄',
+        text: collieState === 'celebrating' ? 'Brilho! ✨' : 'Mascote (Dicas)'
+      };
+    }
+    if (focus.includes("robô") || focus.includes("robo") || focus.includes("robot")) {
+      return {
+        emoji: '🤖',
+        text: collieState === 'celebrating' ? 'Bip bop! 🤖' : 'Mascote (Dicas)'
+      };
+    }
     return {
       emoji: '🐶',
       text: collieState === 'celebrating' ? 'Au Au! 🐾' : 'Companheiro (Dicas)'
@@ -858,6 +876,9 @@ export default function ParentDashboard() {
                   <option value="Carro 🚗">Carro 🚗</option>
                   <option value="Trem / Locomotiva 🚂">Trem / Locomotiva 🚂</option>
                   <option value="Super-herói 🦸">Super-herói 🦸</option>
+                  <option value="Tubarão / Fundo do Mar 🦈">Tubarão / Fundo do Mar 🦈</option>
+                  <option value="Unicórnio 🦄">Unicórnio 🦄</option>
+                  <option value="Robô / Tecnologia 🤖">Robô / Tecnologia 🤖</option>
                 </select>
               </div>
               <div>
