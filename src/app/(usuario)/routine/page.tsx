@@ -3,7 +3,8 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { firebaseBridge, Task } from '../../../lib/firebase-bridge';
-import { BorderCollie, CollieState } from '../../../components/ludic/BorderCollie';
+import { CollieState } from '../../../components/ludic/BorderCollie';
+import { HyperfocusMascot } from '../../../components/ludic/HyperfocusMascot';
 import { playBubble, playMarimba, playCelebration, speakText } from '../../../lib/audio-synth';
 import { getTaskCategory, TaskCategory } from '../../../lib/sensory-standards';
 import { RoutineIllustration } from '../../../components/ludic/RoutineIllustration';
@@ -528,7 +529,7 @@ export default function ChildRoutine() {
           <div className="relative cursor-pointer py-4" onClick={handleMascotClick}>
             {/* Glowing moon shadow background */}
             <div className="absolute w-36 h-36 bg-indigo-500/20 rounded-full filter blur-xl -z-10 animate-pulse"></div>
-            <BorderCollie state="sleeping" size={240} />
+            <HyperfocusMascot hyperfocus={childHyperfocus} state="sleeping" size={240} />
           </div>
 
           {/* Badges Gallery Reward */}
@@ -657,7 +658,7 @@ export default function ChildRoutine() {
             animate={{ scale: 1, opacity: 1 }}
             className="bg-white/80 border border-white/50 p-12 rounded-[32px] shadow-premium text-center flex flex-col items-center gap-4"
           >
-            <BorderCollie state="idle" size={170} />
+            <HyperfocusMascot hyperfocus={childHyperfocus} state="idle" size={170} />
             <h3 className="text-xl font-extrabold text-slate-700 mt-2">Nenhuma atividade hoje!</h3>
             <p className="text-sm text-slate-400 max-w-xs leading-relaxed font-semibold">
               O responsável ainda não adicionou tarefas na sua agenda de hoje. Peça para ele adicionar no Painel!
@@ -810,7 +811,8 @@ export default function ChildRoutine() {
                         <div className={`absolute bottom-2 right-2 w-9 h-9 rounded-full bg-gradient-to-tr ${category.gradient} flex items-center justify-center shadow-md animate-bounce`}>
                           <category.icon className="w-5.5 h-5.5 text-white" />
                         </div>
-                        <BorderCollie 
+                        <HyperfocusMascot 
+                          hyperfocus={childHyperfocus}
                           state={celebratingTaskId === activeTask.id ? 'celebrating' : collieState === 'celebrating' ? 'celebrating' : 'guiding'} 
                           size={165} 
                         />

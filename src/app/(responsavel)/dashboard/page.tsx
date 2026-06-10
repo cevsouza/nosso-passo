@@ -6,7 +6,8 @@ import { firebaseBridge, Task, UserProfile } from '../../../lib/firebase-bridge'
 import { immutableLogger, AuditLog } from '../../../lib/immutable-logger';
 import { playBubble, playMarimba } from '../../../lib/audio-synth';
 import { getTaskCategory, TaskCategory } from '../../../lib/sensory-standards';
-import { BorderCollie, CollieState } from '../../../components/ludic/BorderCollie';
+import { CollieState } from '../../../components/ludic/BorderCollie';
+import { HyperfocusMascot } from '../../../components/ludic/HyperfocusMascot';
 import { RoutineIllustration } from '../../../components/ludic/RoutineIllustration';
 import { 
   Calendar, 
@@ -986,7 +987,7 @@ export default function ParentDashboard() {
                 title="Clique para rotacionar dicas clínicas!"
               >
                 <div className="absolute inset-0 rounded-full bg-indigo-150 opacity-10 filter blur-sm"></div>
-                <BorderCollie state={collieState} size={110} />
+                <HyperfocusMascot hyperfocus={hyperfocus || activeChild?.childHyperfocus || 'Border Collies 🐕'} state={collieState} size={110} />
               </div>
               <span className="text-[9px] font-extrabold text-slate-400 mt-2 tracking-widest uppercase flex items-center gap-1 select-none">
                 🐶 {collieState === 'celebrating' ? 'Au Au! 🐾' : 'Companheiro (Dicas)'}
