@@ -132,7 +132,14 @@ export const speakText = (text: string) => {
   if (rawSpeed === 0.7) speedRate = 0.65;
   if (rawSpeed === 1.2) speedRate = 1.05;
 
-  const utterance = new SpeechSynthesisUtterance(text);
+  // Remove emojis and symbols from the spoken text so SpeechSynthesis does not read them
+  const cleanText = text
+    .replace(/\p{Extended_Pictographic}/gu, '')
+    .replace(/\uFE0F/g, '') // Variation selector-16
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  const utterance = new SpeechSynthesisUtterance(cleanText);
   utterance.lang = 'pt-BR';
   utterance.rate = speedRate; // Configured speed rate for TEA children
   utterance.pitch = 1.15; // Warm, friendly, slightly higher pitch for engagement

@@ -578,6 +578,33 @@ export default function ChildRoutine() {
             Voltar ao Início 🏠
           </button>
         </motion.div>
+
+        {/* Parental Lock Modal overlay */}
+        <AnimatePresence>
+          {showLockModal && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md"
+            >
+              <ParentalLockOverlay
+                lockType={lockType}
+                parentPinCode={parentPinCode}
+                mathProblem={mathProblem}
+                onSuccess={() => {
+                  setShowLockModal(false);
+                  router.push(exitTarget);
+                }}
+                onClose={() => {
+                  playBubble();
+                  setShowLockModal(false);
+                }}
+                generateMathProblem={generateMathProblem}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </main>
     );
   }

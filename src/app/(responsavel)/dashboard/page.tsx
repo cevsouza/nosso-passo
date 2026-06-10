@@ -65,13 +65,13 @@ const CLINICAL_TIPS = [
 ];
 
 const PRESETS = [
-  { title: 'Escovar os dentes 🪥', time: '08:00', period: 'manhã' as const },
-  { title: 'Tomar banho 🚿', time: '08:30', period: 'manhã' as const },
-  { title: 'Café da manhã 🍳', time: '09:00', period: 'manhã' as const },
-  { title: 'Ir para a escola 🏫', time: '13:00', period: 'tarde' as const },
-  { title: 'Dever de casa 📚', time: '17:30', period: 'tarde' as const },
-  { title: 'Jantar em família 🍱', time: '19:30', period: 'noite' as const },
-  { title: 'Dormir / Descanso 🛌', time: '21:30', period: 'noite' as const }
+  { title: 'Escovar os dentes', time: '08:00', period: 'manhã' as const },
+  { title: 'Tomar banho', time: '08:30', period: 'manhã' as const },
+  { title: 'Café da manhã', time: '09:00', period: 'manhã' as const },
+  { title: 'Ir para a escola', time: '13:00', period: 'tarde' as const },
+  { title: 'Dever de casa', time: '17:30', period: 'tarde' as const },
+  { title: 'Jantar em família', time: '19:30', period: 'noite' as const },
+  { title: 'Dormir / Descanso', time: '21:30', period: 'noite' as const }
 ];
 
 const CLINICAL_TEMPLATES = {
@@ -79,40 +79,40 @@ const CLINICAL_TEMPLATES = {
     name: "Rotina Clínica Padrão 🧭",
     description: "Equilibrada com higiene, estudo e lazer ao longo de toda a semana.",
     tasks: [
-      { title: 'Escovar os dentes 🪥', time: '08:00', period: 'manhã' as const },
-      { title: 'Tomar café da manhã 🍞', time: '08:30', period: 'manhã' as const },
-      { title: 'Aulas e Estudo 🏫', time: '09:00', period: 'manhã' as const },
-      { title: 'Almoço Saudável 🍲', time: '12:30', period: 'tarde' as const },
-      { title: 'Brincar com o Collie 🐶', time: '15:00', period: 'tarde' as const },
-      { title: 'Jantar em Família 🍽️', time: '19:00', period: 'noite' as const },
-      { title: 'Tomar Banho e Dormir 😴', time: '21:00', period: 'noite' as const }
+      { title: 'Escovar os dentes', time: '08:00', period: 'manhã' as const },
+      { title: 'Tomar café da manhã', time: '08:30', period: 'manhã' as const },
+      { title: 'Aulas e Estudo', time: '09:00', period: 'manhã' as const },
+      { title: 'Almoço Saudável', time: '12:30', period: 'tarde' as const },
+      { title: 'Brincar com o Collie', time: '15:00', period: 'tarde' as const },
+      { title: 'Jantar em Família', time: '19:00', period: 'noite' as const },
+      { title: 'Tomar Banho e Dormir', time: '21:00', period: 'noite' as const }
     ]
   },
   sensory_focus: {
     name: "Foco em Regulação Sensorial 🧘",
     description: "Ideal para dias de sobrecarga ou desregulação sensorial. Menos cobrança acadêmica.",
     tasks: [
-      { title: 'Alongamento Suave 🧘', time: '08:00', period: 'manhã' as const },
-      { title: 'Higiene e Escovação 🪥', time: '08:30', period: 'manhã' as const },
-      { title: 'Pausa de Descompressão 🤫', time: '10:30', period: 'manhã' as const },
-      { title: 'Almoço Calmo 🥗', time: '12:30', period: 'tarde' as const },
-      { title: 'Atividade Motora Livre ⚽', time: '14:30', period: 'tarde' as const },
-      { title: 'Refúgio Sensorial 🛋️', time: '16:30', period: 'tarde' as const },
-      { title: 'Banho Morno Relaxante 🚿', time: '19:00', period: 'noite' as const },
-      { title: 'Leitura e Calmaria 📖', time: '20:30', period: 'noite' as const }
+      { title: 'Alongamento Suave', time: '08:00', period: 'manhã' as const },
+      { title: 'Higiene e Escovação', time: '08:30', period: 'manhã' as const },
+      { title: 'Pausa de Descompressão', time: '10:30', period: 'manhã' as const },
+      { title: 'Almoço Calmo', time: '12:30', period: 'tarde' as const },
+      { title: 'Atividade Motora Livre', time: '14:30', period: 'tarde' as const },
+      { title: 'Refúgio Sensorial', time: '16:30', period: 'tarde' as const },
+      { title: 'Banho Morno Relaxante', time: '19:00', period: 'noite' as const },
+      { title: 'Leitura e Calmaria', time: '20:30', period: 'noite' as const }
     ]
   },
   weekend_play: {
     name: "Fim de Semana Lúdico 🎈",
     description: "Foco em autonomia, socialização e atividades ao ar livre com flexibilidade.",
     tasks: [
-      { title: 'Café Especial 🥞', time: '09:00', period: 'manhã' as const },
-      { title: 'Organizar Brinquedos 🧸', time: '10:00', period: 'manhã' as const },
-      { title: 'Parque e Natureza 🌳', time: '10:30', period: 'manhã' as const },
-      { title: 'Almoço em Família 🍕', time: '13:00', period: 'tarde' as const },
-      { title: 'Tempo Livre (Hiperfoco) 🐕', time: '15:30', period: 'tarde' as const },
-      { title: 'Jantar em Família 🍔', time: '19:30', period: 'noite' as const },
-      { title: 'Higiene e Dormir 😴', time: '21:00', period: 'noite' as const }
+      { title: 'Café Especial', time: '09:00', period: 'manhã' as const },
+      { title: 'Organizar Brinquedos', time: '10:00', period: 'manhã' as const },
+      { title: 'Parque e Natureza', time: '10:30', period: 'manhã' as const },
+      { title: 'Almoço em Família', time: '13:00', period: 'tarde' as const },
+      { title: 'Tempo Livre (Hiperfoco)', time: '15:30', period: 'tarde' as const },
+      { title: 'Jantar em Família', time: '19:30', period: 'noite' as const },
+      { title: 'Higiene e Dormir', time: '21:00', period: 'noite' as const }
     ]
   }
 };
