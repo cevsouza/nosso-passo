@@ -61,6 +61,12 @@ export default function Home() {
     if (focus.includes("minecraft") || focus.includes("bloco") || focus.includes("block")) {
       return 'Tlec! 🟩';
     }
+    if (focus.includes("gato") || focus.includes("cat")) {
+      return 'Miau! 🐾';
+    }
+    if (focus.includes("carro") || focus.includes("car")) {
+      return 'Vrum! 🏁';
+    }
     return 'Au au! 🎉';
   };
 

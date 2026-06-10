@@ -25,6 +25,12 @@ export const HyperfocusMascot: React.FC<MascotProps> = ({
   if (focus.includes("minecraft") || focus.includes("bloco") || focus.includes("block")) {
     return <MinecraftMascot state={state} size={size} />;
   }
+  if (focus.includes("gato") || focus.includes("cat")) {
+    return <CatMascot state={state} size={size} />;
+  }
+  if (focus.includes("carro") || focus.includes("car")) {
+    return <CarMascot state={state} size={size} />;
+  }
 
   // Default fallback to the beautiful Border Collie
   return <BorderCollie state={state} size={size} />;
@@ -337,6 +343,226 @@ const MinecraftMascot: React.FC<{ state: CollieState; size: number }> = ({ state
         {/* Feet Blocks */}
         <rect x="65" y="175" width="25" height="15" fill="#7f5a3c" stroke="#313244" strokeWidth="3" />
         <rect x="110" y="175" width="25" height="15" fill="#7f5a3c" stroke="#313244" strokeWidth="3" />
+      </motion.svg>
+    </div>
+  );
+};
+
+/* --- CAT MASCOT COMPONENT --- */
+const CatMascot: React.FC<{ state: CollieState; size: number }> = ({ state, size }) => {
+  const tailTransition = { duration: 1.2, repeat: Infinity, ease: "easeInOut" } as const;
+  return (
+    <div className="flex flex-col items-center justify-center relative select-none" style={{ width: size, height: size }}>
+      <motion.svg
+        viewBox="0 0 200 200"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        className="w-full h-full"
+        animate={
+          state === 'celebrating' 
+            ? { y: [0, -12, 0, -12, 0], scale: [1, 1.04, 1] } 
+            : state === 'sleeping' 
+            ? { y: 2, scale: 0.98 } 
+            : { y: [0, -3, 0] }
+        }
+        transition={
+          state === 'celebrating'
+            ? { duration: 1.2, ease: "easeInOut" }
+            : state === 'sleeping'
+            ? { duration: 0.5 }
+            : { duration: 3.5, repeat: Infinity, ease: "easeInOut" }
+        }
+      >
+        {/* Zzz for sleeping */}
+        {state === 'sleeping' && (
+          <>
+            <motion.text x="145" y="45" fill="#f5c2e7" fontSize="16" fontWeight="bold" animate={{ opacity: [0, 1, 0], y: [45, 30] }} transition={{ duration: 2, repeat: Infinity, delay: 0 }}>z</motion.text>
+            <motion.text x="160" y="35" fill="#f5c2e7" fontSize="22" fontWeight="bold" animate={{ opacity: [0, 1, 0], y: [35, 15] }} transition={{ duration: 2, repeat: Infinity, delay: 0.6 }}>Z</motion.text>
+          </>
+        )}
+        
+        {/* Cat Tail */}
+        <motion.path
+          d="M 50 140 C 20 130, 10 160, 0 145 C -5 135, 15 110, 50 125"
+          fill="#fab387"
+          stroke="#313244"
+          strokeWidth="4"
+          style={{ originX: 0.25, originY: 0.7 }}
+          animate={state === 'celebrating' ? { rotate: [-15, 25, -15, 25, -15] } : { rotate: [-4, 6, -4] }}
+          transition={tailTransition}
+        />
+        
+        {/* Cat Body */}
+        <path d="M 50 110 C 50 80, 130 80, 140 110 C 150 130, 140 180, 100 180 C 60 180, 50 140, 50 110 Z" fill="#fab387" stroke="#313244" strokeWidth="4" />
+        
+        {/* Cat Chest patch */}
+        <path d="M 75 120 C 75 100, 115 100, 115 120 C 115 140, 110 175, 95 175 C 80 175, 75 140, 75 120 Z" fill="#f5e0dc" />
+
+        {/* Cat Head */}
+        <motion.g
+          animate={state === 'sleeping' ? { rotate: 4, y: 1 } : { y: [0, -1.5, 0] }}
+          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+        >
+          {/* Ears */}
+          {/* Left Ear */}
+          <path d="M 92 42 L 72 15 L 108 32 Z" fill="#fab387" stroke="#313244" strokeWidth="4" />
+          <path d="M 90 39 L 78 22 L 102 32 Z" fill="#f2cdcd" />
+          
+          {/* Right Ear */}
+          <path d="M 148 42 L 168 15 L 132 32 Z" fill="#fab387" stroke="#313244" strokeWidth="4" />
+          <path d="M 150 39 L 162 22 L 138 32 Z" fill="#f2cdcd" />
+
+          {/* Head Base */}
+          <path d="M 90 55 C 90 35, 150 35, 150 55 C 150 75, 140 95, 120 95 C 90 95, 90 75, 90 55 Z" fill="#fab387" stroke="#313244" strokeWidth="4" />
+          
+          {/* Whiskers */}
+          {/* Left Whiskers */}
+          <line x1="85" y1="68" x2="60" y2="63" stroke="#313244" strokeWidth="2.5" strokeLinecap="round" />
+          <line x1="85" y1="74" x2="60" y2="79" stroke="#313244" strokeWidth="2.5" strokeLinecap="round" />
+          
+          {/* Right Whiskers */}
+          <line x1="155" y1="68" x2="180" y2="63" stroke="#313244" strokeWidth="2.5" strokeLinecap="round" />
+          <line x1="155" y1="74" x2="180" y2="79" stroke="#313244" strokeWidth="2.5" strokeLinecap="round" />
+
+          {/* Cute Eyes */}
+          {state === 'sleeping' ? (
+            <path d="M 102 58 Q 109 63 115 58 M 125 58 Q 132 63 138 58" stroke="#313244" strokeWidth="3.5" fill="none" strokeLinecap="round" />
+          ) : (
+            <>
+              <circle cx="108" cy="55" r="7" fill="white" stroke="#313244" strokeWidth="2" />
+              <circle cx="109" cy="55" r="3.5" fill="#1e1e2e" />
+              <circle cx="107" cy="53" r="1.5" fill="white" />
+
+              <circle cx="132" cy="55" r="7" fill="white" stroke="#313244" strokeWidth="2" />
+              <circle cx="133" cy="55" r="3.5" fill="#1e1e2e" />
+              <circle cx="131" cy="53" r="1.5" fill="white" />
+            </>
+          )}
+
+          {/* Cheeks */}
+          {!state || state !== 'sleeping' ? (
+            <>
+              <circle cx="98" cy="65" r="3" fill="#f5c2e7" opacity="0.6" />
+              <circle cx="142" cy="65" r="3" fill="#f5c2e7" opacity="0.6" />
+            </>
+          ) : null}
+
+          {/* Cat Nose & Mouth */}
+          <path d="M 117 65 L 123 65 L 120 68 Z" fill="#f2cdcd" stroke="#313244" strokeWidth="1.5" />
+          <path d="M 116 73 Q 120 76 120 73 Q 120 76 124 73" stroke="#313244" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+        </motion.g>
+
+        {/* Cat Feet */}
+        <rect x="65" y="175" width="20" height="15" rx="5" fill="#fab387" stroke="#313244" strokeWidth="3" />
+        <rect x="115" y="175" width="20" height="15" rx="5" fill="#fab387" stroke="#313244" strokeWidth="3" />
+      </motion.svg>
+    </div>
+  );
+};
+
+/* --- CAR MASCOT COMPONENT --- */
+const CarMascot: React.FC<{ state: CollieState; size: number }> = ({ state, size }) => {
+  return (
+    <div className="flex flex-col items-center justify-center relative select-none" style={{ width: size, height: size }}>
+      <motion.svg
+        viewBox="0 0 200 200"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        className="w-full h-full"
+        animate={
+          state === 'celebrating'
+            ? { y: [0, -15, 0, -15, 0], scale: [1, 1.05, 1], rotate: [0, 4, -4, 4, 0] }
+            : state === 'sleeping'
+            ? { y: 3, scale: 0.97 }
+            : { y: [0, -2, 0] }
+        }
+        transition={
+          state === 'celebrating'
+            ? { duration: 1.2, ease: "easeInOut" }
+            : state === 'sleeping'
+            ? { duration: 0.5 }
+            : { duration: 3, repeat: Infinity, ease: "easeInOut" }
+        }
+      >
+        {/* Zzz for sleeping (emerging from exhaust pipe) */}
+        {state === 'sleeping' && (
+          <>
+            <motion.text x="18" y="130" fill="#f38ba8" fontSize="16" fontWeight="bold" animate={{ opacity: [0, 1, 0], y: [130, 105], x: [18, 5] }} transition={{ duration: 2, repeat: Infinity, delay: 0 }}>z</motion.text>
+            <motion.text x="8" y="115" fill="#f38ba8" fontSize="22" fontWeight="bold" animate={{ opacity: [0, 1, 0], y: [115, 85], x: [8, -5] }} transition={{ duration: 2, repeat: Infinity, delay: 0.6 }}>Z</motion.text>
+          </>
+        )}
+
+        {/* Exhaust Pipe */}
+        <rect x="15" y="142" width="18" height="10" rx="3" fill="#bac2de" stroke="#313244" strokeWidth="2.5" />
+        
+        {/* Main Car Body */}
+        <path
+          d="M 30 140 C 30 110, 50 100, 70 80 C 85 65, 125 65, 140 80 C 160 100, 180 110, 180 140 C 180 155, 30 155, 30 140 Z"
+          fill="#f38ba8"
+          stroke="#313244"
+          strokeWidth="4"
+        />
+        
+        {/* Bumper */}
+        <rect x="25" y="145" width="160" height="12" rx="6" fill="#cdd6f4" stroke="#313244" strokeWidth="3" />
+
+        {/* Windshield */}
+        <path
+          d="M 75 85 L 135 85 L 125 115 L 85 115 Z"
+          fill="#89dceb"
+          stroke="#313244"
+          strokeWidth="3.5"
+        />
+
+        {/* Eyes on windshield */}
+        {state === 'sleeping' ? (
+          <path d="M 90 100 Q 95 105 100 100 M 110 100 Q 115 105 120 100" stroke="#313244" strokeWidth="3" fill="none" strokeLinecap="round" />
+        ) : (
+          <>
+            {/* Left Eye */}
+            <circle cx="95" cy="100" r="6" fill="white" stroke="#313244" strokeWidth="2" />
+            <circle cx="96" cy="100" r="3" fill="#1e1e2e" />
+            {/* Right Eye */}
+            <circle cx="115" cy="100" r="6" fill="white" stroke="#313244" strokeWidth="2" />
+            <circle cx="116" cy="100" r="3" fill="#1e1e2e" />
+          </>
+        )}
+
+        {/* Headlights */}
+        <circle cx="48" cy="132" r="10" fill={state === 'sleeping' ? '#7f849c' : '#f9e2af'} stroke="#313244" strokeWidth="3.5" />
+        <circle cx="162" cy="132" r="10" fill={state === 'sleeping' ? '#7f849c' : '#f9e2af'} stroke="#313244" strokeWidth="3.5" />
+
+        {/* Happy Grill/Smile */}
+        {state === 'celebrating' ? (
+          <path d="M 85 145 Q 105 160 125 145 Z" fill="#cdd6f4" stroke="#313244" strokeWidth="2" />
+        ) : (
+          <path d="M 90 145 Q 105 152 120 145" stroke="#313244" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+        )}
+
+        {/* Wheels (spinning in celebration) */}
+        {/* Left Wheel */}
+        <motion.g
+          animate={state === 'celebrating' ? { rotate: 360 } : {}}
+          transition={{ duration: 0.6, repeat: Infinity, ease: "linear" }}
+          style={{ originX: "65px", originY: "165px" }}
+        >
+          <circle cx="65" cy="165" r="22" fill="#313244" stroke="#11111b" strokeWidth="3" />
+          <circle cx="65" cy="165" r="10" fill="#bac2de" />
+          <line x1="65" y1="155" x2="65" y2="175" stroke="#313244" strokeWidth="2" />
+          <line x1="55" y1="165" x2="75" y2="165" stroke="#313244" strokeWidth="2" />
+        </motion.g>
+
+        {/* Right Wheel */}
+        <motion.g
+          animate={state === 'celebrating' ? { rotate: 360 } : {}}
+          transition={{ duration: 0.6, repeat: Infinity, ease: "linear" }}
+          style={{ originX: "145px", originY: "165px" }}
+        >
+          <circle cx="145" cy="165" r="22" fill="#313244" stroke="#11111b" strokeWidth="3" />
+          <circle cx="145" cy="165" r="10" fill="#bac2de" />
+          <line x1="145" y1="155" x2="145" y2="175" stroke="#313244" strokeWidth="2" />
+          <line x1="135" y1="165" x2="155" y2="165" stroke="#313244" strokeWidth="2" />
+        </motion.g>
       </motion.svg>
     </div>
   );

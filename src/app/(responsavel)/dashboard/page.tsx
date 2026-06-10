@@ -325,6 +325,18 @@ export default function ParentDashboard() {
         text: collieState === 'celebrating' ? 'Tlec! 🟩' : 'Mascote (Dicas)'
       };
     }
+    if (focus.includes("gato") || focus.includes("cat")) {
+      return {
+        emoji: '🐱',
+        text: collieState === 'celebrating' ? 'Miau! 🐾' : 'Mascote (Dicas)'
+      };
+    }
+    if (focus.includes("carro") || focus.includes("car")) {
+      return {
+        emoji: '🚗',
+        text: collieState === 'celebrating' ? 'Vrum! 🏁' : 'Mascote (Dicas)'
+      };
+    }
     return {
       emoji: '🐶',
       text: collieState === 'celebrating' ? 'Au Au! 🐾' : 'Companheiro (Dicas)'
