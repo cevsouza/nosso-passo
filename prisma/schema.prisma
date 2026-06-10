@@ -50,6 +50,7 @@ model Child {
   parent          UserProfile @relation(fields: [parentUid], references: [uid], onDelete: Cascade)
   tasks           Task[]
   sensoryLogs     SensoryLog[]
+  checkpoints     Checkpoint[]
 }
 
 model Task {
@@ -67,6 +68,20 @@ model Task {
   userUid     String
   user        UserProfile @relation(fields: [userUid], references: [uid], onDelete: Cascade)
   createdAt   DateTime @default(now())
+}
+
+model Checkpoint {
+  id               String   @id @default(cuid())
+  weekNum          Int      // 1, 2, 3, 4
+  status           String   @default("pending") // "pending" | "completed"
+  notes            String   @default("")        // Relato dos pais
+  feedback         String   @default("")        // Instrução do profissional
+  professionalName String   @default("")
+  professionalRole String   @default("")        // Especialidade
+  date             String   @default("")        // Data da sessão (YYYY-MM-DD)
+  childId          String
+  child            Child    @relation(fields: [childId], references: [id], onDelete: Cascade)
+  createdAt        DateTime @default(now())
 }
 
 model SensoryLog {

@@ -25,15 +25,10 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 
-const DAYS_OF_WEEK = [
-  { key: 'segunda', label: 'Segunda-feira 📅' },
-  { key: 'terca', label: 'Terça-feira 📅' },
-  { key: 'quarta', label: 'Quarta-feira 📅' },
-  { key: 'quinta', label: 'Quinta-feira 📅' },
-  { key: 'sexta', label: 'Sexta-feira 📅' },
-  { key: 'sabado', label: 'Sábado ☀️' },
-  { key: 'domingo', label: 'Domingo ☀️' }
-];
+const DAYS_OF_MONTH = Array.from({ length: 31 }).map((_, i) => {
+  const dayNum = i + 1;
+  return { key: String(dayNum), label: `Dia ${dayNum} 📅` };
+});
 
 const PERIODS = [
   { key: 'manhã', label: 'Manhã ☀️', color: 'bg-amber-55 text-amber-700 border-amber-150' },
@@ -220,7 +215,7 @@ export default function ParentDashboard() {
         day: activeDayFilter
       });
 
-      const dayLabel = DAYS_OF_WEEK.find(d => d.key === activeDayFilter)?.label.replace(/ 📅| ☀️/, '');
+      const dayLabel = DAYS_OF_MONTH.find(d => d.key === activeDayFilter)?.label.replace(/ 📅| ☀️/, '');
       await immutableLogger.logChange(
         'ADD_TASK', 
         `Adicionou a tarefa rápida "${preset.title}" na agenda de ${dayLabel}.`,
@@ -233,8 +228,8 @@ export default function ParentDashboard() {
     }
   };
 
-  // Load a complete Clinical Preset Template for a Day or the Entire Week
-  const handleLoadTemplate = async (templateKey: keyof typeof CLINICAL_TEMPLATES, target: 'day' | 'week') => {
+  // Load a complete Clinical Preset Template for a Day or the Entire Month
+  const handleLoadTemplate = async (templateKey: keyof typeof CLINICAL_TEMPLATES, target: 'day' | 'month') => {
     const template = CLINICAL_TEMPLATES[templateKey];
     
     // Check billing constraints (limits)
@@ -244,7 +239,7 @@ export default function ParentDashboard() {
         setShowPaywall(true);
         return;
       }
-      if (target === 'week') {
+      if (target === 'month') {
         playMarimba(180, 0.2);
         setShowPaywall(true);
         return;
@@ -252,8 +247,8 @@ export default function ParentDashboard() {
     }
 
     const confirmMsg = target === 'day'
-      ? `Deseja realmente carregar o modelo "${template.name}" para o dia atual? Isso substituirá as tarefas existentes de ${DAYS_OF_WEEK.find(d => d.key === activeDayFilter)?.label.replace(/ 📅| ☀️/, '')}.`
-      : `Deseja realmente carregar o modelo "${template.name}" para TODOS OS DIAS da semana? Isso substituirá todas as tarefas existentes de segunda a domingo.`;
+      ? `Deseja realmente carregar o modelo "${template.name}" para o dia atual? Isso substituirá as tarefas existentes de ${DAYS_OF_MONTH.find(d => d.key === activeDayFilter)?.label.replace(/ 📅| ☀️/, '')}.`
+      : `Deseja realmente carregar o modelo "${template.name}" para TODOS OS DIAS do mês? Isso substituirá todas as tarefas existentes do dia 1 ao 31.`;
 
     if (!window.confirm(confirmMsg)) return;
 
@@ -275,7 +270,7 @@ export default function ParentDashboard() {
         
         await firebaseBridge.db.loadTemplate([...otherDaysTasks, ...newDayTasks]);
         
-        const dayLabel = DAYS_OF_WEEK.find(d => d.key === activeDayFilter)?.label.replace(/ 📅| ☀️/, '');
+        const dayLabel = DAYS_OF_MONTH.find(d => d.key === activeDayFilter)?.label.replace(/ 📅| ☀️/, '');
         await immutableLogger.logChange(
           'RESET_ROUTINE',
           `Carregou o modelo "${template.name}" na agenda de ${dayLabel}.`,
@@ -283,9 +278,9 @@ export default function ParentDashboard() {
         );
         triggerStatus(`Modelo aplicado para ${dayLabel}!`);
       } else {
-        // Replace all week tasks
+        // Replace all month tasks
         const allNewTasks: any[] = [];
-        DAYS_OF_WEEK.forEach(day => {
+        DAYS_OF_MONTH.forEach(day => {
           template.tasks.forEach((t, idx) => {
             allNewTasks.push({
               ...t,
@@ -358,8 +353,19 @@ export default function ParentDashboard() {
   const [notifications, setNotifications] = useState<{ id: string; message: string; timestamp: Date }[]>([]);
   
   // Tab/Filter states
-  const [activeDayFilter, setActiveDayFilter] = useState('segunda');
-  const [activePanelTab, setActivePanelTab] = useState<'tasks' | 'reports' | 'logs'>('tasks');
+  const [activeDayFilter, setActiveDayFilter] = useState('1');
+  const [activePanelTab, setActivePanelTab] = useState<'tasks' | 'reports' | 'logs' | 'checkpoints'>('tasks');
+  const [checkpoints, setCheckpoints] = useState<any[]>([]);
+  const [loadingCheckpoints, setLoadingCheckpoints] = useState(false);
+  const [savingCheckpointId, setSavingCheckpointId] = useState<string | null>(null);
+  const [editingCheckpointId, setEditingCheckpointId] = useState<string | null>(null);
+  
+  const [editName, setEditName] = useState('');
+  const [editRole, setEditRole] = useState('Psicologia ABA');
+  const [editDate, setEditDate] = useState('');
+  const [editNotes, setEditNotes] = useState('');
+  const [editFeedback, setEditFeedback] = useState('');
+  const [editStatus, setEditStatus] = useState<'pending' | 'completed'>('pending');
   
   // UI states
   const [formOpen, setFormOpen] = useState(false);
@@ -515,6 +521,66 @@ export default function ParentDashboard() {
     };
   }, [router]);
 
+  // Load checkpoints when active child or tab changes
+  useEffect(() => {
+    if (!activeChild?.id) return;
+    
+    const fetchCheckpoints = async () => {
+      setLoadingCheckpoints(true);
+      try {
+        const data = await firebaseBridge.db.getCheckpoints(activeChild.id);
+        setCheckpoints(data);
+      } catch (err) {
+        console.error("Erro ao carregar checkpoints:", err);
+      } finally {
+        setLoadingCheckpoints(false);
+      }
+    };
+    
+    fetchCheckpoints();
+  }, [activeChild?.id, activePanelTab]);
+
+  const startEditingCheckpoint = (cp: any) => {
+    playBubble();
+    setEditingCheckpointId(cp.id);
+    setEditName(cp.professionalName || '');
+    setEditRole(cp.professionalRole || 'Psicologia ABA');
+    setEditDate(cp.date || '');
+    setEditNotes(cp.notes || '');
+    setEditFeedback(cp.feedback || '');
+    setEditStatus(cp.status || 'pending');
+  };
+
+  const handleSaveCheckpoint = async (id: string) => {
+    playMarimba(392, 0.4);
+    setSavingCheckpointId(id);
+    try {
+      const updated = await firebaseBridge.db.saveCheckpoint(id, {
+        professionalName: editName,
+        professionalRole: editRole,
+        date: editDate,
+        notes: editNotes,
+        feedback: editFeedback,
+        status: editStatus
+      });
+      
+      setCheckpoints(prev => prev.map(c => c.id === id ? updated : c));
+      setEditingCheckpointId(null);
+      triggerStatus('Checkpoint clínico salvo!');
+      
+      await immutableLogger.logChange(
+        'UPDATE_PROFILE',
+        `Atualizou o checkpoint clínico da Semana ${updated.weekNum} (${updated.professionalRole} - ${updated.professionalName}).`,
+        currentUser?.email
+      );
+    } catch (err) {
+      console.error(err);
+      triggerStatus('Erro ao salvar checkpoint.');
+    } finally {
+      setSavingCheckpointId(null);
+    }
+  };
+
   const handleSelectChild = async (child: any) => {
     playMarimba(300, 0.25);
     setActiveChild(child);
@@ -651,7 +717,7 @@ export default function ParentDashboard() {
       });
 
       // Write IMUTABLE LOG trail
-      const dayLabel = DAYS_OF_WEEK.find(d => d.key === activeDayFilter)?.label;
+      const dayLabel = DAYS_OF_MONTH.find(d => d.key === activeDayFilter)?.label;
       await immutableLogger.logChange(
         'ADD_TASK', 
         `Adicionou a tarefa "${title.trim()}" (Ícone: ${taskIcon}, Categoria: ${taskCategory}) às ${time} (${period}) na ${dayLabel}.`,
@@ -674,7 +740,7 @@ export default function ParentDashboard() {
     try {
       await firebaseBridge.db.deleteTask(task.id);
       
-      const dayLabel = DAYS_OF_WEEK.find(d => d.key === task.day)?.label;
+      const dayLabel = DAYS_OF_MONTH.find(d => d.key === task.day)?.label;
       await immutableLogger.logChange(
         'DELETE_TASK', 
         `Removeu a tarefa "${task.title}" de ${dayLabel} (${task.period}).`,
@@ -1366,10 +1432,10 @@ export default function ParentDashboard() {
                       Aplicar no Dia
                     </button>
                     <button
-                      onClick={() => handleLoadTemplate(key as any, 'week')}
+                      onClick={() => handleLoadTemplate(key as any, 'month')}
                       className="flex-1 py-2 bg-white border-2 border-slate-300 hover:border-indigo-500 hover:text-indigo-700 text-[10px] font-black rounded-lg shadow-xxs cursor-pointer transition-all active:scale-95 text-slate-750 font-Outfit"
                     >
-                      Aplicar na Semana
+                      Aplicar no Mês
                     </button>
                   </div>
                 </div>
@@ -1398,7 +1464,17 @@ export default function ParentDashboard() {
                   : 'text-slate-700 hover:text-slate-955 hover:bg-slate-50 border-2 border-transparent'
               }`}
             >
-              <ListTodo className="w-4 h-4" /> Agenda Semanal
+              <ListTodo className="w-4 h-4" /> Agenda Mensal
+            </button>
+            <button
+              onClick={() => { playBubble(); setActivePanelTab('checkpoints'); }}
+              className={`flex-1 py-3 text-sm font-black rounded-xl transition-all flex items-center justify-center gap-2 shrink-0 font-Outfit cursor-pointer ${
+                activePanelTab === 'checkpoints' 
+                  ? 'bg-slate-900 text-white border-2 border-slate-950 shadow-md' 
+                  : 'text-slate-700 hover:text-slate-955 hover:bg-slate-50 border-2 border-transparent'
+              }`}
+            >
+              <span>🤝</span> Checkpoints Clínicos
             </button>
             <button
               onClick={() => { playBubble(); setActivePanelTab('reports'); }}
@@ -1438,19 +1514,20 @@ export default function ParentDashboard() {
                 className="flex flex-col gap-6"
               >
                 
-                {/* Horizontal Days Selector Navigation */}
-                <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin">
-                  {DAYS_OF_WEEK.map(day => (
+                {/* Wrapped Days Calendar Grid Selector */}
+                <div className="flex flex-wrap gap-2 pb-3 max-h-36 overflow-y-auto pr-1 scrollbar-thin border-b border-slate-100 select-none">
+                  {DAYS_OF_MONTH.map(day => (
                     <button
                       key={day.key}
                       onClick={() => { playBubble(); setActiveDayFilter(day.key); }}
-                      className={`px-4 py-2 text-xs font-extrabold rounded-full border transition-all shrink-0 active:scale-95 ${
+                      className={`w-9 h-9 flex items-center justify-center text-xs font-black rounded-xl border transition-all shrink-0 active:scale-95 cursor-pointer ${
                         activeDayFilter === day.key
                           ? 'bg-indigo-600 border-indigo-600 text-white shadow-md shadow-indigo-100'
-                          : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300 hover:text-slate-800'
+                          : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300 hover:text-slate-800 hover:bg-slate-50'
                       }`}
+                      title={day.label}
                     >
-                      {day.label}
+                      {day.key}
                     </button>
                   ))}
                 </div>
@@ -1460,8 +1537,8 @@ export default function ParentDashboard() {
                   
                   <div className="flex items-center justify-between border-b border-slate-100 pb-4">
                     <div>
-                      <h3 className="font-black text-slate-850 text-xl leading-tight">
-                        Agenda para {DAYS_OF_WEEK.find(d => d.key === activeDayFilter)?.label}
+                      <h3 className="font-black text-slate-850 text-xl leading-tight font-Outfit">
+                        Agenda para {DAYS_OF_MONTH.find(d => d.key === activeDayFilter)?.label}
                       </h3>
                       <p className="text-xs text-slate-400 font-semibold mt-0.5">
                         {tasks.filter(t => t.day === activeDayFilter).length} tarefas cadastradas
@@ -1710,6 +1787,196 @@ export default function ParentDashboard() {
                   </div>
 
                 </div>
+              </motion.div>
+            ) : activePanelTab === 'checkpoints' ? (
+              <motion.div
+                key="checkpoints-panel"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="bg-white border border-slate-200 rounded-[32px] p-6 shadow-md shadow-slate-100 flex flex-col gap-6"
+              >
+                <div>
+                  <h3 className="font-black text-slate-850 text-xl leading-tight font-Outfit">
+                    Checkpoints Clínicos Semanais 🤝
+                  </h3>
+                  <p className="text-xs text-slate-400 font-semibold mt-0.5">
+                    Registre os acompanhamentos e as orientações dos profissionais para as 4 semanas do mês.
+                  </p>
+                </div>
+
+                {loadingCheckpoints ? (
+                  <div className="flex flex-col items-center justify-center p-12 gap-3">
+                    <div className="w-8 h-8 border-4 border-indigo-200 border-t-indigo-650 rounded-full animate-spin"></div>
+                    <span className="text-xs font-bold text-slate-500">Carregando checkpoints...</span>
+                  </div>
+                ) : checkpoints.length === 0 ? (
+                  <div className="text-slate-450 text-xs border border-dashed border-slate-200/80 p-8 rounded-2xl text-center bg-slate-50/50">
+                    Nenhuma sessão configurada. Certifique-se de selecionar uma criança válida no menu lateral.
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {checkpoints.map((cp) => {
+                      const isEditing = editingCheckpointId === cp.id;
+                      return (
+                        <div 
+                          key={cp.id} 
+                          className={`border-2 rounded-[24px] p-5 shadow-xxs transition-all flex flex-col gap-4 ${
+                            cp.status === 'completed'
+                              ? 'border-emerald-200 bg-emerald-50/10'
+                              : 'border-slate-200 bg-white'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                            <span className="text-sm font-black text-slate-850 font-Outfit">
+                              Semana {cp.weekNum}
+                            </span>
+                            <span className={`text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full border shadow-xxs ${
+                              cp.status === 'completed' 
+                                ? 'bg-emerald-50 text-emerald-600 border-emerald-250' 
+                                : 'bg-amber-50 text-amber-600 border-amber-200'
+                            }`}>
+                              {cp.status === 'completed' ? 'Concluído ✓' : 'Pendente'}
+                            </span>
+                          </div>
+
+                          {isEditing ? (
+                            <div className="flex flex-col gap-3">
+                              <div className="grid grid-cols-2 gap-3">
+                                <div>
+                                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1">Profissional</label>
+                                  <input 
+                                    type="text" 
+                                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-700 focus:outline-indigo-500" 
+                                    placeholder="Nome do profissional" 
+                                    value={editName}
+                                    onChange={(e) => setEditName(e.target.value)}
+                                  />
+                                </div>
+                                <div>
+                                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1">Especialidade</label>
+                                  <select 
+                                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-extrabold text-slate-700 focus:outline-indigo-500" 
+                                    value={editRole}
+                                    onChange={(e) => setEditRole(e.target.value)}
+                                  >
+                                    <option value="Psicologia ABA">Psicologia ABA 🧠</option>
+                                    <option value="Terapia Ocupacional">Terapia Ocupacional 🧼</option>
+                                    <option value="Fonoterapia">Fonoterapia 🗣️</option>
+                                    <option value="Fisioterapia">Fisioterapia 🩺</option>
+                                    <option value="Psicoterapia">Psicoterapia 💬</option>
+                                    <option value="Psicomotricidade">Psicomotricidade 🏃</option>
+                                    <option value="Outro">Outro 🧑‍⚕️</option>
+                                  </select>
+                                </div>
+                              </div>
+
+                              <div className="grid grid-cols-2 gap-3">
+                                <div>
+                                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1">Data da Sessão</label>
+                                  <input 
+                                    type="date" 
+                                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-700 focus:outline-indigo-500" 
+                                    value={editDate}
+                                    onChange={(e) => setEditDate(e.target.value)}
+                                  />
+                                </div>
+                                <div className="flex items-end pb-1.5">
+                                  <label className="flex items-center gap-2 text-xs font-extrabold text-slate-700 cursor-pointer select-none">
+                                    <input 
+                                      type="checkbox" 
+                                      className="rounded border-slate-350 text-indigo-600 focus:ring-indigo-500 w-4 h-4" 
+                                      checked={editStatus === 'completed'}
+                                      onChange={(e) => setEditStatus(e.target.checked ? 'completed' : 'pending')}
+                                    />
+                                    Sessão Realizada
+                                  </label>
+                                </div>
+                              </div>
+
+                              <div>
+                                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1">Observações dos Pais</label>
+                                <textarea 
+                                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-700 focus:outline-indigo-500 h-16 resize-none" 
+                                  placeholder="Como foi o comportamento em casa nesta semana?"
+                                  value={editNotes}
+                                  onChange={(e) => setEditNotes(e.target.value)}
+                                />
+                              </div>
+
+                              <div>
+                                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1">Recomendações do Profissional</label>
+                                <textarea 
+                                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-700 focus:outline-indigo-500 h-16 resize-none" 
+                                  placeholder="Feedback e orientações dadas para a semana..."
+                                  value={editFeedback}
+                                  onChange={(e) => setEditFeedback(e.target.value)}
+                                />
+                              </div>
+
+                              <div className="flex gap-2 justify-end mt-2">
+                                <button 
+                                  onClick={() => { playBubble(); setEditingCheckpointId(null); }}
+                                  className="px-3.5 py-2 bg-slate-200 hover:bg-slate-300 text-slate-755 text-xs font-black rounded-xl cursor-pointer active:scale-95 transition-all"
+                                >
+                                  Cancelar
+                                </button>
+                                <button 
+                                  onClick={() => handleSaveCheckpoint(cp.id)}
+                                  disabled={savingCheckpointId === cp.id}
+                                  className="px-4 py-2 bg-indigo-650 hover:bg-indigo-700 text-white text-xs font-black rounded-xl cursor-pointer active:scale-95 transition-all shadow-sm disabled:opacity-50"
+                                >
+                                  {savingCheckpointId === cp.id ? 'Salvando...' : 'Salvar Alterações 💾'}
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="flex flex-col gap-3">
+                              {cp.professionalName ? (
+                                <div className="bg-slate-50/50 border border-slate-150 p-3 rounded-xl flex flex-col gap-1.5 shadow-xxs">
+                                  <div className="flex items-center justify-between text-xs">
+                                    <span className="font-extrabold text-slate-800">🧑‍⚕️ {cp.professionalName}</span>
+                                    <span className="text-xxs font-black bg-indigo-50 text-indigo-700 border border-indigo-200 px-2.5 py-0.5 rounded-full uppercase tracking-wider">{cp.professionalRole}</span>
+                                  </div>
+                                  {cp.date && (
+                                    <div className="text-[10px] text-slate-400 font-bold flex items-center gap-1">
+                                      <span>📅 Sessão:</span> {cp.date.split('-').reverse().join('/')}
+                                    </div>
+                                  )}
+                                </div>
+                              ) : (
+                                <div className="text-slate-400 text-xxs border border-dashed border-slate-200 p-3.5 rounded-xl text-center font-semibold bg-slate-50/20">
+                                  Nenhuma sessão registrada para esta semana.
+                                </div>
+                              )}
+
+                              {cp.notes && (
+                                <div className="flex flex-col gap-0.5">
+                                  <span className="text-[9px] font-black uppercase tracking-wider text-slate-400">Observações dos Pais</span>
+                                  <p className="text-xs text-slate-650 leading-normal font-medium bg-slate-50/30 p-2.5 rounded-lg border border-slate-150/50 whitespace-pre-wrap">{cp.notes}</p>
+                                </div>
+                              )}
+
+                              {cp.feedback && (
+                                <div className="flex flex-col gap-0.5">
+                                  <span className="text-[9px] font-black uppercase tracking-wider text-indigo-400">Recomendações Clínicas</span>
+                                  <p className="text-xs text-indigo-950 leading-normal font-medium bg-indigo-50/20 p-2.5 rounded-lg border border-indigo-100 whitespace-pre-wrap">{cp.feedback}</p>
+                                </div>
+                              )}
+
+                              <button
+                                onClick={() => startEditingCheckpoint(cp)}
+                                className="w-full mt-1.5 py-2.5 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-750 border border-slate-200 hover:border-indigo-200 text-slate-700 hover:text-indigo-700 text-xs font-black rounded-xl transition-all cursor-pointer shadow-xxs active:scale-98 flex items-center justify-center gap-1 font-Outfit"
+                              >
+                                {cp.professionalName ? 'Editar Registro 📝' : 'Registrar Checkpoint 🤝'}
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </motion.div>
             ) : activePanelTab === 'reports' ? (
               

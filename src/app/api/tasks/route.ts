@@ -2,13 +2,13 @@ import { NextResponse } from 'next/server';
 import { prisma } from '../../../lib/prisma';
 
 const DEFAULT_SEED_TASKS = [
-  { title: 'Escovar os dentes 🪥', time: '08:00', period: 'manhã', day: 'segunda', order: 1 },
-  { title: 'Tomar café da manhã 🍞', time: '08:30', period: 'manhã', day: 'segunda', order: 2 },
-  { title: 'Aulas e Estudo 🏫', time: '09:00', period: 'manhã', day: 'segunda', order: 3 },
-  { title: 'Almoço Saudável 🍲', time: '12:30', period: 'tarde', day: 'segunda', order: 4 },
-  { title: 'Brincar com o Collie 🐶', time: '15:00', period: 'tarde', day: 'segunda', order: 5 },
-  { title: 'Jantar em Família 🍽️', time: '19:00', period: 'noite', day: 'segunda', order: 6 },
-  { title: 'Tomar Banho e Dormir 😴', time: '21:00', period: 'noite', day: 'segunda', order: 7 },
+  { title: 'Escovar os dentes 🪥', time: '08:00', period: 'manhã', day: '1', order: 1 },
+  { title: 'Tomar café da manhã 🍞', time: '08:30', period: 'manhã', day: '1', order: 2 },
+  { title: 'Aulas e Estudo 🏫', time: '09:00', period: 'manhã', day: '1', order: 3 },
+  { title: 'Almoço Saudável 🍲', time: '12:30', period: 'tarde', day: '1', order: 4 },
+  { title: 'Brincar com o Collie 🐶', time: '15:00', period: 'tarde', day: '1', order: 5 },
+  { title: 'Jantar em Família 🍽️', time: '19:00', period: 'noite', day: '1', order: 6 },
+  { title: 'Tomar Banho e Dormir 😴', time: '21:00', period: 'noite', day: '1', order: 7 },
 ];
 
 export async function GET(req: Request) {

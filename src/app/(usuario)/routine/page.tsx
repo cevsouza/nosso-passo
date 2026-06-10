@@ -193,7 +193,7 @@ const DropletsTimer: React.FC<TimerProps> = ({ progress, minutesLeft }) => {
 
 export default function ChildRoutine() {
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [currentDay, setCurrentDay] = useState('segunda');
+  const [currentDay, setCurrentDay] = useState('1');
   const [collieState, setCollieState] = useState<CollieState>('idle');
   const [celebratingTaskId, setCelebratingTaskId] = useState<string | null>(null);
   const [childHyperfocus, setChildHyperfocus] = useState('Border Collies 🐕');
@@ -292,11 +292,10 @@ export default function ChildRoutine() {
     }, 2000);
   };
   
-  // 1. Detect current day of week, load children and subscribe to tasks
+  // 1. Detect current day of month, load children and subscribe to tasks
   useEffect(() => {
-    const todayNum = new Date().getDay();
-    const todayKey = DAYS_PORTUGUESE[todayNum] || 'segunda';
-    setCurrentDay(todayKey);
+    const todayDayOfMonth = new Date().getDate().toString();
+    setCurrentDay(todayDayOfMonth);
 
     const loadPortal = async () => {
       setLoadingChildren(true);
@@ -857,7 +856,7 @@ export default function ChildRoutine() {
         </div>
 
         <h2 className="text-xs font-black bg-white border-2 border-slate-350 text-slate-800 px-5 py-2.5 rounded-full shadow-premium uppercase tracking-widest font-Outfit">
-          {DAY_LABELS[currentDay] || 'Rotina Semanal'}
+          {DAY_LABELS[currentDay] || `Dia ${currentDay} 📅`}
         </h2>
         
         {/* Ambient Sound Selector */}

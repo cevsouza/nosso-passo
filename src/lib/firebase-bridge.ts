@@ -54,6 +54,19 @@ export interface SensoryLog {
   notes?: string;
 }
 
+export interface Checkpoint {
+  id: string;
+  weekNum: number;
+  status: 'pending' | 'completed';
+  notes: string;
+  feedback: string;
+  professionalName: string;
+  professionalRole: string;
+  date: string;
+  childId: string;
+  createdAt?: string;
+}
+
 const MOCK_DB_UPDATE_EVENT = 'firebase-mock-db-update';
 const MOCK_AUTH_UPDATE_EVENT = 'firebase-mock-auth-update';
 
@@ -487,6 +500,24 @@ export const firebaseBridge = {
       return () => {
         window.removeEventListener('firebase-mock-task-completed', handleUpdate);
       };
+    },
+
+    getCheckpoints: async (childId: string): Promise<Checkpoint[]> => {
+      const res = await fetch(`/api/checkpoints?childId=${childId}`);
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      return data;
+    },
+
+    saveCheckpoint: async (id: string, updates: Partial<Checkpoint>): Promise<Checkpoint> => {
+      const res = await fetch('/api/checkpoints', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, updates })
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      return data;
     }
   }
 };
