@@ -62,6 +62,8 @@ export async function POST(req: Request) {
         order: taskData.order || 1,
         icon: taskData.icon || "📅",
         category: taskData.category || "AVD",
+        duration: taskData.duration !== undefined ? Number(taskData.duration) : 30,
+        description: taskData.description || "",
         userUid,
         childId: childId || null,
       },
@@ -96,6 +98,8 @@ export async function PUT(req: Request) {
             order: idx + 1,
             icon: t.icon || "📅",
             category: t.category || "AVD",
+            duration: t.duration !== undefined ? Number(t.duration) : 30,
+            description: t.description || "",
             userUid,
             childId,
           })),
@@ -122,6 +126,8 @@ export async function PUT(req: Request) {
               order: idx + 1,
               icon: t.icon || "📅",
               category: t.category || "AVD",
+              duration: t.duration !== undefined ? Number(t.duration) : 30,
+              description: t.description || "",
               userUid,
             })),
           });
@@ -152,6 +158,8 @@ export async function PUT(req: Request) {
         order: updates.order,
         icon: updates.icon,
         category: updates.category,
+        duration: updates.duration !== undefined ? Number(updates.duration) : undefined,
+        description: updates.description,
       },
     });
 

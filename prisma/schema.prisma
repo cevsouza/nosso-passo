@@ -63,6 +63,8 @@ model Task {
   order       Int
   icon        String   @default("📅")
   category    String   @default("AVD") // 'AVD' | 'Aprendizado' | 'Lazer'
+  duration    Int      @default(30)
+  description String   @default("")
   childId     String?
   child       Child?   @relation(fields: [childId], references: [id], onDelete: Cascade)
   userUid     String

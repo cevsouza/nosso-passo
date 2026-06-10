@@ -467,7 +467,9 @@ export default function ChildRoutine() {
 
       // Find the next task time to determine duration
       let durationMinutes = 30; // default
-      if (todayTasks.length > 0) {
+      if (activeTask.duration && activeTask.duration > 0) {
+        durationMinutes = activeTask.duration;
+      } else if (todayTasks.length > 0) {
         const nextTaskIndex = todayTasks.findIndex(t => t.id === activeTask.id) + 1;
         if (nextTaskIndex < todayTasks.length) {
           const nextT = todayTasks[nextTaskIndex];
@@ -1290,11 +1292,23 @@ export default function ChildRoutine() {
                       
                       {/* Big Tactile Audio Speaker Pill */}
                       <button 
-                        onClick={() => { playBubble(); speakText(activeTask.title); }}
+                        onClick={() => { playBubble(); speakText(activeTask.title + (activeTask.description ? `. Instruções: ${activeTask.description}` : '')); }}
                         className="flex items-center gap-1.5 px-5 py-3 bg-indigo-100 hover:bg-indigo-200 border-2 border-indigo-350 text-indigo-950 text-xs font-black rounded-full shadow-xxs cursor-pointer transition-all active:scale-95 hover:scale-[1.03] font-Outfit"
                       >
                         🔊 Ouvir Atividade
                       </button>
+
+                      {activeTask.description && (
+                        <div 
+                          onClick={() => { playBubble(); speakText(activeTask.description || ''); }}
+                          className="mt-1 px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl max-w-md select-none hover:bg-slate-100/50 transition-all cursor-pointer shadow-xxs"
+                          title="Clique para ouvir as instruções"
+                        >
+                          <p className="text-xs font-bold text-slate-550 leading-relaxed font-Outfit">
+                            💡 {activeTask.description}
+                          </p>
+                        </div>
+                      )}
                     </div>
 
                     {/* Time Timer and Transition Banner */}
@@ -1440,11 +1454,20 @@ export default function ChildRoutine() {
                         )}
                       </div>
                       <h4 
-                        onClick={() => { playBubble(); speakText(activeTask.title); }}
+                        onClick={() => { playBubble(); speakText(activeTask.title + (activeTask.description ? `. Instruções: ${activeTask.description}` : '')); }}
                         className="text-xl font-black text-slate-950 tracking-tight cursor-pointer hover:text-indigo-700 select-none font-Outfit"
                       >
                         {activeTask.title}
                       </h4>
+                      {activeTask.description && (
+                        <p 
+                          onClick={() => { playBubble(); speakText(activeTask.description || ''); }}
+                          className="text-[11px] font-bold text-slate-500 mt-1 cursor-pointer max-w-[200px] hover:text-indigo-700 transition-all leading-normal select-none"
+                          title="Clique para ouvir as instruções"
+                        >
+                          💡 {activeTask.description}
+                        </p>
+                      )}
                       <span className="text-[9px] font-black text-slate-400 uppercase tracking-wide">⏱️ Previsão: {activeTask.time}</span>
                     </div>
                   );

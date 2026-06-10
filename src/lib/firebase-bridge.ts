@@ -8,6 +8,8 @@ export interface Task {
   order: number;
   icon?: string;
   category?: 'AVD' | 'Aprendizado' | 'Lazer';
+  duration?: number;
+  description?: string;
 }
 
 export interface UserProfile {

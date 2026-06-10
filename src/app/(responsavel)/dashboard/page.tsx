@@ -21,7 +21,8 @@ import {
   ListTodo,
   Info,
   CheckCircle,
-  RotateCcw
+  RotateCcw,
+  Pencil
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -327,6 +328,18 @@ export default function ParentDashboard() {
   const [period, setPeriod] = useState<'manhã' | 'tarde' | 'noite'>('manhã');
   const [taskIcon, setTaskIcon] = useState('📅');
   const [taskCategory, setTaskCategory] = useState<'AVD' | 'Aprendizado' | 'Lazer'>('AVD');
+  const [taskDuration, setTaskDuration] = useState(30);
+  const [taskDescription, setTaskDescription] = useState('');
+
+  // Edit states for single tasks
+  const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
+  const [editTaskTitle, setEditTaskTitle] = useState('');
+  const [editTaskTime, setEditTaskTime] = useState('08:00');
+  const [editTaskPeriod, setEditTaskPeriod] = useState<'manhã' | 'tarde' | 'noite'>('manhã');
+  const [editTaskDuration, setEditTaskDuration] = useState(30);
+  const [editTaskDescription, setEditTaskDescription] = useState('');
+  const [editTaskCategory, setEditTaskCategory] = useState<'AVD' | 'Aprendizado' | 'Lazer'>('AVD');
+  const [editTaskIcon, setEditTaskIcon] = useState('📅');
   const [hyperfocus, setHyperfocus] = useState('');
   const [lockType, setLockType] = useState<'pin' | 'math' | 'none'>('math');
   const [parentPinCode, setParentPinCode] = useState('1234');
@@ -713,20 +726,24 @@ export default function ParentDashboard() {
         period,
         day: activeDayFilter,
         icon: taskIcon,
-        category: taskCategory
+        category: taskCategory,
+        duration: taskDuration,
+        description: taskDescription.trim()
       });
 
       // Write IMUTABLE LOG trail
       const dayLabel = DAYS_OF_MONTH.find(d => d.key === activeDayFilter)?.label;
       await immutableLogger.logChange(
         'ADD_TASK', 
-        `Adicionou a tarefa "${title.trim()}" (Ícone: ${taskIcon}, Categoria: ${taskCategory}) às ${time} (${period}) na ${dayLabel}.`,
+        `Adicionou a tarefa "${title.trim()}" (Duração: ${taskDuration}min, Ícone: ${taskIcon}, Categoria: ${taskCategory}) às ${time} (${period}) na ${dayLabel}.`,
         currentUser?.email
       );
 
       setTitle('');
       setTaskIcon('📅');
       setTaskCategory('AVD');
+      setTaskDuration(30);
+      setTaskDescription('');
       setFormOpen(false);
       triggerStatus('Tarefa adicionada com sucesso!');
     } catch (err) {
@@ -750,6 +767,34 @@ export default function ParentDashboard() {
       triggerStatus('Tarefa removida com sucesso!');
     } catch (err) {
       triggerStatus('Erro ao remover tarefa.');
+    }
+  };
+
+  // Save Task Edit
+  const handleSaveTaskEdit = async (taskId: string) => {
+    playMarimba(392, 0.4);
+    try {
+      await firebaseBridge.db.updateTask(taskId, {
+        title: editTaskTitle,
+        time: editTaskTime,
+        period: editTaskPeriod,
+        duration: editTaskDuration,
+        description: editTaskDescription.trim(),
+        category: editTaskCategory,
+        icon: editTaskIcon
+      });
+
+      const dayLabel = DAYS_OF_MONTH.find(d => d.key === activeDayFilter)?.label;
+      await immutableLogger.logChange(
+        'UPDATE_PROFILE', 
+        `Editou a tarefa "${editTaskTitle}" (Duração: ${editTaskDuration}min, Ícone: ${editTaskIcon}, Categoria: ${editTaskCategory}) às ${editTaskTime} (${editTaskPeriod}) na ${dayLabel}.`,
+        currentUser?.email
+      );
+
+      setEditingTaskId(null);
+      triggerStatus('Tarefa atualizada com sucesso!');
+    } catch (err) {
+      triggerStatus('Erro ao atualizar tarefa.');
     }
   };
 
@@ -1654,6 +1699,32 @@ export default function ParentDashboard() {
                           </div>
                         </div>
 
+                        {/* Duration and Description Inputs */}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 border-t border-slate-200/60 pt-3 mt-1">
+                          <div className="md:col-span-1">
+                            <label className="block text-xxs font-bold text-slate-500 uppercase mb-1">Duração (Minutos)</label>
+                            <input
+                              type="number"
+                              min={1}
+                              max={240}
+                              required
+                              value={taskDuration}
+                              onChange={e => setTaskDuration(parseInt(e.target.value) || 30)}
+                              className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-700 outline-none text-sm font-bold"
+                            />
+                          </div>
+                          <div className="md:col-span-2">
+                            <label className="block text-xxs font-bold text-slate-500 uppercase mb-1">Descrição Detalhada / Instruções (Opcional)</label>
+                            <input
+                              type="text"
+                              value={taskDescription}
+                              onChange={e => setTaskDescription(e.target.value)}
+                              placeholder="Ex: Escove com movimentos circulares, use pouca pasta..."
+                              className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-700 placeholder-slate-400 outline-none text-sm"
+                            />
+                          </div>
+                        </div>
+
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-1 border-t border-slate-200/60 pt-3">
                           <div>
                             <label className="block text-xxs font-bold text-slate-500 uppercase mb-1">Domínio da Atividade (Categoria)</label>
@@ -1726,6 +1797,140 @@ export default function ParentDashboard() {
                             <div className="flex flex-col gap-2.5">
                               {periodTasks.map(task => {
                                 const taskCat = getTaskCategory(task.title);
+
+                                if (editingTaskId === task.id) {
+                                  return (
+                                    <motion.div
+                                      layout
+                                      key={task.id}
+                                      className="flex flex-col gap-4 p-5 bg-indigo-50/20 border-2 border-indigo-400 rounded-2xl transition-all shadow-sm border-l-6"
+                                      style={{ borderLeftColor: '#4338ca' }}
+                                    >
+                                      <div className="flex justify-between items-center border-b border-indigo-100 pb-2">
+                                        <h4 className="font-extrabold text-xs text-indigo-800 uppercase tracking-wider flex items-center gap-1.5 font-Outfit">
+                                          ✏️ Editar Atividade
+                                        </h4>
+                                        <span className="text-[9px] font-bold text-slate-400">ID: {task.id.slice(-6)}</span>
+                                      </div>
+
+                                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                        <div>
+                                          <label className="block text-[10px] font-black text-slate-500 uppercase mb-1">Título da Atividade</label>
+                                          <input
+                                            type="text"
+                                            required
+                                            value={editTaskTitle}
+                                            onChange={e => setEditTaskTitle(e.target.value)}
+                                            className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-slate-700 outline-none text-xs font-bold focus:border-indigo-400"
+                                          />
+                                        </div>
+
+                                        <div className="grid grid-cols-2 gap-2">
+                                          <div>
+                                            <label className="block text-[10px] font-black text-slate-500 uppercase mb-1">Horário</label>
+                                            <input
+                                              type="time"
+                                              required
+                                              value={editTaskTime}
+                                              onChange={e => setEditTaskTime(e.target.value)}
+                                              className="w-full px-2 py-2 bg-white border border-slate-200 rounded-xl text-slate-700 outline-none text-xs font-bold focus:border-indigo-400"
+                                            />
+                                          </div>
+                                          
+                                          <div>
+                                            <label className="block text-[10px] font-black text-slate-500 uppercase mb-1">Período</label>
+                                            <select
+                                              value={editTaskPeriod}
+                                              onChange={e => setEditTaskPeriod(e.target.value as any)}
+                                              className="w-full px-2 py-2 bg-white border border-slate-200 rounded-xl text-slate-700 outline-none text-xs font-bold focus:border-indigo-400"
+                                            >
+                                              <option value="manhã">Manhã</option>
+                                              <option value="tarde">Tarde</option>
+                                              <option value="noite">Noite</option>
+                                            </select>
+                                          </div>
+                                        </div>
+                                      </div>
+
+                                      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 border-t border-slate-200/60 pt-3">
+                                        <div>
+                                          <label className="block text-[10px] font-black text-slate-500 uppercase mb-1">Duração (Minutos)</label>
+                                          <input
+                                            type="number"
+                                            min={1}
+                                            max={240}
+                                            required
+                                            value={editTaskDuration}
+                                            onChange={e => setEditTaskDuration(parseInt(e.target.value) || 30)}
+                                            className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-slate-700 outline-none text-xs font-bold focus:border-indigo-400"
+                                          />
+                                        </div>
+                                        
+                                        <div className="md:col-span-2">
+                                          <label className="block text-[10px] font-black text-slate-500 uppercase mb-1">Instruções / Descrição</label>
+                                          <input
+                                            type="text"
+                                            value={editTaskDescription}
+                                            onChange={e => setEditTaskDescription(e.target.value)}
+                                            placeholder="Ex: Escovar com movimentos suaves..."
+                                            className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-slate-700 outline-none text-xs focus:border-indigo-400"
+                                          />
+                                        </div>
+                                      </div>
+
+                                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 border-t border-slate-200/60 pt-3">
+                                        <div>
+                                          <label className="block text-[10px] font-black text-slate-500 uppercase mb-1">Categoria</label>
+                                          <select
+                                            value={editTaskCategory}
+                                            onChange={e => setEditTaskCategory(e.target.value as any)}
+                                            className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-slate-700 outline-none text-xs font-bold focus:border-indigo-400 cursor-pointer"
+                                          >
+                                            <option value="AVD">AVD (Vida Diária) 🧼</option>
+                                            <option value="Aprendizado">Aprendizado 📚</option>
+                                            <option value="Lazer">Lazer 🧸</option>
+                                          </select>
+                                        </div>
+
+                                        <div>
+                                          <label className="block text-[10px] font-black text-slate-500 uppercase mb-1">PECS (Ícone): {editTaskIcon}</label>
+                                          <div className="flex flex-wrap gap-1.5 p-1.5 bg-white border border-slate-200 rounded-xl max-h-[70px] overflow-y-auto">
+                                            {['🪥', '🍞', '🏫', '🍲', '🧸', '🛌', '🚶', '🚿', '📚', '🐶', '🍕', '🧼', '🎨', '⚽', '🧘', '🦷', '🍎', '💤', '🧴', '👕'].map(emoji => (
+                                              <button
+                                                type="button"
+                                                key={emoji}
+                                                onClick={() => setEditTaskIcon(emoji)}
+                                                className={`w-6 h-6 rounded-md text-xs flex items-center justify-center transition-all cursor-pointer ${
+                                                  editTaskIcon === emoji ? 'bg-indigo-650 text-white' : 'bg-slate-50 hover:bg-slate-100 text-slate-700'
+                                                }`}
+                                              >
+                                                {emoji}
+                                              </button>
+                                            ))}
+                                          </div>
+                                        </div>
+                                      </div>
+
+                                      <div className="flex gap-2 justify-end mt-2 border-t border-slate-200/60 pt-3">
+                                        <button
+                                          type="button"
+                                          onClick={() => { playBubble(); setEditingTaskId(null); }}
+                                          className="px-3.5 py-2 bg-slate-200 hover:bg-slate-350 text-slate-700 text-xs font-bold rounded-xl active:scale-95 cursor-pointer transition-all"
+                                        >
+                                          Cancelar
+                                        </button>
+                                        <button
+                                          type="button"
+                                          onClick={() => handleSaveTaskEdit(task.id)}
+                                          className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl shadow-sm active:scale-95 cursor-pointer transition-all"
+                                        >
+                                          Salvar Alterações 💾
+                                        </button>
+                                      </div>
+                                    </motion.div>
+                                  );
+                                }
+
                                 return (
                                   <motion.div
                                     layout
@@ -1755,7 +1960,17 @@ export default function ParentDashboard() {
                                           <span className="text-[9px] px-2 py-0.5 rounded-full font-black bg-slate-100 text-slate-550 border border-slate-200 uppercase tracking-wider">
                                             {task.category || 'AVD'}
                                           </span>
+                                          {task.duration && (
+                                            <span className="text-[9px] px-2 py-0.5 rounded-full font-black bg-indigo-50/50 text-indigo-700 border border-indigo-100 uppercase tracking-wider">
+                                              ⏱️ {task.duration} min
+                                            </span>
+                                          )}
                                         </div>
+                                        {task.description && (
+                                          <p className="text-[11px] text-slate-400 font-semibold mt-0.5 leading-tight">
+                                            {task.description}
+                                          </p>
+                                        )}
                                       </div>
                                     </div>
 
@@ -1767,6 +1982,26 @@ export default function ParentDashboard() {
                                       }`}>
                                         {task.isCompleted ? 'Feito ✓' : 'Pendente'}
                                       </span>
+
+                                      {!task.isCompleted && (
+                                        <button
+                                          onClick={() => {
+                                            playBubble();
+                                            setEditingTaskId(task.id);
+                                            setEditTaskTitle(task.title);
+                                            setEditTaskTime(task.time);
+                                            setEditTaskPeriod(task.period as any);
+                                            setEditTaskDuration(task.duration || 30);
+                                            setEditTaskDescription(task.description || '');
+                                            setEditTaskCategory(task.category as any || 'AVD');
+                                            setEditTaskIcon(task.icon || '📅');
+                                          }}
+                                          className="p-2 text-slate-400 hover:text-indigo-650 hover:bg-indigo-50 rounded-lg opacity-85 group-hover:opacity-100 transition-all active:scale-90 cursor-pointer"
+                                          title="Editar Atividade"
+                                        >
+                                          <Pencil className="w-4 h-4" />
+                                        </button>
+                                      )}
 
                                       <button
                                         onClick={() => handleDeleteTask(task)}
