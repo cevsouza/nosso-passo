@@ -16,7 +16,15 @@ export const RoutineIllustration: React.FC<RoutineIllustrationProps> = ({
   hyperfocus = 'Border Collies 🐕'
 }) => {
   // Normalize category key based on the standard sensory-standards task categories
-  const getNormCategory = (): 'hygiene' | 'meal' | 'study' | 'rest' | 'play' => {
+  const getNormCategory = (): 'hygiene' | 'meal' | 'study' | 'rest' | 'play' | 'aba' | 'ocupacional' | 'fono' | 'fisio' | 'psicoterapia' | 'psicomotricidade' => {
+    const title = category.toLowerCase();
+    if (title.includes('aba') || title.includes('comportamental')) return 'aba';
+    if (title.includes('ocupacional') || title.includes('t.o.')) return 'ocupacional';
+    if (title.includes('fono') || title.includes('fonoterapia') || title.includes('fala')) return 'fono';
+    if (title.includes('fisioterapia') || title.includes('fisio')) return 'fisio';
+    if (title.includes('psicoterapia') || title.includes('psicólogo') || title.includes('psicologo') || title.includes('infantil')) return 'psicoterapia';
+    if (title.includes('psicomotricidade') || title.includes('psicomotor') || title.includes('motricidade') || title.includes('alongamento')) return 'psicomotricidade';
+
     const taskCat = getTaskCategory(category);
     const label = taskCat.label;
     if (label.includes('Higiene')) return 'hygiene';
@@ -252,6 +260,126 @@ export const RoutineIllustration: React.FC<RoutineIllustrationProps> = ({
                 <circle cx="145" cy="145" r="4.5" fill="#ffffff" stroke="#cbd5e1" strokeWidth="1" />
               </motion.g>
             </g>
+          </g>
+        )}
+
+        {/* --- 6. ABA: Mascot with puzzle and shapes --- */}
+        {normCat === 'aba' && (
+          <g>
+            <circle cx="100" cy="100" r="75" fill="hsl(262, 80%, 93%)" opacity="0.65" />
+            <foreignObject x="50" y="45" width="100" height="90">
+              <div className="w-full h-full flex items-center justify-center bg-transparent">
+                <HyperfocusMascot hyperfocus={hyperfocus} state="guiding" size={82} />
+              </div>
+            </foreignObject>
+            {/* Puzzle piece matching */}
+            <motion.g animate={{ y: [0, -3, 0] }} transition={floatTransition}>
+              <rect x="55" y="138" width="22" height="22" fill="#818cf8" rx="4" />
+              <circle cx="66" cy="138" r="6" fill="#818cf8" />
+              <circle cx="77" cy="149" r="6" fill="#f8fafc" />
+              
+              <rect x="120" y="132" width="22" height="22" fill="#f43f5e" rx="4" />
+              <circle cx="131" cy="143" r="6" fill="#f43f5e" />
+              <circle cx="120" cy="143" r="6" fill="#f8fafc" />
+            </motion.g>
+          </g>
+        )}
+
+        {/* --- 7. OCUPACIONAL: Mascot with sensory pegboard --- */}
+        {normCat === 'ocupacional' && (
+          <g>
+            <circle cx="100" cy="100" r="75" fill="hsl(187, 75%, 93%)" opacity="0.65" />
+            <foreignObject x="50" y="45" width="100" height="90">
+              <div className="w-full h-full flex items-center justify-center bg-transparent">
+                <HyperfocusMascot hyperfocus={hyperfocus} state="idle" size={82} />
+              </div>
+            </foreignObject>
+            {/* Sensory pegboard */}
+            <g>
+              <rect x="45" y="140" width="110" height="15" fill="#d97706" rx="4" />
+              {/* Colorful pegs */}
+              <circle cx="65" cy="133" r="6" fill="#10b981" />
+              <rect x="63" y="133" width="4" height="10" fill="#10b981" />
+              
+              <circle cx="100" cy="130" r="6" fill="#3b82f6" />
+              <rect x="98" y="130" width="4" height="12" fill="#3b82f6" />
+              
+              <circle cx="135" cy="133" r="6" fill="#ef4444" />
+              <rect x="133" y="133" width="4" height="10" fill="#ef4444" />
+            </g>
+          </g>
+        )}
+
+        {/* --- 8. FONO: Mascot speaking with sound waves --- */}
+        {normCat === 'fono' && (
+          <g>
+            <circle cx="100" cy="100" r="75" fill="hsl(24, 85%, 93%)" opacity="0.65" />
+            <foreignObject x="50" y="45" width="100" height="90">
+              <div className="w-full h-full flex items-center justify-center bg-transparent">
+                <HyperfocusMascot hyperfocus={hyperfocus} state="celebrating" size={82} />
+              </div>
+            </foreignObject>
+            {/* Sound waves & microphone */}
+            <g>
+              {/* Vintage Microphone */}
+              <rect x="130" y="125" width="12" height="20" rx="6" fill="#94a3b8" stroke="#475569" strokeWidth="1.5" />
+              <line x1="136" y1="145" x2="136" y2="158" stroke="#475569" strokeWidth="2.5" />
+              <circle cx="136" cy="158" r="6" fill="#475569" />
+              {/* Animated speech sound waves */}
+              <motion.path d="M 115 125 A 15 15 0 0 0 115 145" stroke="#f97316" strokeWidth="2.5" strokeLinecap="round" fill="none" animate={{ scale: [1, 1.15, 1], opacity: [0.4, 1, 0.4] }} transition={breatheTransition} />
+              <motion.path d="M 105 120 A 25 25 0 0 0 105 150" stroke="#fdba74" strokeWidth="2" strokeLinecap="round" fill="none" animate={{ scale: [0.95, 1.1, 0.95], opacity: [0.3, 0.8, 0.3] }} transition={{ ...breatheTransition, delay: 0.5 }} />
+            </g>
+          </g>
+        )}
+
+        {/* --- 9. FISIO: Mascot on Pilates Ball --- */}
+        {normCat === 'fisio' && (
+          <g>
+            <circle cx="100" cy="100" r="75" fill="hsl(142, 70%, 93%)" opacity="0.65" />
+            {/* Pilates Ball behind/under mascot */}
+            <motion.circle cx="135" cy="138" r="30" fill="#10b981" animate={{ y: [0, -4, 0] }} transition={floatTransition} />
+            <motion.path d="M 110 120 Q 125 130 145 120" stroke="#047857" strokeWidth="3" fill="none" />
+            
+            <foreignObject x="35" y="45" width="100" height="90">
+              <div className="w-full h-full flex items-center justify-center bg-transparent">
+                <HyperfocusMascot hyperfocus={hyperfocus} state="guiding" size={82} />
+              </div>
+            </foreignObject>
+          </g>
+        )}
+
+        {/* --- 10. PSICOTERAPIA: Mascot talking about emotions --- */}
+        {normCat === 'psicoterapia' && (
+          <g>
+            <circle cx="100" cy="100" r="75" fill="hsl(215, 80%, 94%)" opacity="0.65" />
+            <foreignObject x="50" y="52" width="100" height="90">
+              <div className="w-full h-full flex items-center justify-center bg-transparent">
+                <HyperfocusMascot hyperfocus={hyperfocus} state="idle" size={82} />
+              </div>
+            </foreignObject>
+            {/* Speech bubble with heart */}
+            <motion.g animate={{ y: [-2, 2, -2] }} transition={floatTransition}>
+              <path d="M 125 90 C 125 78, 165 78, 165 90 C 165 98, 145 105, 145 110 L 140 115 L 141 109 C 125 109, 125 96, 125 90 Z" fill="#ffffff" stroke="#6366f1" strokeWidth="1.5" />
+              {/* Tiny Red Heart */}
+              <path d="M 145 88 C 143 85, 140 85, 139 88 L 145 94 L 151 88 C 150 85, 147 85, 145 88 Z" fill="#ef4444" transform="scale(0.85) translate(25, 16)" />
+            </motion.g>
+          </g>
+        )}
+
+        {/* --- 11. PSICOMOTRICIDADE: Mascot stepping on balance stones --- */}
+        {normCat === 'psicomotricidade' && (
+          <g>
+            <circle cx="100" cy="100" r="75" fill="hsl(330, 80%, 93%)" opacity="0.65" />
+            {/* Balance stones */}
+            <ellipse cx="65" cy="150" rx="22" ry="7" fill="#f97316" />
+            <ellipse cx="100" cy="155" rx="20" ry="7" fill="#10b981" />
+            <ellipse cx="135" cy="148" rx="22" ry="7" fill="#8b5cf6" />
+            
+            <foreignObject x="50" y="46" width="100" height="90">
+              <div className="w-full h-full flex items-center justify-center bg-transparent">
+                <HyperfocusMascot hyperfocus={hyperfocus} state="celebrating" size={82} />
+              </div>
+            </foreignObject>
           </g>
         )}
       </svg>

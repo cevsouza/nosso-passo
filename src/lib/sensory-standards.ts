@@ -54,7 +54,7 @@ export const SENSORY_AUDIO = {
 };
 
 // --- Task Categories and Theme Mapping (Shared across Parents & Kids) ---
-import { LucideIcon, Sparkles, Utensils, BookOpen, Bed, Gamepad2 } from 'lucide-react';
+import { LucideIcon, Sparkles, Utensils, BookOpen, Bed, Gamepad2, Brain, Activity, Volume2, Stethoscope, Smile, Footprints } from 'lucide-react';
 
 export interface TaskCategory {
   gradient: string;
@@ -67,6 +67,72 @@ export interface TaskCategory {
 export const getTaskCategory = (title: string): TaskCategory => {
   const text = title.toLowerCase();
   
+  // Terapia ABA
+  if (text.includes('aba') || text.includes('comportamental')) {
+    return {
+      gradient: 'from-violet-500 to-violet-800',
+      shadow: 'shadow-violet-100 border-violet-400',
+      tagClass: 'text-violet-955 bg-violet-100 border-violet-300 font-extrabold',
+      label: 'Terapia ABA 🧠',
+      icon: Brain
+    };
+  }
+
+  // Terapia Ocupacional
+  if (text.includes('ocupacional') || text.includes('t.o.')) {
+    return {
+      gradient: 'from-teal-500 to-teal-800',
+      shadow: 'shadow-teal-100 border-teal-400',
+      tagClass: 'text-teal-955 bg-teal-100 border-teal-300 font-extrabold',
+      label: 'Terapia Ocupacional 🧼',
+      icon: Activity
+    };
+  }
+
+  // Fonoterapia / Fala
+  if (text.includes('fono') || text.includes('fonoterapia') || text.includes('fala')) {
+    return {
+      gradient: 'from-amber-500 to-orange-700',
+      shadow: 'shadow-orange-100 border-orange-400',
+      tagClass: 'text-orange-955 bg-orange-100 border-orange-300 font-extrabold',
+      label: 'Fonoterapia 🗣️',
+      icon: Volume2
+    };
+  }
+
+  // Fisioterapia
+  if (text.includes('fisioterapia') || text.includes('fisio')) {
+    return {
+      gradient: 'from-emerald-500 to-emerald-800',
+      shadow: 'shadow-emerald-100 border-emerald-400',
+      tagClass: 'text-emerald-955 bg-emerald-100 border-emerald-300 font-extrabold',
+      label: 'Fisioterapia 🩺',
+      icon: Stethoscope
+    };
+  }
+
+  // Psicoterapia
+  if (text.includes('psicoterapia') || text.includes('psicólogo') || text.includes('psicologo')) {
+    return {
+      gradient: 'from-indigo-500 to-indigo-800',
+      shadow: 'shadow-indigo-100 border-indigo-400',
+      tagClass: 'text-indigo-955 bg-indigo-100 border-indigo-300 font-extrabold',
+      label: 'Psicoterapia 💬',
+      icon: Smile
+    };
+  }
+
+  // Psicomotricidade
+  if (text.includes('psicomotricidade') || text.includes('psicomotor') || text.includes('motricidade') || text.includes('alongamento')) {
+    return {
+      gradient: 'from-pink-500 to-pink-700',
+      shadow: 'shadow-pink-100 border-pink-400',
+      tagClass: 'text-pink-955 bg-pink-100 border-pink-300 font-extrabold',
+      label: 'Psicomotricidade 🏃',
+      icon: Footprints
+    };
+  }
+
   // Hygiene
   if (text.includes('escovar') || text.includes('banho') || text.includes('dente') || text.includes('lavar') || text.includes('higiene') || text.includes('vestir') || text.includes('trocar') || text.includes('pentear')) {
     return {

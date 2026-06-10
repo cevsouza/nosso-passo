@@ -71,7 +71,13 @@ const PRESETS = [
   { title: 'Ir para a escola', time: '13:00', period: 'tarde' as const },
   { title: 'Dever de casa', time: '17:30', period: 'tarde' as const },
   { title: 'Jantar em família', time: '19:30', period: 'noite' as const },
-  { title: 'Dormir / Descanso', time: '21:30', period: 'noite' as const }
+  { title: 'Dormir / Descanso', time: '21:30', period: 'noite' as const },
+  { title: 'Sessão Psicologia ABA 🧠', time: '09:00', period: 'manhã' as const },
+  { title: 'Terapia Ocupacional 🧼', time: '14:00', period: 'tarde' as const },
+  { title: 'Sessão Fonoterapia 🗣️', time: '10:30', period: 'manhã' as const },
+  { title: 'Fisioterapia Motora 🩺', time: '15:30', period: 'tarde' as const },
+  { title: 'Psicoterapia Infantil 💬', time: '16:00', period: 'tarde' as const },
+  { title: 'Psicomotricidade 🏃', time: '11:00', period: 'manhã' as const }
 ];
 
 const CLINICAL_TEMPLATES = {
@@ -113,6 +119,58 @@ const CLINICAL_TEMPLATES = {
       { title: 'Tempo Livre (Hiperfoco)', time: '15:30', period: 'tarde' as const },
       { title: 'Jantar em Família', time: '19:30', period: 'noite' as const },
       { title: 'Higiene e Dormir', time: '21:00', period: 'noite' as const }
+    ]
+  },
+  therapy_aba: {
+    name: "Rotina Terapêutica ABA 🧠",
+    description: "Estruturada com sessões ABA de mandos, imitação, lanche social e pausas reguladoras.",
+    tasks: [
+      { title: 'Higiene da Manhã 🫧', time: '08:00', period: 'manhã' as const },
+      { title: 'Treino ABA: Mandos & Olhar 🧠', time: '09:00', period: 'manhã' as const },
+      { title: 'Lanche Comportamental 🍎', time: '10:00', period: 'manhã' as const },
+      { title: 'Treino ABA: Imitação & Motor 🧠', time: '10:30', period: 'manhã' as const },
+      { title: 'Pausa de Descompressão 🌙', time: '11:30', period: 'manhã' as const },
+      { title: 'Almoço Cooperativo 🍎', time: '12:30', period: 'tarde' as const },
+      { title: 'Brincar Dirigido (ABA) 🎮', time: '15:00', period: 'tarde' as const },
+      { title: 'Rotina de Dormir 🌙', time: '20:30', period: 'noite' as const }
+    ]
+  },
+  therapy_ot_speech: {
+    name: "Terapia Ocupacional & Fono 🧼",
+    description: "Dia focado em estimulação de fala, linguagem, motricidade fina e integração sensorial.",
+    tasks: [
+      { title: 'Escovação de Higiene 🫧', time: '08:30', period: 'manhã' as const },
+      { title: 'Sessão de Fonoterapia 🗣️', time: '09:30', period: 'manhã' as const },
+      { title: 'Terapia Ocupacional: Pegboard 🧼', time: '11:00', period: 'manhã' as const },
+      { title: 'Almoço Saudável 🍎', time: '12:30', period: 'tarde' as const },
+      { title: 'T.O.: Escovação Sensorial 🧼', time: '14:30', period: 'tarde' as const },
+      { title: 'Fono: Leitura Compartilhada 🗣️', time: '16:00', period: 'tarde' as const },
+      { title: 'Jantar em Família 🍎', time: '19:30', period: 'noite' as const }
+    ]
+  },
+  therapy_motor: {
+    name: "Fisio & Psicomotricidade 🏃",
+    description: "Foco em motricidade ampla, alongamento, tônus postural e circuitos de equilíbrio.",
+    tasks: [
+      { title: 'Alongamento Matinal 🏃', time: '08:30', period: 'manhã' as const },
+      { title: 'Fisioterapia: Bola Pilates 🩺', time: '09:30', period: 'manhã' as const },
+      { title: 'Lanche Saudável 🍎', time: '10:30', period: 'manhã' as const },
+      { title: 'Psicomotricidade: Circuito 🏃', time: '11:00', period: 'manhã' as const },
+      { title: 'Almoço e Autonomia 🍎', time: '12:30', period: 'tarde' as const },
+      { title: 'Atividade Física ao Ar Livre 🏃', time: '16:00', period: 'tarde' as const },
+      { title: 'Banho Relaxante 🫧', time: '19:00', period: 'noite' as const }
+    ]
+  },
+  therapy_emotions: {
+    name: "Psicoterapia & Regulação 💬",
+    description: "Foco em psicoeducação emocional, expressão de sentimentos e psicoterapia lúdica.",
+    tasks: [
+      { title: 'Diário das Emoções (Desenho) 📝', time: '09:00', period: 'manhã' as const },
+      { title: 'Psicoterapia Infantil 💬', time: '10:30', period: 'manhã' as const },
+      { title: 'Almoço Calmo 🍎', time: '12:30', period: 'tarde' as const },
+      { title: 'Psicoterapia: Diálogo Emocional 💬', time: '15:30', period: 'tarde' as const },
+      { title: 'Tempo Livre Relaxante 🌙', time: '17:00', period: 'tarde' as const },
+      { title: 'Leitura para Acalmar 🌙', time: '20:30', period: 'noite' as const }
     ]
   }
 };
@@ -1596,7 +1654,16 @@ export default function ParentDashboard() {
                                     layout
                                     key={task.id}
                                     className={`flex items-center justify-between p-4 bg-white border-2 rounded-2xl hover:border-slate-350 transition-all group border-l-6 shadow-xxs hover:shadow-sm`}
-                                    style={{ borderLeftColor: taskCat.gradient.includes('2dd4bf') ? '#0d9488' : taskCat.gradient.includes('fbbf24') ? '#ea580c' : taskCat.gradient.includes('38bdf8') ? '#0284c7' : taskCat.gradient.includes('6366f1') ? '#4338ca' : '#db2777' }}
+                                    style={{ borderLeftColor: 
+                                      taskCat.gradient.includes('teal') ? '#0d9488' : 
+                                      taskCat.gradient.includes('amber') || taskCat.gradient.includes('orange') ? '#ea580c' : 
+                                      taskCat.gradient.includes('sky') || taskCat.gradient.includes('blue') ? '#0284c7' : 
+                                      taskCat.gradient.includes('indigo') ? '#4338ca' : 
+                                      taskCat.gradient.includes('violet') ? '#7c3aed' : 
+                                      taskCat.gradient.includes('emerald') ? '#059669' : 
+                                      taskCat.gradient.includes('pink') ? '#db2777' : 
+                                      '#db2777' 
+                                    }}
                                   >
                                     <div className="flex items-center gap-3">
                                       <div className="w-9 h-9 bg-indigo-50 border border-indigo-100 text-slate-700 rounded-xl flex items-center justify-center text-lg shadow-xxs shrink-0 select-none">
