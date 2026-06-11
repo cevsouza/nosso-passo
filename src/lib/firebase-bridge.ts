@@ -48,6 +48,8 @@ export interface Child {
   transitionMinutes?: number;
   parentUid: string;
   sharingCode?: string;
+  collectedParts?: number;
+  toyInventory?: string;
 }
 
 export interface SensoryLog {
@@ -60,6 +62,9 @@ export interface SensoryLog {
   lightLevel?: string;
   location?: string;
   trigger?: string;
+  antecedent?: string;
+  behavior?: string;
+  consequence?: string;
 }
 
 export interface Checkpoint {
@@ -77,6 +82,156 @@ export interface Checkpoint {
 
 const MOCK_DB_UPDATE_EVENT = 'firebase-mock-db-update';
 const MOCK_AUTH_UPDATE_EVENT = 'firebase-mock-auth-update';
+
+export interface OfflineAction {
+  id: string;
+  url: string;
+  method: string;
+  headers: Record<string, string>;
+  body?: string;
+  timestamp: number;
+}
+
+export const getOfflineQueue = (): OfflineAction[] => {
+  if (typeof window === 'undefined') return [];
+  const stored = localStorage.getItem('offline_actions_queue');
+  return stored ? JSON.parse(stored) : [];
+};
+
+const saveOfflineQueue = (queue: OfflineAction[]) => {
+  if (typeof window === 'undefined') return;
+  localStorage.setItem('offline_actions_queue', JSON.stringify(queue));
+  window.dispatchEvent(new CustomEvent('app-offline-status-changed', { 
+    detail: { 
+      isOffline: !navigator.onLine, 
+      queueLength: queue.length 
+    } 
+  }));
+};
+
+const enqueueOfflineAction = (url: string, method: string, headers: Record<string, string>, body?: string) => {
+  const queue = getOfflineQueue();
+  const action: OfflineAction = {
+    id: Math.random().toString(36).substring(2, 11),
+    url,
+    method,
+    headers,
+    body,
+    timestamp: Date.now()
+  };
+  queue.push(action);
+  saveOfflineQueue(queue);
+};
+
+export const syncOfflineActions = async () => {
+  if (typeof window === 'undefined' || !navigator.onLine) return;
+  const queue = getOfflineQueue();
+  if (queue.length === 0) return;
+
+  const remaining: OfflineAction[] = [];
+  for (const action of queue) {
+    try {
+      const res = await fetch(action.url, {
+        method: action.method,
+        headers: action.headers,
+        body: action.body
+      });
+      if (!res.ok) {
+        if (res.status >= 500) {
+          remaining.push(action);
+        }
+      }
+    } catch (err) {
+      remaining.push(action);
+    }
+  }
+  saveOfflineQueue(remaining);
+
+  // Broadcast updates
+  firebaseBridge.db.getTasks().then(tasks => {
+    window.dispatchEvent(new CustomEvent(MOCK_DB_UPDATE_EVENT, { detail: tasks }));
+  }).catch(() => {});
+};
+
+const safeFetch = async (url: string, options: RequestInit = {}): Promise<Response> => {
+  const method = options.method || 'GET';
+  const headers = (options.headers || {}) as Record<string, string>;
+  const body = options.body as string | undefined;
+
+  if (typeof window !== 'undefined' && !navigator.onLine) {
+    if (method !== 'GET') {
+      enqueueOfflineAction(url, method, headers, body);
+    }
+    return {
+      ok: true,
+      status: 200,
+      json: async () => {
+        if (url.includes('/api/tasks')) {
+          if (method === 'POST') {
+            const data = JSON.parse(body || '{}');
+            return { id: 'temp-' + Math.random().toString(36).substring(2, 7), isCompleted: false, order: 1, ...data };
+          }
+          if (method === 'PUT') {
+            const data = JSON.parse(body || '{}');
+            return data.updates || data;
+          }
+          return [];
+        }
+        if (url.includes('/api/sensory-logs')) {
+          const data = JSON.parse(body || '{}');
+          return { id: 'temp-' + Math.random().toString(36).substring(2, 7), timestamp: new Date().toISOString(), ...data };
+        }
+        return { success: true };
+      }
+    } as Response;
+  }
+
+  try {
+    const res = await fetch(url, options);
+    return res;
+  } catch (err) {
+    if (typeof window !== 'undefined' && method !== 'GET') {
+      enqueueOfflineAction(url, method, headers, body);
+      return {
+        ok: true,
+        status: 200,
+        json: async () => {
+          if (url.includes('/api/tasks')) {
+            if (method === 'POST') {
+              const data = JSON.parse(body || '{}');
+              return { id: 'temp-' + Math.random().toString(36).substring(2, 7), isCompleted: false, order: 1, ...data };
+            }
+            if (method === 'PUT') {
+              const data = JSON.parse(body || '{}');
+              return data.updates || data;
+            }
+            return [];
+          }
+          if (url.includes('/api/sensory-logs')) {
+            const data = JSON.parse(body || '{}');
+            return { id: 'temp-' + Math.random().toString(36).substring(2, 7), timestamp: new Date().toISOString(), ...data };
+          }
+          return { success: true };
+        }
+      } as Response;
+    }
+    throw err;
+  }
+};
+
+if (typeof window !== 'undefined') {
+  window.addEventListener('online', () => {
+    syncOfflineActions();
+  });
+  window.addEventListener('offline', () => {
+    window.dispatchEvent(new CustomEvent('app-offline-status-changed', { 
+      detail: { 
+        isOffline: true, 
+        queueLength: getOfflineQueue().length 
+      } 
+    }));
+  });
+}
 
 const getLocalProfile = (): UserProfile | null => {
   if (typeof window === 'undefined') return null;
@@ -163,7 +318,7 @@ export const firebaseBridge = {
       const current = getLocalProfile();
       if (!current) return;
 
-      const res = await fetch('/api/profile', {
+      const res = await safeFetch('/api/profile', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ uid: current.uid, updates })
@@ -179,7 +334,7 @@ export const firebaseBridge = {
       const current = getLocalProfile();
       if (!current) return [];
 
-      const res = await fetch('/api/children', {
+      const res = await safeFetch('/api/children', {
         headers: { 'x-user-uid': current.uid }
       });
       const data = await res.json();
@@ -191,7 +346,7 @@ export const firebaseBridge = {
       const current = getLocalProfile();
       if (!current) throw new Error('Usuário não está logado');
 
-      const res = await fetch('/api/children', {
+      const res = await safeFetch('/api/children', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -205,7 +360,7 @@ export const firebaseBridge = {
     },
 
     updateChildSettings: async (childId: string, updates: Partial<Omit<Child, 'id' | 'parentUid'>>): Promise<Child> => {
-      const res = await fetch('/api/children', {
+      const res = await safeFetch('/api/children', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id: childId, updates })
@@ -224,7 +379,7 @@ export const firebaseBridge = {
     },
 
     deleteChild: async (childId: string): Promise<void> => {
-      const res = await fetch(`/api/children?id=${childId}`, {
+      const res = await safeFetch(`/api/children?id=${childId}`, {
         method: 'DELETE'
       });
       const data = await res.json();
@@ -271,7 +426,7 @@ export const firebaseBridge = {
   // --- FIRESTORE DATABASE SERVICE ---
   db: {
     getSensoryLogs: async (childId: string): Promise<SensoryLog[]> => {
-      const res = await fetch(`/api/sensory-logs?childId=${childId}`);
+      const res = await safeFetch(`/api/sensory-logs?childId=${childId}`);
       const data = await res.json();
       if (data.error) throw new Error(data.error);
       return data;
@@ -286,8 +441,11 @@ export const firebaseBridge = {
       lightLevel?: string;
       location?: string;
       trigger?: string;
+      antecedent?: string;
+      behavior?: string;
+      consequence?: string;
     }): Promise<SensoryLog> => {
-      const res = await fetch('/api/sensory-logs', {
+      const res = await safeFetch('/api/sensory-logs', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(logData)
@@ -307,7 +465,7 @@ export const firebaseBridge = {
         headers['x-child-id'] = childId;
       }
 
-      const res = await fetch('/api/tasks', { headers });
+      const res = await safeFetch('/api/tasks', { headers });
       const data = await res.json();
       if (data.error) throw new Error(data.error);
       return data;
@@ -326,7 +484,7 @@ export const firebaseBridge = {
         headers['x-child-id'] = childId;
       }
 
-      const res = await fetch('/api/tasks', {
+      const res = await safeFetch('/api/tasks', {
         method: 'POST',
         headers,
         body: JSON.stringify(taskData)
@@ -343,7 +501,7 @@ export const firebaseBridge = {
     },
 
     deleteTask: async (id: string): Promise<void> => {
-      const res = await fetch(`/api/tasks?id=${id}`, {
+      const res = await safeFetch(`/api/tasks?id=${id}`, {
         method: 'DELETE'
       });
       const data = await res.json();
@@ -368,7 +526,7 @@ export const firebaseBridge = {
         headers['x-child-id'] = childId;
       }
 
-      const res = await fetch('/api/tasks', {
+      const res = await safeFetch('/api/tasks', {
         method: 'PUT',
         headers,
         body: JSON.stringify({ id, updates })
@@ -412,7 +570,7 @@ export const firebaseBridge = {
         headers['x-child-id'] = childId;
       }
 
-      const res = await fetch('/api/tasks', {
+      const res = await safeFetch('/api/tasks', {
         method: 'PUT',
         headers,
         body: JSON.stringify({ overwrite: true, tasks: DEFAULT_TASKS })
@@ -436,7 +594,7 @@ export const firebaseBridge = {
         headers['x-child-id'] = childId;
       }
 
-      const res = await fetch('/api/tasks', {
+      const res = await safeFetch('/api/tasks', {
         method: 'PUT',
         headers,
         body: JSON.stringify({ overwrite: true, tasks: templateTasks })
@@ -460,7 +618,7 @@ export const firebaseBridge = {
         headers['x-child-id'] = childId;
       }
 
-      const res = await fetch('/api/tasks', {
+      const res = await safeFetch('/api/tasks', {
         method: 'PUT',
         headers,
         body: JSON.stringify({ overwrite: true, tasks: [] })
@@ -520,14 +678,14 @@ export const firebaseBridge = {
     },
 
     getCheckpoints: async (childId: string): Promise<Checkpoint[]> => {
-      const res = await fetch(`/api/checkpoints?childId=${childId}`);
+      const res = await safeFetch(`/api/checkpoints?childId=${childId}`);
       const data = await res.json();
       if (data.error) throw new Error(data.error);
       return data;
     },
 
     saveCheckpoint: async (id: string, updates: Partial<Checkpoint>): Promise<Checkpoint> => {
-      const res = await fetch('/api/checkpoints', {
+      const res = await safeFetch('/api/checkpoints', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id, updates })

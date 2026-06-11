@@ -145,6 +145,8 @@ export async function PUT(req: Request) {
         tokens: updates.tokens !== undefined ? Number(updates.tokens) : undefined,
         transitionMinutes: updates.transitionMinutes !== undefined ? Number(updates.transitionMinutes) : undefined,
         sharingCode: updates.sharingCode,
+        collectedParts: updates.collectedParts !== undefined ? Number(updates.collectedParts) : undefined,
+        toyInventory: updates.toyInventory,
       }
     });
 

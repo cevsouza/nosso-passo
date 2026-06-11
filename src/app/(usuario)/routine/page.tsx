@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { firebaseBridge, Task } from '../../../lib/firebase-bridge';
+import { firebaseBridge, Task, getOfflineQueue } from '../../../lib/firebase-bridge';
 import { CollieState } from '../../../components/ludic/BorderCollie';
 import { HyperfocusMascot } from '../../../components/ludic/HyperfocusMascot';
 import { playBubble, playMarimba, playCelebration, speakText, startAmbientSound, stopAmbientSound } from '../../../lib/audio-synth';
@@ -522,6 +522,8 @@ const HyperfocusThemeTimer: React.FC<TimerProps & { theme: string }> = ({ progre
 
 export default function ChildRoutine() {
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [offline, setOffline] = useState(false);
+  const [offlineQueueSize, setOfflineQueueSize] = useState(0);
   const [currentDay, setCurrentDay] = useState('1');
   const [collieState, setCollieState] = useState<CollieState>('idle');
   const [celebratingTaskId, setCelebratingTaskId] = useState<string | null>(null);
@@ -532,6 +534,24 @@ export default function ChildRoutine() {
   const [children, setChildren] = useState<any[]>([]);
   const [activeChild, setActiveChild] = useState<any | null>(null);
   const [loadingChildren, setLoadingChildren] = useState(true);
+
+  // Monitor offline status
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setOffline(!navigator.onLine);
+      setOfflineQueueSize(getOfflineQueue().length);
+      
+      const handleOfflineStatus = (e: any) => {
+        setOffline(e.detail.isOffline);
+        setOfflineQueueSize(e.detail.queueLength || 0);
+      };
+      
+      window.addEventListener('app-offline-status-changed', handleOfflineStatus);
+      return () => {
+        window.removeEventListener('app-offline-status-changed', handleOfflineStatus);
+      };
+    }
+  }, []);
   
   // Parental Lock states
   const router = useRouter();
@@ -554,6 +574,8 @@ export default function ChildRoutine() {
   const [showStoriesModal, setShowStoriesModal] = useState(false);
   const [selectedStory, setSelectedStory] = useState<any | null>(null);
   const [currentStoryStep, setCurrentStoryStep] = useState(0);
+  const [showHyperfocusModal, setShowHyperfocusModal] = useState(false);
+  const [isToyLaunched, setIsToyLaunched] = useState(false);
 
   // Environmental states for sensory logs
   const [decibels, setDecibels] = useState<number>(45);
@@ -842,6 +864,11 @@ export default function ChildRoutine() {
 
     setCelebratingTaskId(task.id);
     setCollieState('celebrating');
+
+    // Trigger gentle haptic vibration pulse (Autism-safe haptic standard)
+    if (typeof window !== 'undefined' && 'vibrate' in navigator) {
+      navigator.vibrate([80, 50, 80]);
+    }
     
     // 1. Play soft marimba celebration notes
     playCelebration();
@@ -920,6 +947,10 @@ export default function ChildRoutine() {
 
 
   const handleMascotClick = () => {
+    if (typeof window !== 'undefined' && 'vibrate' in navigator) {
+      navigator.vibrate(40);
+    }
+
     if (isDayFinished) {
       playMarimba(261.63, 0.4);
       speakText("Parabéns! Todas as missões de hoje foram cumpridas! Hora de descansar.");
@@ -935,6 +966,84 @@ export default function ChildRoutine() {
       if (isDayFinished) setCollieState('sleeping');
       else setCollieState('idle');
     }, 2000);
+  };
+
+  const getHyperfocusParts = (theme: string) => {
+    const focus = (theme || "").toLowerCase();
+    if (focus.includes("dino") || focus.includes("dinossauro") || focus.includes("dinosaur")) {
+      return [
+        { id: 'dino_skull', name: 'Crânio de T-Rex 🦖', cost: 3, icon: '💀' },
+        { id: 'dino_ribs', name: 'Costelas de T-Rex 🦴', cost: 3, icon: '🩻' },
+        { id: 'dino_legs', name: 'Pernas de T-Rex 🐾', cost: 3, icon: '🦵' },
+        { id: 'dino_tail', name: 'Cauda de T-Rex 🐊', cost: 3, icon: '🦕' },
+      ];
+    }
+    if (focus.includes("espaço") || focus.includes("astronauta") || focus.includes("space") || focus.includes("foguete") || focus.includes("rocket")) {
+      return [
+        { id: 'space_capsule', name: 'Cápsula Espacial 🚀', cost: 3, icon: '🚀' },
+        { id: 'space_thrusters', name: 'Propulsores 💥', cost: 3, icon: '🔥' },
+        { id: 'space_panels', name: 'Painéis Solares ☀️', cost: 3, icon: '🔋' },
+        { id: 'space_flag', name: 'Bandeira da Lua 🏳️', cost: 3, icon: '🏳️' },
+      ];
+    }
+    if (focus.includes("trem") || focus.includes("train") || focus.includes("trilhos")) {
+      return [
+        { id: 'train_engine', name: 'Locomotiva Principal 🚂', cost: 3, icon: '🚂' },
+        { id: 'train_passenger', name: 'Vagão de Passageiros 🚃', cost: 3, icon: '🚃' },
+        { id: 'train_cargo', name: 'Vagão de Carga 📦', cost: 3, icon: '📦' },
+        { id: 'train_tracks', name: 'Trilhos de Ferro 🛤️', cost: 3, icon: '🛤️' },
+      ];
+    }
+    return [
+      { id: 'acc_hat', name: 'Chapéu Elegante 🎩', cost: 3, icon: '🎩' },
+      { id: 'acc_glasses', name: 'Óculos de Sol 😎', cost: 3, icon: '😎' },
+      { id: 'acc_medal', name: 'Medalha de Ouro 🥇', cost: 3, icon: '🥇' },
+      { id: 'acc_cape', name: 'Capa de Super-herói 🦸‍♂️', cost: 3, icon: '🦸‍♂️' },
+    ];
+  };
+
+  const handleBuyPart = async (partId: string, cost: number) => {
+    if (!activeChild) return;
+    const currentTokens = activeChild.tokens || 0;
+    if (currentTokens < cost) {
+      speakText("Você precisa de mais estrelas para conseguir esta peça!");
+      return;
+    }
+
+    let inventory: string[] = [];
+    try {
+      if (activeChild.toyInventory) {
+        inventory = JSON.parse(activeChild.toyInventory);
+      }
+    } catch (e) {}
+
+    if (inventory.includes(partId)) {
+      speakText("Você já tem essa peça!");
+      return;
+    }
+
+    const newInventory = [...inventory, partId];
+    const newTokens = currentTokens - cost;
+    const newCollectedParts = (activeChild.collectedParts || 0) + 1;
+
+    playCelebration();
+    speakText("Parabéns! Você conseguiu uma nova peça para o seu brinquedo!");
+
+    if (typeof window !== 'undefined' && 'vibrate' in navigator) {
+      navigator.vibrate([100, 50, 100, 50, 150]);
+    }
+
+    try {
+      const updated = await firebaseBridge.auth.updateChildSettings(activeChild.id, {
+        tokens: newTokens,
+        collectedParts: newCollectedParts,
+        toyInventory: JSON.stringify(newInventory)
+      });
+      setActiveChild(updated);
+      setChildren(prev => prev.map(c => c.id === updated.id ? updated : c));
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   // Safe animation transitions
@@ -960,6 +1069,16 @@ export default function ChildRoutine() {
   if (!activeChild) {
     return (
       <main className="min-h-screen bg-gradient-to-tr from-[#f8fafc] via-[#eff6ff] to-[#f0fdf4] flex flex-col items-center justify-center p-6 text-slate-900 relative overflow-hidden">
+        {offline && (
+          <div className="absolute top-0 inset-x-0 bg-amber-500 text-white py-2 px-4 text-center text-xs font-black select-none z-50 flex items-center justify-center gap-2 font-Outfit shadow-md shrink-0">
+            <span>📶 Modo Offline Ativado</span>
+            {offlineQueueSize > 0 && (
+              <span className="bg-amber-700/60 px-2 py-0.5 rounded text-[10px]">
+                {offlineQueueSize} {offlineQueueSize === 1 ? 'alteração pendente' : 'alterações pendentes'}
+              </span>
+            )}
+          </div>
+        )}
         {/* Playful background blobs */}
         <div className="absolute top-[-100px] left-[-100px] w-[300px] h-[300px] bg-blue-200/50 rounded-full filter blur-3xl -z-10 animate-pulse"></div>
         <div className="absolute bottom-[-100px] right-[-100px] w-[300px] h-[300px] bg-indigo-200/40 rounded-full filter blur-3xl -z-10 animate-pulse"></div>
@@ -1031,6 +1150,300 @@ export default function ChildRoutine() {
     );
   }
 
+  const renderHyperfocusModals = () => {
+    if (!activeChild) return null;
+
+    let inventory: string[] = [];
+    try {
+      if (activeChild.toyInventory) {
+        inventory = JSON.parse(activeChild.toyInventory);
+      }
+    } catch (e) {}
+
+    const focus = (childHyperfocus || "").toLowerCase();
+
+    return (
+      <>
+        {/* Hyperfocus World Modal */}
+        <AnimatePresence>
+          {showHyperfocusModal && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md"
+            >
+              <motion.div
+                initial={{ scale: 0.9, y: 20 }}
+                animate={{ scale: 1, y: 0 }}
+                exit={{ scale: 0.9, y: 20 }}
+                className={`border-4 rounded-[32px] p-6 w-full max-w-lg shadow-2xl flex flex-col gap-5 relative overflow-hidden transition-colors duration-300 ${
+                  sleepMode 
+                    ? 'bg-[#090d1a] border-amber-900/60 text-amber-100' 
+                    : 'bg-white border-yellow-400 text-slate-800'
+                }`}
+              >
+                {/* Close button at top right */}
+                <button
+                  onClick={() => { playBubble(); setShowHyperfocusModal(false); }}
+                  className={`absolute top-4 right-4 w-9 h-9 border-2 rounded-full flex items-center justify-center font-black transition-all active:scale-90 cursor-pointer text-sm ${
+                    sleepMode 
+                      ? 'bg-[#121827] border-amber-900/40 text-amber-450 hover:bg-amber-950' 
+                      : 'bg-slate-100 border-slate-200 text-slate-500 hover:bg-slate-200'
+                  }`}
+                >
+                  ✕
+                </button>
+
+                <div className="text-center mt-2">
+                  <span className="text-3xl">🎮</span>
+                  <h3 className="text-xl font-black mt-1.5 font-Outfit">Meu Mundo do Hiperfoco</h3>
+                  <p className="text-xs text-slate-400 font-semibold mt-1">
+                    Ganhe estrelas completando missões e monte seu brinquedo favorito!
+                  </p>
+                </div>
+
+                {/* Toy preview assembly */}
+                <div className={`p-4 rounded-2xl border-2 flex flex-col items-center justify-center min-h-[160px] ${
+                  sleepMode ? 'bg-[#121827] border-amber-950/40' : 'bg-slate-50 border-slate-105'
+                }`}>
+                  {(() => {
+                    if (focus.includes("dino") || focus.includes("dinossauro") || focus.includes("dinosaur")) {
+                      return (
+                        <svg viewBox="0 0 120 100" className="w-48 h-40">
+                          {/* Skull */}
+                          <rect x="75" y="25" width="22" height="18" rx="5" fill={inventory.includes('dino_skull') ? '#eab308' : '#e2e8f0'} stroke="#94a3b8" strokeWidth="2" />
+                          <circle cx="82" cy="31" r="2" fill={inventory.includes('dino_skull') ? '#1e293b' : '#94a3b8'} />
+                          {/* Ribs */}
+                          <rect x="35" y="35" width="40" height="25" rx="8" fill={inventory.includes('dino_ribs') ? '#eab308' : '#e2e8f0'} stroke="#94a3b8" strokeWidth="2" />
+                          {/* Legs */}
+                          <rect x="42" y="60" width="8" height="20" rx="3" fill={inventory.includes('dino_legs') ? '#eab308' : '#e2e8f0'} stroke="#94a3b8" strokeWidth="2" />
+                          <rect x="62" y="60" width="8" height="20" rx="3" fill={inventory.includes('dino_legs') ? '#eab308' : '#e2e8f0'} stroke="#94a3b8" strokeWidth="2" />
+                          {/* Tail */}
+                          <path d="M 35 45 Q 15 45 10 25 Q 20 55 35 55 Z" fill={inventory.includes('dino_tail') ? '#eab308' : '#e2e8f0'} stroke="#94a3b8" strokeWidth="2" />
+                        </svg>
+                      );
+                    }
+                    if (focus.includes("espaço") || focus.includes("astronauta") || focus.includes("space") || focus.includes("foguete") || focus.includes("rocket")) {
+                      return (
+                        <svg viewBox="0 0 100 120" className="w-40 h-44">
+                          <rect x="20" y="100" width="60" height="8" rx="2" fill="#475569" />
+                          <path d="M 40 85 L 35 98 L 45 98 Z" fill={inventory.includes('space_thrusters') ? '#ef4444' : '#cbd5e1'} />
+                          <path d="M 60 85 L 55 98 L 65 98 Z" fill={inventory.includes('space_thrusters') ? '#ef4444' : '#cbd5e1'} />
+                          <path d="M 30 70 L 18 85 L 35 85 Z" fill={inventory.includes('space_panels') ? '#3b82f6' : '#cbd5e1'} />
+                          <path d="M 70 70 L 82 85 L 65 85 Z" fill={inventory.includes('space_panels') ? '#3b82f6' : '#cbd5e1'} />
+                          <rect x="35" y="40" width="30" height="45" rx="15" fill={inventory.includes('space_capsule') ? '#6366f1' : '#e2e8f0'} stroke="#94a3b8" strokeWidth="2" />
+                          <circle cx="50" cy="55" r="5" fill="#ffffff" stroke="#94a3b8" strokeWidth="1.5" />
+                          {inventory.includes('space_flag') && (
+                            <>
+                              <line x1="65" y1="40" x2="65" y2="20" stroke="#475569" strokeWidth="2" />
+                              <rect x="65" y="20" width="18" height="12" fill="#10b981" />
+                            </>
+                          )}
+                        </svg>
+                      );
+                    }
+                    if (focus.includes("trem") || focus.includes("train") || focus.includes("trilhos")) {
+                      return (
+                        <svg viewBox="0 0 150 80" className="w-56 h-30">
+                          <line x1="10" y1="70" x2="140" y2="70" stroke={inventory.includes('train_tracks') ? '#475569' : '#e2e8f0'} strokeWidth="4" />
+                          <rect x="85" y="25" width="45" height="35" rx="4" fill={inventory.includes('train_engine') ? '#ec4899' : '#e2e8f0'} stroke="#94a3b8" strokeWidth="2" />
+                          <rect x="110" y="10" width="10" height="15" fill={inventory.includes('train_engine') ? '#3b82f6' : '#cbd5e1'} />
+                          <rect x="35" y="30" width="40" height="30" rx="4" fill={inventory.includes('train_passenger') ? '#10b981' : '#e2e8f0'} stroke="#94a3b8" strokeWidth="2" />
+                          <line x1="75" y1="45" x2="85" y2="45" stroke="#94a3b8" strokeWidth="3" />
+                          <rect x="5" y="35" width="25" height="25" rx="2" fill={inventory.includes('train_cargo') ? '#f97316' : '#e2e8f0'} stroke="#94a3b8" strokeWidth="2" />
+                          <line x1="30" y1="45" x2="35" y2="45" stroke="#94a3b8" strokeWidth="3" />
+                          <circle cx="15" cy="65" r="5" fill="#1e293b" />
+                          <circle cx="20" cy="65" r="5" fill="#1e293b" />
+                          <circle cx="45" cy="65" r="5" fill="#1e293b" />
+                          <circle cx="65" cy="65" r="5" fill="#1e293b" />
+                          <circle cx="95" cy="65" r="5" fill="#1e293b" />
+                          <circle cx="120" cy="65" r="5" fill="#1e293b" />
+                        </svg>
+                      );
+                    }
+                    // Fallback Accessories
+                    return (
+                      <div className="relative w-36 h-36 flex items-center justify-center bg-slate-100/50 rounded-full border-2 border-dashed border-slate-200">
+                        <div className="text-6xl animate-bounce">🐶</div>
+                        {inventory.includes('acc_hat') && <span className="absolute top-1 text-4xl">🎩</span>}
+                        {inventory.includes('acc_glasses') && <span className="absolute top-10 text-3.5xl">😎</span>}
+                        {inventory.includes('acc_medal') && <span className="absolute bottom-3 text-3.5xl">🥇</span>}
+                        {inventory.includes('acc_cape') && <span className="absolute -left-1.5 text-4xl">🦸‍♂️</span>}
+                      </div>
+                    );
+                  })()}
+                </div>
+
+                {/* Token Display */}
+                <div className="flex items-center justify-between px-1 text-xs font-black uppercase tracking-wider">
+                  <span className="flex items-center gap-1 text-[#475569]">
+                    ⭐ Estrelas: <strong className="text-yellow-500 text-sm font-black">{activeChild.tokens || 0}</strong>
+                  </span>
+                  <span className="text-slate-400">
+                    Progresso: {activeChild.collectedParts === 4 ? '100% Completo! 🎉' : `${activeChild.collectedParts || 0}/4 Peças`}
+                  </span>
+                </div>
+
+                {/* Parts Selection List */}
+                <div className="grid grid-cols-2 gap-3 max-h-[180px] overflow-y-auto pr-1">
+                  {(() => {
+                    const parts = getHyperfocusParts(childHyperfocus);
+                    return parts.map(part => {
+                      const hasIt = inventory.includes(part.id);
+                      const canBuy = (activeChild.tokens || 0) >= part.cost;
+
+                      return (
+                        <div
+                          key={part.id}
+                          className={`p-3 border-2 rounded-2xl flex flex-col items-center text-center justify-between gap-1.5 transition-all ${
+                            hasIt
+                              ? 'bg-emerald-50/45 border-emerald-300 text-slate-800'
+                              : sleepMode
+                              ? 'bg-[#121827] border-amber-950/40 text-amber-100'
+                              : 'bg-slate-50 border-slate-105 text-slate-800'
+                          }`}
+                        >
+                          <span className="text-2.5xl select-none">{part.icon}</span>
+                          <h4 className="font-extrabold text-[10px] leading-tight font-Outfit">{part.name}</h4>
+                          {hasIt ? (
+                            <span className="text-[9px] font-black text-emerald-600 bg-emerald-100 px-2 py-0.5 rounded-full select-none">
+                              Conquistada ✅
+                            </span>
+                          ) : (
+                            <button
+                              disabled={!canBuy}
+                              onClick={() => handleBuyPart(part.id, part.cost)}
+                              className={`w-full py-1.5 rounded-full text-[9px] font-black tracking-tight transition-all active:scale-95 cursor-pointer border-none ${
+                                canBuy
+                                  ? 'bg-yellow-450 text-slate-950 hover:bg-yellow-500 shadow-sm'
+                                  : 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                              }`}
+                            >
+                              Obter por {part.cost} ⭐
+                            </button>
+                          )}
+                        </div>
+                      );
+                    });
+                  })()}
+                </div>
+
+                {/* Launch Action */}
+                {activeChild.collectedParts === 4 && (
+                  <button
+                    onClick={() => {
+                      playCelebration();
+                      setIsToyLaunched(true);
+                      setShowHyperfocusModal(false);
+                      if (focus.includes("space")) speakText("Decolagem em 3, 2, 1... Foguete ao espaço!");
+                      else if (focus.includes("dino")) speakText("O T-Rex rugiu bem alto! Rrrroaaar!");
+                      else if (focus.includes("trem")) speakText("Todos a bordo! O trem está partindo, piuiiii!");
+                      else speakText("Viva! Conseguimos todas as peças!");
+                    }}
+                    className="w-full py-3 bg-gradient-to-r from-yellow-450 to-amber-500 hover:from-yellow-500 hover:to-amber-600 text-slate-950 text-xs font-black rounded-2xl shadow-md uppercase tracking-wider select-none animate-bounce font-Outfit border-none cursor-pointer mt-1"
+                  >
+                    🚀 Ativar Brinquedo Montado!
+                  </button>
+                )}
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Toy Launch Full Screen Overlay Animation */}
+        <AnimatePresence>
+          {isToyLaunched && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-50 bg-[#070b19] flex flex-col items-center justify-center overflow-hidden"
+            >
+              {/* Twinkling stars */}
+              <div className="absolute inset-0 opacity-40">
+                {twinklingStars.map(star => (
+                  <div
+                    key={star.id}
+                    className="absolute w-2 h-2 bg-white rounded-full animate-ping"
+                    style={{ top: star.top, left: star.left }}
+                  />
+                ))}
+              </div>
+
+              {/* Launch Theme Rendering */}
+              <div className="relative z-10 text-center flex flex-col items-center gap-6">
+                {(() => {
+                  if (focus.includes("space")) {
+                    return (
+                      <motion.div
+                        animate={{ y: [300, -450] }}
+                        transition={{ duration: 4.5, repeat: Infinity, ease: "easeIn" }}
+                        className="text-9xl select-none"
+                      >
+                        🚀
+                      </motion.div>
+                    );
+                  }
+                  if (focus.includes("dino")) {
+                    return (
+                      <motion.div
+                        animate={{ scale: [1, 1.2, 1], rotate: [0, -10, 10, 0] }}
+                        transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                        className="text-9xl select-none"
+                      >
+                        🦖
+                      </motion.div>
+                    );
+                  }
+                  if (focus.includes("trem")) {
+                    return (
+                      <motion.div
+                        animate={{ x: [-300, 300] }}
+                        transition={{ duration: 5, repeat: Infinity, ease: "linear" }}
+                        className="text-9xl select-none"
+                      >
+                        🚂
+                      </motion.div>
+                    );
+                  }
+                  return (
+                    <motion.div
+                      animate={{ scale: [1, 1.15, 1], y: [0, -20, 0] }}
+                      transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
+                      className="text-9xl select-none"
+                    >
+                      🐾
+                    </motion.div>
+                  );
+                })()}
+
+                <h1 className="text-4xl md:text-5xl font-black text-yellow-100 tracking-tight mt-6 font-Outfit animate-pulse">
+                  {(() => {
+                    if (focus.includes("space")) return "Foguete Decolando!";
+                    if (focus.includes("dino")) return "T-Rex Ganhou Vida!";
+                    if (focus.includes("trem")) return "Trem em Movimento!";
+                    return "Brinquedo Ativado!";
+                  })()}
+                </h1>
+                <p className="text-indigo-200 text-sm max-w-sm font-semibold px-4">
+                  Você é incrível! Conseguiu todas as peças e montou o brinquedo sozinho!
+                </p>
+
+                <button
+                  onClick={() => { playBubble(); setIsToyLaunched(false); }}
+                  className="px-8 py-3.5 bg-indigo-600 hover:bg-indigo-700 border-2 border-indigo-400 text-white text-xs font-black rounded-full shadow-lg active:scale-95 transition-all cursor-pointer font-Outfit uppercase tracking-widest mt-8"
+                >
+                  Voltar à Rotina 🔙
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </>
+    );
+  };
+
   // Dynamic visual layout for day finished (darker, cozy, resting theme)
   if (isDayFinished) {
     const profileClass = sensoryProfile === 'hypersensitive'
@@ -1041,6 +1454,16 @@ export default function ChildRoutine() {
 
     return (
       <main className={`min-h-screen flex flex-col items-center p-6 pb-12 bg-gradient-to-b from-[#0b0f19] via-[#1a2035] to-[#2b1f3d] text-white relative overflow-hidden ${profileClass}`}>
+        {offline && (
+          <div className="absolute top-0 inset-x-0 bg-amber-500 text-white py-2 px-4 text-center text-xs font-black select-none z-50 flex items-center justify-center gap-2 font-Outfit shadow-md shrink-0">
+            <span>📶 Modo Offline Ativado</span>
+            {offlineQueueSize > 0 && (
+              <span className="bg-amber-700/60 px-2 py-0.5 rounded text-[10px]">
+                {offlineQueueSize} {offlineQueueSize === 1 ? 'alteração pendente' : 'alterações pendentes'}
+              </span>
+            )}
+          </div>
+        )}
         {/* Twinkling stars in the background */}
         {sensoryVisuals === 'rich' && (
           <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
@@ -1086,6 +1509,13 @@ export default function ChildRoutine() {
               className="flex items-center gap-1.5 px-5 py-2.5 bg-indigo-950 hover:bg-indigo-900 border-2 border-indigo-800 text-indigo-200 text-xs font-black rounded-full shadow-premium transition-all active:scale-95 cursor-pointer"
             >
               📖 Histórias
+            </button>
+            <button
+              onClick={() => { playBubble(); setShowHyperfocusModal(true); }}
+              onMouseEnter={playBubble}
+              className="flex items-center gap-1.5 px-5 py-2.5 bg-yellow-950 hover:bg-yellow-900 border-2 border-yellow-800 text-yellow-200 text-xs font-black rounded-full shadow-premium transition-all active:scale-95 cursor-pointer"
+            >
+              🎮 Meu Mundo ({activeChild?.collectedParts || 0}/4)
             </button>
           </div>
 
@@ -1440,6 +1870,16 @@ export default function ChildRoutine() {
         ? 'bg-[#040815] text-amber-100/90' 
         : 'bg-gradient-to-tr from-[#f8fafc] via-[#eff6ff] to-[#f0fdf4] animate-gradient-flow text-[#0f172a]'
     } ${profileClass}`}>
+      {offline && (
+        <div className="absolute top-0 inset-x-0 bg-amber-500 text-white py-2 px-4 text-center text-xs font-black select-none z-50 flex items-center justify-center gap-2 font-Outfit shadow-md shrink-0">
+          <span>📶 Modo Offline Ativado</span>
+          {offlineQueueSize > 0 && (
+            <span className="bg-amber-700/60 px-2 py-0.5 rounded text-[10px]">
+              {offlineQueueSize} {offlineQueueSize === 1 ? 'alteração pendente' : 'alterações pendentes'}
+            </span>
+          )}
+        </div>
+      )}
       {/* Background Soft Glows */}
       {sensoryVisuals === 'rich' && (
         <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
@@ -1492,6 +1932,16 @@ export default function ChildRoutine() {
           >
             📖 Histórias
           </button>
+          
+          {!sleepMode && (
+            <button
+              onClick={() => { playBubble(); setShowHyperfocusModal(true); }}
+              onMouseEnter={playBubble}
+              className="flex items-center gap-1.5 px-5 py-2.5 border-2 border-yellow-400 bg-yellow-50 hover:bg-yellow-100 text-yellow-750 text-xs font-black rounded-full shadow-premium transition-all active:scale-95 cursor-pointer"
+            >
+              🎮 Meu Mundo ({activeChild?.collectedParts || 0}/4)
+            </button>
+          )}
 
           <button
             onClick={() => {
@@ -2500,6 +2950,8 @@ export default function ChildRoutine() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {renderHyperfocusModals()}
     </main>
   );
 }

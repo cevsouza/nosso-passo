@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { firebaseBridge, Task, UserProfile } from '../../../lib/firebase-bridge';
+import { firebaseBridge, Task, UserProfile, getOfflineQueue } from '../../../lib/firebase-bridge';
 import { immutableLogger, AuditLog } from '../../../lib/immutable-logger';
 import { playBubble, playMarimba } from '../../../lib/audio-synth';
 import { getTaskCategory, TaskCategory } from '../../../lib/sensory-standards';
@@ -175,6 +175,26 @@ const CLINICAL_TEMPLATES = {
 export default function ParentDashboard() {
   const router = useRouter();
   const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);
+  const [offline, setOffline] = useState(false);
+  const [offlineQueueSize, setOfflineQueueSize] = useState(0);
+
+  // Monitor offline status
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setOffline(!navigator.onLine);
+      setOfflineQueueSize(getOfflineQueue().length);
+      
+      const handleOfflineStatus = (e: any) => {
+        setOffline(e.detail.isOffline);
+        setOfflineQueueSize(e.detail.queueLength || 0);
+      };
+      
+      window.addEventListener('app-offline-status-changed', handleOfflineStatus);
+      return () => {
+        window.removeEventListener('app-offline-status-changed', handleOfflineStatus);
+      };
+    }
+  }, []);
   
   // Mascot Collie state for parent dashboard
   const [collieState, setCollieState] = useState<CollieState>('idle');
@@ -363,6 +383,9 @@ export default function ParentDashboard() {
   const [crisisLightLevel, setCrisisLightLevel] = useState('Média');
   const [crisisDecibels, setCrisisDecibels] = useState(50);
   const [crisisTrigger, setCrisisTrigger] = useState('Nenhum');
+  const [crisisAntecedent, setCrisisAntecedent] = useState('');
+  const [crisisBehavior, setCrisisBehavior] = useState('');
+  const [crisisConsequence, setCrisisConsequence] = useState('');
   const [taskCustomIcon, setTaskCustomIcon] = useState('');
   const [editTaskCustomIcon, setEditTaskCustomIcon] = useState('');
   const [savingCrisis, setSavingCrisis] = useState(false);
@@ -1057,8 +1080,82 @@ export default function ParentDashboard() {
     setTimeout(() => setStatusMessage(''), 4000);
   };
 
+  const getCorrelationInsights = () => {
+    const insights: { type: 'danger' | 'warning' | 'info'; text: string }[] = [];
+    if (!sensoryLogs || sensoryLogs.length === 0) return insights;
+
+    const crises = sensoryLogs.filter(log => log.crisisOccurred);
+
+    const highNoiseCrises = crises.filter(log => log.decibels && log.decibels > 70).length;
+    if (highNoiseCrises >= 2) {
+      insights.push({
+        type: 'danger',
+        text: `Risco de crise elevado quando ruído ultrapassa 70dB (${highNoiseCrises} eventos registrados em ambientes com som alto).`
+      });
+    }
+
+    const brightLightCrises = crises.filter(log => log.lightLevel === 'Alta').length;
+    if (brightLightCrises >= 2) {
+      insights.push({
+        type: 'danger',
+        text: `Alta probabilidade de sobrecarga sensorial associada a ambientes com luminosidade alta / luzes fortes.`
+      });
+    }
+
+    const triggerCounts: Record<string, number> = {};
+    crises.forEach(log => {
+      if (log.trigger && log.trigger !== 'Nenhum') {
+        triggerCounts[log.trigger] = (triggerCounts[log.trigger] || 0) + 1;
+      }
+    });
+
+    Object.entries(triggerCounts).forEach(([trigger, count]) => {
+      if (count >= 2) {
+        insights.push({
+          type: 'warning',
+          text: `Gatilho recorrente detectado: "${trigger}" desencadeou desregulação comportamental em pelo menos ${count} ocasiões.`
+        });
+      }
+    });
+
+    const locationCounts: Record<string, number> = {};
+    crises.forEach(log => {
+      if (log.location) {
+        locationCounts[log.location] = (locationCounts[log.location] || 0) + 1;
+      }
+    });
+
+    Object.entries(locationCounts).forEach(([loc, count]) => {
+      if (count >= 2) {
+        insights.push({
+          type: 'warning',
+          text: `Ambiente de alta vulnerabilidade: o local "${loc}" está correlacionado a crises repetidas (${count} registros).`
+        });
+      }
+    });
+
+    if (insights.length === 0) {
+      insights.push({
+        type: 'info',
+        text: 'Não foram encontradas correlações fortes de gatilhos nas últimas crises. Continue registrando os dados de antecedente, ruído e luz.'
+      });
+    }
+
+    return insights;
+  };
+
   return (
-    <main className="min-h-screen bg-[#f8fafc] text-slate-900 pb-16">
+    <main className="min-h-screen bg-[#f8fafc] text-slate-900 pb-16 relative">
+      {offline && (
+        <div className="bg-amber-500 text-white py-2 px-4 text-center text-xs font-black select-none z-50 flex items-center justify-center gap-2 font-Outfit shadow-md">
+          <span>📶 Modo Offline Ativado</span>
+          {offlineQueueSize > 0 && (
+            <span className="bg-amber-700/60 px-2 py-0.5 rounded text-[10px]">
+              {offlineQueueSize} {offlineQueueSize === 1 ? 'alteração pendente' : 'alterações pendentes'}
+            </span>
+          )}
+        </div>
+      )}
       {/* Header bar */}
       <header className="bg-white border-b-2 border-slate-250 sticky top-0 z-30 shadow-premium">
         <div className="max-w-6xl mx-auto px-4 md:px-6 py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -1709,12 +1806,21 @@ export default function ParentDashboard() {
                       </p>
                     </div>
 
-                    <button
-                      onClick={() => { playBubble(); setFormOpen(!formOpen); }}
-                      className="flex items-center gap-1.5 px-4 py-2 bg-indigo-50 border border-indigo-100 hover:bg-indigo-100 text-indigo-600 text-xs font-black rounded-full shadow-sm transition-all cursor-pointer"
-                    >
-                      <Plus className="w-4 h-4" /> {formOpen ? 'Fechar Form' : 'Adicionar Tarefa'}
-                    </button>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => { playBubble(); window.print(); }}
+                        className="flex items-center gap-1.5 px-4 py-2 bg-emerald-50 border border-emerald-250 hover:bg-emerald-100 text-emerald-700 text-xs font-black rounded-full shadow-sm transition-all cursor-pointer font-Outfit"
+                      >
+                        🖨️ Imprimir PECS
+                      </button>
+
+                      <button
+                        onClick={() => { playBubble(); setFormOpen(!formOpen); }}
+                        className="flex items-center gap-1.5 px-4 py-2 bg-indigo-50 border border-indigo-100 hover:bg-indigo-100 text-indigo-600 text-xs font-black rounded-full shadow-sm transition-all cursor-pointer"
+                      >
+                        <Plus className="w-4 h-4" /> {formOpen ? 'Fechar Form' : 'Adicionar Tarefa'}
+                      </button>
+                    </div>
                   </div>
 
                   {/* Progress Bar & Rate in real-time */}
@@ -2865,6 +2971,30 @@ export default function ParentDashboard() {
                           <span className="text-[9px] text-slate-450 italic font-semibold">
                             *Nota: Este cálculo utiliza dados comportamentais de latência de rotina e diários emocionais. Não substitui consulta médica.
                           </span>
+
+                          {/* Correlation Insights Section */}
+                          <div className="border-t border-slate-200/60 pt-4 flex flex-col gap-2">
+                            <span className="text-[9px] font-black text-slate-500 uppercase tracking-wider font-Outfit">🔍 Análise de Gatilhos & Correlações (ABA):</span>
+                            <div className="flex flex-col gap-2">
+                              {getCorrelationInsights().map((insight, idx) => (
+                                <div 
+                                  key={idx} 
+                                  className={`p-3 rounded-xl border text-xs font-bold leading-relaxed flex items-start gap-2 ${
+                                    insight.type === 'danger' 
+                                      ? 'bg-red-50 border-red-200 text-red-800' 
+                                      : insight.type === 'warning'
+                                      ? 'bg-amber-50 border-amber-200 text-amber-805' 
+                                      : 'bg-slate-100 border-slate-200 text-slate-700'
+                                  }`}
+                                >
+                                  <span className="text-sm shrink-0">
+                                    {insight.type === 'danger' ? '🚨' : insight.type === 'warning' ? '⚠️' : '💡'}
+                                  </span>
+                                  <span>{insight.text}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
                         </div>
 
                         {/* Diário de Regulação & Registro de Crises */}
@@ -2888,7 +3018,10 @@ export default function ParentDashboard() {
                                   decibels: Number(crisisDecibels) || undefined,
                                   lightLevel: crisisLightLevel,
                                   location: crisisLocation,
-                                  trigger: crisisTrigger === 'Nenhum' ? undefined : crisisTrigger
+                                  trigger: crisisTrigger === 'Nenhum' ? undefined : crisisTrigger,
+                                  antecedent: crisisAntecedent.trim() || undefined,
+                                  behavior: crisisBehavior.trim() || undefined,
+                                  consequence: crisisConsequence.trim() || undefined,
                                 });
 
                                 setSensoryLogs(prev => [newLog, ...prev]);
@@ -2897,6 +3030,9 @@ export default function ParentDashboard() {
                                 setCrisisLightLevel('Média');
                                 setCrisisDecibels(50);
                                 setCrisisTrigger('Nenhum');
+                                setCrisisAntecedent('');
+                                setCrisisBehavior('');
+                                setCrisisConsequence('');
                                 triggerStatus('Crise sensorial registrada!');
                                 
                                 await immutableLogger.logChange(
@@ -2916,9 +3052,44 @@ export default function ParentDashboard() {
                             <textarea
                               value={crisisNotes}
                               onChange={e => setCrisisNotes(e.target.value)}
-                              placeholder="Descreva a crise (comportamento, gatilho e estratégias aplicadas)"
-                              className="w-full p-2 bg-white border border-slate-200 rounded-lg text-xs font-semibold outline-none focus:border-red-400 h-16 resize-none"
+                              placeholder="Resumo geral ou observações sobre a crise"
+                              className="w-full p-2 bg-white border border-slate-200 rounded-lg text-xs font-semibold outline-none focus:border-red-400 h-14 resize-none"
                             />
+
+                            <div className="flex flex-col gap-2 mt-1">
+                              <div>
+                                <label className="block text-[8px] font-black text-slate-500 uppercase mb-0.5 font-Outfit">Antecedente (A) - O que ocorreu logo antes?</label>
+                                <input
+                                  type="text"
+                                  value={crisisAntecedent}
+                                  onChange={e => setCrisisAntecedent(e.target.value)}
+                                  placeholder="Ex: Barulho de liquidificador, transição de atividade"
+                                  className="w-full p-2 bg-white border border-slate-200 rounded-lg text-xs font-semibold outline-none focus:border-red-450"
+                                />
+                              </div>
+
+                              <div>
+                                <label className="block text-[8px] font-black text-slate-500 uppercase mb-0.5 font-Outfit">Comportamento (B) - Como reagiu?</label>
+                                <input
+                                  type="text"
+                                  value={crisisBehavior}
+                                  onChange={e => setCrisisBehavior(e.target.value)}
+                                  placeholder="Ex: Gritou, tampou os ouvidos, chorou"
+                                  className="w-full p-2 bg-white border border-slate-200 rounded-lg text-xs font-semibold outline-none focus:border-red-450"
+                                />
+                              </div>
+
+                              <div>
+                                <label className="block text-[8px] font-black text-slate-500 uppercase mb-0.5 font-Outfit">Consequência (C) - Qual foi a intervenção?</label>
+                                <input
+                                  type="text"
+                                  value={crisisConsequence}
+                                  onChange={e => setCrisisConsequence(e.target.value)}
+                                  placeholder="Ex: Fone abafador de ruídos, abraço apertado"
+                                  className="w-full p-2 bg-white border border-slate-200 rounded-lg text-xs font-semibold outline-none focus:border-red-450"
+                                />
+                              </div>
+                            </div>
                             
                             <div className="grid grid-cols-2 gap-2 my-1.5">
                               <div>
@@ -3003,6 +3174,13 @@ export default function ParentDashboard() {
                                     <span>{log.crisisOccurred ? '🚨 CRISE' : `🧠 HUMOR: ${log.mood}`}</span>
                                   </div>
                                   {log.notes && <p className="font-semibold text-slate-700">{log.notes}</p>}
+                                  {(log.antecedent || log.behavior || log.consequence) && (
+                                    <div className="bg-slate-100/60 border border-slate-200/40 p-2 rounded-lg mt-1 text-[10px] text-slate-600 font-bold flex flex-col gap-0.5">
+                                      {log.antecedent && <div><strong>A (Antecedente):</strong> {log.antecedent}</div>}
+                                      {log.behavior && <div><strong>B (Comportamento):</strong> {log.behavior}</div>}
+                                      {log.consequence && <div><strong>C (Consequência):</strong> {log.consequence}</div>}
+                                    </div>
+                                  )}
                                   {(log.location || log.lightLevel || (log.decibels !== undefined && log.decibels !== null) || log.trigger) && (
                                     <div className="flex flex-wrap gap-1.5 mt-1 pt-1.5 border-t border-slate-100/30 text-[9px] text-slate-500 font-bold">
                                       {log.location && <span>📍 {log.location}</span>}
@@ -3389,6 +3567,23 @@ export default function ParentDashboard() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* PECS Printable Grid */}
+      <div className="print-only">
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-black text-[#0f172a] font-Outfit">Cartões de Rotina PECS</h1>
+          <p className="text-sm text-slate-500 font-bold mt-1">Rotina de {activeChild?.name || 'seu filho'}</p>
+        </div>
+        <div className="pecs-print-grid">
+          {tasks.map(task => (
+            <div key={task.id} className="pecs-card">
+              <span className="pecs-card-icon">{task.icon || '📅'}</span>
+              <h3 className="pecs-card-title">{task.title}</h3>
+              <p className="text-xs text-slate-500 font-bold mt-1.5">Horário: {task.time}</p>
+            </div>
+          ))}
+        </div>
+      </div>
     </main>
   );
 }

@@ -46,6 +46,8 @@ model Child {
   transitionMinutes Int       @default(5)
   createdAt       DateTime    @default(now())
   sharingCode     String?     @unique
+  collectedParts  Int         @default(0)
+  toyInventory    String      @default("")
 
   parentUid       String
   parent          UserProfile @relation(fields: [parentUid], references: [uid], onDelete: Cascade)
@@ -98,6 +100,9 @@ model SensoryLog {
   lightLevel     String?
   location       String?
   trigger        String?
+  antecedent     String?
+  behavior       String?
+  consequence    String?
   childId        String
   child          Child       @relation(fields: [childId], references: [id], onDelete: Cascade)
 }

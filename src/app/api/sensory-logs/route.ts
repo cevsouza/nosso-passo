@@ -26,6 +26,9 @@ export async function GET(req: Request) {
       lightLevel: log.lightLevel,
       location: log.location,
       trigger: log.trigger,
+      antecedent: log.antecedent,
+      behavior: log.behavior,
+      consequence: log.consequence,
     }));
 
     return NextResponse.json(formatted);
@@ -37,7 +40,7 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { childId, mood, crisisOccurred, notes, decibels, lightLevel, location, trigger } = body;
+    const { childId, mood, crisisOccurred, notes, decibels, lightLevel, location, trigger, antecedent, behavior, consequence } = body;
 
     if (!childId) {
       return NextResponse.json({ error: 'ID da criança é obrigatório' }, { status: 400 });
@@ -53,6 +56,9 @@ export async function POST(req: Request) {
         lightLevel: lightLevel || null,
         location: location || null,
         trigger: trigger || null,
+        antecedent: antecedent || null,
+        behavior: behavior || null,
+        consequence: consequence || null,
       },
     });
 
@@ -66,6 +72,9 @@ export async function POST(req: Request) {
       lightLevel: log.lightLevel,
       location: log.location,
       trigger: log.trigger,
+      antecedent: log.antecedent,
+      behavior: log.behavior,
+      consequence: log.consequence,
     });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });

@@ -450,12 +450,21 @@ export default function TherapistPortal() {
               </div>
             </div>
 
-            <button
-              onClick={() => { playBubble(); setChildData(null); setSharingCode(''); }}
-              className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 border border-slate-250 text-slate-600 text-xs font-black rounded-xl cursor-pointer active:scale-95 transition-all self-start md:self-center font-Outfit"
-            >
-              🔒 Sair do Prontuário
-            </button>
+            <div className="flex gap-2 self-start md:self-center">
+              <button
+                onClick={() => { playBubble(); window.print(); }}
+                className="px-4 py-2.5 bg-teal-50 hover:bg-teal-100 border border-teal-200 text-teal-700 text-xs font-black rounded-xl cursor-pointer active:scale-95 transition-all font-Outfit"
+              >
+                🖨️ Exportar PDF Clínico
+              </button>
+              
+              <button
+                onClick={() => { playBubble(); setChildData(null); setSharingCode(''); }}
+                className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 border border-slate-250 text-slate-600 text-xs font-black rounded-xl cursor-pointer active:scale-95 transition-all font-Outfit"
+              >
+                🔒 Sair do Prontuário
+              </button>
+            </div>
           </div>
 
           {/* Metrics Grid */}
@@ -1007,6 +1016,13 @@ export default function TherapistPortal() {
                               {log.notes}
                             </p>
                           )}
+                          {(log.antecedent || log.behavior || log.consequence) && (
+                            <div className="bg-slate-100/60 border border-slate-200/40 p-2 rounded-lg mt-1 text-[10px] text-slate-650 font-bold flex flex-col gap-0.5">
+                              {log.antecedent && <div><strong>A (Antecedente):</strong> {log.antecedent}</div>}
+                              {log.behavior && <div><strong>B (Comportamento):</strong> {log.behavior}</div>}
+                              {log.consequence && <div><strong>C (Consequência):</strong> {log.consequence}</div>}
+                            </div>
+                          )}
                           {(log.location || log.lightLevel || (log.decibels !== undefined && log.decibels !== null) || log.trigger) && (
                             <div className="flex flex-wrap gap-1.5 pt-1.5 border-t border-slate-100 text-[9px] text-slate-500 font-bold">
                               {log.location && <span className="flex items-center gap-0.5 bg-white border border-slate-200 px-1.5 py-0.5 rounded-md"><MapPin className="w-2.5 h-2.5" /> {log.location}</span>}
@@ -1029,6 +1045,133 @@ export default function TherapistPortal() {
         </div>
       )}
 
+      {/* Clinician PDF Report Template */}
+      {childData && (
+        <div className="print-only">
+          <div className="p-8 max-w-4xl mx-auto flex flex-col gap-6 text-[#0f172a] text-left">
+            
+            {/* Header */}
+            <div className="border-b-4 border-teal-650 pb-4 flex justify-between items-center">
+              <div>
+                <h1 className="text-3xl font-black text-teal-605 tracking-tight font-Outfit">LAUDO COMPORTAMENTAL / SENSORIAL</h1>
+                <p className="text-sm text-slate-505 font-semibold mt-1">Rotina Animada SaaS - Relatório Clínico de Aderência</p>
+              </div>
+              <div className="text-right">
+                <p className="text-[10px] font-black text-slate-400 uppercase">Data de Emissão</p>
+                <p className="text-sm font-black text-slate-700 font-Outfit">{new Date().toLocaleDateString()}</p>
+              </div>
+            </div>
+
+            {/* Patient Profile info */}
+            <div className="grid grid-cols-3 gap-6 border-b border-slate-200 pb-5">
+              <div>
+                <span className="text-[9px] font-black text-slate-400 uppercase">Criança (Paciente)</span>
+                <p className="text-sm font-black text-slate-800 mt-0.5">{childData.name}</p>
+                <p className="text-[10px] text-slate-500 font-semibold">Gênero: {childData.gender || 'Não informado'}</p>
+              </div>
+              <div>
+                <span className="text-[9px] font-black text-slate-400 uppercase">Diagnóstico Clínico</span>
+                <p className="text-sm font-black text-slate-800 mt-0.5">{childData.diagnosis || 'Não informado'}</p>
+                <p className="text-[10px] text-slate-500 font-semibold">Hiperfoco: {childData.childHyperfocus || 'Não cadastrado'}</p>
+              </div>
+              <div>
+                <span className="text-[9px] font-black text-slate-400 uppercase">Código de Vínculo</span>
+                <p className="text-sm font-black text-teal-700 mt-0.5 uppercase">{childData.sharingCode}</p>
+              </div>
+            </div>
+
+            {/* Core Indicators */}
+            <div className="grid grid-cols-3 gap-4 border-b border-slate-200 pb-5">
+              <div className="border border-slate-200 p-3.5 rounded-xl text-center">
+                <span className="text-[9px] font-black text-slate-400 uppercase">Aderência Geral</span>
+                <p className="text-2xl font-black text-slate-800 mt-1">{complianceRate}%</p>
+                <span className="text-[8px] text-slate-450 font-semibold">{completedTasksElapsed} de {totalTasksElapsed} tarefas concluídas</span>
+              </div>
+              <div className="border border-slate-200 p-3.5 rounded-xl text-center">
+                <span className="text-[9px] font-black text-slate-400 uppercase">Estabilidade Emocional</span>
+                <p className="text-2xl font-black text-slate-850 mt-1">{stabilityRate}%</p>
+                <span className="text-[8px] text-slate-450 font-semibold">Humor predominantemente regulado</span>
+              </div>
+              <div className="border border-slate-200 p-3.5 rounded-xl text-center">
+                <span className="text-[9px] font-black text-slate-400 uppercase">Meltdown / Crises</span>
+                <p className="text-2xl font-black text-red-650 mt-1">{crisesCount}</p>
+                <span className="text-[8px] text-slate-455 font-semibold">Crises sensorio-comportamentais</span>
+              </div>
+            </div>
+
+            {/* Checkpoints logs */}
+            <div>
+              <h3 className="text-xs font-black uppercase text-slate-450 tracking-widest mb-3 border-b border-slate-100 pb-1 font-Outfit">Evolução Clínico-Terapêutica</h3>
+              <div className="flex flex-col gap-3">
+                {checkpoints.filter((cp: any) => cp.status === 'completed').length === 0 ? (
+                  <p className="text-xs text-slate-405 italic">Nenhum feedback clínico registrado para este mês.</p>
+                ) : (
+                  checkpoints.filter((cp: any) => cp.status === 'completed').map((cp: any) => (
+                    <div key={cp.id} className="border border-slate-200 p-3.5 rounded-xl bg-slate-50/50">
+                      <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-wider text-slate-400 mb-2">
+                        <span>Semana {cp.weekNum} ({cp.date})</span>
+                        <span>Especialista: {cp.professionalName} ({cp.professionalRole})</span>
+                      </div>
+                      <p className="text-xs text-slate-700 leading-relaxed font-semibold">
+                        {cp.feedback}
+                      </p>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+
+            {/* Sensory Log / Crises ABC Table */}
+            <div>
+              <h3 className="text-xs font-black uppercase text-slate-450 tracking-widest mb-3 border-b border-slate-100 pb-1 font-Outfit">Histórico Detalhado de Crises & Análise ABA (ABC)</h3>
+              {sensoryLogs.length === 0 ? (
+                <p className="text-xs text-slate-400 italic">Sem registros comportamentais.</p>
+              ) : (
+                <table className="w-full text-left border-collapse text-xxs mt-2">
+                  <thead>
+                    <tr className="border-b-2 border-slate-300 text-[9px] font-black uppercase text-slate-450">
+                      <th className="py-2 pr-2">Data/Hora</th>
+                      <th className="py-2 pr-2">Evento</th>
+                      <th className="py-2 pr-2">A (Antecedente)</th>
+                      <th className="py-2 pr-2">B (Comportamento)</th>
+                      <th className="py-2 pr-2">C (Consequência)</th>
+                      <th className="py-2">Gatilho/Ambiente</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {sensoryLogs.map((log: any) => (
+                      <tr key={log.id} className="border-b border-slate-200/80 py-2">
+                        <td className="py-2 pr-2 font-bold text-slate-500 whitespace-nowrap">{new Date(log.timestamp).toLocaleDateString()} {new Date(log.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</td>
+                        <td className="py-2 pr-2 font-extrabold text-slate-800">{log.crisisOccurred ? '🚨 Crise' : `Humor: ${log.mood}`}</td>
+                        <td className="py-2 pr-2 text-slate-650 font-semibold">{log.antecedent || '-'}</td>
+                        <td className="py-2 pr-2 text-slate-650 font-semibold">{log.behavior || '-'}</td>
+                        <td className="py-2 pr-2 text-slate-650 font-semibold">{log.consequence || '-'}</td>
+                        <td className="py-2 text-slate-500 font-bold">
+                          {log.trigger && <span>🎯 {log.trigger}</span>}
+                          {log.location && <span className="block text-[8px] mt-0.5">📍 {log.location} ({log.decibels || 50}dB)</span>}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+
+            {/* Signature section */}
+            <div className="mt-16 pt-8 border-t border-slate-200 flex justify-between">
+              <div className="text-center w-48">
+                <div className="border-b border-slate-300 h-8"></div>
+                <p className="text-[9px] font-black uppercase text-slate-450 mt-2">Assinatura do Profissional</p>
+              </div>
+              <div className="text-center w-48">
+                <div className="border-b border-slate-300 h-8"></div>
+                <p className="text-[9px] font-black uppercase text-slate-450 mt-2">Responsável Legal</p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      )}
     </main>
   );
 }

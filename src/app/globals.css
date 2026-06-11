@@ -175,3 +175,70 @@ h1, h2, h3, h4, h5, h6 {
 .shadow-glow-indigo {
   box-shadow: 0 20px 35px -10px rgba(99, 102, 241, 0.18);
 }
+
+/* Print stylesheets for PECS and Therapist Clinical Reports */
+@media print {
+  .no-print,
+  .print-hidden,
+  button,
+  input,
+  select,
+  header,
+  footer,
+  nav {
+    display: none !important;
+  }
+  
+  body, html {
+    background: white !important;
+    color: black !important;
+    width: 100% !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .print-only {
+    display: block !important;
+  }
+
+  .pecs-print-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 20px !important;
+    padding: 10px !important;
+    width: 100% !important;
+  }
+
+  .pecs-card {
+    border: 4px dashed #0f172a !important;
+    border-radius: 16px !important;
+    padding: 20px !important;
+    text-align: center !important;
+    background: white !important;
+    page-break-inside: avoid !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    height: 200px !important;
+  }
+
+  .pecs-card-icon {
+    font-size: 4rem !important;
+    margin-bottom: 10px !important;
+  }
+
+  .pecs-card-title {
+    font-size: 1.25rem !important;
+    font-weight: 900 !important;
+    font-family: 'Outfit', sans-serif !important;
+    color: #0f172a !important;
+  }
+}
+
+@media screen {
+  .print-only {
+    display: none !important;
+  }
+}
