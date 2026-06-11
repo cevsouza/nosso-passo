@@ -953,9 +953,13 @@ export default function ParentDashboard() {
     
     let score = 0;
     
-    // 1. Completion Rate Factor
-    const total = tasks.length;
-    const completed = tasks.filter(t => t.isCompleted).length;
+    // 1. Completion Rate Factor (calculated over elapsed days to prevent false alerts)
+    const currentDayNum = new Date().getDate();
+    const elapsedDaysList = Array.from({ length: currentDayNum }, (_, i) => String(i + 1));
+    const elapsedTasks = tasks.filter(t => elapsedDaysList.includes(t.day));
+    
+    const total = elapsedTasks.length;
+    const completed = elapsedTasks.filter(t => t.isCompleted).length;
     const pendingRate = total > 0 ? (total - completed) / total : 0;
     score += pendingRate * 40;
 
@@ -2279,6 +2283,21 @@ export default function ParentDashboard() {
                       <p className="text-xs text-slate-400 font-semibold mt-0.5">
                         Métricas analíticas consolidadas de conformidade de rotina.
                       </p>
+                      {/* Clinical Metadata Bar */}
+                      {(() => {
+                        const currentDayNum = new Date().getDate();
+                        return (
+                          <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 mt-2 text-[11px] text-slate-500 font-bold bg-slate-50 border border-slate-150 px-3 py-1.5 rounded-lg w-fit">
+                            <span>Criança: <span className="text-indigo-650 font-black">{activeChild?.name}</span></span>
+                            <span className="text-slate-300">|</span>
+                            <span>Diagnóstico: <span className="text-slate-700 font-black">{activeChild?.diagnosis || 'Não informado'}</span></span>
+                            <span className="text-slate-300">|</span>
+                            <span>Hiperfoco Ativo: <span className="text-sky-600 font-black">{activeChild?.childHyperfocus || 'Não cadastrado'}</span></span>
+                            <span className="text-slate-300">|</span>
+                            <span>Período: <span className="text-slate-700 font-black">Dia 1 ao {currentDayNum}</span></span>
+                          </div>
+                        );
+                      })()}
                     </div>
                     <div className="flex gap-2 items-center flex-wrap self-end md:self-auto">
                       <button
@@ -2298,36 +2317,230 @@ export default function ParentDashboard() {
 
                   {/* Clinician Summary cards */}
                   {(() => {
-                    const totalTasks = tasks.length;
-                    const completedTasks = tasks.filter(t => t.isCompleted).length;
-                    const rate = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+                    const currentDayNum = new Date().getDate();
+                    const elapsedDaysList = Array.from({ length: currentDayNum }, (_, i) => String(i + 1));
+                    const elapsedTasks = tasks.filter(t => elapsedDaysList.includes(t.day));
                     
-                    const morningTasks = tasks.filter(t => t.period === 'manhã');
+                    const totalTasksElapsed = elapsedTasks.length;
+                    const completedTasksElapsed = elapsedTasks.filter(t => t.isCompleted).length;
+                    
+                    const totalTasks = totalTasksElapsed;
+                    const completedTasks = completedTasksElapsed;
+                    
+                    // 1. Taxa de Aderência Real (Acumulada)
+                    const rate = totalTasksElapsed > 0 ? Math.round((completedTasksElapsed / totalTasksElapsed) * 100) : 0;
+                    
+                    // 2. Conformidade Diária Média (Average Activities per Day)
+                    const daysWithTasks = Array.from(new Set(elapsedTasks.map(t => t.day)));
+                    const numDaysWithTasks = daysWithTasks.length;
+                    const avgDailyScheduled = numDaysWithTasks > 0 ? (totalTasksElapsed / numDaysWithTasks) : 0;
+                    const avgDailyCompleted = numDaysWithTasks > 0 ? (completedTasksElapsed / numDaysWithTasks) : 0;
+                    const avgDailyCompliance = avgDailyScheduled > 0 ? Math.round((avgDailyCompleted / avgDailyScheduled) * 100) : 0;
+
+                    // 3. Adherence Trend (weekly comparison of the elapsed days)
+                    const last7DaysList = Array.from({ length: 7 }, (_, i) => String(Math.max(1, currentDayNum - 6 + i)));
+                    const last7Tasks = tasks.filter(t => last7DaysList.includes(t.day));
+                    const last7Completed = last7Tasks.filter(t => t.isCompleted).length;
+                    const last7Total = last7Tasks.length;
+                    const last7Rate = last7Total > 0 ? Math.round((last7Completed / last7Total) * 100) : 0;
+
+                    const prev7DaysList = Array.from({ length: 7 }, (_, i) => String(Math.max(1, currentDayNum - 13 + i))).filter(d => Number(d) < currentDayNum - 6);
+                    const prev7Tasks = tasks.filter(t => prev7DaysList.includes(t.day));
+                    const prev7Completed = prev7Tasks.filter(t => t.isCompleted).length;
+                    const prev7Total = prev7Tasks.length;
+                    const prev7Rate = prev7Total > 0 ? Math.round((prev7Completed / prev7Total) * 100) : 0;
+
+                    const trend = last7Rate - prev7Rate;
+                    const trendText = trend > 0 ? `▲ +${trend}%` : trend < 0 ? `▼ ${trend}%` : 'Estável';
+                    const trendColor = trend > 0 ? 'text-emerald-700 bg-emerald-50 border-emerald-100' : trend < 0 ? 'text-amber-700 bg-amber-50 border-amber-100' : 'text-slate-600 bg-slate-50 border-slate-100';
+
+                    // 4. Emotional Stability Indicator
+                    const totalLogs = sensoryLogs.length;
+                    const regulatedLogs = sensoryLogs.filter(log => log.mood === 'feliz' || log.mood === 'calmo').length;
+                    const stabilityRate = totalLogs > 0 ? Math.round((regulatedLogs / totalLogs) * 100) : 100;
+                    
+                    let stabilityLevel = 'Regular ⚖️';
+                    let stabilityClass = 'text-amber-700 bg-amber-50 border-amber-250';
+                    let stabilityDesc = 'Oscilações moderadas de humor observadas.';
+                    if (stabilityRate >= 80) {
+                      stabilityLevel = 'Excelente 🌟';
+                      stabilityClass = 'text-emerald-700 bg-emerald-50 border-emerald-250';
+                      stabilityDesc = 'Humor predominantemente calmo ou feliz.';
+                    } else if (stabilityRate < 50) {
+                      stabilityLevel = 'Atenção ⚠️';
+                      stabilityClass = 'text-red-700 bg-red-50 border-red-250';
+                      stabilityDesc = 'Frequentes episódios de agitação ou desregulação.';
+                    }
+                    const stabilityBadgeColor = stabilityRate >= 80 ? 'text-emerald-700 bg-emerald-50 border-emerald-100' : stabilityRate >= 50 ? 'text-amber-700 bg-amber-50 border-amber-100' : 'text-rose-700 bg-rose-50 border-rose-100';
+
+                    // 5. Sensory Crisis Frequency
+                    const oneDayMs = 24 * 60 * 60 * 1000;
+                    const nowTime = new Date().getTime();
+                    const recentCrises = sensoryLogs.filter(log => log.crisisOccurred && (nowTime - new Date(log.timestamp).getTime()) <= 7 * oneDayMs).length;
+                    const priorCrises = sensoryLogs.filter(log => log.crisisOccurred && (nowTime - new Date(log.timestamp).getTime()) > 7 * oneDayMs && (nowTime - new Date(log.timestamp).getTime()) <= 14 * oneDayMs).length;
+                    const crisisDiff = recentCrises - priorCrises;
+                    
+                    const crisisTrendText = crisisDiff < 0 ? `▼ ${Math.abs(crisisDiff)}` : crisisDiff > 0 ? `▲ +${crisisDiff}` : 'Estável';
+                    const crisisTrendColor = crisisDiff < 0 ? 'text-emerald-700 bg-emerald-50 border-emerald-100' : crisisDiff > 0 ? 'text-rose-700 bg-rose-50 border-rose-100' : 'text-slate-600 bg-slate-50 border-slate-100';
+
+                    // 6. Period Adherence using elapsedTasks
+                    const morningTasks = elapsedTasks.filter(t => t.period === 'manhã');
                     const morningComp = morningTasks.length > 0 ? Math.round((morningTasks.filter(t => t.isCompleted).length / morningTasks.length) * 100) : 0;
                     
-                    const afternoonTasks = tasks.filter(t => t.period === 'tarde');
+                    const afternoonTasks = elapsedTasks.filter(t => t.period === 'tarde');
                     const afternoonComp = afternoonTasks.length > 0 ? Math.round((afternoonTasks.filter(t => t.isCompleted).length / afternoonTasks.length) * 100) : 0;
                     
-                    const eveningTasks = tasks.filter(t => t.period === 'noite');
+                    const eveningTasks = elapsedTasks.filter(t => t.period === 'noite');
                     const eveningComp = eveningTasks.length > 0 ? Math.round((eveningTasks.filter(t => t.isCompleted).length / eveningTasks.length) * 100) : 0;
+
+                    const complianceBadgeColor = avgDailyCompliance >= 80 ? 'text-emerald-700 bg-emerald-50 border-emerald-100' : avgDailyCompliance >= 50 ? 'text-amber-700 bg-amber-50 border-amber-100' : 'text-rose-700 bg-rose-50 border-rose-100';
+
+                    const riskInfo = getSensoryOverloadRisk();
+
+                    // Helper to get status rating
+                    const getRatingText = (val: number) => {
+                      if (val >= 80) return 'Estável 🟢';
+                      if (val >= 50) return 'Moderado ⚠️';
+                      return 'Crítico 🚨';
+                    };
+
+                    // Generate Dynamic Clinical Insights
+                    const generateClinicalInsights = () => {
+                      const list = [];
+                      if (rate < 80 && rate > 0) {
+                        list.push({
+                          type: 'warning',
+                          title: 'Aderência Geral sob Atenção',
+                          text: 'A taxa de conclusão da rotina está abaixo de 80%. Para consolidar hábitos e previsibilidade em crianças com TEA, sugerimos simplificar a rotina, reduzir a duração de tarefas difíceis ou aumentar o valor dos tokens.'
+                        });
+                      } else if (rate >= 80) {
+                        list.push({
+                          type: 'success',
+                          title: 'Aderência Clínica Excelente',
+                          text: 'A criança demonstra alta estabilidade e previsibilidade nas rotinas. Continue utilizando reforço positivo imediato e aproveite para manter a rigidez cognitiva baixa.'
+                        });
+                      }
+                      
+                      if (stabilityRate < 60) {
+                        list.push({
+                          type: 'danger',
+                          title: 'Alerta de Regulação Emocional',
+                          text: 'Flutuações de humor frequentes ou crises recentes detectadas. Recomendamos ativar o modelo de "Regulação Sensorial" no calendário, reduzir exigências acadêmicas e dar pausas no refúgio sensorial.'
+                        });
+                      }
+                      
+                      const minPeriod = Math.min(morningComp, afternoonComp, eveningComp);
+                      if (minPeriod === morningComp && morningTasks.length > 0 && morningComp < 70) {
+                        list.push({
+                          type: 'info',
+                          title: 'Foco na Transição Matinal',
+                          text: 'O período da manhã apresenta menor aderência. Tente introduzir 10 minutos de previsibilidade com aviso visual antes de iniciar as tarefas matinais.'
+                        });
+                      } else if (minPeriod === eveningComp && eveningTasks.length > 0 && eveningComp < 70) {
+                        list.push({
+                          type: 'info',
+                          title: 'Ajuste de Rotina Noturna',
+                          text: 'Menor aderência identificada à noite. Tente restringir telas e atividades de alta excitação após as 19:30, facilitando o relaxamento natural para o sono.'
+                        });
+                      }
+
+                      const getCat = (t: Task) => t.category || 'AVD';
+                      const studyTotal = elapsedTasks.filter(t => getCat(t) === 'Aprendizado').length;
+                      const studyDone = elapsedTasks.filter(t => getCat(t) === 'Aprendizado' && t.isCompleted).length;
+                      const studyRate = studyTotal > 0 ? Math.round((studyDone / studyTotal) * 100) : 0;
+                      
+                      if (studyRate > 80 && studyTotal > 0) {
+                        list.push({
+                          type: 'success',
+                          title: 'Excelente Foco Acadêmico',
+                          text: 'Engajamento muito alto em tarefas cognitivas/aprendizado. Ótimo período para introduzir novos conceitos terapêuticos.'
+                        });
+                      }
+
+                      if (list.length === 0) {
+                        list.push({
+                          type: 'info',
+                          title: 'Análise Clínica em Andamento',
+                          text: 'Continue registrando o cumprimento das atividades e o humor no diário comportamental. Isso permitirá ao nosso preditor fornecer sugestões terapêuticas mais direcionadas.'
+                        });
+                      }
+
+                      return list.slice(0, 3);
+                    };
+
+                    const clinicalInsights = generateClinicalInsights();
 
                     return (
                       <>
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                          <div className="bg-indigo-50/50 border border-indigo-100/50 p-4.5 rounded-2xl flex flex-col gap-1.5 shadow-xxs">
-                            <span className="text-xxs font-black text-indigo-500 uppercase tracking-widest">Taxa de Aderência</span>
-                            <span className="text-3xl font-black text-indigo-750">{rate}%</span>
-                            <p className="text-xxs text-slate-400 font-semibold leading-relaxed">Conclusão de tarefas de toda a semana.</p>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                          <div className="bg-indigo-50/50 border border-indigo-100/50 p-4.5 rounded-2xl flex flex-col gap-1.5 shadow-xxs hover:shadow-xs transition-all hover:scale-[1.01]">
+                            <span className="text-xxs font-black text-indigo-500 uppercase tracking-widest">Aderência Acumulada</span>
+                            <div className="flex items-baseline gap-2">
+                              <span className="text-3xl font-black text-indigo-750">{rate}%</span>
+                              <span className={`text-[9px] font-black px-1.5 py-0.5 rounded-md border ${trendColor} whitespace-nowrap`}>
+                                {trendText} vs sem. ant.
+                              </span>
+                            </div>
+                            <p className="text-xxs text-slate-400 font-semibold leading-relaxed">Conclusão de tarefas nos dias decorridos do mês.</p>
                           </div>
-                          <div className="bg-amber-55/60 border border-amber-100/50 p-4.5 rounded-2xl flex flex-col gap-1.5 shadow-xxs">
+
+                          <div className="bg-amber-55/60 border border-amber-100/50 p-4.5 rounded-2xl flex flex-col gap-1.5 shadow-xxs hover:shadow-xs transition-all hover:scale-[1.01]">
                             <span className="text-xxs font-black text-amber-600 uppercase tracking-widest">Conformidade Diária</span>
-                            <span className="text-3xl font-black text-amber-700">{completedTasks} de {totalTasks}</span>
-                            <p className="text-xxs text-slate-400 font-semibold leading-relaxed">Total de tarefas cumpridas de {totalTasks} cadastradas.</p>
+                            <div className="flex items-baseline gap-2">
+                              <span className="text-3xl font-black text-amber-700">{avgDailyCompleted.toFixed(1)} <span className="text-sm font-semibold text-slate-400">/ dia</span></span>
+                              <span className={`text-[9px] font-black px-1.5 py-0.5 rounded-md border ${complianceBadgeColor} whitespace-nowrap`}>
+                                {avgDailyCompliance}%
+                              </span>
+                            </div>
+                            <p className="text-xxs text-slate-400 font-semibold leading-relaxed">Média de {avgDailyCompleted.toFixed(1)} de {avgDailyScheduled.toFixed(1)} atividades por dia decorrido.</p>
                           </div>
-                          <div className="bg-sky-50/50 border border-sky-100/50 p-4.5 rounded-2xl flex flex-col gap-1.5 shadow-xxs">
-                            <span className="text-xxs font-black text-sky-500 uppercase tracking-widest">Hiperfoco Ativo</span>
-                            <span className="text-base font-black text-sky-750 truncate max-w-xs">{activeChild?.childHyperfocus || 'Não cadastrado'}</span>
-                            <p className="text-xxs text-slate-400 font-semibold leading-relaxed">Apoio de previsibilidade em execução.</p>
+
+                          <div className="bg-teal-50/50 border border-teal-100/50 p-4.5 rounded-2xl flex flex-col gap-1.5 shadow-xxs hover:shadow-xs transition-all hover:scale-[1.01]">
+                            <span className="text-xxs font-black text-teal-600 uppercase tracking-widest">Estabilidade Emocional</span>
+                            <div className="flex items-baseline gap-2">
+                              <span className="text-3xl font-black text-teal-700">{stabilityRate}%</span>
+                              <span className={`text-[9px] font-black px-1.5 py-0.5 rounded-md border ${stabilityBadgeColor} whitespace-nowrap`}>
+                                {stabilityLevel}
+                              </span>
+                            </div>
+                            <p className="text-xxs text-slate-400 font-semibold leading-relaxed">{stabilityDesc}</p>
+                          </div>
+
+                          <div className="bg-rose-50/50 border border-rose-100/50 p-4.5 rounded-2xl flex flex-col gap-1.5 shadow-xxs hover:shadow-xs transition-all hover:scale-[1.01]">
+                            <span className="text-xxs font-black text-rose-600 uppercase tracking-widest">Frequência de Crises</span>
+                            <div className="flex items-baseline gap-2">
+                              <span className="text-3xl font-black text-rose-700">{recentCrises} <span className="text-sm font-semibold text-slate-400">crise{recentCrises !== 1 ? 's' : ''}</span></span>
+                              <span className={`text-[9px] font-black px-1.5 py-0.5 rounded-md border ${crisisTrendColor} whitespace-nowrap`}>
+                                {crisisTrendText} vs sem. ant.
+                              </span>
+                            </div>
+                            <p className="text-xxs text-slate-400 font-semibold leading-relaxed">Ocorrências nos últimos 7 dias comparadas à semana anterior.</p>
+                          </div>
+                        </div>
+
+                        {/* Dynamic Clinical Insights Panel */}
+                        <div className="bg-white border border-slate-200 p-5 rounded-2xl flex flex-col gap-4 shadow-xxs hover:shadow-xs transition-all">
+                          <h4 className="font-extrabold text-xs text-slate-500 uppercase tracking-wider flex items-center gap-1.5 font-Outfit">
+                            💡 Recomendações e Insights Clínicos Customizados (ABA / T.O.)
+                          </h4>
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
+                            {clinicalInsights.map((insight, idx) => {
+                              const icon = insight.type === 'success' ? '✅' : insight.type === 'warning' ? '⚠️' : insight.type === 'danger' ? '🚨' : 'ℹ️';
+                              const border = insight.type === 'success' ? 'border-emerald-100 bg-emerald-50/30' : insight.type === 'warning' ? 'border-amber-100 bg-amber-50/30' : insight.type === 'danger' ? 'border-red-100 bg-red-50/30' : 'border-blue-100 bg-blue-50/30';
+                              const textTitle = insight.type === 'success' ? 'text-emerald-800' : insight.type === 'warning' ? 'text-amber-800' : insight.type === 'danger' ? 'text-red-800' : 'text-blue-800';
+                              
+                              return (
+                                <div key={idx} className={`p-4 rounded-xl border flex flex-col gap-1.5 transition-all hover:scale-[1.01] ${border}`}>
+                                  <div className="flex items-center gap-1.5 font-black text-xs">
+                                    <span>{icon}</span>
+                                    <span className={textTitle}>{insight.title}</span>
+                                  </div>
+                                  <p className="text-[11px] font-semibold text-slate-600 leading-relaxed">
+                                    {insight.text}
+                                  </p>
+                                </div>
+                              );
+                            })}
                           </div>
                         </div>
 
@@ -2339,7 +2552,7 @@ export default function ParentDashboard() {
                               <div>
                                 <div className="flex justify-between text-xs font-bold text-slate-700 mb-1">
                                   <span>Manhã ☀️</span>
-                                  <span>{morningComp}%</span>
+                                  <span>{morningComp}% <span className="text-slate-400 font-semibold">({getRatingText(morningComp).replace(/[^a-zA-Záéíóúâêôãõç\s]/g, '')})</span></span>
                                 </div>
                                 <div className="w-full bg-slate-200 rounded-full h-2.5 overflow-hidden">
                                   <div className="bg-amber-500 h-full rounded-full" style={{ width: `${morningComp}%` }} />
@@ -2348,7 +2561,7 @@ export default function ParentDashboard() {
                               <div>
                                 <div className="flex justify-between text-xs font-bold text-slate-700 mb-1">
                                   <span>Tarde ⛅</span>
-                                  <span>{afternoonComp}%</span>
+                                  <span>{afternoonComp}% <span className="text-slate-400 font-semibold">({getRatingText(afternoonComp).replace(/[^a-zA-Záéíóúâêôãõç\s]/g, '')})</span></span>
                                 </div>
                                 <div className="w-full bg-slate-200 rounded-full h-2.5 overflow-hidden">
                                   <div className="bg-blue-500 h-full rounded-full" style={{ width: `${afternoonComp}%` }} />
@@ -2357,7 +2570,7 @@ export default function ParentDashboard() {
                               <div>
                                 <div className="flex justify-between text-xs font-bold text-slate-700 mb-1">
                                   <span>Noite 🌙</span>
-                                  <span>{eveningComp}%</span>
+                                  <span>{eveningComp}% <span className="text-slate-400 font-semibold">({getRatingText(eveningComp).replace(/[^a-zA-Záéíóúâêôãõç\s]/g, '')})</span></span>
                                 </div>
                                 <div className="w-full bg-slate-200 rounded-full h-2.5 overflow-hidden">
                                   <div className="bg-indigo-650 h-full rounded-full" style={{ width: `${eveningComp}%` }} />
@@ -2371,16 +2584,16 @@ export default function ParentDashboard() {
                             <div className="flex flex-col gap-3">
                               {(() => {
                                 const getCat = (t: Task) => t.category || 'AVD';
-                                const avdTotal = tasks.filter(t => getCat(t) === 'AVD').length;
-                                const avdDone = tasks.filter(t => getCat(t) === 'AVD' && t.isCompleted).length;
+                                const avdTotal = elapsedTasks.filter(t => getCat(t) === 'AVD').length;
+                                const avdDone = elapsedTasks.filter(t => getCat(t) === 'AVD' && t.isCompleted).length;
                                 const avdRate = avdTotal > 0 ? Math.round((avdDone / avdTotal) * 100) : 0;
 
-                                const studyTotal = tasks.filter(t => getCat(t) === 'Aprendizado').length;
-                                const studyDone = tasks.filter(t => getCat(t) === 'Aprendizado' && t.isCompleted).length;
+                                const studyTotal = elapsedTasks.filter(t => getCat(t) === 'Aprendizado').length;
+                                const studyDone = elapsedTasks.filter(t => getCat(t) === 'Aprendizado' && t.isCompleted).length;
                                 const studyRate = studyTotal > 0 ? Math.round((studyDone / studyTotal) * 100) : 0;
 
-                                const playTotal = tasks.filter(t => getCat(t) === 'Lazer').length;
-                                const playDone = tasks.filter(t => getCat(t) === 'Lazer' && t.isCompleted).length;
+                                const playTotal = elapsedTasks.filter(t => getCat(t) === 'Lazer').length;
+                                const playDone = elapsedTasks.filter(t => getCat(t) === 'Lazer' && t.isCompleted).length;
                                 const playRate = playTotal > 0 ? Math.round((playDone / playTotal) * 100) : 0;
 
                                 return (
@@ -2388,7 +2601,7 @@ export default function ParentDashboard() {
                                     <div>
                                       <div className="flex justify-between text-xs font-bold text-slate-700 mb-1">
                                         <span>AVD (Vida Diária) 🧼</span>
-                                        <span>{avdRate}% ({avdDone}/{avdTotal})</span>
+                                        <span>{avdRate}% ({avdDone}/{avdTotal}) <span className="text-slate-400 font-semibold">({getRatingText(avdRate).replace(/[^a-zA-Záéíóúâêôãõç\s]/g, '')})</span></span>
                                       </div>
                                       <div className="w-full bg-slate-200 rounded-full h-2.5 overflow-hidden">
                                         <div className="bg-teal-500 h-full rounded-full" style={{ width: `${avdRate}%` }} />
@@ -2397,7 +2610,7 @@ export default function ParentDashboard() {
                                     <div>
                                       <div className="flex justify-between text-xs font-bold text-slate-700 mb-1">
                                         <span>Aprendizado 📚</span>
-                                        <span>{studyRate}% ({studyDone}/{studyTotal})</span>
+                                        <span>{studyRate}% ({studyDone}/{studyTotal}) <span className="text-slate-400 font-semibold">({getRatingText(studyRate).replace(/[^a-zA-Záéíóúâêôãõç\s]/g, '')})</span></span>
                                       </div>
                                       <div className="w-full bg-slate-200 rounded-full h-2.5 overflow-hidden">
                                         <div className="bg-indigo-650 h-full rounded-full" style={{ width: `${studyRate}%` }} />
@@ -2406,7 +2619,7 @@ export default function ParentDashboard() {
                                     <div>
                                       <div className="flex justify-between text-xs font-bold text-slate-700 mb-1">
                                         <span>Lazer 🧸</span>
-                                        <span>{playRate}% ({playDone}/{playTotal})</span>
+                                        <span>{playRate}% ({playDone}/{playTotal}) <span className="text-slate-400 font-semibold">({getRatingText(playRate).replace(/[^a-zA-Záéíóúâêôãõç\s]/g, '')})</span></span>
                                       </div>
                                       <div className="w-full bg-slate-200 rounded-full h-2.5 overflow-hidden">
                                         <div className="bg-pink-500 h-full rounded-full" style={{ width: `${playRate}%` }} />
@@ -2420,41 +2633,36 @@ export default function ParentDashboard() {
                         </div>
 
                         {/* AI Sensory Overload Predictor Panel */}
-                        {(() => {
-                          const riskInfo = getSensoryOverloadRisk();
-                          return (
-                            <div className="bg-slate-50 border border-slate-200/50 p-5 rounded-2xl flex flex-col gap-4 shadow-xxs">
-                              <h4 className="font-extrabold text-xs text-slate-500 uppercase tracking-wider flex items-center gap-1.5 select-none font-Outfit">
-                                🤖 IA Preditora de Sobrecarga (Risco de Meltdown)
-                              </h4>
-                              
-                              <div className={`p-4 rounded-xl border flex flex-col gap-2 ${riskInfo.class}`}>
-                                <div className="flex justify-between items-center">
-                                  <span className="text-xs font-black uppercase text-slate-800">Termômetro de Risco:</span>
-                                  <span className="text-sm font-black uppercase tracking-wider">{riskInfo.level}</span>
-                                </div>
-                                
-                                {/* Visual Gauge Bar */}
-                                <div className="w-full bg-slate-200/80 rounded-full h-3 overflow-hidden border border-slate-300/30 mt-1">
-                                  <div 
-                                    className={`h-full rounded-full transition-all duration-1000 ${
-                                      riskInfo.percentage >= 70 ? 'bg-red-500' : riskInfo.percentage >= 35 ? 'bg-amber-500' : 'bg-emerald-500'
-                                    }`} 
-                                    style={{ width: `${riskInfo.percentage}%` }}
-                                  />
-                                </div>
-                                <span className="text-[10px] text-slate-400 font-semibold text-right block mt-0.5">Probabilidade: {riskInfo.percentage}%</span>
-
-                                <p className="text-xs font-bold leading-relaxed mt-1 text-slate-700">
-                                  {riskInfo.desc}
-                                </p>
-                              </div>
-                              <span className="text-[9px] text-slate-450 italic font-semibold">
-                                *Nota: Este cálculo utiliza dados comportamentais de latência de rotina e diários emocionais. Não substitui consulta médica.
-                              </span>
+                        <div className="bg-slate-50 border border-slate-200/50 p-5 rounded-2xl flex flex-col gap-4 shadow-xxs">
+                          <h4 className="font-extrabold text-xs text-slate-500 uppercase tracking-wider flex items-center gap-1.5 select-none font-Outfit">
+                            🤖 IA Preditora de Sobrecarga (Risco de Meltdown)
+                          </h4>
+                          
+                          <div className={`p-4 rounded-xl border flex flex-col gap-2 ${riskInfo.class}`}>
+                            <div className="flex justify-between items-center">
+                              <span className="text-xs font-black uppercase text-slate-800">Termômetro de Risco:</span>
+                              <span className="text-sm font-black uppercase tracking-wider">{riskInfo.level}</span>
                             </div>
-                          );
-                        })()}
+                            
+                            {/* Visual Gauge Bar */}
+                            <div className="w-full bg-slate-200/80 rounded-full h-3 overflow-hidden border border-slate-300/30 mt-1">
+                              <div 
+                                className={`h-full rounded-full transition-all duration-1000 ${
+                                  riskInfo.percentage >= 70 ? 'bg-red-500' : riskInfo.percentage >= 35 ? 'bg-amber-500' : 'bg-emerald-500'
+                                }`} 
+                                style={{ width: `${riskInfo.percentage}%` }}
+                              />
+                            </div>
+                            <span className="text-[10px] text-slate-400 font-semibold text-right block mt-0.5">Probabilidade: {riskInfo.percentage}%</span>
+
+                            <p className="text-xs font-bold leading-relaxed mt-1 text-slate-700">
+                              {riskInfo.desc}
+                            </p>
+                          </div>
+                          <span className="text-[9px] text-slate-450 italic font-semibold">
+                            *Nota: Este cálculo utiliza dados comportamentais de latência de rotina e diários emocionais. Não substitui consulta médica.
+                          </span>
+                        </div>
 
                         {/* Diário de Regulação & Registro de Crises */}
                         <div className="bg-slate-50 border border-slate-200/50 p-5 rounded-2xl flex flex-col gap-4 shadow-xxs">
@@ -2547,31 +2755,39 @@ export default function ParentDashboard() {
                               </div>
                               <div className="text-right">
                                 <p className="text-xs font-bold text-slate-450">Data de Geração:</p>
-                                <p className="text-sm font-black text-slate-650">{new Date().toLocaleDateString()}</p>
+                                <p className="text-sm font-black text-slate-655">{new Date().toLocaleDateString()}</p>
+                              </div>
+                            </div>
+
+                            <div className="grid grid-cols-3 gap-8 border-b border-slate-200 pb-6">
+                              <div>
+                                <h3 className="text-xs font-black uppercase text-slate-400 tracking-widest border-b border-slate-100 pb-1.5">Informações Gerais</h3>
+                                <p className="text-xs font-bold text-slate-700 mt-2">Responsável: <span className="font-extrabold">{currentUser?.email}</span></p>
+                                <p className="text-xs font-bold text-slate-700 mt-1.5">Criança: <span className="font-extrabold">{activeChild?.name || 'Não cadastrado'}</span></p>
+                                <p className="text-xs font-bold text-slate-700 mt-1.5">Hiperfoco Ativo: <span className="font-extrabold">{activeChild?.childHyperfocus || 'Não cadastrado'}</span></p>
+                                <p className="text-xs font-bold text-slate-700 mt-1.5">Diagnóstico: <span className="font-extrabold">{activeChild?.diagnosis || 'Não informado'}</span></p>
+                              </div>
+                              <div>
+                                <h3 className="text-xs font-black uppercase text-slate-400 tracking-widest border-b border-slate-100 pb-1.5">Resumo Comportamental</h3>
+                                <p className="text-xs font-bold text-slate-700 mt-2">Aderência Acumulada: <span className="font-extrabold text-indigo-750">{rate}% ({getRatingText(rate).replace(/[^a-zA-Záéíóúâêôãõç\s]/g, '').trim()})</span></p>
+                                <p className="text-xs font-bold text-slate-700 mt-1.5">Média Diária: <span className="font-extrabold text-amber-700">{avgDailyCompleted.toFixed(1)} de {avgDailyScheduled.toFixed(1)} ativ. ({avgDailyCompliance}%)</span></p>
+                                <p className="text-xs font-bold text-slate-700 mt-1.5">Risco de Sobrecarga (Meltdown): <span className="font-extrabold text-red-700">{riskInfo.level.replace(/[^a-zA-Záéíóúâêôãõç\s]/g, '').trim()} ({riskInfo.percentage}%)</span></p>
+                              </div>
+                              <div>
+                                <h3 className="text-xs font-black uppercase text-slate-400 tracking-widest border-b border-slate-100 pb-1.5">Regulação & Humor</h3>
+                                <p className="text-xs font-bold text-slate-700 mt-2">Estabilidade Emocional: <span className="font-extrabold text-teal-700">{stabilityRate}% ({stabilityLevel.replace(/[^a-zA-Záéíóúâêôãõç\s]/g, '').trim()})</span></p>
+                                <p className="text-xs font-bold text-slate-700 mt-1.5">Crises Sensoriais (7d): <span className="font-extrabold text-rose-700">{recentCrises} crises ({crisisTrendText.replace(/[^a-zA-Z0-9\+\-\s]/g, '').trim()})</span></p>
+                                <p className="text-xs font-bold text-slate-700 mt-1.5">Barreira Infantil: <span className="font-extrabold">{lockType === 'pin' ? 'PIN' : lockType === 'math' ? 'Matemática' : 'Nenhuma'}</span></p>
                               </div>
                             </div>
 
                             <div className="grid grid-cols-2 gap-8 border-b border-slate-200 pb-4">
                               <div>
-                                <h3 className="text-xs font-black uppercase text-slate-400 tracking-widest">Informações Gerais</h3>
-                                <p className="text-sm font-bold text-slate-700 mt-2">Responsável: <span className="font-extrabold">{currentUser?.email}</span></p>
-                                <p className="text-sm font-bold text-slate-700 mt-2">Criança: <span className="font-extrabold">{activeChild?.name || 'Não cadastrado'}</span></p>
-                                <p className="text-sm font-bold text-slate-700 mt-1">Hiperfoco: <span className="font-extrabold">{activeChild?.childHyperfocus || 'Não cadastrado'}</span></p>
-                              </div>
-                              <div>
-                                <h3 className="text-xs font-black uppercase text-slate-400 tracking-widest">Resumo de Aderência</h3>
-                                <p className="text-sm font-bold text-slate-700 mt-2">Tarefas Cumpridas: <span className="font-extrabold">{completedTasks} de {totalTasks} ({rate}%)</span></p>
-                                <p className="text-sm font-bold text-slate-700 mt-1">Barreira Infantil Ativa: <span className="font-extrabold">{lockType === 'pin' ? 'PIN' : lockType === 'math' ? 'Matemática' : 'Nenhuma'}</span></p>
-                              </div>
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-8">
-                              <div>
                                 <h3 className="text-xs font-black uppercase text-slate-400 tracking-widest mb-3">Aderência por Período de Dia</h3>
                                 <div className="flex flex-col gap-2">
-                                  <p className="text-sm text-slate-700 font-bold">☀️ Período da Manhã: <span className="font-extrabold text-indigo-650">{morningComp}% de conclusão</span></p>
-                                  <p className="text-sm text-slate-700 font-bold">⛅ Período da Tarde: <span className="font-extrabold text-indigo-650">{afternoonComp}% de conclusão</span></p>
-                                  <p className="text-sm text-slate-700 font-bold">🌙 Período da Noite: <span className="font-extrabold text-indigo-650">{eveningComp}% de conclusão</span></p>
+                                  <p className="text-xs text-slate-700 font-bold">☀️ Período da Manhã: <span className="font-extrabold text-indigo-650">{morningComp}% de conclusão ({getRatingText(morningComp).replace(/[^a-zA-Záéíóúâêôãõç\s]/g, '').trim()})</span></p>
+                                  <p className="text-xs text-slate-700 font-bold">⛅ Período da Tarde: <span className="font-extrabold text-indigo-650">{afternoonComp}% de conclusão ({getRatingText(afternoonComp).replace(/[^a-zA-Záéíóúâêôãõç\s]/g, '').trim()})</span></p>
+                                  <p className="text-xs text-slate-700 font-bold">🌙 Período da Noite: <span className="font-extrabold text-indigo-650">{eveningComp}% de conclusão ({getRatingText(eveningComp).replace(/[^a-zA-Záéíóúâêôãõç\s]/g, '').trim()})</span></p>
                                 </div>
                               </div>
                               <div>
@@ -2579,23 +2795,23 @@ export default function ParentDashboard() {
                                 <div className="flex flex-col gap-2">
                                   {(() => {
                                     const getCat = (t: Task) => t.category || 'AVD';
-                                    const avdTotal = tasks.filter(t => getCat(t) === 'AVD').length;
-                                    const avdDone = tasks.filter(t => getCat(t) === 'AVD' && t.isCompleted).length;
+                                    const avdTotal = elapsedTasks.filter(t => getCat(t) === 'AVD').length;
+                                    const avdDone = elapsedTasks.filter(t => getCat(t) === 'AVD' && t.isCompleted).length;
                                     const avdRate = avdTotal > 0 ? Math.round((avdDone / avdTotal) * 100) : 0;
 
-                                    const studyTotal = tasks.filter(t => getCat(t) === 'Aprendizado').length;
-                                    const studyDone = tasks.filter(t => getCat(t) === 'Aprendizado' && t.isCompleted).length;
+                                    const studyTotal = elapsedTasks.filter(t => getCat(t) === 'Aprendizado').length;
+                                    const studyDone = elapsedTasks.filter(t => getCat(t) === 'Aprendizado' && t.isCompleted).length;
                                     const studyRate = studyTotal > 0 ? Math.round((studyDone / studyTotal) * 100) : 0;
 
-                                    const playTotal = tasks.filter(t => getCat(t) === 'Lazer').length;
-                                    const playDone = tasks.filter(t => getCat(t) === 'Lazer' && t.isCompleted).length;
+                                    const playTotal = elapsedTasks.filter(t => getCat(t) === 'Lazer').length;
+                                    const playDone = elapsedTasks.filter(t => getCat(t) === 'Lazer' && t.isCompleted).length;
                                     const playRate = playTotal > 0 ? Math.round((playDone / playTotal) * 100) : 0;
 
                                     return (
                                       <>
-                                        <p className="text-sm text-slate-700 font-bold">🧼 Vida Diária (AVD): <span className="font-extrabold text-indigo-650">{avdRate}% ({avdDone}/{avdTotal})</span></p>
-                                        <p className="text-sm text-slate-700 font-bold">📚 Aprendizado: <span className="font-extrabold text-indigo-650">{studyRate}% ({studyDone}/{studyTotal})</span></p>
-                                        <p className="text-sm text-slate-700 font-bold">🧸 Lazer e Recreação: <span className="font-extrabold text-indigo-650">{playRate}% ({playDone}/{playTotal})</span></p>
+                                        <p className="text-xs text-slate-700 font-bold">🧼 Vida Diária (AVD): <span className="font-extrabold text-indigo-650">{avdRate}% ({avdDone}/{avdTotal}) - {getRatingText(avdRate).replace(/[^a-zA-Záéíóúâêôãõç\s]/g, '').trim()}</span></p>
+                                        <p className="text-xs text-slate-700 font-bold">📚 Aprendizado: <span className="font-extrabold text-indigo-650">{studyRate}% ({studyDone}/{studyTotal}) - {getRatingText(studyRate).replace(/[^a-zA-Záéíóúâêôãõç\s]/g, '').trim()}</span></p>
+                                        <p className="text-xs text-slate-700 font-bold">🧸 Lazer e Recreação: <span className="font-extrabold text-indigo-650">{playRate}% ({playDone}/{playTotal}) - {getRatingText(playRate).replace(/[^a-zA-Záéíóúâêôãõç\s]/g, '').trim()}</span></p>
                                       </>
                                     );
                                   })()}
