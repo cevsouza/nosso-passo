@@ -147,6 +147,7 @@ export async function PUT(req: Request) {
         sharingCode: updates.sharingCode,
         collectedParts: updates.collectedParts !== undefined ? Number(updates.collectedParts) : undefined,
         toyInventory: updates.toyInventory,
+        emotionalBattery: updates.emotionalBattery,
       }
     });
 

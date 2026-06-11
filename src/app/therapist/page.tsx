@@ -442,7 +442,20 @@ export default function TherapistPortal() {
                 <span className="text-[9px] font-black uppercase bg-teal-50 border border-teal-150 text-teal-700 px-3 py-1 rounded-full tracking-wider">
                   Prontuário Clínico Ativo
                 </span>
-                <h1 className="text-2xl font-black text-slate-900 mt-1 font-Outfit">{childData.name}</h1>
+                <div className="flex items-center gap-2 mt-1">
+                  <h1 className="text-2xl font-black text-slate-900 font-Outfit">{childData.name}</h1>
+                  {childData.emotionalBattery && (
+                    <span className={`text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full font-Outfit ${
+                      childData.emotionalBattery === 'green'
+                        ? 'bg-emerald-100 text-emerald-800'
+                        : childData.emotionalBattery === 'yellow'
+                        ? 'bg-yellow-100 text-yellow-800'
+                        : 'bg-red-100 text-red-800 animate-pulse'
+                    }`}>
+                      {childData.emotionalBattery === 'green' ? '🔋 Ótimo' : childData.emotionalBattery === 'yellow' ? '⚡ Cansado' : '🪫 Sobrecarregado'}
+                    </span>
+                  )}
+                </div>
                 <div className="flex flex-wrap gap-x-3 gap-y-1.5 mt-1.5 text-xs text-slate-500 font-bold">
                   {childData.diagnosis && <span>🎯 Diagnóstico: <strong className="text-slate-800">{childData.diagnosis}</strong></span>}
                   {childData.childHyperfocus && <span>🚀 Hiperfoco: <strong className="text-indigo-650">{childData.childHyperfocus}</strong></span>}
@@ -998,23 +1011,49 @@ export default function TherapistPortal() {
                   <h3 className="font-black text-slate-900 text-md font-Outfit">Diário Sensorial & Crises</h3>
                 </div>
                 
-                <div className="flex flex-col gap-2.5 max-h-[500px] overflow-y-auto pr-1">
+                <div className="flex flex-col gap-3 max-h-[450px] overflow-y-auto pr-1">
                   {sensoryLogs.length === 0 ? (
-                    <p className="text-xs text-slate-400 italic text-center py-6">Nenhum registro no diário emocional.</p>
+                    <p className="text-slate-400 text-xs italic text-center py-4">
+                      Nenhum registro comportamental ou sensorial adicionado.
+                    </p>
                   ) : (
                     sensoryLogs.map((log: any) => {
+                      const isSchool = log.loggedBy === 'school';
+                      const isChild = log.loggedBy === 'child';
+                      const cardBg = log.crisisOccurred 
+                        ? 'bg-red-50/20 border-red-150 text-red-950' 
+                        : isSchool 
+                        ? 'bg-yellow-50/25 border-yellow-200 text-yellow-950' 
+                        : isChild
+                        ? 'bg-emerald-50/20 border-emerald-150 text-emerald-950'
+                        : 'bg-indigo-50/20 border-indigo-150 text-indigo-950';
+
                       return (
-                        <div key={log.id} className={`p-3 border rounded-xl flex flex-col gap-1.5 text-xxs ${
-                          log.crisisOccurred ? 'bg-red-50/20 border-red-150 text-red-950' : 'bg-indigo-50/20 border-indigo-150 text-indigo-950'
-                        }`}>
+                        <div key={log.id} className={`p-3 border rounded-xl flex flex-col gap-1.5 text-xxs ${cardBg}`}>
                           <div className="flex justify-between font-black text-[9px] text-slate-400 uppercase font-Outfit">
                             <span>{new Date(log.timestamp).toLocaleString()}</span>
-                            <span>{log.crisisOccurred ? '🚨 Crise' : `🧠 Humor: ${log.mood}`}</span>
+                            <span className="tracking-wide">
+                              {isSchool ? '🏫 ESCOLA' : isChild ? '👶 CRIANÇA' : '👪 CUIDADOR'} - {log.crisisOccurred ? '🚨 Crise' : `🧠 Humor: ${log.mood}`}
+                            </span>
                           </div>
                           {log.notes && (
                             <p className="font-semibold text-slate-700 leading-relaxed">
                               {log.notes}
                             </p>
+                          )}
+                          {isSchool && (log.foodIntake || log.schoolNoise) && (
+                            <div className="flex gap-2.5 my-1 text-[9px] text-slate-550 font-extrabold bg-white/70 px-2 py-1 rounded border border-slate-200">
+                              {log.foodIntake && (
+                                <span>🍲 Alimentação: {
+                                  log.foodIntake === 'boa' ? 'Boa 🟢' : log.foodIntake === 'regular' ? 'Regular 🟡' : 'Recusou 🔴'
+                                }</span>
+                              )}
+                              {log.schoolNoise && (
+                                <span>🔊 Barulho: {
+                                  log.schoolNoise === 'baixo' ? 'Baixo 🟢' : log.schoolNoise === 'medio' ? 'Médio 🟡' : 'Alto 🔴'
+                                }</span>
+                              )}
+                            </div>
                           )}
                           {(log.antecedent || log.behavior || log.consequence) && (
                             <div className="bg-slate-100/60 border border-slate-200/40 p-2 rounded-lg mt-1 text-[10px] text-slate-650 font-bold flex flex-col gap-0.5">
@@ -1068,6 +1107,11 @@ export default function TherapistPortal() {
                 <span className="text-[9px] font-black text-slate-400 uppercase">Criança (Paciente)</span>
                 <p className="text-sm font-black text-slate-800 mt-0.5">{childData.name}</p>
                 <p className="text-[10px] text-slate-500 font-semibold">Gênero: {childData.gender || 'Não informado'}</p>
+                {childData.emotionalBattery && (
+                  <p className="text-[10px] text-slate-550 font-bold mt-0.5">🔋 Bateria Emocional: {
+                    childData.emotionalBattery === 'green' ? 'Ótimo (100%)' : childData.emotionalBattery === 'yellow' ? 'Cansado (50%)' : 'Sobrecarregado (10%)'
+                  }</p>
+                )}
               </div>
               <div>
                 <span className="text-[9px] font-black text-slate-400 uppercase">Diagnóstico Clínico</span>
@@ -1142,13 +1186,27 @@ export default function TherapistPortal() {
                     {sensoryLogs.map((log: any) => (
                       <tr key={log.id} className="border-b border-slate-200/80 py-2">
                         <td className="py-2 pr-2 font-bold text-slate-500 whitespace-nowrap">{new Date(log.timestamp).toLocaleDateString()} {new Date(log.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</td>
-                        <td className="py-2 pr-2 font-extrabold text-slate-800">{log.crisisOccurred ? '🚨 Crise' : `Humor: ${log.mood}`}</td>
+                        <td className="py-2 pr-2 font-extrabold text-slate-800">
+                          {log.crisisOccurred ? '🚨 Crise' : `Humor: ${log.mood}`}
+                          <span className="block text-[8px] text-slate-400 uppercase font-black tracking-wider mt-0.5">
+                            {log.loggedBy === 'school' ? '🏫 Escola' : log.loggedBy === 'child' ? '👶 Criança' : '👪 Cuidador'}
+                          </span>
+                        </td>
                         <td className="py-2 pr-2 text-slate-650 font-semibold">{log.antecedent || '-'}</td>
                         <td className="py-2 pr-2 text-slate-650 font-semibold">{log.behavior || '-'}</td>
                         <td className="py-2 pr-2 text-slate-650 font-semibold">{log.consequence || '-'}</td>
                         <td className="py-2 text-slate-500 font-bold">
-                          {log.trigger && <span>🎯 {log.trigger}</span>}
-                          {log.location && <span className="block text-[8px] mt-0.5">📍 {log.location} ({log.decibels || 50}dB)</span>}
+                          {log.loggedBy === 'school' ? (
+                            <div className="flex flex-col gap-0.5 text-[8px] font-Outfit">
+                              {log.foodIntake && <span>🍲 Alimentação: {log.foodIntake}</span>}
+                              {log.schoolNoise && <span>🔊 Barulho: {log.schoolNoise}</span>}
+                            </div>
+                          ) : (
+                            <>
+                              {log.trigger && <span>🎯 {log.trigger}</span>}
+                              {log.location && <span className="block text-[8px] mt-0.5">📍 {log.location} ({log.decibels || 50}dB)</span>}
+                            </>
+                          )}
                         </td>
                       </tr>
                     ))}

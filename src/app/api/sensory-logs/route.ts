@@ -29,6 +29,9 @@ export async function GET(req: Request) {
       antecedent: log.antecedent,
       behavior: log.behavior,
       consequence: log.consequence,
+      loggedBy: log.loggedBy,
+      foodIntake: log.foodIntake,
+      schoolNoise: log.schoolNoise,
     }));
 
     return NextResponse.json(formatted);
@@ -40,7 +43,7 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { childId, mood, crisisOccurred, notes, decibels, lightLevel, location, trigger, antecedent, behavior, consequence } = body;
+    const { childId, mood, crisisOccurred, notes, decibels, lightLevel, location, trigger, antecedent, behavior, consequence, loggedBy, foodIntake, schoolNoise } = body;
 
     if (!childId) {
       return NextResponse.json({ error: 'ID da criança é obrigatório' }, { status: 400 });
@@ -59,6 +62,9 @@ export async function POST(req: Request) {
         antecedent: antecedent || null,
         behavior: behavior || null,
         consequence: consequence || null,
+        loggedBy: loggedBy || 'parent',
+        foodIntake: foodIntake || null,
+        schoolNoise: schoolNoise || null,
       },
     });
 
@@ -75,6 +81,9 @@ export async function POST(req: Request) {
       antecedent: log.antecedent,
       behavior: log.behavior,
       consequence: log.consequence,
+      loggedBy: log.loggedBy,
+      foodIntake: log.foodIntake,
+      schoolNoise: log.schoolNoise,
     });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });

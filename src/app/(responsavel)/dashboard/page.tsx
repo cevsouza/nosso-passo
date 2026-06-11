@@ -1296,6 +1296,53 @@ export default function ParentDashboard() {
         {/* Left Side: Child Settings & Fast Actions */}
         <div className="md:col-span-4 flex flex-col gap-6">
           
+          {/* Active Emotional Battery Card */}
+          {activeChild && (
+            <div className="bg-white border-2 border-slate-250 rounded-[28px] p-6 shadow-premium flex flex-col gap-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2.5 text-indigo-655">
+                  <span className="text-base">🔋</span>
+                  <h2 className="font-bold text-slate-900 text-sm font-Outfit uppercase tracking-wider">Energia Emocional</h2>
+                </div>
+                <span className={`text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full font-Outfit ${
+                  activeChild.emotionalBattery === 'green' 
+                    ? 'bg-emerald-100 text-emerald-800' 
+                    : activeChild.emotionalBattery === 'yellow'
+                    ? 'bg-yellow-100 text-yellow-800'
+                    : 'bg-red-100 text-red-805'
+                }`}>
+                  {activeChild.emotionalBattery === 'green' ? 'Ótimo' : activeChild.emotionalBattery === 'yellow' ? 'Cansado' : 'Sobrecarregado'}
+                </span>
+              </div>
+              
+              <div className="flex items-center justify-center py-2 bg-slate-50 border border-slate-155 rounded-2xl">
+                <span className="text-3xl">
+                  {activeChild.emotionalBattery === 'green' ? '🔋' : activeChild.emotionalBattery === 'yellow' ? '⚡' : '🪫'}
+                </span>
+                <span className="text-xl font-black text-slate-800 ml-2.5 font-Outfit">
+                  {activeChild.emotionalBattery === 'green' ? '100%' : activeChild.emotionalBattery === 'yellow' ? '50%' : '10%'}
+                </span>
+              </div>
+
+              {activeChild.emotionalBattery !== 'green' && (
+                <div className={`p-4 rounded-2xl border text-xxs font-semibold leading-relaxed flex flex-col gap-2 ${
+                  activeChild.emotionalBattery === 'red'
+                    ? 'bg-red-50 border-red-200 text-red-800'
+                    : 'bg-yellow-50 border-yellow-250 text-yellow-800'
+                }`}>
+                  <span className="font-black font-Outfit uppercase text-[9px] tracking-widest flex items-center gap-1">
+                    ⚠️ {activeChild.emotionalBattery === 'red' ? 'Alerta de Crise' : 'Aviso de Cansaço'}
+                  </span>
+                  <p>
+                    {activeChild.emotionalBattery === 'red' 
+                      ? `Atenção: ${activeChild.name.split(' ')[0]} registrou sobrecarga extrema nas últimas horas. Considere imediatamente pausar telas, apagar luzes fortes e guiar uma atividade de descompressão ou usar o SOS Sensorial.`
+                      : `${activeChild.name.split(' ')[0]} sente cansaço ou fadiga. Considere reduzir a velocidade ou complexidade das tarefas de hoje e dar um tempo para descanso.`}
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Child Hyperfocus Profile Card */}
           <div className="bg-white border-2 border-slate-250 rounded-[28px] p-6 shadow-premium flex flex-col gap-4">
             <div className="flex items-center gap-2.5 text-indigo-600">
@@ -1596,8 +1643,28 @@ export default function ParentDashboard() {
                         </button>
                       </div>
                       <p className="text-[9px] text-slate-500 font-medium leading-normal mt-1 border-t border-slate-100 pt-2 text-left">
-                        💡 **Como o terapeuta acessa?** Ele pode entrar em <Link href="/therapist" className="text-indigo-600 hover:underline font-bold" target="_blank">/therapist</Link> e digitar o código, ou você pode clicar em **"Copiar Link Direto"** e enviar para ele no WhatsApp para acesso instantâneo!
+                        💡 **Como o terapeuta acessa?** Ele pode entrar em <Link href="/therapist" className="text-indigo-650 hover:underline font-bold" target="_blank">/therapist</Link> e digitar o código, ou você pode clicar em **"Copiar Link Direto"** e enviar para ele no WhatsApp para acesso instantâneo!
                       </p>
+                      
+                      <div className="mt-2.5 pt-2 border-t border-dashed border-slate-200 flex flex-col gap-2">
+                        <span className="text-[10px] font-black text-slate-700 uppercase font-Outfit">🏫 Acompanhamento Escolar (Mediador/Professor)</span>
+                        <p className="text-[9px] text-slate-500 font-medium leading-normal">
+                          Envie o link do portal escolar para o professor ou mediador registrar relatórios diários de humor, alimentação e ruído da escola:
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (typeof window !== 'undefined') {
+                              const schoolLink = `${window.location.origin}/school?code=${activeChild?.sharingCode}`;
+                              navigator.clipboard.writeText(schoolLink);
+                              triggerStatus('Link da escola copiado!');
+                            }
+                          }}
+                          className="w-full py-2 bg-yellow-500 hover:bg-yellow-600 text-slate-950 text-[10px] font-black rounded-xl active:scale-95 transition-all cursor-pointer font-Outfit border-none uppercase tracking-wider shadow-sm font-black"
+                        >
+                          Copiar Link da Escola 🏫
+                        </button>
+                      </div>
                     </>
                   ) : (
                     <button
@@ -3165,32 +3232,60 @@ export default function ParentDashboard() {
                             {sensoryLogs.length === 0 ? (
                               <p className="text-xxs text-slate-400 italic text-center py-2">Sem registros de regulação emocional.</p>
                             ) : (
-                              sensoryLogs.map(log => (
-                                <div key={log.id} className={`p-2.5 rounded-lg border text-xxs flex flex-col gap-1 ${
-                                  log.crisisOccurred ? 'bg-red-50/30 border-red-100 text-red-805' : 'bg-indigo-50/20 border-indigo-100 text-indigo-805'
-                                }`}>
-                                  <div className="flex justify-between font-bold text-[9px] text-slate-400">
-                                    <span>{new Date(log.timestamp).toLocaleString()}</span>
-                                    <span>{log.crisisOccurred ? '🚨 CRISE' : `🧠 HUMOR: ${log.mood}`}</span>
+                              sensoryLogs.map(log => {
+                                const isSchool = log.loggedBy === 'school';
+                                const isChild = log.loggedBy === 'child';
+                                const cardBg = log.crisisOccurred 
+                                  ? 'bg-red-50/30 border-red-100 text-red-805' 
+                                  : isSchool 
+                                  ? 'bg-yellow-50/25 border-yellow-200 text-yellow-805' 
+                                  : isChild
+                                  ? 'bg-emerald-50/20 border-emerald-100 text-emerald-805'
+                                  : 'bg-indigo-50/20 border-indigo-100 text-indigo-805';
+
+                                return (
+                                  <div key={log.id} className={`p-2.5 rounded-lg border text-xxs flex flex-col gap-1 ${cardBg}`}>
+                                    <div className="flex justify-between font-bold text-[9px] text-slate-400">
+                                      <span>{new Date(log.timestamp).toLocaleString()}</span>
+                                      <span className="font-Outfit uppercase tracking-wider font-black">
+                                        {isSchool ? '🏫 ESCOLA' : isChild ? '👶 CRIANÇA' : '👪 RESPONSÁVEL'} - {log.crisisOccurred ? '🚨 CRISE' : `🧠 HUMOR: ${log.mood}`}
+                                      </span>
+                                    </div>
+                                    {log.notes && <p className="font-semibold text-slate-700">{log.notes}</p>}
+                                    
+                                    {isSchool && (log.foodIntake || log.schoolNoise) && (
+                                      <div className="flex gap-2.5 my-1 text-[9px] text-slate-550 font-extrabold bg-white/70 px-2 py-1 rounded border border-slate-150">
+                                        {log.foodIntake && (
+                                          <span>🍲 Alimentação: {
+                                            log.foodIntake === 'boa' ? 'Boa 🟢' : log.foodIntake === 'regular' ? 'Regular 🟡' : 'Recusou 🔴'
+                                          }</span>
+                                        )}
+                                        {log.schoolNoise && (
+                                          <span>🔊 Barulho Sala: {
+                                            log.schoolNoise === 'baixo' ? 'Baixo 🟢' : log.schoolNoise === 'medio' ? 'Médio 🟡' : 'Alto 🔴'
+                                          }</span>
+                                        )}
+                                      </div>
+                                    )}
+
+                                    {(log.antecedent || log.behavior || log.consequence) && (
+                                      <div className="bg-slate-100/60 border border-slate-200/40 p-2 rounded-lg mt-1 text-[10px] text-slate-600 font-bold flex flex-col gap-0.5">
+                                        {log.antecedent && <div><strong>A (Antecedente):</strong> {log.antecedent}</div>}
+                                        {log.behavior && <div><strong>B (Comportamento):</strong> {log.behavior}</div>}
+                                        {log.consequence && <div><strong>C (Consequência):</strong> {log.consequence}</div>}
+                                      </div>
+                                    )}
+                                    {(log.location || log.lightLevel || (log.decibels !== undefined && log.decibels !== null) || log.trigger) && (
+                                      <div className="flex flex-wrap gap-1.5 mt-1 pt-1.5 border-t border-slate-100/30 text-[9px] text-slate-500 font-bold">
+                                        {log.location && <span>📍 {log.location}</span>}
+                                        {log.lightLevel && <span>💡 Luz: {log.lightLevel}</span>}
+                                        {log.decibels !== undefined && log.decibels !== null && <span>🔊 Som: {log.decibels}dB</span>}
+                                        {log.trigger && <span>🎯 Gatilho: {log.trigger}</span>}
+                                      </div>
+                                    )}
                                   </div>
-                                  {log.notes && <p className="font-semibold text-slate-700">{log.notes}</p>}
-                                  {(log.antecedent || log.behavior || log.consequence) && (
-                                    <div className="bg-slate-100/60 border border-slate-200/40 p-2 rounded-lg mt-1 text-[10px] text-slate-600 font-bold flex flex-col gap-0.5">
-                                      {log.antecedent && <div><strong>A (Antecedente):</strong> {log.antecedent}</div>}
-                                      {log.behavior && <div><strong>B (Comportamento):</strong> {log.behavior}</div>}
-                                      {log.consequence && <div><strong>C (Consequência):</strong> {log.consequence}</div>}
-                                    </div>
-                                  )}
-                                  {(log.location || log.lightLevel || (log.decibels !== undefined && log.decibels !== null) || log.trigger) && (
-                                    <div className="flex flex-wrap gap-1.5 mt-1 pt-1.5 border-t border-slate-100/30 text-[9px] text-slate-500 font-bold">
-                                      {log.location && <span>📍 {log.location}</span>}
-                                      {log.lightLevel && <span>💡 Luz: {log.lightLevel}</span>}
-                                      {log.decibels !== undefined && log.decibels !== null && <span>🔊 Som: {log.decibels}dB</span>}
-                                      {log.trigger && <span>🎯 Gatilho: {log.trigger}</span>}
-                                    </div>
-                                  )}
-                                </div>
-                              ))
+                                );
+                              })
                             )}
                           </div>
                         </div>

@@ -587,6 +587,14 @@ export default function ChildRoutine() {
   // Sleep Mode states
   const [sleepMode, setSleepMode] = useState(false);
 
+  // Strategic roadmap states
+  const [isSosActive, setIsSosActive] = useState(false);
+  const [breathStep, setBreathStep] = useState<'inspire' | 'segure' | 'expire'>('inspire');
+  const [exitHoldProgress, setExitHoldProgress] = useState(0);
+  const [transitionMinutesWarned, setTransitionMinutesWarned] = useState<string[]>([]);
+  const exitTimeout = React.useRef<any>(null);
+  const exitInterval = React.useRef<any>(null);
+
   useEffect(() => {
     return () => {
       stopAmbientSound();
@@ -841,22 +849,152 @@ export default function ChildRoutine() {
     return () => clearInterval(interval);
   }, [activeTask?.id, todayTasks]);
 
-  // Transition Alert
+  // Transições Preditivas Graduais (10, 5 e 2 minutos antes)
   useEffect(() => {
-    if (!activeTask || timerMinutesLeft === undefined) return;
-    const warningThreshold = activeChild?.transitionMinutes || 5;
+    if (!activeTask || timerMinutesLeft === undefined || nextTasks.length === 0) return;
     
-    if (nextTasks.length > 0 && timerMinutesLeft <= warningThreshold && timerMinutesLeft > 0) {
-      if (transitionWarned !== activeTask.id) {
-        setTransitionWarned(activeTask.id);
+    const currentMinute = timerMinutesLeft;
+    const targetMinutes = [10, 5, 2];
+    
+    if (targetMinutes.includes(currentMinute)) {
+      const warnKey = `${activeTask.id}-${currentMinute}`;
+      if (!transitionMinutesWarned.includes(warnKey)) {
+        setTransitionMinutesWarned(prev => [...prev, warnKey]);
+        
         const nextTaskName = nextTasks[0].title;
-        playMarimba(349.23, 0.3); // soft transition marimba note
-        setTimeout(() => {
-          speakText(`Atenção, em ${timerMinutesLeft} minutos será hora de: ${nextTaskName}`);
-        }, 500);
+        speakText(`Atenção! Em ${currentMinute} minutos, vamos terminar de ${activeTask.title} e começar a ${nextTaskName} com o seu mascote!`);
+        
+        if (typeof window !== 'undefined' && navigator.vibrate) {
+          navigator.vibrate([100, 200, 100]); // Pulse feedback
+        }
+        playMarimba(349.23, 0.3);
       }
     }
-  }, [timerMinutesLeft, activeTask?.id, nextTasks, activeChild?.transitionMinutes, transitionWarned]);
+  }, [timerMinutesLeft, activeTask?.id, nextTasks, transitionMinutesWarned]);
+
+  // SOS Sensorial effects (Audio loop & Haptic vibration)
+  useEffect(() => {
+    let hapticInterval: any = null;
+    let breathInterval: any = null;
+    let timers: any[] = [];
+
+    if (isSosActive) {
+      startAmbientSound('binaural');
+
+      const triggerVibration = () => {
+        if (typeof window !== 'undefined' && navigator.vibrate) {
+          navigator.vibrate([100, 200, 100, 1500]);
+        }
+      };
+      triggerVibration();
+      hapticInterval = setInterval(triggerVibration, 3000);
+
+      const runBreathCycle = () => {
+        setBreathStep('inspire');
+        const t1 = setTimeout(() => setBreathStep('segure'), 2500);
+        const t2 = setTimeout(() => setBreathStep('expire'), 3500);
+        timers = [t1, t2];
+      };
+      runBreathCycle();
+      breathInterval = setInterval(runBreathCycle, 6000);
+    } else {
+      stopAmbientSound();
+      if (typeof window !== 'undefined' && navigator.vibrate) {
+        navigator.vibrate(0);
+      }
+    }
+
+    return () => {
+      if (hapticInterval) clearInterval(hapticInterval);
+      if (breathInterval) clearInterval(breathInterval);
+      timers.forEach(clearTimeout);
+    };
+  }, [isSosActive]);
+
+  const handleTriggerSos = async () => {
+    playBubble();
+    setIsSosActive(true);
+    if (activeChild) {
+      try {
+        await firebaseBridge.db.addSensoryLog({
+          childId: activeChild.id,
+          mood: 'agitado',
+          crisisOccurred: true,
+          notes: 'SOS Sensorial ativado pela criança no aplicativo.',
+          loggedBy: 'child',
+          location: 'Casa',
+          trigger: 'Sobrecarga Sensorial'
+        });
+      } catch (e) {
+        console.error('Failed to log SOS crisis event:', e);
+      }
+    }
+  };
+
+  const handleUpdateBattery = async (level: 'green' | 'yellow' | 'red') => {
+    if (!activeChild) return;
+    playBubble();
+    const updatedChild = { ...activeChild, emotionalBattery: level };
+    setActiveChild(updatedChild);
+    firebaseBridge.auth.setActiveChild(updatedChild);
+    
+    try {
+      await firebaseBridge.auth.updateChildSettings(activeChild.id, {
+        emotionalBattery: level
+      });
+      
+      const moodMap = { green: 'feliz', yellow: 'calmo', red: 'triste' };
+      const noteMap = {
+        green: 'Criança indicou Bateria Emocional: Cheia/Ótimo 🔋',
+        yellow: 'Criança indicou Bateria Emocional: Média/Cansado ⚡',
+        red: 'Criança indicou Bateria Emocional: Baixa/Sobrecarregado 🪫'
+      };
+
+      await firebaseBridge.db.addSensoryLog({
+        childId: activeChild.id,
+        mood: moodMap[level] as any,
+        crisisOccurred: level === 'red',
+        notes: noteMap[level],
+        loggedBy: 'child',
+        location: 'Casa'
+      });
+
+      if (level === 'red') {
+        speakText("Bateria baixa! Que tal usar o SOS Sensorial para respirar e se acalmar?");
+      } else if (level === 'yellow') {
+        speakText("Energia média. Tudo bem se sentir um pouco cansado. Que tal ver uma história calma?");
+      } else {
+        speakText("Você está com bastante energia! Muito bem!");
+      }
+    } catch (e) {
+      console.error('Failed to update emotional battery:', e);
+    }
+  };
+
+  const handleExitStart = () => {
+    setExitHoldProgress(0);
+    exitTimeout.current = setTimeout(() => {
+      setIsSosActive(false);
+      setExitHoldProgress(0);
+      if (exitInterval.current) clearInterval(exitInterval.current);
+    }, 2000);
+
+    exitInterval.current = setInterval(() => {
+      setExitHoldProgress(p => {
+        if (p >= 100) {
+          if (exitInterval.current) clearInterval(exitInterval.current);
+          return 100;
+        }
+        return p + 5;
+      });
+    }, 100);
+  };
+
+  const handleExitEnd = () => {
+    if (exitTimeout.current) clearTimeout(exitTimeout.current);
+    if (exitInterval.current) clearInterval(exitInterval.current);
+    setExitHoldProgress(0);
+  };
 
   // Handle task completion click
   const handleCompleteTask = async (task: Task) => {
@@ -1880,6 +2018,37 @@ export default function ChildRoutine() {
           )}
         </div>
       )}
+
+      {/* Emotional Battery Warning Banner */}
+      {!sleepMode && activeChild?.emotionalBattery && activeChild.emotionalBattery !== 'green' && (
+        <div className={`w-full py-2.5 px-4 text-center text-xs font-black select-none z-40 flex items-center justify-center gap-2 font-Outfit shadow-sm shrink-0 border-b relative ${
+          activeChild.emotionalBattery === 'red' 
+            ? 'bg-red-500 text-white border-red-650' 
+            : 'bg-yellow-450 text-slate-950 border-yellow-500'
+        }`}>
+          {activeChild.emotionalBattery === 'red' ? (
+            <>
+              <span>🚨 Alerta de Sobrecarga! Vamos respirar fundo ou ir para um lugar calmo?</span>
+              <button 
+                onClick={handleTriggerSos} 
+                className="bg-white text-red-700 px-2.5 py-1 rounded-full text-[10px] uppercase font-black tracking-wide ml-2 hover:bg-red-50 active:scale-95 cursor-pointer transition-all shadow-sm border-none font-Outfit"
+              >
+                Ativar SOS 🚨
+              </button>
+            </>
+          ) : (
+            <>
+              <span>⚡ Sentindo cansaço? Tudo bem, o {activeChild.name.split(' ')[0]} pode ver uma historinha com você! 📖</span>
+              <button 
+                onClick={() => { playBubble(); setShowStoriesModal(true); }} 
+                className="bg-slate-950 text-yellow-400 px-2.5 py-1 rounded-full text-[10px] uppercase font-black tracking-wide ml-2 hover:bg-slate-900 active:scale-95 cursor-pointer transition-all shadow-sm border-none font-Outfit"
+              >
+                Ver Histórias 📖
+              </button>
+            </>
+          )}
+        </div>
+      )}
       {/* Background Soft Glows */}
       {sensoryVisuals === 'rich' && (
         <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
@@ -1962,6 +2131,51 @@ export default function ChildRoutine() {
           >
             🌙 {sleepMode ? 'Modo Normal' : 'Modo Sono'}
           </button>
+
+          <button
+            onClick={handleTriggerSos}
+            onMouseEnter={playBubble}
+            className={`flex items-center gap-1.5 px-5 py-2.5 border-2 text-xs font-black rounded-full shadow-premium transition-all active:scale-95 cursor-pointer ${
+              sleepMode 
+                ? 'bg-red-950/20 border-red-900/50 text-red-300 hover:bg-red-950/50' 
+                : 'bg-red-50 hover:bg-red-100 border-red-250 text-red-650 animate-pulse font-Outfit'
+            }`}
+          >
+            🚨 SOS
+          </button>
+          
+          {!sleepMode && (
+            <div className="flex items-center gap-1 bg-white border-2 border-slate-200 rounded-full px-2.5 py-1 shadow-sm shrink-0">
+              <span className="text-[9px] font-black text-slate-500 uppercase font-Outfit mr-0.5">Bateria:</span>
+              <button
+                onClick={() => handleUpdateBattery('green')}
+                className={`w-7 h-7 rounded-full flex items-center justify-center text-xs transition-all active:scale-90 cursor-pointer border-none ${
+                  activeChild?.emotionalBattery === 'green' ? 'bg-emerald-500 text-white shadow-sm' : 'bg-slate-100 grayscale opacity-40 hover:opacity-100 hover:grayscale-0'
+                }`}
+                title="Ótimo"
+              >
+                🔋
+              </button>
+              <button
+                onClick={() => handleUpdateBattery('yellow')}
+                className={`w-7 h-7 rounded-full flex items-center justify-center text-xs transition-all active:scale-90 cursor-pointer border-none ${
+                  activeChild?.emotionalBattery === 'yellow' ? 'bg-yellow-450 text-slate-950 shadow-sm' : 'bg-slate-100 grayscale opacity-40 hover:opacity-100 hover:grayscale-0'
+                }`}
+                title="Cansado"
+              >
+                ⚡
+              </button>
+              <button
+                onClick={() => handleUpdateBattery('red')}
+                className={`w-7 h-7 rounded-full flex items-center justify-center text-xs transition-all active:scale-90 cursor-pointer border-none ${
+                  activeChild?.emotionalBattery === 'red' ? 'bg-red-500 text-white shadow-sm' : 'bg-slate-100 grayscale opacity-40 hover:opacity-100 hover:grayscale-0'
+                }`}
+                title="Sobrecarregado"
+              >
+                🪫
+              </button>
+            </div>
+          )}
         </div>
 
         <h2 className={`text-xs font-black border-2 px-5 py-2.5 rounded-full shadow-premium uppercase tracking-widest font-Outfit ${
@@ -2952,6 +3166,85 @@ export default function ChildRoutine() {
       </AnimatePresence>
 
       {renderHyperfocusModals()}
+
+      {/* SOS Sensorial Full Screen Modal */}
+      <AnimatePresence>
+        {isSosActive && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] bg-[#030712] flex flex-col items-center justify-center overflow-hidden p-6"
+          >
+            {/* Soft background sparkles */}
+            <div className="absolute inset-0 opacity-20 pointer-events-none">
+              <div className="absolute top-[20%] left-[20%] w-4 h-4 bg-teal-400 rounded-full filter blur-xl animate-pulse"></div>
+              <div className="absolute bottom-[30%] right-[20%] w-6 h-6 bg-indigo-500 rounded-full filter blur-xl animate-pulse" style={{ animationDelay: '2s' }}></div>
+            </div>
+
+            <div className="relative z-10 text-center flex flex-col items-center gap-6 max-w-sm w-full">
+              {/* Calm sleep mascot */}
+              <div className="text-8xl select-none animate-pulse">
+                {(() => {
+                  const focus = (childHyperfocus || '').toLowerCase();
+                  if (focus.includes('dino')) return '🦕';
+                  if (focus.includes('space')) return '🛸';
+                  if (focus.includes('trem')) return '💤🚂';
+                  return '💤🐶';
+                })()}
+              </div>
+
+              <h1 className="text-3xl font-black text-teal-350 tracking-tight font-Outfit animate-pulse mt-2">
+                Espaço da Calma 🧘‍♂️
+              </h1>
+              <p className="text-slate-400 text-xs font-semibold px-6 leading-relaxed">
+                Feche os olhos, escute o som suave e acompanhe o balão de respiração com o seu corpinho.
+              </p>
+
+              {/* Glowing breathing animation */}
+              <div className="my-8 flex items-center justify-center relative w-60 h-60">
+                <motion.div
+                  animate={{ scale: [1, 1.4, 1.4, 1] }}
+                  transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+                  className="w-40 h-40 bg-teal-500/15 border-4 border-teal-400/30 rounded-full flex items-center justify-center relative shadow-2xl shadow-teal-500/10"
+                >
+                  <motion.div
+                    animate={{ scale: [1, 1.35, 1.35, 1] }}
+                    transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+                    className="w-28 h-28 bg-indigo-400/20 border-2 border-indigo-300/30 rounded-full flex items-center justify-center"
+                  />
+                </motion.div>
+                
+                <span className="absolute text-[11px] font-black text-teal-200 uppercase tracking-widest font-Outfit text-center">
+                  {breathStep === 'inspire' ? '✨ Puxar o Ar' : breathStep === 'segure' ? '⏸️ Segurar' : '🌬️ Soltar o Ar'}
+                </span>
+              </div>
+
+              {/* Exit HOLD action button */}
+              <div className="w-full flex flex-col items-center gap-2 mt-4">
+                <button
+                  onMouseDown={handleExitStart}
+                  onMouseUp={handleExitEnd}
+                  onMouseLeave={handleExitEnd}
+                  onTouchStart={handleExitStart}
+                  onTouchEnd={handleExitEnd}
+                  className="w-full py-4 border-2 border-slate-700 bg-slate-900 text-slate-300 hover:text-white text-xs font-black rounded-3xl relative overflow-hidden active:scale-98 transition-all cursor-pointer font-Outfit uppercase tracking-wider select-none"
+                >
+                  {/* Progress fill */}
+                  <div 
+                    className="absolute left-0 top-0 bottom-0 bg-teal-600/40 transition-all duration-100 pointer-events-none"
+                    style={{ width: `${exitHoldProgress}%` }}
+                  />
+                  <span className="relative z-10 font-Outfit">Pressione e segure para sair 🔒</span>
+                </button>
+                <span className="text-[9px] text-slate-500 font-extrabold">
+                  Segure por 2 segundos para liberar o cadeado clínico
+                </span>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </main>
   );
 }

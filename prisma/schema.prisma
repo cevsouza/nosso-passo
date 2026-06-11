@@ -48,6 +48,7 @@ model Child {
   sharingCode     String?     @unique
   collectedParts  Int         @default(0)
   toyInventory    String      @default("")
+  emotionalBattery String     @default("green")
 
   parentUid       String
   parent          UserProfile @relation(fields: [parentUid], references: [uid], onDelete: Cascade)
@@ -103,6 +104,9 @@ model SensoryLog {
   antecedent     String?
   behavior       String?
   consequence    String?
+  loggedBy       String?     @default("parent")
+  foodIntake     String?
+  schoolNoise    String?
   childId        String
   child          Child       @relation(fields: [childId], references: [id], onDelete: Cascade)
 }
