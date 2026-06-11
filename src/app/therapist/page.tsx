@@ -17,7 +17,11 @@ import {
   Calendar,
   Lock,
   ChevronRight,
-  FileSpreadsheet
+  FileSpreadsheet,
+  Plus,
+  Trash2,
+  Pencil,
+  X
 } from 'lucide-react';
 import { playBubble, playMarimba } from '../../lib/audio-synth';
 
@@ -34,6 +38,21 @@ export default function TherapistPortal() {
   const [profRole, setProfRole] = useState('Psicologia ABA');
   const [savingCheckpoint, setSavingCheckpoint] = useState(false);
   const [statusMsg, setStatusMsg] = useState('');
+
+  // Task management states
+  const [taskFormOpen, setTaskFormOpen] = useState(false);
+  const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
+  const [taskTitle, setTaskTitle] = useState('');
+  const [taskTime, setTaskTime] = useState('08:00');
+  const [taskPeriod, setTaskPeriod] = useState<'manhã' | 'tarde' | 'noite'>('manhã');
+  const [taskDay, setTaskDay] = useState('1');
+  const [taskDuration, setTaskDuration] = useState(30);
+  const [taskCategory, setTaskCategory] = useState<'AVD' | 'Aprendizado' | 'Lazer'>('AVD');
+  const [taskIcon, setTaskIcon] = useState('📅');
+  const [taskCustomIcon, setTaskCustomIcon] = useState('');
+  const [taskDescription, setTaskDescription] = useState('');
+  const [savingTask, setSavingTask] = useState(false);
+  const [taskError, setTaskError] = useState('');
 
   const handleVerify = async (e?: React.FormEvent, codeToUse?: string) => {
     if (e) e.preventDefault();
@@ -69,6 +88,195 @@ export default function TherapistPortal() {
       }
     }
   }, []);
+
+  const resetTaskForm = () => {
+    setEditingTaskId(null);
+    setTaskTitle('');
+    setTaskTime('08:00');
+    setTaskPeriod('manhã');
+    setTaskDay('1');
+    setTaskDuration(30);
+    setTaskCategory('AVD');
+    setTaskIcon('📅');
+    setTaskCustomIcon('');
+    setTaskDescription('');
+    setTaskError('');
+  };
+
+  const startEditingTask = (task: any) => {
+    playBubble();
+    setEditingTaskId(task.id);
+    setTaskTitle(task.title || '');
+    setTaskTime(task.time || '08:00');
+    setTaskPeriod(task.period || 'manhã');
+    setTaskDay(task.day || '1');
+    setTaskDuration(task.duration || 30);
+    setTaskCategory(task.category || 'AVD');
+    setTaskIcon(task.icon || '📅');
+    setTaskCustomIcon(task.customIcon || '');
+    setTaskDescription(task.description || '');
+    setTaskFormOpen(true);
+  };
+
+  const handleTaskFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setTaskCustomIcon(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleSaveTask = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!taskTitle.trim() || !childData) return;
+    setSavingTask(true);
+    setTaskError('');
+
+    try {
+      if (editingTaskId) {
+        const res = await fetch('/api/therapist', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            sharingCode: childData.sharingCode,
+            action: 'UPDATE_TASK',
+            taskId: editingTaskId,
+            updates: {
+              title: taskTitle.trim(),
+              time: taskTime,
+              period: taskPeriod,
+              day: taskDay,
+              duration: Number(taskDuration),
+              category: taskCategory,
+              icon: taskIcon,
+              customIcon: taskCustomIcon.trim() || null,
+              description: taskDescription.trim()
+            }
+          })
+        });
+
+        const updatedTask = await res.json();
+        if (!res.ok) throw new Error(updatedTask.error || 'Erro ao atualizar tarefa');
+
+        setChildData((prev: any) => ({
+          ...prev,
+          tasks: prev.tasks.map((t: any) => t.id === editingTaskId ? updatedTask : t).sort((a: any, b: any) => {
+            const dayA = parseInt(a.day) || 1;
+            const dayB = parseInt(b.day) || 1;
+            if (dayA !== dayB) return dayA - dayB;
+            return a.time.localeCompare(b.time);
+          })
+        }));
+
+        playMarimba(523, 0.4);
+        setEditingTaskId(null);
+        setTaskFormOpen(false);
+        resetTaskForm();
+      } else {
+        const res = await fetch('/api/therapist', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            sharingCode: childData.sharingCode,
+            action: 'CREATE_TASK',
+            taskData: {
+              title: taskTitle.trim(),
+              time: taskTime,
+              period: taskPeriod,
+              day: taskDay,
+              duration: Number(taskDuration),
+              category: taskCategory,
+              icon: taskIcon,
+              customIcon: taskCustomIcon.trim() || null,
+              description: taskDescription.trim()
+            }
+          })
+        });
+
+        const newTask = await res.json();
+        if (!res.ok) throw new Error(newTask.error || 'Erro ao criar tarefa');
+
+        setChildData((prev: any) => ({
+          ...prev,
+          tasks: [...prev.tasks, newTask].sort((a: any, b: any) => {
+            const dayA = parseInt(a.day) || 1;
+            const dayB = parseInt(b.day) || 1;
+            if (dayA !== dayB) return dayA - dayB;
+            return a.time.localeCompare(b.time);
+          })
+        }));
+
+        playMarimba(523, 0.4);
+        setTaskFormOpen(false);
+        resetTaskForm();
+      }
+    } catch (err: any) {
+      setTaskError(err.message || 'Erro ao salvar tarefa.');
+      playMarimba(180, 0.2);
+    } finally {
+      setSavingTask(false);
+    }
+  };
+
+  const handleDeleteTask = async (taskId: string) => {
+    if (!window.confirm('Tem certeza que deseja remover esta atividade da rotina?') || !childData) return;
+    playMarimba(196, 0.4);
+
+    try {
+      const res = await fetch('/api/therapist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sharingCode: childData.sharingCode,
+          action: 'DELETE_TASK',
+          taskId
+        })
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Erro ao remover tarefa');
+
+      setChildData((prev: any) => ({
+        ...prev,
+        tasks: prev.tasks.filter((t: any) => t.id !== taskId)
+      }));
+    } catch (err: any) {
+      alert(err.message || 'Erro ao remover tarefa.');
+    }
+  };
+
+  const handleToggleTaskCompletion = async (task: any) => {
+    if (!childData) return;
+    playBubble();
+
+    try {
+      const res = await fetch('/api/therapist', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sharingCode: childData.sharingCode,
+          action: 'UPDATE_TASK',
+          taskId: task.id,
+          updates: {
+            isCompleted: !task.isCompleted
+          }
+        })
+      });
+
+      const updatedTask = await res.json();
+      if (!res.ok) throw new Error(updatedTask.error || 'Erro ao alterar status da tarefa');
+
+      setChildData((prev: any) => ({
+        ...prev,
+        tasks: prev.tasks.map((t: any) => t.id === task.id ? updatedTask : t)
+      }));
+    } catch (err: any) {
+      alert(err.message || 'Erro ao atualizar tarefa.');
+    }
+  };
 
   const handleUpdateCheckpoint = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -478,11 +686,25 @@ export default function TherapistPortal() {
 
               {/* Child Routine Inspection */}
               <div className="bg-white border border-slate-200 p-6 rounded-[28px] shadow-premium flex flex-col gap-4 text-left">
-                <div className="flex items-center gap-2 text-indigo-650">
-                  <FileSpreadsheet className="w-5 h-5" />
-                  <h3 className="font-black text-slate-900 text-lg font-Outfit">Grade de Tarefas da Rotina</h3>
+                <div className="flex items-center justify-between gap-2 text-indigo-650 flex-wrap">
+                  <div className="flex items-center gap-2">
+                    <FileSpreadsheet className="w-5 h-5" />
+                    <h3 className="font-black text-slate-900 text-lg font-Outfit">Grade de Tarefas da Rotina</h3>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      playBubble();
+                      resetTaskForm();
+                      setTaskFormOpen(true);
+                    }}
+                    className="flex items-center gap-1 px-3 py-1.5 bg-indigo-650 hover:bg-indigo-750 text-white text-[10px] font-black rounded-lg active:scale-95 transition-all cursor-pointer font-Outfit shadow-xxs border-none outline-none"
+                  >
+                    <Plus className="w-3.5 h-3.5" /> Adicionar Atividade
+                  </button>
                 </div>
-                <div className="flex flex-col gap-2.5 max-h-[350px] overflow-y-auto pr-1">
+
+                <div className="flex flex-col gap-2.5 max-h-[400px] overflow-y-auto pr-1">
                   {tasks.length === 0 ? (
                     <p className="text-xs text-slate-400 italic text-center py-6">Nenhuma tarefa cadastrada nesta rotina.</p>
                   ) : (
@@ -498,7 +720,7 @@ export default function TherapistPortal() {
                               )}
                             </div>
                             <div>
-                              <div className="flex items-center gap-1.5 flex-wrap">
+                              <div className="flex items-center gap-1.5 flex-wrap text-left">
                                 <span className="font-extrabold text-slate-800 text-sm">{task.title}</span>
                                 <span className="text-[8px] bg-slate-200/60 border border-slate-300 text-slate-600 px-1.5 py-0.5 rounded font-black uppercase">
                                   {task.category || 'AVD'}
@@ -509,29 +731,250 @@ export default function TherapistPortal() {
                                   </span>
                                 )}
                               </div>
-                              <p className="text-[10px] text-slate-450 font-bold mt-1">
+                              <p className="text-[10px] text-slate-450 font-bold mt-1 text-left">
                                 Dia {task.day} • {task.time} ({task.period})
                               </p>
                               {task.description && (
-                                <p className="text-[10px] text-slate-400 font-semibold mt-0.5">
+                                <p className="text-[10px] text-slate-400 font-semibold mt-0.5 text-left">
                                   💡 Instruções: {task.description}
                                 </p>
                               )}
                             </div>
                           </div>
                           
-                          <span className={`px-2.5 py-1 rounded-full text-[9px] font-black uppercase border ${
-                            task.isCompleted 
-                              ? 'bg-emerald-50 text-emerald-800 border-emerald-150' 
-                              : 'bg-amber-50 text-amber-800 border-amber-150'
-                          }`}>
-                            {task.isCompleted ? 'Feito' : 'Pendente'}
-                          </span>
+                          <div className="flex items-center gap-2 shrink-0">
+                            <span 
+                              onClick={() => handleToggleTaskCompletion(task)}
+                              className={`px-2.5 py-1 rounded-full text-[9px] font-black uppercase border cursor-pointer select-none active:scale-95 transition-all ${
+                                task.isCompleted 
+                                  ? 'bg-emerald-50 text-emerald-800 border-emerald-150 hover:bg-emerald-100' 
+                                  : 'bg-amber-50 text-amber-800 border-amber-150 hover:bg-amber-100'
+                              }`}
+                              title="Clique para alternar conclusão"
+                            >
+                              {task.isCompleted ? 'Feito' : 'Pendente'}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => startEditingTask(task)}
+                              className="p-1 bg-white hover:bg-indigo-50 border border-slate-200 hover:border-indigo-200 text-slate-600 hover:text-indigo-650 rounded-md active:scale-90 transition-all cursor-pointer outline-none"
+                              title="Editar atividade"
+                            >
+                              <Pencil className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteTask(task.id)}
+                              className="p-1 bg-white hover:bg-rose-50 border border-slate-200 hover:border-rose-200 text-slate-600 hover:text-rose-650 rounded-md active:scale-90 transition-all cursor-pointer outline-none"
+                              title="Remover atividade"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
                         </div>
                       );
                     })
                   )}
                 </div>
+
+                {/* Interactive Task Form */}
+                <AnimatePresence mode="wait">
+                  {taskFormOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="border-t border-slate-150 pt-5 mt-3 text-left relative overflow-hidden"
+                    >
+                      <div className="flex justify-between items-center mb-3">
+                        <h4 className="font-extrabold text-xs text-slate-800 font-Outfit flex items-center gap-1.5">
+                          {editingTaskId ? '📝 Editar Atividade' : '✨ Nova Atividade'}
+                        </h4>
+                        <button
+                          type="button"
+                          onClick={() => { playBubble(); setTaskFormOpen(false); resetTaskForm(); }}
+                          className="text-slate-400 hover:text-slate-650 cursor-pointer p-1 border-none bg-transparent"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+
+                      <form onSubmit={handleSaveTask} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="md:col-span-2">
+                          <label className="block text-[9px] font-black text-slate-500 uppercase mb-1 pl-0.5">
+                            Título da Atividade
+                          </label>
+                          <input
+                            type="text"
+                            value={taskTitle}
+                            onChange={e => setTaskTitle(e.target.value)}
+                            placeholder="Ex: Escovar os dentes 🪥, Terapia Ocupacional..."
+                            className="w-full px-3 py-2 bg-slate-50 border-2 border-slate-200 focus:border-indigo-500 focus:bg-white rounded-xl text-xs font-bold outline-none transition-all"
+                            required
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-[9px] font-black text-slate-500 uppercase mb-1 pl-0.5">
+                            Horário
+                          </label>
+                          <input
+                            type="time"
+                            value={taskTime}
+                            onChange={e => setTaskTime(e.target.value)}
+                            className="w-full px-3 py-2 bg-slate-50 border-2 border-slate-200 focus:border-indigo-500 focus:bg-white rounded-xl text-xs font-bold outline-none transition-all"
+                            required
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-[9px] font-black text-slate-500 uppercase mb-1 pl-0.5">
+                            Período
+                          </label>
+                          <select
+                            value={taskPeriod}
+                            onChange={e => setTaskPeriod(e.target.value as any)}
+                            className="w-full px-3 py-2 bg-slate-50 border-2 border-slate-200 focus:border-indigo-500 focus:bg-white rounded-xl text-xs font-bold outline-none cursor-pointer transition-all"
+                          >
+                            <option value="manhã">Manhã ☀️</option>
+                            <option value="tarde">Tarde ⛅</option>
+                            <option value="noite">Noite 🌙</option>
+                          </select>
+                        </div>
+
+                        <div>
+                          <label className="block text-[9px] font-black text-slate-500 uppercase mb-1 pl-0.5">
+                            Dia do Mês (1 a 31)
+                          </label>
+                          <select
+                            value={taskDay}
+                            onChange={e => setTaskDay(e.target.value)}
+                            className="w-full px-3 py-2 bg-slate-50 border-2 border-slate-200 focus:border-indigo-500 focus:bg-white rounded-xl text-xs font-bold outline-none cursor-pointer transition-all"
+                          >
+                            {Array.from({ length: 31 }).map((_, i) => (
+                              <option key={i + 1} value={String(i + 1)}>Dia {i + 1}</option>
+                            ))}
+                          </select>
+                        </div>
+
+                        <div>
+                          <label className="block text-[9px] font-black text-slate-500 uppercase mb-1 pl-0.5">
+                            Duração Estimada (minutos)
+                          </label>
+                          <input
+                            type="number"
+                            value={taskDuration}
+                            onChange={e => setTaskDuration(Number(e.target.value))}
+                            min={1}
+                            className="w-full px-3 py-2 bg-slate-50 border-2 border-slate-200 focus:border-indigo-500 focus:bg-white rounded-xl text-xs font-bold outline-none transition-all"
+                            required
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-[9px] font-black text-slate-500 uppercase mb-1 pl-0.5">
+                            Categoria Clínica
+                          </label>
+                          <select
+                            value={taskCategory}
+                            onChange={e => setTaskCategory(e.target.value as any)}
+                            className="w-full px-3 py-2 bg-slate-50 border-2 border-slate-200 focus:border-indigo-500 focus:bg-white rounded-xl text-xs font-bold outline-none cursor-pointer transition-all"
+                          >
+                            <option value="AVD">AVD (Ativ. Vida Diária) 🧼</option>
+                            <option value="Aprendizado">Aprendizado / Sessão 🧠</option>
+                            <option value="Lazer">Lazer / Brincar 🎨</option>
+                          </select>
+                        </div>
+
+                        <div>
+                          <label className="block text-[9px] font-black text-slate-500 uppercase mb-1 pl-0.5">
+                            Ícone Padrão
+                          </label>
+                          <select
+                            value={taskIcon}
+                            onChange={e => setTaskIcon(e.target.value)}
+                            className="w-full px-3 py-2 bg-slate-50 border-2 border-slate-200 focus:border-indigo-500 focus:bg-white rounded-xl text-xs font-bold outline-none cursor-pointer transition-all"
+                          >
+                            <option value="📅">Calendário 📅</option>
+                            <option value="🧼">Higiene 🧼</option>
+                            <option value="🪥">Escova 🪥</option>
+                            <option value="🍲">Alimentação 🍲</option>
+                            <option value="🏫">Escola 🏫</option>
+                            <option value="🎨">Lazer 🎨</option>
+                            <option value="🐶">Mascote 🐶</option>
+                            <option value="😴">Dormir 😴</option>
+                            <option value="🧸">Brinquedo 🧸</option>
+                            <option value="🧠">Sessão ABA 🧠</option>
+                            <option value="🗣️">Fono 🗣️</option>
+                            <option value="⚽">Esporte ⚽</option>
+                          </select>
+                        </div>
+
+                        <div className="md:col-span-2">
+                          <label className="block text-[9px] font-black text-slate-500 uppercase mb-1 pl-0.5">
+                            Ou Anexar Foto Real (PECS Customizado)
+                          </label>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleTaskFileChange}
+                            className="w-full text-xs font-semibold text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-[10px] file:font-black file:uppercase file:bg-indigo-50 file:text-indigo-750 hover:file:bg-indigo-100 cursor-pointer"
+                          />
+                          {taskCustomIcon && (
+                            <div className="mt-2 flex items-center gap-2">
+                              <span className="text-[9px] text-slate-400 font-extrabold">Pré-visualização:</span>
+                              <div className="w-8 h-8 rounded-lg overflow-hidden border border-slate-250 bg-slate-50 flex items-center justify-center">
+                                <img src={taskCustomIcon} alt="" className="w-full h-full object-cover" />
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => setTaskCustomIcon('')}
+                                className="text-[9px] font-bold text-red-500 hover:underline cursor-pointer border-none bg-transparent outline-none"
+                              >
+                                Remover foto
+                              </button>
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="md:col-span-2">
+                          <label className="block text-[9px] font-black text-slate-500 uppercase mb-1 pl-0.5">
+                            Descrição / Instruções
+                          </label>
+                          <textarea
+                            value={taskDescription}
+                            onChange={e => setTaskDescription(e.target.value)}
+                            placeholder="Descreva instruções passo a passo para a criança ou orientações sensoriais..."
+                            className="w-full p-3 bg-slate-50 border-2 border-slate-200 focus:border-indigo-500 focus:bg-white rounded-xl text-xs font-semibold outline-none h-18 resize-none transition-all"
+                          />
+                        </div>
+
+                        {taskError && (
+                          <p className="md:col-span-2 text-xxs font-extrabold p-2 rounded-lg text-center bg-red-50 text-red-500 border border-red-100">
+                            ⚠️ {taskError}
+                          </p>
+                        )}
+
+                        <div className="md:col-span-2 flex gap-2 justify-end mt-1">
+                          <button
+                            type="button"
+                            onClick={() => { playBubble(); setTaskFormOpen(false); resetTaskForm(); }}
+                            className="px-3.5 py-2 bg-slate-250 text-slate-650 text-xs font-bold rounded-xl active:scale-95 cursor-pointer border-none outline-none"
+                          >
+                            Cancelar
+                          </button>
+                          <button
+                            type="submit"
+                            disabled={savingTask}
+                            className="px-5 py-2 bg-indigo-600 hover:bg-indigo-750 text-white text-xs font-bold rounded-xl shadow-sm active:scale-95 cursor-pointer flex items-center gap-1 disabled:opacity-50 border-none outline-none"
+                          >
+                            {savingTask ? 'Salvando...' : 'Salvar Atividade'}
+                          </button>
+                        </div>
+                      </form>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
 
             </div>
