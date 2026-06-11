@@ -173,7 +173,7 @@ let activeAmbientGain: GainNode | null = null;
  * Starts a procedural sensory ambient sound loop (brown noise or binaural beats).
  * Safe from missing audio asset issues as it synthesizes audio nodes dynamically.
  */
-export const startAmbientSound = (type: 'rain' | 'binaural' | 'none') => {
+export const startAmbientSound = (type: 'rain' | 'binaural' | 'white' | 'pink' | 'none') => {
   if (typeof window === 'undefined') return;
   stopAmbientSound(); // Stop any existing loop first
   
@@ -200,6 +200,60 @@ export const startAmbientSound = (type: 'rain' | 'binaural' | 'none') => {
       output[i] = (lastOut + (0.02 * white)) / 1.02;
       lastOut = output[i];
       output[i] *= 3.5; // Gain compensation
+    }
+    const noiseSource = ctx.createBufferSource();
+    noiseSource.buffer = noiseBuffer;
+    noiseSource.loop = true;
+    noiseSource.connect(mainGain);
+    mainGain.connect(ctx.destination);
+    noiseSource.start(now);
+    
+    sourceNode = {
+      stop: () => {
+        try {
+          noiseSource.stop();
+        } catch(e) {}
+      }
+    };
+  } else if (type === 'white') {
+    // Generate White Noise
+    const bufferSize = 2 * ctx.sampleRate;
+    const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const output = noiseBuffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+      output[i] = (Math.random() * 2 - 1) * 0.5; // reduce base intensity slightly
+    }
+    const noiseSource = ctx.createBufferSource();
+    noiseSource.buffer = noiseBuffer;
+    noiseSource.loop = true;
+    noiseSource.connect(mainGain);
+    mainGain.connect(ctx.destination);
+    noiseSource.start(now);
+    
+    sourceNode = {
+      stop: () => {
+        try {
+          noiseSource.stop();
+        } catch(e) {}
+      }
+    };
+  } else if (type === 'pink') {
+    // Generate Pink Noise (refined 3dB/octave decay approximation)
+    const bufferSize = 2 * ctx.sampleRate;
+    const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const output = noiseBuffer.getChannelData(0);
+    let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
+    for (let i = 0; i < bufferSize; i++) {
+      const white = Math.random() * 2 - 1;
+      b0 = 0.99886 * b0 + white * 0.0555179;
+      b1 = 0.99332 * b1 + white * 0.0750759;
+      b2 = 0.96900 * b2 + white * 0.1538520;
+      b3 = 0.86650 * b3 + white * 0.3104856;
+      b4 = 0.55000 * b4 + white * 0.5329522;
+      b5 = -0.7616 * b5 - white * 0.0168980;
+      output[i] = b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362;
+      output[i] *= 0.11; // rescue factor
+      b6 = white * 0.115926;
     }
     const noiseSource = ctx.createBufferSource();
     noiseSource.buffer = noiseBuffer;

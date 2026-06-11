@@ -7,6 +7,7 @@ export interface Task {
   isCompleted: boolean;
   order: number;
   icon?: string;
+  customIcon?: string;
   category?: 'AVD' | 'Aprendizado' | 'Lazer';
   duration?: number;
   description?: string;
@@ -24,7 +25,7 @@ export interface UserProfile {
   sensorySound?: 'marimba' | 'bubble' | 'silent';
   sensoryVisuals?: 'rich' | 'minimal';
   sensoryProfile?: 'balanced' | 'hypersensitive' | 'hyposensitive';
-  timerStyle?: 'circle' | 'hourglass' | 'droplets';
+  timerStyle?: 'circle' | 'hourglass' | 'droplets' | 'hyperfocus';
 }
 
 export interface Child {
@@ -46,6 +47,7 @@ export interface Child {
   tokens?: number;
   transitionMinutes?: number;
   parentUid: string;
+  sharingCode?: string;
 }
 
 export interface SensoryLog {
@@ -54,6 +56,10 @@ export interface SensoryLog {
   mood?: 'feliz' | 'calmo' | 'agitado' | 'triste';
   crisisOccurred: boolean;
   notes?: string;
+  decibels?: number;
+  lightLevel?: string;
+  location?: string;
+  trigger?: string;
 }
 
 export interface Checkpoint {
@@ -271,7 +277,16 @@ export const firebaseBridge = {
       return data;
     },
 
-    addSensoryLog: async (logData: { childId: string; mood?: string; crisisOccurred?: boolean; notes?: string }): Promise<SensoryLog> => {
+    addSensoryLog: async (logData: { 
+      childId: string; 
+      mood?: string; 
+      crisisOccurred?: boolean; 
+      notes?: string;
+      decibels?: number;
+      lightLevel?: string;
+      location?: string;
+      trigger?: string;
+    }): Promise<SensoryLog> => {
       const res = await fetch('/api/sensory-logs', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

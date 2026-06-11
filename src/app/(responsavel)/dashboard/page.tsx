@@ -359,6 +359,12 @@ export default function ParentDashboard() {
   // Emotional sensory log states
   const [sensoryLogs, setSensoryLogs] = useState<any[]>([]);
   const [crisisNotes, setCrisisNotes] = useState('');
+  const [crisisLocation, setCrisisLocation] = useState('Casa');
+  const [crisisLightLevel, setCrisisLightLevel] = useState('Média');
+  const [crisisDecibels, setCrisisDecibels] = useState(50);
+  const [crisisTrigger, setCrisisTrigger] = useState('Nenhum');
+  const [taskCustomIcon, setTaskCustomIcon] = useState('');
+  const [editTaskCustomIcon, setEditTaskCustomIcon] = useState('');
   const [savingCrisis, setSavingCrisis] = useState(false);
 
   const [showPaywall, setShowPaywall] = useState(false);
@@ -705,6 +711,45 @@ export default function ParentDashboard() {
     router.push('/login');
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, isEdit: boolean) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64String = reader.result as string;
+        if (isEdit) {
+          setEditTaskCustomIcon(base64String);
+        } else {
+          setTaskCustomIcon(base64String);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleGenerateSharingCode = async () => {
+    if (!activeChild) return;
+    playMarimba(392, 0.4);
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let code = '';
+    for (let i = 0; i < 6; i++) {
+      code += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    
+    try {
+      const updated = await firebaseBridge.auth.updateChildSettings(activeChild.id, {
+        sharingCode: code
+      } as any);
+      
+      setActiveChild(updated);
+      firebaseBridge.auth.setActiveChild(updated);
+      setChildren(prev => prev.map(c => c.id === updated.id ? updated : c));
+      triggerStatus(`Código gerado: ${code}`);
+    } catch (err) {
+      triggerStatus('Erro ao gerar código.');
+    }
+  };
+
   // Add Task to Routine
   const handleAddTask = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -726,6 +771,7 @@ export default function ParentDashboard() {
         period,
         day: activeDayFilter,
         icon: taskIcon,
+        customIcon: taskCustomIcon.trim() || undefined,
         category: taskCategory,
         duration: taskDuration,
         description: taskDescription.trim()
@@ -741,6 +787,7 @@ export default function ParentDashboard() {
 
       setTitle('');
       setTaskIcon('📅');
+      setTaskCustomIcon('');
       setTaskCategory('AVD');
       setTaskDuration(30);
       setTaskDescription('');
@@ -781,7 +828,8 @@ export default function ParentDashboard() {
         duration: editTaskDuration,
         description: editTaskDescription.trim(),
         category: editTaskCategory,
-        icon: editTaskIcon
+        icon: editTaskIcon,
+        customIcon: editTaskCustomIcon.trim() || undefined
       });
 
       const dayLabel = DAYS_OF_MONTH.find(d => d.key === activeDayFilter)?.label;
@@ -1298,6 +1346,7 @@ export default function ParentDashboard() {
                   <option value="circle">Time Timer Tradicional (Círculo Vermelho) ⏱️</option>
                   <option value="hourglass">Ampulheta Lúdica (Areia caindo) ⏳</option>
                   <option value="droplets">Gotas de Água (Gotas enchendo vaso) 💧</option>
+                  <option value="hyperfocus">Temporizador Temático do Hiperfoco 🚀</option>
                 </select>
               </div>
 
@@ -1394,6 +1443,53 @@ export default function ParentDashboard() {
                       className="text-[10px] font-black uppercase text-indigo-600 hover:text-indigo-850 cursor-pointer bg-transparent border-none font-bold"
                     >
                       Upgrade
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Clinical Sharing Code */}
+              <div className="bg-indigo-50 border-2 border-indigo-200 p-4.5 rounded-2xl flex flex-col gap-3 shadow-xxs">
+                <span className="text-[10px] font-black uppercase tracking-widest text-indigo-900 flex items-center gap-1 select-none font-Outfit">
+                  ⚕️ Compartilhamento Clínico (Terapeutas)
+                </span>
+                <p className="text-[10px] text-slate-505 font-semibold leading-tight">
+                  Gere um código de acesso seguro de leitura-escrita para terapeutas acompanharem a rotina e registrarem checkpoints.
+                </p>
+                <div className="flex gap-2 items-center justify-between bg-white border border-slate-200 p-2.5 rounded-xl">
+                  {activeChild?.sharingCode ? (
+                    <>
+                      <span className="text-sm font-black text-indigo-650 tracking-wider bg-indigo-50/50 px-3 py-1.5 rounded-lg border border-indigo-150 font-Outfit">
+                        {activeChild.sharingCode}
+                      </span>
+                      <div className="flex gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            navigator.clipboard.writeText(activeChild.sharingCode || '');
+                            triggerStatus('Código copiado!');
+                          }}
+                          className="px-2.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-[9px] font-black rounded-lg active:scale-95 transition-all cursor-pointer font-Outfit"
+                        >
+                          Copiar
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleGenerateSharingCode}
+                          className="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-[9px] font-black rounded-lg active:scale-95 transition-all cursor-pointer border border-slate-300 font-Outfit"
+                          title="Gerar novo código"
+                        >
+                          Renovar
+                        </button>
+                      </div>
+                    </>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={handleGenerateSharingCode}
+                      className="w-full py-2 bg-indigo-100 hover:bg-indigo-200 text-indigo-900 border border-indigo-300 rounded-xl text-xs font-black active:scale-95 transition-all cursor-pointer font-Outfit"
+                    >
+                      Gerar Código Clínico
                     </button>
                   )}
                 </div>
@@ -1758,6 +1854,48 @@ export default function ParentDashboard() {
                                 </button>
                               ))}
                             </div>
+                            <div className="mt-2.5">
+                              <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Ou Foto Real do Pertence (PECS Customizado)</label>
+                              <div className="flex gap-2 items-center">
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  onChange={e => handleFileChange(e, false)}
+                                  className="hidden"
+                                  id="task-file-upload"
+                                />
+                                <label
+                                  htmlFor="task-file-upload"
+                                  className="px-2.5 py-1.5 bg-indigo-50 border border-indigo-250 text-indigo-700 rounded-xl text-[10px] font-black hover:bg-indigo-100/50 cursor-pointer shadow-xxs transition-all flex items-center gap-1 shrink-0"
+                                >
+                                  📷 Upload
+                                </label>
+                                <input
+                                  type="text"
+                                  placeholder="Ou cole a URL da imagem..."
+                                  value={taskCustomIcon}
+                                  onChange={e => setTaskCustomIcon(e.target.value)}
+                                  className="flex-1 px-2.5 py-1.5 bg-white border border-slate-200 rounded-xl text-slate-700 outline-none text-[10px] font-semibold focus:border-indigo-400"
+                                />
+                                {taskCustomIcon && (
+                                  <button
+                                    type="button"
+                                    onClick={() => setTaskCustomIcon('')}
+                                    className="text-red-500 text-[10px] font-black cursor-pointer hover:underline"
+                                  >
+                                    Limpar
+                                  </button>
+                                )}
+                              </div>
+                              {taskCustomIcon && (
+                                <div className="mt-2 flex items-center gap-2">
+                                  <span className="text-[9px] text-slate-400 font-semibold">Pré-visualização:</span>
+                                  <div className="w-8 h-8 border border-slate-200 rounded-lg overflow-hidden flex items-center justify-center bg-slate-50 shadow-xxs">
+                                    <img src={taskCustomIcon} alt="Preview" className="w-full h-full object-cover" />
+                                  </div>
+                                </div>
+                              )}
+                            </div>
                           </div>
                         </div>
 
@@ -1912,6 +2050,48 @@ export default function ParentDashboard() {
                                               </button>
                                             ))}
                                           </div>
+                                          <div className="mt-2">
+                                            <label className="block text-[9px] font-bold text-slate-500 uppercase mb-1">Ou Foto Real (PECS Customizado)</label>
+                                            <div className="flex gap-1.5 items-center">
+                                              <input
+                                                type="file"
+                                                accept="image/*"
+                                                onChange={e => handleFileChange(e, true)}
+                                                className="hidden"
+                                                id="edit-task-file-upload"
+                                              />
+                                              <label
+                                                htmlFor="edit-task-file-upload"
+                                                className="px-2 py-1 bg-indigo-50 border border-indigo-250 text-indigo-700 rounded-lg text-[9px] font-black hover:bg-indigo-100/50 cursor-pointer shadow-xxs transition-all flex items-center gap-1 shrink-0"
+                                              >
+                                                📷 Foto
+                                              </label>
+                                              <input
+                                                type="text"
+                                                placeholder="URL da imagem..."
+                                                value={editTaskCustomIcon}
+                                                onChange={e => setEditTaskCustomIcon(e.target.value)}
+                                                className="flex-1 px-2 py-1 bg-white border border-slate-200 rounded-lg text-slate-700 outline-none text-[9px] font-semibold focus:border-indigo-400"
+                                              />
+                                              {editTaskCustomIcon && (
+                                                <button
+                                                  type="button"
+                                                  onClick={() => setEditTaskCustomIcon('')}
+                                                  className="text-red-500 text-[9px] font-black cursor-pointer hover:underline"
+                                                >
+                                                  Limpar
+                                                </button>
+                                              )}
+                                            </div>
+                                            {editTaskCustomIcon && (
+                                              <div className="mt-1 flex items-center gap-2">
+                                                <span className="text-[8px] text-slate-400 font-semibold">Pré-visualização:</span>
+                                                <div className="w-6 h-6 border border-slate-200 rounded-md overflow-hidden flex items-center justify-center bg-slate-50 shadow-xxs">
+                                                  <img src={editTaskCustomIcon} alt="Preview" className="w-full h-full object-cover" />
+                                                </div>
+                                              </div>
+                                            )}
+                                          </div>
                                         </div>
                                       </div>
 
@@ -1952,8 +2132,12 @@ export default function ParentDashboard() {
                                     }}
                                   >
                                     <div className="flex items-center gap-3">
-                                      <div className="w-9 h-9 bg-indigo-50 border border-indigo-100 text-slate-700 rounded-xl flex items-center justify-center text-lg shadow-xxs shrink-0 select-none">
-                                        {task.icon || '📅'}
+                                      <div className="w-9 h-9 bg-indigo-50 border border-indigo-100 text-slate-700 rounded-xl flex items-center justify-center text-lg shadow-xxs shrink-0 overflow-hidden select-none">
+                                        {task.customIcon ? (
+                                          <img src={task.customIcon} alt="" className="w-full h-full object-cover" />
+                                        ) : (
+                                          task.icon || '📅'
+                                        )}
                                       </div>
                                       <div className="w-9 h-9 bg-slate-50 border border-slate-200/60 text-slate-500 rounded-xl flex items-center justify-center text-xs font-black shadow-xxs shrink-0">
                                         {task.time}
@@ -2681,11 +2865,19 @@ export default function ParentDashboard() {
                                 const newLog = await firebaseBridge.db.addSensoryLog({
                                   childId: activeChild.id,
                                   crisisOccurred: true,
-                                  notes: crisisNotes.trim()
+                                  notes: crisisNotes.trim(),
+                                  decibels: Number(crisisDecibels) || undefined,
+                                  lightLevel: crisisLightLevel,
+                                  location: crisisLocation,
+                                  trigger: crisisTrigger === 'Nenhum' ? undefined : crisisTrigger
                                 });
 
                                 setSensoryLogs(prev => [newLog, ...prev]);
                                 setCrisisNotes('');
+                                setCrisisLocation('Casa');
+                                setCrisisLightLevel('Média');
+                                setCrisisDecibels(50);
+                                setCrisisTrigger('Nenhum');
                                 triggerStatus('Crise sensorial registrada!');
                                 
                                 await immutableLogger.logChange(
@@ -2708,6 +2900,67 @@ export default function ParentDashboard() {
                               placeholder="Descreva a crise (comportamento, gatilho e estratégias aplicadas)"
                               className="w-full p-2 bg-white border border-slate-200 rounded-lg text-xs font-semibold outline-none focus:border-red-400 h-16 resize-none"
                             />
+                            
+                            <div className="grid grid-cols-2 gap-2 my-1.5">
+                              <div>
+                                <label className="block text-[8px] font-black text-slate-500 uppercase mb-0.5">Localização</label>
+                                <select
+                                  value={crisisLocation}
+                                  onChange={e => setCrisisLocation(e.target.value)}
+                                  className="w-full px-2 py-1 bg-white border border-slate-200 rounded-lg text-[10px] font-bold outline-none cursor-pointer"
+                                >
+                                  <option value="Casa">Casa 🏠</option>
+                                  <option value="Escola">Escola 🏫</option>
+                                  <option value="Parque">Parque 🌳</option>
+                                  <option value="Consultório">Consultório 🩺</option>
+                                  <option value="Outro">Outro 🌐</option>
+                                </select>
+                              </div>
+                              
+                              <div>
+                                <label className="block text-[8px] font-black text-slate-500 uppercase mb-0.5">Luminosidade</label>
+                                <select
+                                  value={crisisLightLevel}
+                                  onChange={e => setCrisisLightLevel(e.target.value)}
+                                  className="w-full px-2 py-1 bg-white border border-slate-200 rounded-lg text-[10px] font-bold outline-none cursor-pointer"
+                                >
+                                  <option value="Baixa">Baixa (Escuro) 🌑</option>
+                                  <option value="Média">Média (Ideal) ⛅</option>
+                                  <option value="Alta">Alta (Luz Forte) ☀️</option>
+                                </select>
+                              </div>
+
+                              <div>
+                                <label className="block text-[8px] font-black text-slate-500 uppercase mb-0.5">Nível de Ruído (dB): {crisisDecibels}dB</label>
+                                <div className="flex items-center gap-1">
+                                  <input
+                                    type="range"
+                                    min="30"
+                                    max="120"
+                                    value={crisisDecibels}
+                                    onChange={e => setCrisisDecibels(parseInt(e.target.value))}
+                                    className="w-full h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-red-650"
+                                  />
+                                </div>
+                              </div>
+
+                              <div>
+                                <label className="block text-[8px] font-black text-slate-500 uppercase mb-0.5">Gatilho Sensorial</label>
+                                <select
+                                  value={crisisTrigger}
+                                  onChange={e => setCrisisTrigger(e.target.value)}
+                                  className="w-full px-2 py-1 bg-white border border-slate-200 rounded-lg text-[10px] font-bold outline-none cursor-pointer"
+                                >
+                                  <option value="Nenhum">Nenhum / Desconhecido ❓</option>
+                                  <option value="Barulho Alto">Barulho Alto 🔊</option>
+                                  <option value="Luz Forte">Luz Forte 💡</option>
+                                  <option value="Mudança de Rotina">Mudança de Rotina 🌀</option>
+                                  <option value="Fadiga">Fadiga / Sono 🛌</option>
+                                  <option value="Frustração">Frustração / Limite 😠</option>
+                                  <option value="Telas em Excesso">Telas em Excesso 📱</option>
+                                </select>
+                              </div>
+                            </div>
                             <button
                               type="submit"
                               disabled={savingCrisis || !crisisNotes.trim()}
@@ -2731,6 +2984,14 @@ export default function ParentDashboard() {
                                     <span>{log.crisisOccurred ? '🚨 CRISE' : `🧠 HUMOR: ${log.mood}`}</span>
                                   </div>
                                   {log.notes && <p className="font-semibold text-slate-700">{log.notes}</p>}
+                                  {(log.location || log.lightLevel || (log.decibels !== undefined && log.decibels !== null) || log.trigger) && (
+                                    <div className="flex flex-wrap gap-1.5 mt-1 pt-1.5 border-t border-slate-100/30 text-[9px] text-slate-500 font-bold">
+                                      {log.location && <span>📍 {log.location}</span>}
+                                      {log.lightLevel && <span>💡 Luz: {log.lightLevel}</span>}
+                                      {log.decibels !== undefined && log.decibels !== null && <span>🔊 Som: {log.decibels}dB</span>}
+                                      {log.trigger && <span>🎯 Gatilho: {log.trigger}</span>}
+                                    </div>
+                                  )}
                                 </div>
                               ))
                             )}

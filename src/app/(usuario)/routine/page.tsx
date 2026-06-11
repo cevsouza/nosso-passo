@@ -260,6 +260,266 @@ const DropletsTimer: React.FC<TimerProps> = ({ progress, minutesLeft }) => {
   );
 };
 
+const BEDTIME_STORIES = [
+  {
+    id: 'sleepy-dino',
+    title: 'O Dinossauro com Sono 🦖💤',
+    desc: 'Uma história para relaxar os olhinhos e dormir bem.',
+    steps: [
+      {
+        text: 'Era uma vez um pequeno dinossauro chamado [Mascote] que adorava correr. Mas a lua chegou no céu e era hora de descansar.',
+        img: '🦕',
+      },
+      {
+        text: '[Mascote] bocejou bem alto. Ele deitou sua cabeça na grama macia e ouviu o som suave do vento nas folhas.',
+        img: '🍃',
+      },
+      {
+        text: 'Ele fechou os olhos devagarzinho. Cada respiração acalmava seu peito. Respire fundo com o dino...',
+        img: '✨',
+      },
+      {
+        text: 'Bons sonhos, pequeno dinossauro. Durma bem e tenha uma linda noite de sono.',
+        img: '🌙',
+      }
+    ]
+  },
+  {
+    id: 'space-journey',
+    title: 'Viagem das Estrelas 🚀⭐',
+    desc: 'Flutue no espaço calmo e silencioso até o sono chegar.',
+    steps: [
+      {
+        text: 'O pequeno astronauta [Mascote] terminou sua missão de hoje. Ele entra em seu foguete aconchegante e confortável.',
+        img: '🚀',
+      },
+      {
+        text: 'Lá fora, as estrelas piscam bem devagar, como luzes suaves de ninar.',
+        img: '⭐',
+      },
+      {
+        text: 'O motor do foguete faz um ruído baixinho e morno, que ajuda a relaxar cada parte do corpo.',
+        img: '🌌',
+      },
+      {
+        text: 'Agora, a nave desliga as luzes principais. É hora de sonhar com galáxias distantes e felizes.',
+        img: '💤',
+      }
+    ]
+  }
+];
+
+const HyperfocusThemeTimer: React.FC<TimerProps & { theme: string }> = ({ progress, minutesLeft, theme }) => {
+  const lowerTheme = (theme || "").toLowerCase();
+  
+  let timerName = "Hiperfoco: Mascote 🐶";
+  let content = null;
+
+  if (lowerTheme.includes("dino")) {
+    timerName = "🥚 Dino Chocando";
+    const crackSpread = (1 - progress) * 14;
+    const dinoY = progress * 22;
+    content = (
+      <svg viewBox="0 0 120 120" className="w-full h-full">
+        <circle cx="60" cy="60" r="50" fill="#f0fdf4" stroke="#bbf7d0" strokeWidth="2" />
+        {progress < 0.8 && (
+          <motion.g y={dinoY} initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+            <circle cx="60" cy="65" r="22" fill="#22c55e" />
+            <circle cx="53" cy="58" r="3" fill="#000" />
+            <circle cx="67" cy="58" r="3" fill="#000" />
+            <circle cx="48" cy="63" r="2" fill="#f43f5e" opacity="0.6" />
+            <circle cx="72" cy="63" r="2" fill="#f43f5e" opacity="0.6" />
+            <path d="M57,66 Q60,69 63,66" fill="none" stroke="#000" strokeWidth="2" strokeLinecap="round" />
+            <path d="M48,46 L53,42 L58,46" fill="#15803d" />
+            <path d="M62,46 L67,42 L72,46" fill="#15803d" />
+          </motion.g>
+        )}
+        <motion.path 
+          d="M60,20 C35,20 30,85 60,100 Z" 
+          fill="#fef08a" 
+          stroke="#ca8a04" 
+          strokeWidth="3"
+          animate={{ x: -crackSpread / 2 }}
+          transition={{ type: "spring", stiffness: 100 }}
+        />
+        <motion.path 
+          d="M60,20 C85,20 90,85 60,100 Z" 
+          fill="#fef08a" 
+          stroke="#ca8a04" 
+          strokeWidth="3"
+          animate={{ x: crackSpread / 2 }}
+          transition={{ type: "spring", stiffness: 100 }}
+        />
+        {progress > 0 && progress < 1 && (
+          <path 
+            d="M60,20 L55,40 L65,60 L55,80 L60,100" 
+            fill="none" 
+            stroke="#ca8a04" 
+            strokeWidth="2.5" 
+            strokeDasharray="4,4"
+          />
+        )}
+      </svg>
+    );
+  } else if (lowerTheme.includes("espa") || lowerTheme.includes("space") || lowerTheme.includes("astro") || lowerTheme.includes("foguete")) {
+    timerName = "🚀 Foguete Pousando";
+    const rocketY = (1 - progress) * 75 + 10;
+    content = (
+      <svg viewBox="0 0 100 120" className="w-full h-full">
+        <rect width="100" height="120" rx="10" fill="#0f172a" />
+        <circle cx="20" cy="30" r="1.5" fill="#fff" opacity="0.8" />
+        <circle cx="80" cy="40" r="1" fill="#fff" opacity="0.6" />
+        <circle cx="75" cy="80" r="2" fill="#fff" opacity="0.9" />
+        <circle cx="30" cy="90" r="1.2" fill="#fff" opacity="0.7" />
+        <path d="M5,105 Q50,95 95,105 L95,120 L5,120 Z" fill="#94a3b8" />
+        <circle cx="30" cy="110" r="4" fill="#64748b" />
+        <circle cx="70" cy="108" r="5" fill="#64748b" />
+        <circle cx="50" cy="112" r="3" fill="#64748b" />
+        {progress > 0 && (
+          <motion.polygon 
+            points="45,28 55,28 50,42" 
+            fill="#f97316"
+            animate={{ scaleY: [1, 1.4, 1] }}
+            transition={{ repeat: Infinity, duration: 0.3 }}
+            style={{ transformOrigin: "50% 28px" }}
+            y={rocketY + 15}
+          />
+        )}
+        <g transform={`translate(50, ${rocketY}) translate(-15, -15)`}>
+          <path d="M5,22 L15,12 L25,22 Z" fill="#ef4444" />
+          <rect x="8" y="5" width="14" height="20" rx="7" fill="#f8fafc" />
+          <rect x="8" y="12" width="14" height="10" fill="#f8fafc" />
+          <circle cx="15" cy="12" r="3.5" fill="#38bdf8" stroke="#cbd5e1" strokeWidth="1" />
+          <path d="M8,7 A7,7 0 0,1 22,7 L15,0 Z" fill="#ef4444" />
+        </g>
+      </svg>
+    );
+  } else if (lowerTheme.includes("tren") || lowerTheme.includes("train") || lowerTheme.includes("carr") || lowerTheme.includes("car")) {
+    timerName = "🚂 Trem na Trilha";
+    const trainX = (1 - progress) * 70 + 10;
+    content = (
+      <svg viewBox="0 0 100 100" className="w-full h-full">
+        <circle cx="50" cy="50" r="48" fill="#eff6ff" stroke="#bfdbfe" strokeWidth="2" />
+        <line x1="8" y1="70" x2="92" y2="70" stroke="#475569" strokeWidth="4" />
+        {[15, 30, 45, 60, 75, 85].map((x) => (
+          <line key={x} x1={x} y1="70" x2={x} y2="76" stroke="#475569" strokeWidth="2.5" />
+        ))}
+        <g transform="translate(85, 45)">
+          <rect x="0" y="0" width="3" height="25" fill="#1e293b" />
+          <polygon points="3,0 15,5 3,10" fill="#22c55e" />
+          <circle cx="1.5" cy="0" r="2" fill="#ef4444" />
+        </g>
+        {progress > 0 && progress < 1 && (
+          <motion.circle 
+            cx={trainX + 4} 
+            cy="48" 
+            r="3" 
+            fill="#cbd5e1" 
+            opacity="0.8"
+            animate={{ y: [0, -10], x: [0, -5], opacity: [0.8, 0], scale: [1, 2] }}
+            transition={{ repeat: Infinity, duration: 1.2 }}
+          />
+        )}
+        <g transform={`translate(${trainX}, 50)`}>
+          <rect x="-8" y="0" width="10" height="15" fill="#dc2626" rx="1" />
+          <rect x="-6" y="2" width="6" height="5" fill="#bae6fd" />
+          <rect x="2" y="5" width="12" height="10" fill="#2563eb" rx="1" />
+          <rect x="10" y="0" width="3" height="5" fill="#1e293b" />
+          <circle cx="-5" cy="16" r="3.5" fill="#1e293b" />
+          <circle cx="5" cy="16" r="3.5" fill="#1e293b" />
+          <circle cx="11" cy="16" r="3.5" fill="#1e293b" />
+        </g>
+      </svg>
+    );
+  } else if (lowerTheme.includes("mine") || lowerTheme.includes("block") || lowerTheme.includes("craft") || lowerTheme.includes("terra")) {
+    timerName = "🧱 Blocos Minecraft";
+    const blocksCount = Math.floor((1 - progress) * 9);
+    content = (
+      <svg viewBox="0 0 100 100" className="w-full h-full">
+        <rect width="100" height="100" fill="#f5f5f4" rx="8" stroke="#d6d3d1" strokeWidth="2" />
+        {[0, 1, 2].map((r) =>
+          [0, 1, 2].map((c) => {
+            const idx = r * 3 + c;
+            const isBuilt = idx < blocksCount;
+            const x = 20 + c * 22;
+            const y = 20 + r * 22;
+            return (
+              <g key={idx} opacity={isBuilt ? 1 : 0.15}>
+                <rect x={x} y={y} width="18" height="18" fill={isBuilt ? "#16a34a" : "#78716c"} stroke="#15803d" strokeWidth="1" />
+                {isBuilt && (
+                  <>
+                    <rect x={x} y={y} width="18" height="5" fill="#22c55e" />
+                    <rect x={x} y={y+5} width="4" height="6" fill="#15803d" />
+                    <rect x={x+8} y={y+5} width="3" height="4" fill="#15803d" />
+                    <rect x={x+14} y={y+5} width="4" height="7" fill="#15803d" />
+                  </>
+                )}
+              </g>
+            );
+          })
+        )}
+        <rect x="15" y="86" width="70" height="6" fill="#444" rx="3" />
+        <rect x="15" y="86" width={70 * (1 - progress)} height="6" fill="#22c55e" rx="3" />
+      </svg>
+    );
+  } else {
+    timerName = "🐶 Mascote Caminhando";
+    const mascotX = (1 - progress) * 65 + 10;
+    content = (
+      <svg viewBox="0 0 100 100" className="w-full h-full">
+        <circle cx="50" cy="50" r="48" fill="#fffbeb" stroke="#fef3c7" strokeWidth="2" />
+        <line x1="8" y1="75" x2="92" y2="75" stroke="#f59e0b" strokeWidth="3" strokeDasharray="3,3" />
+        <g transform="translate(80, 58)">
+          <path d="M2,17 L14,17 L12,9 L4,9 Z" fill="#f43f5e" />
+          <circle cx="8" cy="7" r="1.5" fill="#fef08a" />
+          <path d="M4,17 Q8,12 12,17" fill="none" stroke="#be123c" strokeWidth="1.5" />
+          <rect x="6" y="2" width="4" height="8" fill="#f1f5f9" rx="1" transform="rotate(20 8 6)" />
+        </g>
+        <g transform={`translate(${mascotX}, 55)`}>
+          <rect x="-8" y="0" width="16" height="11" fill="#1e293b" rx="4" />
+          <rect x="-8" y="0" width="8" height="11" fill="#f8fafc" rx="1" />
+          <circle cx="-10" cy="-4" r="7" fill="#1e293b" />
+          <circle cx="-11" cy="-4" r="5" fill="#f8fafc" />
+          <circle cx="-13" cy="-5" r="1.2" fill="#000" />
+          <path d="M-8,-10 Q-5,-6 -8,-4" fill="#1e293b" stroke="#000" strokeWidth="1" />
+          <motion.path 
+            d="M8,2 Q14,-4 12,-6" 
+            fill="none" 
+            stroke="#1e293b" 
+            strokeWidth="3.5" 
+            strokeLinecap="round"
+            animate={progress > 0 && progress < 1 ? { rotate: [0, 20, 0, -20, 0] } : {}}
+            transition={{ repeat: Infinity, duration: 0.6 }}
+            style={{ transformOrigin: "8px 2px" }}
+          />
+          <line x1="-5" y1="11" x2="-5" y2="17" stroke="#f8fafc" strokeWidth="2.5" strokeLinecap="round" />
+          <line x1="-1" y1="11" x2="-1" y2="17" stroke="#1e293b" strokeWidth="2.5" strokeLinecap="round" />
+          <line x1="3" y1="11" x2="3" y2="17" stroke="#f8fafc" strokeWidth="2.5" strokeLinecap="round" />
+          <line x1="6" y1="11" x2="6" y2="17" stroke="#1e293b" strokeWidth="2.5" strokeLinecap="round" />
+        </g>
+      </svg>
+    );
+  }
+
+  return (
+    <div className="flex flex-col items-center gap-1.5">
+      <span className="text-[9px] font-black uppercase tracking-widest text-slate-700 select-none">
+        {timerName}
+      </span>
+      <div className="relative w-20 h-20 flex items-center justify-center bg-white rounded-full p-2 border-2 border-slate-350 shadow-xxs">
+        <div className="w-full h-full">
+          {content}
+        </div>
+        <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none mt-2">
+          <span className="text-[10px] font-black text-slate-950 bg-white/85 px-1.5 py-0.5 rounded shadow-xxs">
+            {minutesLeft}m
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export default function ChildRoutine() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [currentDay, setCurrentDay] = useState('1');
@@ -287,13 +547,23 @@ export default function ChildRoutine() {
   const [transitionWarned, setTransitionWarned] = useState<string | null>(null);
   const [showRewardModal, setShowRewardModal] = useState(false);
   const [showMoodModal, setShowMoodModal] = useState(false);
-  const [activeAmbientType, setActiveAmbientType] = useState<'none' | 'rain' | 'binaural'>('none');
+  const [activeAmbientType, setActiveAmbientType] = useState<'none' | 'rain' | 'binaural' | 'white' | 'pink'>('none');
   const [selectedChoice, setSelectedChoice] = useState<string | null>(null);
   const [sensoryProfile, setSensoryProfile] = useState<'balanced' | 'hypersensitive' | 'hyposensitive'>('balanced');
-  const [timerStyle, setTimerStyle] = useState<'circle' | 'hourglass' | 'droplets'>('circle');
+  const [timerStyle, setTimerStyle] = useState<'circle' | 'hourglass' | 'droplets' | 'hyperfocus'>('circle');
   const [showStoriesModal, setShowStoriesModal] = useState(false);
   const [selectedStory, setSelectedStory] = useState<any | null>(null);
   const [currentStoryStep, setCurrentStoryStep] = useState(0);
+
+  // Environmental states for sensory logs
+  const [decibels, setDecibels] = useState<number>(45);
+  const [lightLevel, setLightLevel] = useState<'Baixa' | 'Média' | 'Alta'>('Média');
+  const [location, setLocation] = useState<string>('Casa');
+  const [activeTrigger, setActiveTrigger] = useState<string>('Nenhum');
+  const [isMeasuringNoise, setIsMeasuringNoise] = useState(false);
+
+  // Sleep Mode states
+  const [sleepMode, setSleepMode] = useState(false);
 
   useEffect(() => {
     return () => {
@@ -301,7 +571,56 @@ export default function ChildRoutine() {
     };
   }, []);
 
-  const handleAmbientChange = (type: 'none' | 'rain' | 'binaural') => {
+  useEffect(() => {
+    let audioContext: AudioContext | null = null;
+    let analyser: AnalyserNode | null = null;
+    let stream: MediaStream | null = null;
+    let animationFrameId: number;
+
+    if (showMoodModal) {
+      navigator.mediaDevices.getUserMedia({ audio: true })
+        .then((s) => {
+          stream = s;
+          audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+          const source = audioContext.createMediaStreamSource(s);
+          analyser = audioContext.createAnalyser();
+          analyser.fftSize = 256;
+          source.connect(analyser);
+          
+          setIsMeasuringNoise(true);
+          const bufferLength = analyser.frequencyBinCount;
+          const dataArray = new Uint8Array(bufferLength);
+
+          const updateVolume = () => {
+            if (!analyser) return;
+            analyser.getByteFrequencyData(dataArray);
+            let sum = 0;
+            for (let i = 0; i < bufferLength; i++) {
+              sum += dataArray[i];
+            }
+            const average = sum / bufferLength;
+            const dbVal = Math.round(30 + (average / 255) * 70);
+            setDecibels(dbVal);
+            animationFrameId = requestAnimationFrame(updateVolume);
+          };
+          updateVolume();
+        })
+        .catch((err) => {
+          console.log("Sem microfone ou permissão negada:", err);
+          setIsMeasuringNoise(false);
+        });
+    }
+
+    return () => {
+      if (animationFrameId) cancelAnimationFrame(animationFrameId);
+      if (audioContext) audioContext.close();
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+      }
+    };
+  }, [showMoodModal]);
+
+  const handleAmbientChange = (type: 'none' | 'rain' | 'binaural' | 'white' | 'pink') => {
     playBubble();
     setActiveAmbientType(type);
     startAmbientSound(type);
@@ -586,7 +905,11 @@ export default function ChildRoutine() {
       await firebaseBridge.db.addSensoryLog({
         childId: activeChild.id,
         mood: selectedMood,
-        notes: 'Humor registrado pelo próprio usuário na rotina.'
+        notes: 'Humor registrado pelo próprio usuário na rotina.',
+        decibels: decibels,
+        lightLevel: lightLevel,
+        location: location,
+        trigger: activeTrigger
       });
       speakText("Obrigado por me contar como você está se sentindo! Estou muito orgulhoso de você.");
       setShowMoodModal(false);
@@ -1112,12 +1435,34 @@ export default function ChildRoutine() {
     : '';
 
   return (
-    <main className={`min-h-screen bg-gradient-to-tr from-[#f8fafc] via-[#eff6ff] to-[#f0fdf4] animate-gradient-flow text-[#0f172a] p-6 pb-12 flex flex-col items-center relative overflow-hidden ${profileClass}`}>
+    <main className={`min-h-screen transition-colors duration-500 p-6 pb-12 flex flex-col items-center relative overflow-hidden ${
+      sleepMode 
+        ? 'bg-[#040815] text-amber-100/90' 
+        : 'bg-gradient-to-tr from-[#f8fafc] via-[#eff6ff] to-[#f0fdf4] animate-gradient-flow text-[#0f172a]'
+    } ${profileClass}`}>
       {/* Background Soft Glows */}
       {sensoryVisuals === 'rich' && (
         <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-          <div className="absolute top-[20%] left-[-15%] w-80 h-80 bg-blue-200/40 rounded-full filter blur-3xl opacity-60 animate-pulse"></div>
-          <div className="absolute bottom-[20%] right-[-15%] w-96 h-96 bg-indigo-200/30 rounded-full filter blur-3xl opacity-50 animate-pulse" style={{ animationDelay: '2s' }}></div>
+          {sleepMode ? (
+            <>
+              {twinklingStars.map(star => (
+                <motion.div
+                  key={star.id}
+                  className="absolute w-1.5 h-1.5 bg-yellow-100/80 rounded-full"
+                  style={{ top: star.top, left: star.left }}
+                  animate={{ opacity: [0.15, 0.85, 0.15] }}
+                  transition={{ duration: 4, delay: star.delay, repeat: Infinity, ease: "easeInOut" }}
+                />
+              ))}
+              <div className="absolute top-[15%] left-[-10%] w-80 h-80 bg-blue-950/25 rounded-full filter blur-3xl opacity-40"></div>
+              <div className="absolute bottom-[20%] right-[-10%] w-96 h-96 bg-amber-950/20 rounded-full filter blur-3xl opacity-35"></div>
+            </>
+          ) : (
+            <>
+              <div className="absolute top-[20%] left-[-15%] w-80 h-80 bg-blue-200/40 rounded-full filter blur-3xl opacity-60 animate-pulse"></div>
+              <div className="absolute bottom-[20%] right-[-15%] w-96 h-96 bg-indigo-200/30 rounded-full filter blur-3xl opacity-50 animate-pulse" style={{ animationDelay: '2s' }}></div>
+            </>
+          )}
         </div>
       )}
 
@@ -1127,7 +1472,11 @@ export default function ChildRoutine() {
           <button 
             onClick={() => handleAttemptExit('/')}
             onMouseEnter={playBubble}
-            className="flex items-center gap-1.5 px-5 py-2.5 bg-white hover:bg-slate-50 text-xs font-black rounded-full border-2 border-slate-350 shadow-premium transition-all active:scale-95 cursor-pointer text-slate-800"
+            className={`flex items-center gap-1.5 px-5 py-2.5 text-xs font-black rounded-full border-2 shadow-premium transition-all active:scale-95 cursor-pointer ${
+              sleepMode 
+                ? 'bg-slate-905 border-slate-700 text-amber-200 hover:bg-slate-800' 
+                : 'bg-white hover:bg-slate-50 border-slate-350 text-slate-805'
+            }`}
           >
             🏠 Início
           </button>
@@ -1135,58 +1484,71 @@ export default function ChildRoutine() {
           <button
             onClick={() => { playBubble(); setShowStoriesModal(true); }}
             onMouseEnter={playBubble}
-            className="flex items-center gap-1.5 px-5 py-2.5 bg-white hover:bg-indigo-50 border-2 border-indigo-250 text-indigo-700 text-xs font-black rounded-full shadow-premium transition-all active:scale-95 cursor-pointer"
+            className={`flex items-center gap-1.5 px-5 py-2.5 border-2 text-xs font-black rounded-full shadow-premium transition-all active:scale-95 cursor-pointer ${
+              sleepMode 
+                ? 'bg-amber-950/20 border-amber-900/50 text-amber-300 hover:bg-amber-950/50' 
+                : 'bg-white hover:bg-indigo-50 border-indigo-250 text-indigo-700'
+            }`}
           >
             📖 Histórias
           </button>
+
+          <button
+            onClick={() => {
+              playBubble();
+              setSleepMode(!sleepMode);
+              if (!sleepMode) {
+                speakText("Modo sono ativado. Hora de relaxar.");
+              } else {
+                speakText("Modo sono desativado.");
+              }
+            }}
+            onMouseEnter={playBubble}
+            className={`flex items-center gap-1.5 px-5 py-2.5 text-xs font-black rounded-full shadow-premium transition-all active:scale-95 cursor-pointer border-2 ${
+              sleepMode 
+                ? 'bg-amber-950/80 border-amber-600 text-amber-200' 
+                : 'bg-white hover:bg-amber-50 border-amber-200 text-amber-700'
+            }`}
+          >
+            🌙 {sleepMode ? 'Modo Normal' : 'Modo Sono'}
+          </button>
         </div>
 
-        <h2 className="text-xs font-black bg-white border-2 border-slate-350 text-slate-800 px-5 py-2.5 rounded-full shadow-premium uppercase tracking-widest font-Outfit">
+        <h2 className={`text-xs font-black border-2 px-5 py-2.5 rounded-full shadow-premium uppercase tracking-widest font-Outfit ${
+          sleepMode ? 'bg-[#090d1a] border-amber-900/50 text-amber-200' : 'bg-white border-slate-350 text-slate-800'
+        }`}>
           {DAY_LABELS[currentDay] || `Dia ${currentDay} 📅`}
         </h2>
         
         {/* Ambient Sound Selector */}
-        <div className="flex bg-white border-2 border-slate-350 p-1 rounded-full shadow-premium gap-1 items-center z-10">
-          <button
-            onClick={() => handleAmbientChange('none')}
-            className={`px-3 py-1.5 rounded-full text-xs font-black transition-all ${
-              activeAmbientType === 'none'
-                ? 'bg-slate-200 text-slate-800'
-                : 'bg-transparent text-slate-400 hover:text-slate-600'
-            }`}
-            title="Silencioso"
-          >
-            🔈
-          </button>
-          <button
-            onClick={() => handleAmbientChange('rain')}
-            className={`px-3 py-1.5 rounded-full text-xs font-black transition-all ${
-              activeAmbientType === 'rain'
-                ? 'bg-blue-100 text-blue-800'
-                : 'bg-transparent text-slate-405 hover:text-blue-500'
-            }`}
-            title="Som de Chuva"
-          >
-            🌧️
-          </button>
-          <button
-            onClick={() => handleAmbientChange('binaural')}
-            className={`px-3 py-1.5 rounded-full text-xs font-black transition-all ${
-              activeAmbientType === 'binaural'
-                ? 'bg-indigo-100 text-indigo-800'
-                : 'bg-transparent text-slate-400 hover:text-indigo-500'
-            }`}
-            title="Foco Binaural"
-          >
-            🧠
-          </button>
+        <div className={`flex border-2 p-1 rounded-full shadow-premium gap-1 items-center z-10 ${
+          sleepMode ? 'bg-[#090d1a] border-amber-900/50' : 'bg-white border-slate-350'
+        }`}>
+          {[
+            { type: 'none', label: '🔈', title: 'Silencioso', activeClass: sleepMode ? 'bg-slate-800 text-slate-100' : 'bg-slate-200 text-slate-800', inactiveClass: sleepMode ? 'text-amber-500/60 hover:text-amber-205' : 'text-slate-400 hover:text-slate-650' },
+            { type: 'rain', label: '🌧️', title: 'Som de Chuva', activeClass: sleepMode ? 'bg-blue-950 text-blue-305' : 'bg-blue-100 text-blue-800', inactiveClass: sleepMode ? 'text-amber-500/60 hover:text-blue-300' : 'text-slate-405 hover:text-blue-500' },
+            { type: 'white', label: '🤍', title: 'Ruído Branco', activeClass: sleepMode ? 'bg-slate-800 text-slate-100' : 'bg-slate-200 text-slate-800', inactiveClass: sleepMode ? 'text-amber-500/60 hover:text-amber-200' : 'text-slate-400 hover:text-slate-605' },
+            { type: 'pink', label: '💗', title: 'Ruído Rosa', activeClass: sleepMode ? 'bg-pink-950 text-pink-305' : 'bg-pink-100 text-pink-800', inactiveClass: sleepMode ? 'text-amber-500/60 hover:text-pink-300' : 'text-slate-400 hover:text-pink-650' },
+            { type: 'binaural', label: '🧠', title: 'Foco Binaural', activeClass: sleepMode ? 'bg-indigo-950 text-indigo-305' : 'bg-indigo-100 text-indigo-805', inactiveClass: sleepMode ? 'text-amber-500/60 hover:text-indigo-300' : 'text-slate-400 hover:text-indigo-500' }
+          ].map(btn => (
+            <button
+              key={btn.type}
+              onClick={() => handleAmbientChange(btn.type as any)}
+              className={`px-2.5 py-1.5 rounded-full text-xs font-black transition-all cursor-pointer border-none ${
+                activeAmbientType === btn.type ? btn.activeClass : `bg-transparent ${btn.inactiveClass}`
+              }`}
+              title={btn.title}
+            >
+              {btn.label}
+            </button>
+          ))}
         </div>
       </div>
 
       <div className="w-full max-w-2xl md:max-w-5xl flex flex-col md:grid md:grid-cols-12 gap-6 z-10 px-4 md:px-6">
         
         {/* Token Economy Stars Row */}
-        {activeChild && (
+        {activeChild && !sleepMode && (
           <div className="bg-white border-2 border-slate-300 p-4.5 rounded-[24px] shadow-premium flex flex-col sm:flex-row items-center justify-between gap-3 w-full md:col-span-12">
             <div className="flex items-center gap-2">
               <span className="text-xl">🪙</span>
@@ -1225,7 +1587,96 @@ export default function ChildRoutine() {
         )}
         
         {/* If no tasks entered yet */}
-        {todayTasks.length === 0 ? (
+        {sleepMode ? (
+          <div className="md:col-span-12 w-full flex flex-col gap-6">
+            <motion.div
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-[#0b0f19]/90 border-2 border-amber-900/60 rounded-[32px] p-6 md:p-8 shadow-2xl flex flex-col gap-6 text-amber-100"
+            >
+              <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-amber-950 pb-4">
+                <div className="flex items-center gap-3">
+                  <span className="text-3xl animate-pulse">🌙</span>
+                  <div>
+                    <h3 className="text-xl font-black text-amber-200 font-Outfit">Ambiente do Sono Sensorial</h3>
+                    <p className="text-xs text-amber-400 font-semibold mt-0.5">Sons calmos e histórias acolhedoras para ninar.</p>
+                  </div>
+                </div>
+                
+                <button
+                  onClick={() => {
+                    playBubble();
+                    setSelectedStory(BEDTIME_STORIES[0]);
+                    setCurrentStoryStep(0);
+                    speakText(BEDTIME_STORIES[0].steps[0].text.replace('[Mascote]', childHyperfocus.split(' ')[0]));
+                    setShowStoriesModal(true);
+                  }}
+                  className="px-5 py-2.5 bg-amber-950/80 hover:bg-amber-900 border border-amber-700/60 text-amber-200 text-xs font-black rounded-2xl active:scale-95 transition-all cursor-pointer flex items-center gap-1.5"
+                >
+                  📖 Ler História de Ninar
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="bg-[#121827] border border-amber-950/50 p-5 rounded-2xl flex flex-col gap-4">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-amber-500 font-Outfit font-extrabold">📻 Reprodutor de Ruídos Relaxantes</span>
+                  
+                  <div className="grid grid-cols-2 gap-3">
+                    {[
+                      { type: 'none', label: 'Silencioso 🔈', activeColor: 'bg-slate-800 text-slate-100 border-slate-700' },
+                      { type: 'rain', label: 'Chuva 🌧️', activeColor: 'bg-blue-950 text-blue-300 border-blue-800' },
+                      { type: 'white', label: 'Ruído Branco 🤍', activeColor: 'bg-slate-800 text-slate-100 border-slate-650' },
+                      { type: 'pink', label: 'Ruído Rosa 💗', activeColor: 'bg-pink-950 text-pink-305 border-pink-900' },
+                      { type: 'binaural', label: 'Foco Binaural 🧠', activeColor: 'bg-indigo-950 text-indigo-305 border-indigo-900' }
+                    ].map(snd => (
+                      <button
+                        key={snd.type}
+                        onClick={() => handleAmbientChange(snd.type as any)}
+                        className={`p-3 border rounded-xl text-xs font-black transition-all active:scale-95 text-center cursor-pointer ${
+                          activeAmbientType === snd.type
+                            ? `${snd.activeColor} border-2 shadow-inner`
+                            : 'bg-transparent text-amber-400/80 border-amber-950 hover:bg-amber-950/20'
+                        }`}
+                      >
+                        {snd.label}
+                      </button>
+                    ))}
+                  </div>
+
+                  <p className="text-[10px] text-amber-450/70 font-semibold leading-relaxed">
+                    💡 Os ruídos branco e rosa ajudam a mascarar barulhos externos repentinos que podem assustar a criança.
+                  </p>
+                </div>
+
+                <div className="bg-[#121827] border border-amber-950/50 p-5 rounded-2xl flex flex-col gap-4">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-amber-500 font-Outfit font-extrabold">🛌 Histórias para Adormecer</span>
+                  
+                  <div className="flex flex-col gap-2.5 max-h-[180px] overflow-y-auto pr-1">
+                    {BEDTIME_STORIES.map(story => (
+                      <button
+                        key={story.id}
+                        onClick={() => {
+                          playBubble();
+                          setSelectedStory(story);
+                          setCurrentStoryStep(0);
+                          speakText(story.steps[0].text.replace('[Mascote]', childHyperfocus.split(' ')[0]));
+                          setShowStoriesModal(true);
+                        }}
+                        className="p-3 bg-amber-950/10 hover:bg-amber-950/40 border border-amber-900/40 rounded-xl transition-all text-left cursor-pointer flex items-center gap-3 group"
+                      >
+                        <span className="text-2xl shrink-0 group-hover:scale-110 transition-transform">{story.steps[0].img}</span>
+                        <div>
+                          <h4 className="font-extrabold text-xs text-amber-200 font-Outfit">{story.title}</h4>
+                          <p className="text-[9px] text-amber-455 mt-0.5 leading-normal">{story.desc}</p>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        ) : todayTasks.length === 0 ? (
           <motion.div 
             initial={{ scale: 0.98, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
@@ -1263,9 +1714,13 @@ export default function ChildRoutine() {
                     <div className="flex flex-col items-center gap-2">
                       <div className="relative">
                         <RoutineIllustration category={activeTask.title} size={150} hyperfocus={childHyperfocus} />
-                        {activeTask.icon && (
-                          <div className="absolute top-0 right-0 w-14 h-14 bg-white border-4 border-indigo-100 text-slate-700 rounded-2xl flex items-center justify-center text-4xl shadow-md select-none transform rotate-12">
-                            {activeTask.icon}
+                        {(activeTask.customIcon || activeTask.icon) && (
+                          <div className="absolute top-0 right-0 w-14 h-14 bg-white border-4 border-indigo-100 text-slate-700 rounded-2xl flex items-center justify-center text-4xl shadow-md overflow-hidden select-none transform rotate-12">
+                            {activeTask.customIcon ? (
+                              <img src={activeTask.customIcon} alt="PECS" className="w-full h-full object-cover" />
+                            ) : (
+                              activeTask.icon
+                            )}
                           </div>
                         )}
                       </div>
@@ -1320,6 +1775,8 @@ export default function ChildRoutine() {
                         <HourglassTimer progress={timerProgress} minutesLeft={timerMinutesLeft} />
                       ) : timerStyle === 'droplets' ? (
                         <DropletsTimer progress={timerProgress} minutesLeft={timerMinutesLeft} />
+                      ) : timerStyle === 'hyperfocus' ? (
+                        <HyperfocusThemeTimer progress={timerProgress} minutesLeft={timerMinutesLeft} theme={childHyperfocus} />
                       ) : (
                         <div className="flex flex-col items-center gap-1.5">
                           <span className="text-[9px] font-black uppercase tracking-widest text-slate-700 flex items-center gap-1 select-none">
@@ -1354,7 +1811,12 @@ export default function ChildRoutine() {
                         <div className="flex-1 flex flex-col gap-1.5 text-left bg-slate-100 border-2 border-slate-300 p-3 rounded-2xl shadow-xxs">
                           <span className="text-[9px] font-black uppercase tracking-widest text-slate-500 font-Outfit">Próxima Atividade:</span>
                           <span className="text-sm font-black text-slate-800 flex items-center gap-1.5">
-                            <span className="text-base">{nextTasks[0].icon || '📅'}</span> {nextTasks[0].title}
+                            {nextTasks[0].customIcon ? (
+                              <img src={nextTasks[0].customIcon} alt="" className="w-6 h-6 object-cover rounded-md inline-block mr-1.5 align-middle" />
+                            ) : (
+                              <span className="text-base">{nextTasks[0].icon || '📅'}</span>
+                            )}
+                            {" "}{nextTasks[0].title}
                           </span>
                           {timerMinutesLeft <= (activeChild?.transitionMinutes || 5) ? (
                             <span className="text-[10px] text-amber-950 font-black flex items-center gap-1 bg-amber-100 border-2 border-amber-400 px-2.5 py-1 rounded-lg animate-pulse">
@@ -1449,9 +1911,13 @@ export default function ChildRoutine() {
                       </div>
                       <div className="mt-4 relative">
                         <RoutineIllustration category={activeTask.title} size={110} hyperfocus={childHyperfocus} />
-                        {activeTask.icon && (
-                          <div className="absolute top-0 right-0 w-10 h-10 bg-white border-2 border-indigo-105 text-slate-700 rounded-xl flex items-center justify-center text-2xl shadow select-none">
-                            {activeTask.icon}
+                        {(activeTask.customIcon || activeTask.icon) && (
+                          <div className="absolute top-0 right-0 w-10 h-10 bg-white border-2 border-indigo-105 text-slate-700 rounded-xl flex items-center justify-center text-2xl shadow overflow-hidden select-none">
+                            {activeTask.customIcon ? (
+                              <img src={activeTask.customIcon} alt="PECS" className="w-full h-full object-cover" />
+                            ) : (
+                              activeTask.icon
+                            )}
                           </div>
                         )}
                       </div>
@@ -1493,7 +1959,11 @@ export default function ChildRoutine() {
                         onClick={() => { playBubble(); speakText(nextTask.title); }}
                         className="w-16 h-16 rounded-2xl bg-white border-2 border-slate-200 flex items-center justify-center text-3xl shadow-sm cursor-pointer select-none transition-transform active:scale-95 hover:scale-105"
                       >
-                        {nextTask.icon || '📅'}
+                        {nextTask.customIcon ? (
+                          <img src={nextTask.customIcon} alt="" className="w-full h-full object-cover rounded-2xl" />
+                        ) : (
+                          nextTask.icon || '📅'
+                        )}
                       </div>
                       <h4 
                         onClick={() => { playBubble(); speakText(nextTask.title); }}
@@ -1564,6 +2034,8 @@ export default function ChildRoutine() {
                         >
                           {isCompleted ? (
                             <Check className="w-5 h-5 text-white" />
+                          ) : task.customIcon ? (
+                            <img src={task.customIcon} alt="" className="w-full h-full object-cover rounded-full" />
                           ) : task.icon ? (
                             <span className="text-xl select-none">{task.icon}</span>
                           ) : (
@@ -1685,25 +2157,31 @@ export default function ChildRoutine() {
               initial={{ scale: 0.9, y: 20 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.9, y: 20 }}
-              className="bg-white border-4 border-indigo-400 rounded-[32px] p-8 w-full max-w-md shadow-2xl flex flex-col items-center text-center gap-6"
+              className={`border-4 rounded-[32px] p-8 w-full max-w-md shadow-2xl flex flex-col items-center text-center gap-6 transition-colors duration-300 ${
+                sleepMode 
+                  ? 'bg-[#090d1a] border-amber-900/60 text-amber-150' 
+                  : 'bg-white border-indigo-400 text-slate-805'
+              }`}
             >
-              <div className="w-14 h-14 bg-indigo-50 border border-indigo-100 rounded-2xl flex items-center justify-center text-2xl shadow-sm">
+              <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-2xl shadow-sm border ${
+                sleepMode ? 'bg-amber-950/20 border-amber-900/40' : 'bg-indigo-50 border-indigo-100'
+              }`}>
                 🧠
               </div>
 
               <div>
-                <h3 className="text-xl font-black text-slate-800">Como você está se sentindo agora?</h3>
-                <p className="text-xs text-slate-400 font-semibold mt-1">
+                <h3 className={`text-xl font-black ${sleepMode ? 'text-amber-200' : 'text-slate-800'}`}>Como você está se sentindo agora?</h3>
+                <p className={`text-xs font-semibold mt-1 ${sleepMode ? 'text-amber-450' : 'text-slate-400'}`}>
                   Marque sua emoção para ajudar a acompanhar seu dia!
                 </p>
               </div>
 
               <div className="grid grid-cols-2 gap-4 w-full">
                 {[
-                  { key: 'feliz', label: 'Feliz 😊', color: 'bg-emerald-100 hover:bg-emerald-200 text-emerald-950 border-2 border-emerald-450' },
-                  { key: 'calmo', label: 'Calmo 🧘', color: 'bg-sky-100 hover:bg-sky-200 text-sky-950 border-2 border-sky-450' },
-                  { key: 'agitado', label: 'Agitado 🌀', color: 'bg-amber-100 hover:bg-amber-200 text-amber-950 border-2 border-amber-450' },
-                  { key: 'triste', label: 'Triste 😢', color: 'bg-red-100 hover:bg-red-200 text-red-950 border-2 border-red-450' }
+                  { key: 'feliz', label: 'Feliz 😊', color: sleepMode ? 'bg-emerald-950/40 hover:bg-emerald-900/40 text-emerald-200 border-2 border-emerald-800' : 'bg-emerald-100 hover:bg-emerald-200 text-emerald-950 border-2 border-emerald-450' },
+                  { key: 'calmo', label: 'Calmo 🧘', color: sleepMode ? 'bg-sky-950/40 hover:bg-sky-900/40 text-sky-200 border-2 border-sky-800' : 'bg-sky-100 hover:bg-sky-200 text-sky-950 border-2 border-sky-450' },
+                  { key: 'agitado', label: 'Agitado 🌀', color: sleepMode ? 'bg-amber-950/40 hover:bg-amber-900/40 text-amber-200 border-2 border-amber-800' : 'bg-amber-100 hover:bg-amber-200 text-amber-950 border-2 border-amber-450' },
+                  { key: 'triste', label: 'Triste 😢', color: sleepMode ? 'bg-red-950/40 hover:bg-red-900/40 text-red-200 border-2 border-red-800' : 'bg-red-100 hover:bg-red-200 text-red-950 border-2 border-red-450' }
                 ].map(moodOption => (
                   <button
                     key={moodOption.key}
@@ -1715,9 +2193,94 @@ export default function ChildRoutine() {
                 ))}
               </div>
 
+              {/* Medidor de Ruído / Ambiente */}
+              <div className={`w-full border p-3 rounded-2xl flex flex-col gap-2 text-left transition-colors duration-300 ${
+                sleepMode ? 'bg-[#121827] border-amber-950/50' : 'bg-slate-50 border-slate-200/80'
+              }`}>
+                <span className={`text-[10px] font-black uppercase tracking-wider font-Outfit flex items-center justify-between ${
+                  sleepMode ? 'text-amber-500' : 'text-slate-500'
+                }`}>
+                  <span>📍 Ambiente Atual</span>
+                  {isMeasuringNoise ? (
+                    <span className="text-emerald-505 animate-pulse font-extrabold">🎙️ Mic Ativo</span>
+                  ) : (
+                    <span className="opacity-60">🎙️ Mic Desativo</span>
+                  )}
+                </span>
+                
+                <div className="flex items-center justify-between gap-2">
+                  <span className={`text-xs font-bold ${sleepMode ? 'text-amber-300' : 'text-slate-700'}`}>Som Ambiente:</span>
+                  <div className="flex items-center gap-1.5 flex-1 max-w-[150px]">
+                    <div className={`w-full h-2 rounded-full overflow-hidden relative ${sleepMode ? 'bg-[#090d1a]' : 'bg-slate-200'}`}>
+                      <div 
+                        className={`h-full transition-all duration-300 ${
+                          decibels < 55 ? 'bg-emerald-500' : decibels < 75 ? 'bg-amber-500' : 'bg-red-500'
+                        }`}
+                        style={{ width: `${Math.min(100, Math.max(0, (decibels - 30) * 1.4))}%` }}
+                      ></div>
+                    </div>
+                    <span className={`text-xs font-black whitespace-nowrap ${sleepMode ? 'text-amber-250' : 'text-slate-800'}`}>{decibels} dB</span>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-3 gap-1.5 mt-1">
+                  <div className="flex flex-col gap-0.5">
+                    <label className={`text-[8px] font-black uppercase ${sleepMode ? 'text-amber-450' : 'text-slate-450'}`}>Local</label>
+                    <select 
+                      value={location} 
+                      onChange={(e) => setLocation(e.target.value)}
+                      className={`text-[10px] font-bold p-1 border rounded-lg ${
+                        sleepMode ? 'bg-[#090d1a] border-amber-900 text-amber-200' : 'bg-white border-slate-350 text-slate-700'
+                      }`}
+                    >
+                      <option value="Casa">Casa 🏠</option>
+                      <option value="Escola">Escola 🏫</option>
+                      <option value="Parque">Parque 🌳</option>
+                      <option value="Consultório">Consultório 🩺</option>
+                      <option value="Outro">Outro 📍</option>
+                    </select>
+                  </div>
+
+                  <div className="flex flex-col gap-0.5">
+                    <label className={`text-[8px] font-black uppercase ${sleepMode ? 'text-amber-450' : 'text-slate-450'}`}>Luz</label>
+                    <select 
+                      value={lightLevel} 
+                      onChange={(e: any) => setLightLevel(e.target.value)}
+                      className={`text-[10px] font-bold p-1 border rounded-lg ${
+                        sleepMode ? 'bg-[#090d1a] border-amber-900 text-amber-200' : 'bg-white border-slate-350 text-slate-700'
+                      }`}
+                    >
+                      <option value="Baixa">Suave 💡</option>
+                      <option value="Média">Média 🔆</option>
+                      <option value="Alta">Forte ☀️</option>
+                    </select>
+                  </div>
+
+                  <div className="flex flex-col gap-0.5">
+                    <label className={`text-[8px] font-black uppercase ${sleepMode ? 'text-amber-450' : 'text-slate-450'}`}>Gatilho</label>
+                    <select 
+                      value={activeTrigger} 
+                      onChange={(e) => setActiveTrigger(e.target.value)}
+                      className={`text-[10px] font-bold p-1 border rounded-lg ${
+                        sleepMode ? 'bg-[#090d1a] border-amber-900 text-amber-200' : 'bg-white border-slate-350 text-slate-700'
+                      }`}
+                    >
+                      <option value="Nenhum">Nenhum</option>
+                      <option value="Barulho">Barulho</option>
+                      <option value="Luz Forte">Luz Forte</option>
+                      <option value="Transição">Transição</option>
+                      <option value="Cansaço">Cansaço</option>
+                      <option value="Fome">Fome</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
               <button
                 onClick={() => setShowMoodModal(false)}
-                className="text-xs font-bold text-slate-450 hover:text-slate-650 underline cursor-pointer bg-transparent border-none"
+                className={`text-xs font-bold underline cursor-pointer bg-transparent border-none ${
+                  sleepMode ? 'text-amber-500 hover:text-amber-305' : 'text-slate-450 hover:text-slate-650'
+                }`}
               >
                 Pular check-in
               </button>
@@ -1739,12 +2302,20 @@ export default function ChildRoutine() {
               initial={{ scale: 0.9, y: 20 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.9, y: 20 }}
-              className="bg-white border-4 border-indigo-400 rounded-[32px] p-6 w-full max-w-lg shadow-2xl flex flex-col gap-6 relative overflow-hidden"
+              className={`border-4 rounded-[32px] p-6 w-full max-w-lg shadow-2xl flex flex-col gap-6 relative overflow-hidden transition-colors duration-300 ${
+                sleepMode 
+                  ? 'bg-[#090d1a] border-amber-900/60 text-amber-100' 
+                  : 'bg-white border-indigo-400 text-slate-800'
+              }`}
             >
               {/* Close button at top right */}
               <button
                 onClick={() => { playBubble(); setShowStoriesModal(false); setSelectedStory(null); setCurrentStoryStep(0); }}
-                className="absolute top-4 right-4 w-9 h-9 bg-slate-100 hover:bg-slate-200 border-2 border-slate-200 text-slate-500 rounded-full flex items-center justify-center font-black transition-all active:scale-90 cursor-pointer text-sm"
+                className={`absolute top-4 right-4 w-9 h-9 border-2 rounded-full flex items-center justify-center font-black transition-all active:scale-90 cursor-pointer text-sm ${
+                  sleepMode 
+                    ? 'bg-[#121827] border-amber-900/40 text-amber-450 hover:bg-amber-950' 
+                    : 'bg-slate-100 border-slate-200 text-slate-500 hover:bg-slate-200'
+                }`}
               >
                 ✕
               </button>
@@ -1754,13 +2325,14 @@ export default function ChildRoutine() {
                 <div className="flex flex-col gap-5">
                   <div className="text-center mt-2">
                     <span className="text-3xl">📖</span>
-                    <h3 className="text-xl font-black text-slate-850 mt-2 font-Outfit">Histórias Sociais do Mascote</h3>
-                    <p className="text-xs text-slate-400 font-semibold mt-1">
+                    <h3 className={`text-xl font-black mt-2 font-Outfit ${sleepMode ? 'text-amber-200' : 'text-slate-855'}`}>Histórias do Mascote</h3>
+                    <p className={`text-xs font-semibold mt-1 ${sleepMode ? 'text-amber-450' : 'text-slate-400'}`}>
                       Escolha uma história para ver com o seu mascote!
                     </p>
                   </div>
 
                   <div className="flex flex-col gap-3 max-h-[350px] overflow-y-auto pr-1 scrollbar-thin">
+                    <span className={`text-[10px] font-black uppercase tracking-wider font-Outfit ${sleepMode ? 'text-amber-500' : 'text-indigo-500'}`}>Histórias Sociais 📖</span>
                     {SOCIAL_STORIES.map(story => (
                       <button
                         key={story.id}
@@ -1770,14 +2342,48 @@ export default function ChildRoutine() {
                           setCurrentStoryStep(0);
                           speakText(story.steps[0].text.replace('[Mascote]', childHyperfocus.split(' ')[0]));
                         }}
-                        className="p-4 bg-slate-50 hover:bg-indigo-50/40 hover:border-indigo-300 border-2 border-slate-200/80 rounded-2xl transition-all active:scale-98 text-left cursor-pointer flex items-center gap-4 group"
+                        className={`p-4 border-2 rounded-2xl transition-all active:scale-98 text-left cursor-pointer flex items-center gap-4 group ${
+                          sleepMode 
+                            ? 'bg-[#121827] hover:bg-amber-950/20 hover:border-amber-700 border-amber-955' 
+                            : 'bg-slate-50 hover:bg-indigo-50/40 hover:border-indigo-300 border-slate-200/80'
+                        }`}
                       >
-                        <div className="w-12 h-12 bg-indigo-50 border border-indigo-100 rounded-xl flex items-center justify-center text-2xl shadow-xxs shrink-0 group-hover:scale-105 transition-all">
+                        <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-2xl shadow-xxs shrink-0 group-hover:scale-105 transition-all ${
+                          sleepMode ? 'bg-amber-950/20 border border-amber-900/40' : 'bg-indigo-50 border border-indigo-100'
+                        }`}>
                           {story.steps[0].img}
                         </div>
                         <div>
-                          <h4 className="font-extrabold text-sm text-slate-850 font-Outfit group-hover:text-indigo-750 transition-all">{story.title}</h4>
-                          <p className="text-[10px] text-slate-500 font-semibold mt-0.5 leading-normal">{story.desc}</p>
+                          <h4 className={`font-extrabold text-sm font-Outfit transition-all ${sleepMode ? 'text-amber-205 group-hover:text-amber-305' : 'text-slate-855 group-hover:text-indigo-750'}`}>{story.title}</h4>
+                          <p className={`text-[10px] font-semibold mt-0.5 leading-normal ${sleepMode ? 'text-amber-450' : 'text-slate-500'}`}>{story.desc}</p>
+                        </div>
+                      </button>
+                    ))}
+
+                    <span className="text-[10px] font-black uppercase tracking-wider text-amber-500 font-Outfit mt-3">Histórias do Sono 🌙💤</span>
+                    {BEDTIME_STORIES.map(story => (
+                      <button
+                        key={story.id}
+                        onClick={() => {
+                          playBubble();
+                          setSelectedStory(story);
+                          setCurrentStoryStep(0);
+                          speakText(story.steps[0].text.replace('[Mascote]', childHyperfocus.split(' ')[0]));
+                        }}
+                        className={`p-4 border-2 rounded-2xl transition-all active:scale-98 text-left cursor-pointer flex items-center gap-4 group ${
+                          sleepMode 
+                            ? 'bg-[#121827] hover:bg-amber-950/20 hover:border-amber-700 border-amber-955' 
+                            : 'bg-slate-50 hover:bg-amber-50/40 hover:border-amber-350 border-slate-200/80'
+                        }`}
+                      >
+                        <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-2xl shadow-xxs shrink-0 group-hover:scale-105 transition-all ${
+                          sleepMode ? 'bg-amber-950/20 border border-amber-900/40' : 'bg-amber-50 border border-amber-100'
+                        }`}>
+                          {story.steps[0].img}
+                        </div>
+                        <div>
+                          <h4 className={`font-extrabold text-sm font-Outfit transition-all ${sleepMode ? 'text-amber-205 group-hover:text-amber-305' : 'text-amber-800 group-hover:text-amber-900'}`}>{story.title}</h4>
+                          <p className={`text-[10px] font-semibold mt-0.5 leading-normal ${sleepMode ? 'text-amber-450' : 'text-slate-500'}`}>{story.desc}</p>
                         </div>
                       </button>
                     ))}
@@ -1786,20 +2392,24 @@ export default function ChildRoutine() {
               ) : (
                 // Story Reading Screen
                 <div className="flex flex-col items-center gap-5">
-                  <div className="flex items-center justify-between w-full border-b border-slate-100 pb-3">
+                  <div className={`flex items-center justify-between w-full border-b pb-3 ${sleepMode ? 'border-amber-950' : 'border-slate-100'}`}>
                     <button
                       onClick={() => { playBubble(); setSelectedStory(null); setCurrentStoryStep(0); }}
-                      className="text-xxs font-black uppercase tracking-wider text-slate-400 hover:text-slate-650 flex items-center gap-1 cursor-pointer bg-transparent border-none"
+                      className={`text-xxs font-black uppercase tracking-wider flex items-center gap-1 cursor-pointer bg-transparent border-none ${
+                        sleepMode ? 'text-amber-500 hover:text-amber-305' : 'text-slate-400 hover:text-slate-650'
+                      }`}
                     >
                       ← Voltar
                     </button>
-                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest font-Outfit">
+                    <span className={`text-[10px] font-black uppercase tracking-widest font-Outfit ${sleepMode ? 'text-amber-500' : 'text-slate-400'}`}>
                       Etapa {currentStoryStep + 1} de {selectedStory.steps.length}
                     </span>
                   </div>
 
                   {/* Visual Scene */}
-                  <div className="flex flex-col items-center gap-3 py-4 w-full bg-slate-50/50 border-2 border-slate-150 rounded-[24px] relative min-h-[220px] justify-center">
+                  <div className={`flex flex-col items-center gap-3 py-4 w-full rounded-[24px] relative min-h-[220px] justify-center border-2 ${
+                    sleepMode ? 'bg-[#101524] border-amber-950/60' : 'bg-slate-50/50 border-slate-150'
+                  }`}>
                     {/* Big illustration emoji */}
                     <motion.div 
                       key={currentStoryStep}
@@ -1812,9 +2422,11 @@ export default function ChildRoutine() {
                     </motion.div>
                     
                     {/* Active hyperfocus mascot is guide here */}
-                    <div className="absolute bottom-2 right-4 flex items-center gap-1.5 bg-white border border-slate-200 px-2.5 py-1.5 rounded-full shadow-xxs max-w-[80%]">
+                    <div className={`absolute bottom-2 right-4 flex items-center gap-1.5 px-2.5 py-1.5 rounded-full shadow-xxs max-w-[80%] border ${
+                      sleepMode ? 'bg-[#0b0f19] border-amber-900/60 text-amber-400' : 'bg-white border-slate-200 text-indigo-750'
+                    }`}>
                       <span className="text-xs">🐾</span>
-                      <span className="text-[9px] font-black text-indigo-700 uppercase tracking-wider font-Outfit">Guia {childHyperfocus.split(' ')[0]}</span>
+                      <span className="text-[9px] font-black uppercase tracking-wider font-Outfit">Guia {childHyperfocus.split(' ')[0]}</span>
                     </div>
                   </div>
 
@@ -1823,13 +2435,13 @@ export default function ChildRoutine() {
                     key={`text-${currentStoryStep}`}
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="text-sm text-slate-700 leading-relaxed font-extrabold text-center px-2 min-h-[60px]"
+                    className={`text-sm leading-relaxed font-extrabold text-center px-2 min-h-[60px] ${sleepMode ? 'text-amber-100' : 'text-slate-700'}`}
                   >
                     {selectedStory.steps[currentStoryStep].text.replace('[Mascote]', childHyperfocus.split(' ')[0])}
                   </motion.p>
 
                   {/* Navigation Buttons */}
-                  <div className="flex gap-3 w-full border-t border-slate-100 pt-4 mt-1">
+                  <div className={`flex gap-3 w-full border-t pt-4 mt-1 ${sleepMode ? 'border-amber-950' : 'border-slate-100'}`}>
                     {currentStoryStep > 0 ? (
                       <button
                         onClick={() => {
@@ -1838,7 +2450,11 @@ export default function ChildRoutine() {
                           setCurrentStoryStep(prevStep);
                           speakText(selectedStory.steps[prevStep].text.replace('[Mascote]', childHyperfocus.split(' ')[0]));
                         }}
-                        className="flex-1 py-3 bg-slate-100 hover:bg-slate-200 border-2 border-slate-350 text-slate-750 text-xs font-black rounded-2xl active:scale-95 transition-all cursor-pointer font-Outfit flex items-center justify-center gap-1"
+                        className={`flex-1 py-3 border-2 text-xs font-black rounded-2xl active:scale-95 transition-all cursor-pointer font-Outfit flex items-center justify-center gap-1 ${
+                          sleepMode 
+                            ? 'bg-[#121827] hover:bg-amber-950/20 border-amber-900/40 text-amber-250' 
+                            : 'bg-slate-100 hover:bg-slate-200 border-slate-350 text-slate-750'
+                        }`}
                       >
                         ⬅️ Anterior
                       </button>
@@ -1852,7 +2468,11 @@ export default function ChildRoutine() {
                           setCurrentStoryStep(nextStep);
                           speakText(selectedStory.steps[nextStep].text.replace('[Mascote]', childHyperfocus.split(' ')[0]));
                         }}
-                        className="flex-1 py-3 bg-indigo-650 hover:bg-indigo-750 text-white text-xs font-black rounded-2xl active:scale-95 transition-all cursor-pointer font-Outfit flex items-center justify-center gap-1"
+                        className={`flex-1 py-3 text-xs font-black rounded-2xl active:scale-95 transition-all cursor-pointer font-Outfit flex items-center justify-center gap-1 ${
+                          sleepMode 
+                            ? 'bg-amber-900 hover:bg-amber-800 text-amber-100 border-none' 
+                            : 'bg-indigo-650 hover:bg-indigo-750 text-white'
+                        }`}
                       >
                         Próximo ➡️
                       </button>
@@ -1864,7 +2484,11 @@ export default function ChildRoutine() {
                           setSelectedStory(null);
                           setCurrentStoryStep(0);
                         }}
-                        className="flex-1 py-3 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black rounded-2xl active:scale-95 transition-all cursor-pointer font-Outfit flex items-center justify-center gap-1 shadow-md shadow-emerald-100"
+                        className={`flex-1 py-3 text-xs font-black rounded-2xl active:scale-95 transition-all cursor-pointer font-Outfit flex items-center justify-center gap-1 shadow-md ${
+                          sleepMode 
+                            ? 'bg-amber-700 hover:bg-amber-600 text-white shadow-amber-950/40' 
+                            : 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-100'
+                        }`}
                       >
                         Concluir 🏆
                       </button>

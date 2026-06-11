@@ -144,6 +144,7 @@ export async function PUT(req: Request) {
         rewardCost: updates.rewardCost !== undefined ? Number(updates.rewardCost) : undefined,
         tokens: updates.tokens !== undefined ? Number(updates.tokens) : undefined,
         transitionMinutes: updates.transitionMinutes !== undefined ? Number(updates.transitionMinutes) : undefined,
+        sharingCode: updates.sharingCode,
       }
     });
 

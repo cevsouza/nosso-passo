@@ -1,5 +1,5 @@
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -45,6 +45,7 @@ model Child {
   tokens          Int         @default(0)
   transitionMinutes Int       @default(5)
   createdAt       DateTime    @default(now())
+  sharingCode     String?     @unique
 
   parentUid       String
   parent          UserProfile @relation(fields: [parentUid], references: [uid], onDelete: Cascade)
@@ -62,6 +63,7 @@ model Task {
   isCompleted Boolean  @default(false)
   order       Int
   icon        String   @default("📅")
+  customIcon  String?
   category    String   @default("AVD") // 'AVD' | 'Aprendizado' | 'Lazer'
   duration    Int      @default(30)
   description String   @default("")
@@ -92,6 +94,10 @@ model SensoryLog {
   mood           String?     // 'feliz' | 'calmo' | 'agitado' | 'triste'
   crisisOccurred Boolean     @default(false)
   notes          String?
+  decibels       Float?
+  lightLevel     String?
+  location       String?
+  trigger        String?
   childId        String
   child          Child       @relation(fields: [childId], references: [id], onDelete: Cascade)
 }
