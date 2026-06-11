@@ -520,6 +520,31 @@ export const firebaseBridge = {
       }).catch(() => {});
     },
 
+    deleteTasksByDay: async (day: string): Promise<void> => {
+      const current = getLocalProfile();
+      const userUid = current?.uid || 'user-123';
+      const childId = typeof window !== 'undefined' ? localStorage.getItem('tea_active_child_id') : null;
+
+      const headers: Record<string, string> = { 
+        'x-user-uid': userUid
+      };
+      if (childId) {
+        headers['x-child-id'] = childId;
+      }
+
+      const res = await safeFetch(`/api/tasks?day=${day}`, {
+        method: 'DELETE',
+        headers
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+
+      // Trigger a sync check locally
+      firebaseBridge.db.getTasks().then(tasks => {
+        window.dispatchEvent(new CustomEvent(MOCK_DB_UPDATE_EVENT, { detail: tasks }));
+      }).catch(() => {});
+    },
+
     updateTask: async (id: string, updates: Partial<Omit<Task, 'id'>>): Promise<void> => {
       const current = getLocalProfile();
       const userUid = current?.uid || 'user-123';
@@ -696,6 +721,17 @@ export const firebaseBridge = {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id, updates })
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      return data;
+    },
+
+    addDailyCheckpoint: async (checkpointData: { childId: string; date: string; feedback: string; professionalName: string; professionalRole: string; notes?: string; status?: string; weekNum?: number }): Promise<Checkpoint> => {
+      const res = await safeFetch('/api/checkpoints', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(checkpointData)
       });
       const data = await res.json();
       if (data.error) throw new Error(data.error);

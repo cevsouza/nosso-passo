@@ -44,6 +44,54 @@ export async function GET(req: Request) {
   }
 }
 
+export async function POST(req: Request) {
+  try {
+    const body = await req.json();
+    const { childId, date, feedback, professionalName, professionalRole, notes, status, weekNum } = body;
+
+    if (!childId || !date) {
+      return NextResponse.json({ error: 'ID da criança e data são obrigatórios' }, { status: 400 });
+    }
+
+    // Check if checkpoint already exists for this date and child
+    const existing = await prisma.checkpoint.findFirst({
+      where: { childId, date }
+    });
+
+    let checkpoint;
+    if (existing) {
+      checkpoint = await prisma.checkpoint.update({
+        where: { id: existing.id },
+        data: {
+          feedback: feedback || '',
+          professionalName: professionalName || '',
+          professionalRole: professionalRole || '',
+          notes: notes || '',
+          status: status || 'completed',
+          weekNum: weekNum || 1,
+        }
+      });
+    } else {
+      checkpoint = await prisma.checkpoint.create({
+        data: {
+          childId,
+          date,
+          feedback: feedback || '',
+          professionalName: professionalName || '',
+          professionalRole: professionalRole || 'Psicologia ABA',
+          notes: notes || '',
+          status: status || 'completed',
+          weekNum: weekNum || 1,
+        }
+      });
+    }
+
+    return NextResponse.json(checkpoint);
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
+
 export async function PUT(req: Request) {
   try {
     const body = await req.json();

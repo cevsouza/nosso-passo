@@ -39,6 +39,15 @@ export default function TherapistPortal() {
   const [savingCheckpoint, setSavingCheckpoint] = useState(false);
   const [statusMsg, setStatusMsg] = useState('');
 
+  // Custom Daily Checkpoint Form States
+  const [newCpOpen, setNewCpOpen] = useState(false);
+  const [newCpDate, setNewCpDate] = useState('');
+  const [newCpName, setNewCpName] = useState('');
+  const [newCpRole, setNewCpRole] = useState('Psicologia ABA');
+  const [newCpNotes, setNewCpNotes] = useState('');
+  const [newCpFeedback, setNewCpFeedback] = useState('');
+  const [creatingCheckpoint, setCreatingCheckpoint] = useState(false);
+
   // Task management states
   const [taskFormOpen, setTaskFormOpen] = useState(false);
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
@@ -326,6 +335,62 @@ export default function TherapistPortal() {
     }
   };
 
+  const handleCreateDailyCheckpoint = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!childData?.id || !newCpDate || !newCpName.trim() || !newCpFeedback.trim()) return;
+
+    setCreatingCheckpoint(true);
+    setStatusMsg('');
+    try {
+      playMarimba(392, 0.4);
+      const res = await fetch('/api/checkpoints', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          childId: childData.id,
+          date: newCpDate,
+          professionalName: newCpName.trim(),
+          professionalRole: newCpRole,
+          feedback: newCpFeedback.trim(),
+          notes: newCpNotes.trim(),
+          status: 'completed',
+          weekNum: 1
+        })
+      });
+
+      const created = await res.json();
+      if (!res.ok) throw new Error(created.error || 'Erro ao criar checkpoint diário');
+
+      setChildData((prev: any) => {
+        const idx = prev.checkpoints.findIndex((c: any) => c.date === created.date);
+        let updatedCheckpoints;
+        if (idx !== -1) {
+          updatedCheckpoints = prev.checkpoints.map((c: any, i: number) => i === idx ? created : c);
+        } else {
+          updatedCheckpoints = [...prev.checkpoints, created];
+        }
+        return {
+          ...prev,
+          checkpoints: updatedCheckpoints
+        };
+      });
+
+      setNewCpOpen(false);
+      setNewCpName('');
+      setNewCpFeedback('');
+      setNewCpNotes('');
+      setStatusMsg('Checkpoint diário clínico registrado com sucesso!');
+      setTimeout(() => {
+        setStatusMsg('');
+      }, 2000);
+    } catch (err: any) {
+      setStatusMsg(`Erro: ${err.message}`);
+      playMarimba(180, 0.2);
+    } finally {
+      setCreatingCheckpoint(false);
+    }
+  };
+
   // Helper calculations
   const elapsedDays = new Date().getDate();
   
@@ -579,10 +644,116 @@ export default function TherapistPortal() {
               
               {/* Checkpoints Tracker */}
               <div className="bg-white border border-slate-200 p-6 rounded-[28px] shadow-premium flex flex-col gap-4">
-                <div className="flex items-center gap-2 text-teal-650 text-left">
-                  <ClipboardCheck className="w-5 h-5" />
-                  <h3 className="font-black text-slate-900 text-lg font-Outfit">Evolução Clínica & Sessões Clínicas</h3>
+                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                  <div className="flex items-center gap-2 text-teal-650 text-left">
+                    <ClipboardCheck className="w-5 h-5" />
+                    <h3 className="font-black text-slate-900 text-lg font-Outfit">Evolução Clínica & Sessões Clínicas</h3>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => { playBubble(); setNewCpOpen(!newCpOpen); if (!newCpDate) setNewCpDate(new Date().toISOString().split('T')[0]); }}
+                    className="flex items-center gap-1.5 px-4 py-2 bg-teal-50 border border-teal-100 hover:bg-teal-100 text-teal-700 text-xs font-black rounded-full shadow-sm transition-all cursor-pointer font-Outfit border-none outline-none"
+                  >
+                    <Plus className="w-4 h-4" /> {newCpOpen ? 'Fechar Cadastro' : 'Novo Checkpoint Diário'}
+                  </button>
                 </div>
+
+                <AnimatePresence>
+                  {newCpOpen && (
+                    <motion.form
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      onSubmit={handleCreateDailyCheckpoint}
+                      className="bg-slate-50 border border-slate-200 p-5 rounded-[24px] overflow-hidden flex flex-col gap-4 text-xs text-left"
+                    >
+                      <h4 className="font-black text-slate-800 font-Outfit">Novo Checkpoint Clínico Diário</h4>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                          <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1">Data da Sessão</label>
+                          <input
+                            type="date"
+                            required
+                            value={newCpDate}
+                            onChange={e => setNewCpDate(e.target.value)}
+                            className="w-full bg-white border-2 border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold focus:border-teal-600 focus:bg-white outline-none"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1">Nome do Profissional</label>
+                          <input
+                            type="text"
+                            required
+                            placeholder="Ex: Dr. Carlos Reis"
+                            value={newCpName}
+                            onChange={e => setNewCpName(e.target.value)}
+                            className="w-full bg-white border-2 border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold focus:border-teal-600 focus:bg-white outline-none"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1">Especialidade</label>
+                          <select
+                            value={newCpRole}
+                            onChange={e => setNewCpRole(e.target.value)}
+                            className="w-full bg-white border-2 border-slate-200 rounded-xl px-3 py-2 text-xs font-black focus:border-teal-600 focus:bg-white outline-none cursor-pointer"
+                          >
+                            <option value="Psicologia ABA">Psicologia ABA 🧠</option>
+                            <option value="Terapia Ocupacional">Terapia Ocupacional 🧼</option>
+                            <option value="Fonoterapia">Fonoterapia 🗣️</option>
+                            <option value="Fisioterapia">Fisioterapia 🩺</option>
+                            <option value="Psicoterapia">Psicoterapia 💬</option>
+                            <option value="Psicomotricidade">Psicomotricidade 🏃</option>
+                            <option value="Outro">Outro 🧑‍⚕️</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1">Feedback e Evolução Clínico-Terapêutica</label>
+                          <textarea
+                            required
+                            placeholder="Descreva as condutas clínicas adotadas, conquistas e condutas recomendadas..."
+                            value={newCpFeedback}
+                            onChange={e => setNewCpFeedback(e.target.value)}
+                            className="w-full p-3 bg-white border-2 border-slate-200 rounded-xl text-xs font-semibold focus:border-teal-600 focus:bg-white outline-none h-20 resize-none"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1">Anotações Internas / Relato (Opcional)</label>
+                          <textarea
+                            placeholder="Alguma anotação interna sobre o desempenho ou respostas sensoriais..."
+                            value={newCpNotes}
+                            onChange={e => setNewCpNotes(e.target.value)}
+                            className="w-full p-3 bg-white border-2 border-slate-200 rounded-xl text-xs font-semibold focus:border-teal-600 focus:bg-white outline-none h-20 resize-none"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="flex justify-end gap-2 mt-1">
+                        <button
+                          type="button"
+                          onClick={() => { playBubble(); setNewCpOpen(false); }}
+                          className="px-4 py-2 bg-slate-200 text-slate-705 text-xs font-bold rounded-xl active:scale-95 cursor-pointer border-none outline-none"
+                        >
+                          Cancelar
+                        </button>
+                        <button
+                          type="submit"
+                          disabled={creatingCheckpoint}
+                          className="px-5 py-2 bg-teal-600 hover:bg-teal-750 text-white text-xs font-black rounded-xl shadow-sm active:scale-95 cursor-pointer disabled:opacity-50 border-none outline-none font-Outfit"
+                        >
+                          {creatingCheckpoint ? 'Gravando...' : 'Gravar Checkpoint'}
+                        </button>
+                      </div>
+                    </motion.form>
+                  )}
+                </AnimatePresence>
+
                 <p className="text-xs text-slate-500 font-semibold leading-normal text-left">
                   Selecione uma semana abaixo para registrar laudos de evolução clínica e feedback profissional para a família.
                 </p>
@@ -609,7 +780,9 @@ export default function TherapistPortal() {
                             : 'bg-slate-50 border-slate-200 text-slate-500 hover:border-slate-350'
                         }`}
                       >
-                        <span className="text-xs font-black uppercase tracking-widest font-Outfit">Semana {cp.weekNum}</span>
+                        <span className="text-xs font-black uppercase tracking-widest font-Outfit">
+                          {cp.date ? new Date(cp.date + 'T00:00:00').toLocaleDateString('pt-BR') : `Semana ${cp.weekNum}`}
+                        </span>
                         <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-full ${
                           isCompleted ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-600'
                         }`}>

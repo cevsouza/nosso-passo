@@ -408,6 +408,20 @@ export default function ParentDashboard() {
   const [editNotes, setEditNotes] = useState('');
   const [editFeedback, setEditFeedback] = useState('');
   const [editStatus, setEditStatus] = useState<'pending' | 'completed'>('pending');
+
+  // Copy/Paste Routine Buffer States
+  const [copiedTasksBuffer, setCopiedTasksBuffer] = useState<any[]>([]);
+  const [copiedFromDay, setCopiedFromDay] = useState<string | null>(null);
+
+  // Custom Daily Checkpoint Form States
+  const [newCpOpen, setNewCpOpen] = useState(false);
+  const [newCpDate, setNewCpDate] = useState('');
+  const [newCpName, setNewCpName] = useState('');
+  const [newCpRole, setNewCpRole] = useState('Psicologia ABA');
+  const [newCpNotes, setNewCpNotes] = useState('');
+  const [newCpFeedback, setNewCpFeedback] = useState('');
+  const [newCpStatus, setNewCpStatus] = useState<'pending' | 'completed'>('completed');
+  const [creatingCheckpoint, setCreatingCheckpoint] = useState(false);
   
   // UI states
   const [formOpen, setFormOpen] = useState(false);
@@ -620,6 +634,127 @@ export default function ParentDashboard() {
       triggerStatus('Erro ao salvar checkpoint.');
     } finally {
       setSavingCheckpointId(null);
+    }
+  };
+
+  const handleCopyDay = () => {
+    playBubble();
+    const dayTasks = tasks.filter(t => t.day === activeDayFilter);
+    if (dayTasks.length === 0) {
+      triggerStatus('Nenhuma tarefa para copiar neste dia.');
+      return;
+    }
+    setCopiedTasksBuffer(dayTasks);
+    setCopiedFromDay(activeDayFilter);
+    triggerStatus(`Rotina do Dia ${activeDayFilter} copiada! (${dayTasks.length} tarefas)`);
+  };
+
+  const handlePasteDay = async () => {
+    if (!copiedFromDay || copiedTasksBuffer.length === 0 || !activeChild?.id) return;
+    
+    playMarimba(392, 0.4);
+    
+    const confirmPaste = window.confirm(
+      `Deseja substituir as tarefas existentes de hoje (Dia ${activeDayFilter}) pelas ${copiedTasksBuffer.length} tarefas copiadas do Dia ${copiedFromDay}?`
+    );
+    if (!confirmPaste) return;
+
+    try {
+      triggerStatus('Substituindo tarefas...');
+      
+      // Delete existing tasks for activeDayFilter
+      await firebaseBridge.db.deleteTasksByDay(activeDayFilter);
+
+      // Create copies
+      const tasksToCreate = copiedTasksBuffer.map(t => ({
+        title: t.title,
+        time: t.time,
+        period: t.period,
+        day: activeDayFilter,
+        icon: t.icon,
+        customIcon: t.customIcon || undefined,
+        category: t.category,
+        duration: t.duration,
+        description: t.description || ''
+      }));
+
+      // Call API
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+        'x-user-uid': currentUser?.uid || 'user-123',
+        'x-child-id': activeChild.id
+      };
+
+      const res = await fetch('/api/tasks', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(tasksToCreate)
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+
+      // Trigger local updates
+      const updatedTasks = await firebaseBridge.db.getTasks();
+      window.dispatchEvent(new CustomEvent('firebase-mock-db-update', { detail: updatedTasks }));
+
+      // Write log trail
+      await immutableLogger.logChange(
+        'RESET_ROUTINE',
+        `Copiou em bloco a rotina do Dia ${copiedFromDay} para o Dia ${activeDayFilter}.`,
+        currentUser?.email
+      );
+
+      triggerStatus('Rotina colada com sucesso!');
+    } catch (err) {
+      console.error(err);
+      triggerStatus('Erro ao colar rotina.');
+    }
+  };
+
+  const handleCreateDailyCheckpoint = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!activeChild?.id || !newCpDate) return;
+
+    setCreatingCheckpoint(true);
+    try {
+      playMarimba(392, 0.4);
+      const created = await firebaseBridge.db.addDailyCheckpoint({
+        childId: activeChild.id,
+        date: newCpDate,
+        professionalName: newCpName.trim() || 'Especialista',
+        professionalRole: newCpRole,
+        feedback: newCpFeedback.trim(),
+        notes: newCpNotes.trim(),
+        status: newCpStatus,
+        weekNum: 1
+      });
+
+      setCheckpoints(prev => {
+        const idx = prev.findIndex(c => c.date === created.date);
+        if (idx !== -1) {
+          return prev.map((c, i) => i === idx ? created : c);
+        } else {
+          return [...prev, created];
+        }
+      });
+
+      // Reset form
+      setNewCpOpen(false);
+      setNewCpName('');
+      setNewCpFeedback('');
+      setNewCpNotes('');
+      triggerStatus('Checkpoint diário clínico registrado!');
+
+      await immutableLogger.logChange(
+        'UPDATE_PROFILE',
+        `Adicionou checkpoint clínico para a data ${newCpDate} (${newCpRole} - ${newCpName}).`,
+        currentUser?.email
+      );
+    } catch (err) {
+      console.error(err);
+      triggerStatus('Erro ao criar checkpoint diário.');
+    } finally {
+      setCreatingCheckpoint(false);
     }
   };
 
@@ -1343,6 +1478,90 @@ export default function ParentDashboard() {
             </div>
           )}
 
+          {/* Daily Status Grid Card */}
+          {activeChild && (
+            <div className="bg-white border-2 border-slate-250 rounded-[28px] p-6 shadow-premium flex flex-col gap-4">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                <div className="flex items-center gap-2 text-indigo-655">
+                  <span className="text-base">📅</span>
+                  <h2 className="font-bold text-slate-900 text-sm font-Outfit uppercase tracking-wider">Acompanhamento Diário</h2>
+                </div>
+                <span className="text-[9px] font-black text-slate-400 uppercase">Últimos 7 dias</span>
+              </div>
+
+              <div className="flex flex-col gap-3">
+                {(() => {
+                  const days = [];
+                  for (let i = 0; i < 7; i++) {
+                    const d = new Date();
+                    d.setDate(d.getDate() - i);
+                    days.push(d);
+                  }
+
+                  return days.map((dateObj, idx) => {
+                    const isoDate = dateObj.toISOString().split('T')[0];
+                    const dayName = idx === 0 ? 'Hoje' : idx === 1 ? 'Ontem' : dateObj.toLocaleDateString('pt-BR', { weekday: 'short', day: 'numeric', month: 'numeric' });
+                    
+                    // Find school log for this date
+                    const schoolLog = sensoryLogs.find(log => 
+                      log.loggedBy === 'school' && 
+                      new Date(log.timestamp).toISOString().split('T')[0] === isoDate
+                    );
+
+                    // Find clinical checkpoint for this date
+                    const clinicalCp = checkpoints.find(cp => 
+                      cp.date === isoDate && cp.status === 'completed'
+                    );
+
+                    return (
+                      <div key={isoDate} className="flex items-center justify-between p-2.5 bg-slate-50 border border-slate-150 rounded-xl hover:bg-slate-100/50 transition-all text-xxs font-semibold">
+                        <span className="font-bold text-slate-700 capitalize w-20">{dayName}</span>
+                        
+                        <div className="flex items-center gap-3">
+                          {/* School badge */}
+                          <div className="flex items-center gap-1" title={schoolLog ? 'Relatório escolar recebido' : 'Sem relatório escolar hoje'}>
+                            <span className="text-[10px]" title="Escola">🏫</span>
+                            {schoolLog ? (
+                              <span className="bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full text-[9px] font-black border border-emerald-250">
+                                {schoolLog.mood === 'feliz' ? '😊' : schoolLog.mood === 'calmo' ? '😐' : schoolLog.mood === 'triste' ? '😢' : '😫'}
+                              </span>
+                            ) : (
+                              <span className="bg-slate-200 text-slate-500 px-2 py-0.5 rounded-full text-[9px] font-black border border-slate-300">
+                                Pendente
+                              </span>
+                            )}
+                          </div>
+
+                          {/* Clinical badge */}
+                          <div className="flex items-center gap-1" title={clinicalCp ? 'Acompanhamento clínico registrado' : 'Sem laudo clínico hoje'}>
+                            <span className="text-[10px]" title="Clínico">🧠</span>
+                            {clinicalCp ? (
+                              <span className="bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full text-[9px] font-black border border-emerald-250" title={`${clinicalCp.professionalRole}: ${clinicalCp.feedback}`}>
+                                OK ✓
+                              </span>
+                            ) : (
+                              <button
+                                onClick={() => {
+                                  playBubble();
+                                  setActivePanelTab('checkpoints');
+                                  setNewCpDate(isoDate);
+                                  setNewCpOpen(true);
+                                }}
+                                className="bg-slate-200 hover:bg-indigo-50 hover:text-indigo-650 hover:border-indigo-250 text-slate-500 px-2 py-0.5 rounded-full text-[9px] font-black border border-slate-300 transition-all cursor-pointer outline-none"
+                              >
+                                + Add
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  });
+                })()}
+              </div>
+            </div>
+          )}
+
           {/* Child Hyperfocus Profile Card */}
           <div className="bg-white border-2 border-slate-250 rounded-[28px] p-6 shadow-premium flex flex-col gap-4">
             <div className="flex items-center gap-2.5 text-indigo-600">
@@ -1874,6 +2093,26 @@ export default function ParentDashboard() {
                     </div>
 
                     <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={handleCopyDay}
+                        className="flex items-center gap-1 px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-black rounded-full border border-slate-300 transition-all cursor-pointer font-Outfit"
+                        title="Copiar todas as tarefas deste dia"
+                      >
+                        📋 Copiar
+                      </button>
+
+                      {copiedFromDay && copiedTasksBuffer.length > 0 && (
+                        <button
+                          type="button"
+                          onClick={handlePasteDay}
+                          className="flex items-center gap-1 px-3.5 py-2 bg-yellow-100 hover:bg-yellow-200 text-yellow-800 text-xs font-black rounded-full border border-yellow-350 transition-all cursor-pointer font-Outfit"
+                          title={`Colar tarefas copiadas do Dia ${copiedFromDay}`}
+                        >
+                          📥 Colar
+                        </button>
+                      )}
+
                       <button
                         onClick={() => { playBubble(); window.print(); }}
                         className="flex items-center gap-1.5 px-4 py-2 bg-emerald-50 border border-emerald-250 hover:bg-emerald-100 text-emerald-700 text-xs font-black rounded-full shadow-sm transition-all cursor-pointer font-Outfit"
@@ -2411,14 +2650,119 @@ export default function ParentDashboard() {
                 exit={{ opacity: 0, y: -10 }}
                 className="bg-white border border-slate-200 rounded-[32px] p-6 shadow-md shadow-slate-100 flex flex-col gap-6"
               >
-                <div>
-                  <h3 className="font-black text-slate-850 text-xl leading-tight font-Outfit">
-                    Checkpoints Clínicos Semanais 🤝
-                  </h3>
-                  <p className="text-xs text-slate-400 font-semibold mt-0.5">
-                    Registre os acompanhamentos e as orientações dos profissionais para as 4 semanas do mês.
-                  </p>
+                <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+                  <div>
+                    <h3 className="font-black text-slate-850 text-xl leading-tight font-Outfit">
+                      Checkpoints Clínicos & Evolução 🤝
+                    </h3>
+                    <p className="text-xs text-slate-400 font-semibold mt-0.5">
+                      Acompanhamento por dia ou por semana das orientações e sessões dos especialistas.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => { playBubble(); setNewCpOpen(!newCpOpen); if (!newCpDate) setNewCpDate(new Date().toISOString().split('T')[0]); }}
+                    className="flex items-center gap-1.5 px-4 py-2 bg-indigo-50 border border-indigo-100 hover:bg-indigo-100 text-indigo-600 text-xs font-black rounded-full shadow-sm transition-all cursor-pointer font-Outfit border-none outline-none"
+                  >
+                    <Plus className="w-4 h-4" /> {newCpOpen ? 'Fechar Cadastro' : 'Novo Checkpoint Diário'}
+                  </button>
                 </div>
+
+                <AnimatePresence>
+                  {newCpOpen && (
+                    <motion.form
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      onSubmit={handleCreateDailyCheckpoint}
+                      className="bg-slate-50 border border-slate-200 p-5 rounded-[24px] overflow-hidden flex flex-col gap-4 text-xs"
+                    >
+                      <h4 className="font-black text-slate-800 font-Outfit">Novo Checkpoint Clínico Diário</h4>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                          <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1">Data da Sessão</label>
+                          <input
+                            type="date"
+                            required
+                            value={newCpDate}
+                            onChange={e => setNewCpDate(e.target.value)}
+                            className="w-full bg-white border-2 border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold focus:border-indigo-650 focus:bg-white outline-none"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1">Profissional / Terapeuta</label>
+                          <input
+                            type="text"
+                            required
+                            placeholder="Ex: Dra. Ana Paula"
+                            value={newCpName}
+                            onChange={e => setNewCpName(e.target.value)}
+                            className="w-full bg-white border-2 border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold focus:border-indigo-650 focus:bg-white outline-none"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1">Especialidade</label>
+                          <select
+                            value={newCpRole}
+                            onChange={e => setNewCpRole(e.target.value)}
+                            className="w-full bg-white border-2 border-slate-200 rounded-xl px-3 py-2 text-xs font-black focus:border-indigo-655 focus:bg-white outline-none cursor-pointer"
+                          >
+                            <option value="Psicologia ABA">Psicologia ABA 🧠</option>
+                            <option value="Terapia Ocupacional">Terapia Ocupacional 🧼</option>
+                            <option value="Fonoterapia">Fonoterapia 🗣️</option>
+                            <option value="Fisioterapia">Fisioterapia 🩺</option>
+                            <option value="Psicoterapia">Psicoterapia 💬</option>
+                            <option value="Psicomotricidade">Psicomotricidade 🏃</option>
+                            <option value="Outro">Outro 🧑‍⚕️</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1">Feedback / Orientações para Casa</label>
+                          <textarea
+                            required
+                            placeholder="Instruções práticas de regulação, reforço visual ou condutas para a família adotar..."
+                            value={newCpFeedback}
+                            onChange={e => setNewCpFeedback(e.target.value)}
+                            className="w-full p-3 bg-white border-2 border-slate-200 rounded-xl text-xs font-semibold focus:border-indigo-655 focus:bg-white outline-none h-20 resize-none"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1">Notas do Responsável / Relato (Opcional)</label>
+                          <textarea
+                            placeholder="Anotações dos pais sobre como a criança se comportou na sessão ou dúvidas..."
+                            value={newCpNotes}
+                            onChange={e => setNewCpNotes(e.target.value)}
+                            className="w-full p-3 bg-white border-2 border-slate-200 rounded-xl text-xs font-semibold focus:border-indigo-655 focus:bg-white outline-none h-20 resize-none"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="flex justify-end gap-2 mt-1">
+                        <button
+                          type="button"
+                          onClick={() => { playBubble(); setNewCpOpen(false); }}
+                          className="px-4 py-2 bg-slate-200 text-slate-705 text-xs font-bold rounded-xl active:scale-95 cursor-pointer border-none outline-none"
+                        >
+                          Cancelar
+                        </button>
+                        <button
+                          type="submit"
+                          disabled={creatingCheckpoint}
+                          className="px-5 py-2 bg-indigo-600 hover:bg-indigo-750 text-white text-xs font-black rounded-xl shadow-sm active:scale-95 cursor-pointer disabled:opacity-50 border-none outline-none font-Outfit"
+                        >
+                          {creatingCheckpoint ? 'Registrando...' : 'Gravar Checkpoint'}
+                        </button>
+                      </div>
+                    </motion.form>
+                  )}
+                </AnimatePresence>
 
                 {loadingCheckpoints ? (
                   <div className="flex flex-col items-center justify-center p-12 gap-3">
@@ -2444,7 +2788,7 @@ export default function ParentDashboard() {
                         >
                           <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                             <span className="text-sm font-black text-slate-850 font-Outfit">
-                              Semana {cp.weekNum}
+                              {cp.date ? `Sessão: ${new Date(cp.date + 'T00:00:00').toLocaleDateString('pt-BR')}` : `Semana ${cp.weekNum}`}
                             </span>
                             <span className={`text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full border shadow-xxs ${
                               cp.status === 'completed' 
