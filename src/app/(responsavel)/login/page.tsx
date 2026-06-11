@@ -154,7 +154,7 @@ export default function ParentAuth() {
           </button>
         </form>
 
-        <div className="mt-5 text-center">
+        <div className="mt-5 text-center flex flex-col gap-3">
           <button
             onClick={handleToggleMode}
             className="text-xs font-black text-indigo-700 hover:text-indigo-900 hover:underline cursor-pointer bg-transparent border-none outline-none font-Outfit"
@@ -163,6 +163,14 @@ export default function ParentAuth() {
               ? 'Já possui uma conta? Entrar no Painel' 
               : 'Novo por aqui? Criar conta de responsável'}
           </button>
+
+          <Link
+            href="/therapist"
+            onMouseEnter={playBubble}
+            className="text-xs font-black text-teal-700 hover:text-teal-950 flex items-center justify-center gap-1 cursor-pointer font-Outfit border-t border-slate-100 pt-3 transition-all"
+          >
+            🩺 É terapeuta? Acesse com o Código do Paciente
+          </Link>
         </div>
 
         <div className="mt-6 text-center text-[10px] text-slate-500 border-t border-slate-200 pt-4 font-bold">

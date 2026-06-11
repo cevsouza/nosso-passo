@@ -1453,35 +1453,54 @@ export default function ParentDashboard() {
                 <span className="text-[10px] font-black uppercase tracking-widest text-indigo-900 flex items-center gap-1 select-none font-Outfit">
                   ⚕️ Compartilhamento Clínico (Terapeutas)
                 </span>
-                <p className="text-[10px] text-slate-505 font-semibold leading-tight">
-                  Gere um código de acesso seguro de leitura-escrita para terapeutas acompanharem a rotina e registrarem checkpoints.
+                <p className="text-[10px] text-indigo-950 font-semibold leading-tight">
+                  Gere um código de acesso seguro para terapeutas (psicólogos, T.O.s, fonoaudiólogos) acompanharem a rotina e registrarem checkpoints.
                 </p>
-                <div className="flex gap-2 items-center justify-between bg-white border border-slate-200 p-2.5 rounded-xl">
+                <div className="flex flex-col gap-2 bg-white border border-slate-200 p-3 rounded-xl">
                   {activeChild?.sharingCode ? (
                     <>
-                      <span className="text-sm font-black text-indigo-650 tracking-wider bg-indigo-50/50 px-3 py-1.5 rounded-lg border border-indigo-150 font-Outfit">
-                        {activeChild.sharingCode}
-                      </span>
-                      <div className="flex gap-1.5">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-extrabold text-slate-500 uppercase font-Outfit">Código do Paciente:</span>
+                        <span className="text-sm font-black text-indigo-650 tracking-wider bg-indigo-50 px-2.5 py-1 rounded-lg border border-indigo-150 font-Outfit">
+                          {activeChild.sharingCode}
+                        </span>
+                      </div>
+                      <div className="flex gap-1.5 w-full mt-1.5 flex-wrap">
                         <button
                           type="button"
                           onClick={() => {
                             navigator.clipboard.writeText(activeChild.sharingCode || '');
                             triggerStatus('Código copiado!');
                           }}
-                          className="px-2.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-[9px] font-black rounded-lg active:scale-95 transition-all cursor-pointer font-Outfit"
+                          className="flex-1 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-[9px] font-black rounded-lg active:scale-95 transition-all cursor-pointer font-Outfit"
                         >
-                          Copiar
+                          Copiar Código
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (typeof window !== 'undefined') {
+                              const directLink = `${window.location.origin}/therapist?code=${activeChild.sharingCode}`;
+                              navigator.clipboard.writeText(directLink);
+                              triggerStatus('Link direto copiado para a área de transferência!');
+                            }
+                          }}
+                          className="flex-1 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-[9px] font-black rounded-lg active:scale-95 transition-all cursor-pointer font-Outfit"
+                        >
+                          Copiar Link Direto
                         </button>
                         <button
                           type="button"
                           onClick={handleGenerateSharingCode}
-                          className="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-[9px] font-black rounded-lg active:scale-95 transition-all cursor-pointer border border-slate-300 font-Outfit"
+                          className="py-1.5 px-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-[9px] font-black rounded-lg active:scale-95 transition-all cursor-pointer border border-slate-300 font-Outfit"
                           title="Gerar novo código"
                         >
                           Renovar
                         </button>
                       </div>
+                      <p className="text-[9px] text-slate-500 font-medium leading-normal mt-1 border-t border-slate-100 pt-2 text-left">
+                        💡 **Como o terapeuta acessa?** Ele pode entrar em <Link href="/therapist" className="text-indigo-600 hover:underline font-bold" target="_blank">/therapist</Link> e digitar o código, ou você pode clicar em **"Copiar Link Direto"** e enviar para ele no WhatsApp para acesso instantâneo!
+                      </p>
                     </>
                   ) : (
                     <button

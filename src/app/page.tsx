@@ -270,10 +270,17 @@ export default function Home() {
       </div>
 
       {/* Footer Info */}
-      <footer className="z-10 w-full text-center flex flex-col md:flex-row items-center justify-between gap-2 border-t border-slate-300/60 pt-6 pointer-events-none mt-10">
+      <footer className="z-10 w-full text-center flex flex-col md:flex-row items-center justify-between gap-2 border-t border-slate-300/60 pt-6 pointer-events-auto mt-10">
         <span className="text-[10px] text-slate-500 font-extrabold uppercase tracking-widest">
           neurodiversidade amigável • sem arquivos externos
         </span>
+        <Link
+          href="/therapist"
+          onMouseEnter={playBubble}
+          className="text-xs font-black text-teal-700 hover:text-teal-950 flex items-center gap-1 cursor-pointer font-Outfit transition-all"
+        >
+          🩺 Portal do Terapeuta
+        </Link>
         <span className="text-[10px] text-slate-500 font-extrabold uppercase tracking-widest">
           © 2026 Rotina Animada
         </span>

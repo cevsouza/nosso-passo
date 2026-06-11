@@ -35,15 +35,16 @@ export default function TherapistPortal() {
   const [savingCheckpoint, setSavingCheckpoint] = useState(false);
   const [statusMsg, setStatusMsg] = useState('');
 
-  const handleVerify = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!sharingCode.trim()) return;
+  const handleVerify = async (e?: React.FormEvent, codeToUse?: string) => {
+    if (e) e.preventDefault();
+    const finalCode = (codeToUse || sharingCode).trim();
+    if (!finalCode) return;
     setVerifying(true);
     setErrorMsg('');
     playMarimba(392, 0.3);
 
     try {
-      const res = await fetch(`/api/therapist?sharingCode=${sharingCode.toUpperCase().trim()}`);
+      const res = await fetch(`/api/therapist?sharingCode=${finalCode.toUpperCase()}`);
       const data = await res.json();
       if (!res.ok) {
         throw new Error(data.error || 'Código inválido');
@@ -57,6 +58,17 @@ export default function TherapistPortal() {
       setVerifying(false);
     }
   };
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const code = params.get('code');
+      if (code) {
+        setSharingCode(code.toUpperCase());
+        handleVerify(undefined, code.toUpperCase());
+      }
+    }
+  }, []);
 
   const handleUpdateCheckpoint = async (e: React.FormEvent) => {
     e.preventDefault();
