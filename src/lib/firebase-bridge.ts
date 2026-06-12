@@ -54,6 +54,10 @@ export interface Child {
   audioAlert10?: string;
   audioAlert5?: string;
   audioAlert2?: string;
+  monthlyTemplate?: string | null;
+  emergencyFirstThen?: boolean;
+  behaviorDictionary?: string | null;
+  unexpectedChange?: string | null;
 }
 
 export interface SensoryLog {

@@ -602,6 +602,17 @@ export default function ParentDashboard() {
   const [transitionMinutes, setTransitionMinutes] = useState(5);
   const [tokens, setTokens] = useState(0);
 
+  // Phase 3 Roadmap & Template Replication States
+  const [emergencyFirstThen, setEmergencyFirstThen] = useState(false);
+  const [behaviorList, setBehaviorList] = useState<any[]>([]);
+  const [newSignal, setNewSignal] = useState('');
+  const [newMeaning, setNewMeaning] = useState('');
+  const [newIntervention, setNewIntervention] = useState('');
+  const [unexpectedChangeObj, setUnexpectedChangeObj] = useState<any | null>(null);
+  const [selectedCancelTaskTitle, setSelectedCancelTaskTitle] = useState('');
+  const [changeReason, setChangeReason] = useState('');
+  const [changeReplacement, setChangeReplacement] = useState('');
+
   // Emotional sensory log states
   const [sensoryLogs, setSensoryLogs] = useState<any[]>([]);
   const [crisisNotes, setCrisisNotes] = useState('');
@@ -762,6 +773,23 @@ export default function ParentDashboard() {
           setRewardCost(active.rewardCost || 10);
           setTransitionMinutes(active.transitionMinutes || 5);
           setTokens(active.tokens || 0);
+
+          setEmergencyFirstThen(active.emergencyFirstThen || false);
+          let bList = [];
+          try {
+            if (active.behaviorDictionary) {
+              bList = JSON.parse(active.behaviorDictionary);
+            }
+          } catch (e) {}
+          setBehaviorList(bList);
+
+          let unex = null;
+          try {
+            if (active.unexpectedChange) {
+              unex = JSON.parse(active.unexpectedChange);
+            }
+          } catch (e) {}
+          setUnexpectedChangeObj(unex);
           
           firebaseBridge.db.getSensoryLogs(active.id).then(setSensoryLogs).catch(console.error);
         }
@@ -1003,6 +1031,23 @@ export default function ParentDashboard() {
     setRewardCost(child.rewardCost || 10);
     setTransitionMinutes(child.transitionMinutes || 5);
     setTokens(child.tokens || 0);
+
+    setEmergencyFirstThen(child.emergencyFirstThen || false);
+    let bList = [];
+    try {
+      if (child.behaviorDictionary) {
+        bList = JSON.parse(child.behaviorDictionary);
+      }
+    } catch (e) {}
+    setBehaviorList(bList);
+
+    let unex = null;
+    try {
+      if (child.unexpectedChange) {
+        unex = JSON.parse(child.unexpectedChange);
+      }
+    } catch (e) {}
+    setUnexpectedChangeObj(unex);
 
     // Immediately fetch tasks and logs for the new child
     try {
@@ -1254,7 +1299,8 @@ export default function ParentDashboard() {
         rewardName,
         rewardCost,
         transitionMinutes,
-        tokens
+        tokens,
+        emergencyFirstThen
       });
       
       setActiveChild(updated);
@@ -1280,6 +1326,160 @@ export default function ParentDashboard() {
   };
 
 
+
+  // --- PHASE 3 ROADMAP HANDLERS ---
+
+  // Behavioral Dictionary CRUD
+  const handleAddBehaviorSignal = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!activeChild) return;
+    if (!newSignal.trim() || !newMeaning.trim() || !newIntervention.trim()) {
+      triggerStatus('Preencha todos os campos do sinal comportamental.');
+      return;
+    }
+
+    const newItem = {
+      id: Math.random().toString(36).substring(2, 9),
+      signal: newSignal.trim(),
+      meaning: newMeaning.trim(),
+      intervention: newIntervention.trim(),
+    };
+
+    const updatedList = [...behaviorList, newItem];
+    setBehaviorList(updatedList);
+
+    try {
+      const updated = await firebaseBridge.auth.updateChildSettings(activeChild.id, {
+        behaviorDictionary: JSON.stringify(updatedList)
+      });
+      setActiveChild(updated);
+      firebaseBridge.auth.setActiveChild(updated);
+      setNewSignal('');
+      setNewMeaning('');
+      setNewIntervention('');
+      triggerStatus('Sinal cadastrado com sucesso!');
+    } catch (err) {
+      triggerStatus('Erro ao salvar sinal no banco.');
+    }
+  };
+
+  const handleDeleteBehaviorSignal = async (id: string) => {
+    if (!activeChild) return;
+    const updatedList = behaviorList.filter(item => item.id !== id);
+    setBehaviorList(updatedList);
+
+    try {
+      const updated = await firebaseBridge.auth.updateChildSettings(activeChild.id, {
+        behaviorDictionary: JSON.stringify(updatedList)
+      });
+      setActiveChild(updated);
+      firebaseBridge.auth.setActiveChild(updated);
+      triggerStatus('Sinal excluído.');
+    } catch (err) {
+      triggerStatus('Erro ao excluir sinal.');
+    }
+  };
+
+  // Unexpected Change Management
+  const handleDeclareUnexpectedChange = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!activeChild) return;
+    if (!selectedCancelTaskTitle || !changeReason.trim() || !changeReplacement.trim()) {
+      triggerStatus('Preencha todos os campos da mudança inesperada.');
+      return;
+    }
+
+    const changeObj = {
+      cancelledTaskTitle: selectedCancelTaskTitle,
+      reason: changeReason.trim(),
+      replacement: changeReplacement.trim()
+    };
+
+    try {
+      const updated = await firebaseBridge.auth.updateChildSettings(activeChild.id, {
+        unexpectedChange: JSON.stringify(changeObj)
+      });
+      setActiveChild(updated);
+      firebaseBridge.auth.setActiveChild(updated);
+      setUnexpectedChangeObj(changeObj);
+      setChangeReason('');
+      setChangeReplacement('');
+      triggerStatus('Mudança de planos notificada ao portal da criança!');
+    } catch (err) {
+      triggerStatus('Erro ao registrar mudança de planos.');
+    }
+  };
+
+  const handleClearUnexpectedChange = async () => {
+    if (!activeChild) return;
+    try {
+      const updated = await firebaseBridge.auth.updateChildSettings(activeChild.id, {
+        unexpectedChange: null
+      });
+      setActiveChild(updated);
+      firebaseBridge.auth.setActiveChild(updated);
+      setUnexpectedChangeObj(null);
+      setSelectedCancelTaskTitle('');
+      triggerStatus('Mudança de planos removida.');
+    } catch (err) {
+      triggerStatus('Erro ao limpar mudança.');
+    }
+  };
+
+  // Monthly Template Saving & Reapplying
+  const handleSaveMonthlyTemplate = async () => {
+    if (!activeChild) return;
+    if (tasks.length === 0) {
+      triggerStatus('Não há tarefas ativas para salvar como modelo.');
+      return;
+    }
+
+    // Strip IDs, userUids, dates, and ensure isCompleted is false
+    const strippedTasks = tasks.map(t => ({
+      title: t.title,
+      time: t.time,
+      period: t.period,
+      day: t.day,
+      isCompleted: false,
+      order: t.order,
+      icon: t.icon || '📅',
+      customIcon: t.customIcon || null,
+      category: t.category || 'AVD',
+      duration: t.duration || 30,
+      description: t.description || ''
+    }));
+
+    try {
+      const updated = await firebaseBridge.auth.updateChildSettings(activeChild.id, {
+        monthlyTemplate: JSON.stringify(strippedTasks)
+      });
+      setActiveChild(updated);
+      firebaseBridge.auth.setActiveChild(updated);
+      triggerStatus('Agenda do mês salva como modelo com sucesso!');
+    } catch (err) {
+      triggerStatus('Erro ao salvar modelo.');
+    }
+  };
+
+  const handleReapplyMonthlyTemplate = async () => {
+    if (!activeChild) return;
+    if (!activeChild.monthlyTemplate) {
+      triggerStatus('Nenhum modelo salvo encontrado para este paciente.');
+      return;
+    }
+
+    if (!window.confirm('Atenção: Reaplicar o modelo substituirá todas as atividades atuais do paciente por uma cópia limpa do modelo salvo. Deseja continuar?')) {
+      return;
+    }
+
+    try {
+      const templateTasks = JSON.parse(activeChild.monthlyTemplate);
+      await firebaseBridge.db.loadTemplate(templateTasks);
+      triggerStatus('Modelo mensal reaplicado com sucesso!');
+    } catch (err) {
+      triggerStatus('Erro ao aplicar o modelo.');
+    }
+  };
 
   // Reset Routine to standard template
   const handleResetToDefaults = async () => {
@@ -1939,6 +2139,36 @@ export default function ParentDashboard() {
                 </select>
               </div>
 
+              {/* Emergency First-Then mode toggle */}
+              {activeChild && (
+                <div className="bg-gradient-to-tr from-indigo-50/50 to-indigo-100/50 border-2 border-indigo-200 p-4.5 rounded-2xl flex flex-col gap-3 shadow-xxs">
+                  <div className="flex items-center justify-between">
+                    <div className="text-left">
+                      <span className="text-[10px] font-black uppercase tracking-widest text-indigo-900 flex items-center gap-1 select-none font-Outfit">
+                        🚨 Modo Primeiro-Depois
+                      </span>
+                      <p className="text-[9.5px] text-slate-500 font-semibold leading-tight mt-0.5">
+                        Simplifica o portal em duas tarefas gigantes durante crises.
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        playBubble();
+                        setEmergencyFirstThen(!emergencyFirstThen);
+                      }}
+                      className={`px-3 py-1.5 text-[10px] font-black rounded-lg transition-all border-b-2 cursor-pointer ${
+                        emergencyFirstThen
+                          ? 'bg-indigo-600 border-indigo-950 text-white shadow-sm'
+                          : 'bg-slate-200 border-slate-355 text-slate-700'
+                      }`}
+                    >
+                      {emergencyFirstThen ? 'Ativo 🟢' : 'Inativo'}
+                    </button>
+                  </div>
+                </div>
+              )}
+
               {/* Token Economy Config */}
               <div className="bg-indigo-50 border-2 border-indigo-200 p-4.5 rounded-2xl flex flex-col gap-3 shadow-xxs">
                 <span className="text-[10px] font-black uppercase tracking-widest text-indigo-900 flex items-center gap-1 select-none font-Outfit">
@@ -2245,6 +2475,91 @@ export default function ParentDashboard() {
             </div>
           )}
 
+          {/* Behavioral Dictionary CRUD Card */}
+          {activeChild && (
+            <div className="bg-white border-2 border-slate-250 rounded-3xl p-6 shadow-premium flex flex-col gap-4 text-left">
+              <div className="flex items-center gap-2.5 text-indigo-600">
+                <span className="text-xl">📖</span>
+                <h2 className="font-bold text-slate-900 text-base font-Outfit">Dicionário Comportamental</h2>
+              </div>
+              <p className="text-[10px] text-slate-500 font-semibold leading-relaxed">
+                Mapeie os sinais corporais da criança, seus significados e a conduta recomendada para mediadores escolares e terapeutas.
+              </p>
+
+              {/* List of current signals */}
+              <div className="flex flex-col gap-2.5 max-h-[300px] overflow-y-auto pr-1">
+                {behaviorList.length === 0 ? (
+                  <p className="text-slate-400 text-xxs italic text-center py-4">
+                    Nenhum sinal cadastrado ainda.
+                  </p>
+                ) : (
+                  behaviorList.map((item) => (
+                    <div key={item.id} className="p-3 bg-slate-50 border border-slate-200 rounded-2xl flex flex-col gap-1.5 relative group">
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteBehaviorSignal(item.id)}
+                        className="absolute top-2.5 right-2.5 p-1 bg-transparent hover:bg-rose-50 text-slate-405 hover:text-red-650 rounded-md border-none cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity"
+                        title="Excluir sinal"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                      <div className="text-xxs font-black text-indigo-950 font-Outfit pr-6">
+                        📢 Sinal: {item.signal}
+                      </div>
+                      <div className="text-[10px] text-slate-600 font-semibold leading-tight">
+                        <strong>🧠 Significado:</strong> {item.meaning}
+                      </div>
+                      <div className="text-[10px] text-emerald-800 font-semibold bg-emerald-50/60 border border-emerald-150 p-2 rounded-xl mt-1 leading-normal">
+                        <strong>👩‍🏫 Conduta:</strong> {item.intervention}
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+
+              {/* Add form */}
+              <form onSubmit={handleAddBehaviorSignal} className="flex flex-col gap-2.5 border-t border-slate-100 pt-4 mt-2">
+                <span className="text-xxs font-black text-slate-700 uppercase tracking-wider font-Outfit">Cadastrar Novo Sinal</span>
+                <div>
+                  <input
+                    type="text"
+                    placeholder="Sinal (Ex: Aleteo / Agitar mãos)"
+                    value={newSignal}
+                    onChange={e => setNewSignal(e.target.value)}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-250 rounded-xl text-xxs font-bold outline-none focus:bg-white focus:border-indigo-650"
+                    required
+                  />
+                </div>
+                <div>
+                  <input
+                    type="text"
+                    placeholder="Significado (Ex: Excitação ou sobrecarga)"
+                    value={newMeaning}
+                    onChange={e => setNewMeaning(e.target.value)}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-250 rounded-xl text-xxs font-bold outline-none focus:bg-white focus:border-indigo-650"
+                    required
+                  />
+                </div>
+                <div>
+                  <input
+                    type="text"
+                    placeholder="Conduta (Ex: Reduzir estímulos / Dar tempo)"
+                    value={newIntervention}
+                    onChange={e => setNewIntervention(e.target.value)}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-250 rounded-xl text-xxs font-bold outline-none focus:bg-white focus:border-indigo-650"
+                    required
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="w-full py-2 bg-indigo-600 hover:bg-indigo-755 text-white text-xs font-black rounded-xl border-b-2 border-indigo-900 active:scale-95 transition-all cursor-pointer font-Outfit uppercase tracking-wider"
+                >
+                  ➕ Adicionar Sinal
+                </button>
+              </form>
+            </div>
+          )}
+
           {/* Quick Actions Card */}
           <div className="bg-white border-2 border-slate-250 rounded-3xl p-6 shadow-premium">
             <div className="flex items-center gap-2.5 mb-4 text-indigo-600">
@@ -2391,6 +2706,130 @@ export default function ParentDashboard() {
                     </button>
                   ))}
                 </div>
+
+                {/* GLOBAL CALENDAR REPLICATION & UNEXPECTED CHANGES */}
+                {activeChild && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Monthly Template Replication */}
+                    <div className="bg-gradient-to-br from-indigo-50/50 to-sky-50/50 border border-indigo-150 p-6 rounded-[28px] shadow-sm flex flex-col gap-4 text-left">
+                      <div className="flex items-center gap-2 text-indigo-950">
+                        <span className="text-xl">📅</span>
+                        <h4 className="font-extrabold text-sm font-Outfit uppercase tracking-wide">Modelo de Agenda Mensal</h4>
+                      </div>
+                      <p className="text-[10px] text-slate-500 font-semibold leading-relaxed">
+                        Salve o calendário completo de atividades personalizadas para o paciente e replique-o no início de cada mês para zerar o progresso em 1 clique.
+                      </p>
+                      <div className="flex gap-2.5 mt-2">
+                        <button
+                          type="button"
+                          onClick={handleSaveMonthlyTemplate}
+                          className="flex-1 py-2.5 bg-indigo-600 hover:bg-indigo-755 text-white text-xs font-black rounded-xl border-b-2 border-indigo-900 active:scale-95 transition-all cursor-pointer font-Outfit uppercase tracking-wider"
+                        >
+                          💾 Salvar Modelo
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleReapplyMonthlyTemplate}
+                          disabled={!activeChild.monthlyTemplate}
+                          className="flex-1 py-2.5 bg-white hover:bg-slate-50 disabled:bg-slate-100 disabled:text-slate-455 disabled:border-slate-200 text-indigo-950 text-xs font-black rounded-xl border-2 border-slate-250 active:scale-95 transition-all cursor-pointer font-Outfit uppercase tracking-wider disabled:shadow-none"
+                        >
+                          🔄 Reaplicar Modelo
+                        </button>
+                      </div>
+                      {activeChild.monthlyTemplate && (
+                        <span className="text-[9px] text-emerald-600 font-bold bg-emerald-50/50 border border-emerald-150 px-2 py-1 rounded-lg text-center mt-1 self-start select-none">
+                          ✓ Modelo salvo no perfil do paciente
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Unexpected Change Panel */}
+                    <div className="bg-gradient-to-br from-amber-50/50 to-orange-50/50 border border-amber-150 p-6 rounded-[28px] shadow-sm flex flex-col gap-4 text-left">
+                      <div className="flex items-center gap-2 text-amber-950">
+                        <span className="text-xl">⚠️</span>
+                        <h4 className="font-extrabold text-sm font-Outfit uppercase tracking-wide">Notificar Mudança Inesperada</h4>
+                      </div>
+                      
+                      {unexpectedChangeObj ? (
+                        <div className="flex flex-col gap-3">
+                          <div className="p-3 bg-white border border-amber-200 rounded-xl text-xxs font-semibold text-slate-700 flex flex-col gap-1.5">
+                            <div>
+                              <strong className="text-amber-800">Atividade Cancelada:</strong> {unexpectedChangeObj.cancelledTaskTitle}
+                            </div>
+                            <div>
+                              <strong className="text-amber-800">Motivo da Mudança:</strong> {unexpectedChangeObj.reason}
+                            </div>
+                            <div>
+                              <strong className="text-amber-800">Atividade Substituta:</strong> {unexpectedChangeObj.replacement}
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={handleClearUnexpectedChange}
+                            className="w-full py-2.5 bg-red-500 hover:bg-red-650 text-white text-xs font-black rounded-xl border-b-2 border-red-750 active:scale-95 transition-all cursor-pointer font-Outfit uppercase tracking-wider"
+                          >
+                            ❌ Cancelar Notificação
+                          </button>
+                        </div>
+                      ) : (
+                        <form onSubmit={handleDeclareUnexpectedChange} className="flex flex-col gap-2.5">
+                          <p className="text-[10px] text-slate-500 font-semibold leading-relaxed">
+                            Intercepte o portal da criança com um modal explicativo (por voz/imagem) para prepará-la para alterações repentinas de rotina.
+                          </p>
+                          <div className="grid grid-cols-1 gap-2 mt-1">
+                            <div>
+                              <label className="block text-[8px] font-black text-slate-500 uppercase mb-0.5 pl-0.5">Atividade Afetada</label>
+                              <select
+                                value={selectedCancelTaskTitle}
+                                onChange={e => setSelectedCancelTaskTitle(e.target.value)}
+                                className="w-full px-2.5 py-1.5 bg-white border border-slate-250 rounded-lg text-[10px] font-bold outline-none cursor-pointer"
+                                required
+                              >
+                                <option value="">Selecione uma atividade...</option>
+                                {tasks.filter(t => t.day === activeDayFilter).map(t => (
+                                  <option key={t.id} value={t.title}>{t.title} ({t.time})</option>
+                                ))}
+                                {tasks.filter(t => t.day === activeDayFilter).length === 0 && (
+                                  <option disabled>Nenhuma atividade cadastrada hoje</option>
+                                )}
+                              </select>
+                            </div>
+                            <div className="grid grid-cols-2 gap-2">
+                              <div>
+                                <label className="block text-[8px] font-black text-slate-500 uppercase mb-0.5 pl-0.5">Motivo (Ex: carro quebrou)</label>
+                                <input
+                                  type="text"
+                                  placeholder="o carro quebrou..."
+                                  value={changeReason}
+                                  onChange={e => setChangeReason(e.target.value)}
+                                  className="w-full px-2.5 py-1.5 bg-white border border-slate-250 rounded-lg text-xxs font-bold outline-none"
+                                  required
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-[8px] font-black text-slate-500 uppercase mb-0.5 pl-0.5">Substituta (Ex: jogar blocos)</label>
+                                  <input
+                                  type="text"
+                                  placeholder="assistir filme 🍿..."
+                                  value={changeReplacement}
+                                  onChange={e => setChangeReplacement(e.target.value)}
+                                  className="w-full px-2.5 py-1.5 bg-white border border-slate-250 rounded-lg text-xxs font-bold outline-none"
+                                  required
+                                />
+                              </div>
+                            </div>
+                          </div>
+                          <button
+                            type="submit"
+                            className="w-full py-2 bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-black rounded-xl border-b-2 border-amber-700 active:scale-95 transition-all cursor-pointer font-Outfit uppercase tracking-wider"
+                          >
+                            📢 Enviar para Criança
+                          </button>
+                        </form>
+                      )}
+                    </div>
+                  </div>
+                )}
 
                 {/* Day Agenda Grid Card */}
                 <div className="bg-white border border-slate-200 rounded-[32px] p-6 shadow-md shadow-slate-100 flex flex-col gap-6">

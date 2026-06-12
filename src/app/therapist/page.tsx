@@ -1190,6 +1190,49 @@ export default function TherapistPortal() {
                 </div>
               )}
 
+              {/* Patient Behavior Dictionary / Guia de Sinais */}
+              {childData && (
+                <div className="bg-white border border-slate-200 p-5 rounded-[28px] shadow-premium flex flex-col gap-4 text-left">
+                  <div className="flex items-center gap-2 text-indigo-650">
+                    <span className="text-xl">📖</span>
+                    <h3 className="font-black text-slate-900 text-md font-Outfit">Dicionário Comportamental (Sinais)</h3>
+                  </div>
+                  
+                  <div className="flex flex-col gap-3 max-h-[300px] overflow-y-auto pr-1">
+                    {(() => {
+                      let behaviorList = [];
+                      try {
+                        if (childData.behaviorDictionary) {
+                          behaviorList = JSON.parse(childData.behaviorDictionary);
+                        }
+                      } catch (e) {}
+
+                      if (behaviorList.length === 0) {
+                        return (
+                          <p className="text-slate-400 text-xxs italic text-center py-4">
+                            Nenhum sinal comportamental cadastrado pelos pais.
+                          </p>
+                        );
+                      }
+
+                      return behaviorList.map((item: any) => (
+                        <div key={item.id} className="p-3 bg-indigo-50/20 border border-indigo-150 rounded-xl flex flex-col gap-1.5 text-xxs">
+                          <div className="font-Outfit font-extrabold text-[11px] text-indigo-950 border-b border-indigo-100/50 pb-1">
+                            📢 Sinal: {item.signal}
+                          </div>
+                          <div className="text-slate-700 leading-normal font-semibold">
+                            <strong>🧠 Significado:</strong> {item.meaning}
+                          </div>
+                          <div className="text-emerald-800 leading-normal bg-emerald-50/40 border border-emerald-150 p-2 rounded-lg mt-1 font-semibold">
+                            <strong>👩‍🏫 Conduta recomendada:</strong> {item.intervention}
+                          </div>
+                        </div>
+                      ));
+                    })()}
+                  </div>
+                </div>
+              )}
+
               {/* Sensory Log / Crises History */}
               <div className="bg-white border border-slate-200 p-5 rounded-[28px] shadow-premium flex flex-col gap-4">
                 <div className="flex items-center gap-2 text-red-650">

@@ -855,6 +855,72 @@ export default function ChildRoutine() {
     return () => unsubscribeTasks();
   }, []);
 
+  // Poll child settings in background to catch real-time parent changes (First-Then toggle / Unexpected changes)
+  useEffect(() => {
+    if (!activeChild?.id) return;
+    const interval = setInterval(async () => {
+      try {
+        const fetchedChildren = await firebaseBridge.auth.getChildren();
+        const active = fetchedChildren.find(c => c.id === activeChild.id);
+        if (active) {
+          // Compare settings to avoid unnecessary state triggers
+          if (
+            active.emergencyFirstThen !== activeChild.emergencyFirstThen ||
+            active.unexpectedChange !== activeChild.unexpectedChange ||
+            active.childHyperfocus !== activeChild.childHyperfocus ||
+            active.lockType !== activeChild.lockType ||
+            active.timerStyle !== activeChild.timerStyle ||
+            active.sensoryVisuals !== activeChild.sensoryVisuals ||
+            active.sensoryProfile !== activeChild.sensoryProfile
+          ) {
+            setActiveChild(active);
+            firebaseBridge.auth.setActiveChild(active);
+            if (active.childHyperfocus) setChildHyperfocus(active.childHyperfocus);
+            setLockType((active.lockType || 'math') as any);
+            setParentPinCode(active.parentPinCode || '1234');
+            setSensoryVisuals((active.sensoryVisuals || 'rich') as any);
+            setSensoryProfile((active.sensoryProfile || 'balanced') as any);
+            setTimerStyle((active.timerStyle || 'circle') as any);
+          }
+        }
+      } catch (err) {
+        console.error('Erro ao buscar atualizações do paciente:', err);
+      }
+    }, 4000);
+    return () => clearInterval(interval);
+  }, [activeChild?.id, activeChild]);
+
+  // Speak unexpected change on load
+  useEffect(() => {
+    if (activeChild?.unexpectedChange) {
+      try {
+        const parsed = JSON.parse(activeChild.unexpectedChange);
+        if (parsed && parsed.cancelledTaskTitle) {
+          const speakTimer = setTimeout(() => {
+            const speechText = `Oi! Tivemos uma mudança de planos hoje. A atividade ${parsed.cancelledTaskTitle} foi cancelada porque ${parsed.reason}. Mas não se preocupe! Em vez disso, nós vamos ${parsed.replacement}. Tudo bem?`;
+            speakText(speechText);
+          }, 1200);
+          return () => clearTimeout(speakTimer);
+        }
+      } catch (e) {}
+    }
+  }, [activeChild?.unexpectedChange]);
+
+  const handleAcknowledgeUnexpectedChange = async () => {
+    if (!activeChild) return;
+    playBubble();
+    try {
+      const updated = await firebaseBridge.auth.updateChildSettings(activeChild.id, {
+        unexpectedChange: null
+      });
+      setActiveChild(updated);
+      firebaseBridge.auth.setActiveChild(updated);
+      speakText("Muito bem! Vamos continuar a nossa rotina!");
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   // Filter tasks for the current day, sorted by time/order
   const todayTasks = tasks
     .filter(t => t.day === currentDay)
@@ -1378,6 +1444,72 @@ export default function ChildRoutine() {
     { id: 7, top: "60%", left: "6%", delay: 2.1 },
     { id: 8, top: "45%", left: "92%", delay: 1.7 }
   ];
+
+  // INTERCEPT UNEXPECTED CHANGE
+  if (activeChild && activeChild.unexpectedChange) {
+    let unexObj: any = null;
+    try {
+      unexObj = JSON.parse(activeChild.unexpectedChange);
+    } catch (e) {}
+
+    if (unexObj && unexObj.cancelledTaskTitle) {
+      return (
+        <main className="min-h-screen bg-gradient-to-tr from-[#fef3c7] via-[#fffbeb] to-[#fef3c7] flex flex-col items-center justify-center p-6 text-slate-900 relative overflow-hidden font-Outfit select-none">
+          {/* Empathetic unexpected change card */}
+          <div className="w-full max-w-lg bg-white border-4 border-amber-400 rounded-[36px] p-8 shadow-2xl z-10 flex flex-col gap-6 text-center">
+            <div>
+              <span className="text-6xl animate-bounce inline-block">⚠️</span>
+              <h1 className="text-3xl font-black text-amber-955 tracking-tight mt-3 font-Outfit">Mudança de Planos!</h1>
+              <p className="text-xs text-slate-400 font-extrabold uppercase tracking-wider mt-1">
+                Tivemos uma alteração na rotina hoje
+              </p>
+            </div>
+
+            {/* De -> Para visual explanation */}
+            <div className="flex flex-col md:flex-row items-center justify-center gap-4 py-4 border-y border-slate-100 my-2">
+              <div className="flex flex-col items-center p-4 bg-red-50 border-2 border-red-200 rounded-2xl w-full md:w-5/12 opacity-80 relative overflow-hidden">
+                <div className="absolute top-1 right-2 text-[8px] font-black text-red-500 uppercase tracking-widest">Cancelada</div>
+                <div className="text-4xl line-through opacity-60">❌</div>
+                <span className="text-sm font-black text-red-955 line-through mt-2">{unexObj.cancelledTaskTitle}</span>
+              </div>
+
+              <div className="text-3xl text-slate-400 animate-pulse">➡️</div>
+
+              <div className="flex flex-col items-center p-4 bg-emerald-50 border-2 border-emerald-300 rounded-2xl w-full md:w-5/12 relative overflow-hidden">
+                <div className="absolute top-1 right-2 text-[8px] font-black text-emerald-600 uppercase tracking-widest">Substituta</div>
+                <div className="text-4xl">🌟</div>
+                <span className="text-sm font-black text-emerald-955 mt-2">{unexObj.replacement}</span>
+              </div>
+            </div>
+
+            {/* Motivo explanation */}
+            <div className="p-4 bg-slate-50 border border-slate-150 rounded-2xl">
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1 pl-0.5">Por que mudou?</p>
+              <p className="text-sm font-extrabold text-slate-750 font-Outfit">
+                "{unexObj.reason}"
+              </p>
+            </div>
+
+            {/* Empathy Mascot guidance */}
+            <div className="flex items-center gap-3 bg-amber-50 border border-amber-250 p-4.5 rounded-2xl text-left">
+              <span className="text-3xl shrink-0">🐶</span>
+              <p className="text-[11px] text-amber-955 font-bold leading-normal">
+                <strong>O Mascote diz:</strong> Está tudo bem mudar de planos! Às vezes coisas acontecem e nós mudamos o que vamos fazer. Vamos nos divertir muito de qualquer jeito!
+              </p>
+            </div>
+
+            {/* Acknowledge button */}
+            <button
+              onClick={handleAcknowledgeUnexpectedChange}
+              className="w-full py-4.5 bg-yellow-500 hover:bg-yellow-600 text-slate-950 text-xs font-black rounded-2xl shadow-md border-b-4 border-yellow-755 active:scale-[0.98] transition-all cursor-pointer font-Outfit uppercase tracking-wider"
+            >
+              Entendi, tudo bem! 👍
+            </button>
+          </div>
+        </main>
+      );
+    }
+  }
 
   // If no active child is selected, show the selection screen
   if (!activeChild) {
@@ -2465,6 +2597,143 @@ export default function ChildRoutine() {
             </motion.div>
           )}
         </AnimatePresence>
+      </main>
+    );
+  }
+
+  // FIRST-THEN EMERGENCY BOARD
+  if (activeChild && activeChild.emergencyFirstThen) {
+    const profileClass = sensoryProfile === 'hypersensitive'
+      ? 'saturate-[65%] brightness-[92%] contrast-[88%]'
+      : sensoryProfile === 'hyposensitive'
+      ? 'saturate-[120%] contrast-[108%]'
+      : '';
+
+    const firstTask = activeTask;
+    const thenTask = nextTasks[0]; // next task in line
+
+    return (
+      <main className={`min-h-screen bg-gradient-to-tr from-[#0b0f19] to-[#1e1b4b] p-6 pb-12 flex flex-col items-center justify-between text-white relative overflow-hidden ${profileClass} font-Outfit select-none`}>
+        {offline && (
+          <div className="absolute top-0 inset-x-0 bg-amber-500 text-white py-2 px-4 text-center text-xs font-black select-none z-50 flex items-center justify-center gap-2 font-Outfit shadow-md shrink-0">
+            <span>📶 Modo Offline Ativado</span>
+          </div>
+        )}
+
+        {/* Top bar with minimal battery & parent exit */}
+        <div className="w-full max-w-4xl flex justify-between items-center z-10">
+          <div className="flex items-center gap-2 bg-slate-900/60 backdrop-blur-md px-3.5 py-1.5 rounded-xl border border-slate-700/50">
+            <span className="text-xs">🔋</span>
+            <span className="text-[10px] font-black uppercase tracking-wider text-slate-300">
+              Energia: {activeChild.emotionalBattery === 'green' ? '100% 🟢' : activeChild.emotionalBattery === 'yellow' ? '50% 🟡' : '10% 🔴'}
+            </span>
+          </div>
+          
+          <button
+            onClick={() => handleAttemptExit('/dashboard')}
+            className="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-white text-[10px] font-black rounded-lg border border-slate-600 active:scale-95 transition-all cursor-pointer uppercase tracking-wider"
+          >
+            🔒 Sair
+          </button>
+        </div>
+
+        {/* Main Board Grid */}
+        <div className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-6 my-auto z-10">
+          {/* FIRST BOARD */}
+          <div className="bg-slate-900/80 border-4 border-indigo-500 rounded-[40px] p-8 shadow-2xl flex flex-col justify-between items-center min-h-[380px] relative overflow-hidden text-center">
+            <div className="absolute top-3 left-6 text-xxs font-black text-indigo-400 uppercase tracking-widest">PRIMEIRO</div>
+            
+            {firstTask ? (
+              <>
+                <div className="text-7xl mt-6">
+                  {firstTask.customIcon ? (
+                    <img src={firstTask.customIcon} className="w-24 h-24 object-contain rounded-2xl" alt="" />
+                  ) : (
+                    <span>{firstTask.icon || '📅'}</span>
+                  )}
+                </div>
+                <div className="mt-4 flex flex-col gap-1">
+                  <h2 className="text-2xl font-black text-white">{firstTask.title}</h2>
+                  <span className="text-xs font-extrabold text-indigo-300 uppercase tracking-wider">{firstTask.time} • {firstTask.duration || 30} min</span>
+                </div>
+                
+                {/* Completion Area */}
+                <button
+                  onClick={() => handleCompleteTask(firstTask)}
+                  disabled={!!celebratingTaskId}
+                  className={`mt-6 w-20 h-20 rounded-full flex items-center justify-center border-4 active:scale-90 transition-all cursor-pointer shadow-lg ${
+                    celebratingTaskId === firstTask.id
+                      ? 'bg-emerald-500 border-white text-white animate-ping'
+                      : 'bg-indigo-650 hover:bg-indigo-700 border-indigo-400 text-white'
+                  }`}
+                  title="Concluir tarefa"
+                >
+                  <Check className="w-10 h-10 stroke-[3.5]" />
+                </button>
+              </>
+            ) : (
+              <div className="my-auto flex flex-col items-center gap-3">
+                <span className="text-6xl">🎉</span>
+                <h2 className="text-xl font-black text-white">Todas as missões cumpridas!</h2>
+              </div>
+            )}
+          </div>
+
+          {/* THEN BOARD */}
+          <div className="bg-slate-900/80 border-4 border-slate-700 rounded-[40px] p-8 shadow-2xl flex flex-col justify-between items-center min-h-[380px] relative overflow-hidden text-center opacity-90">
+            <div className="absolute top-3 left-6 text-xxs font-black text-slate-400 uppercase tracking-widest">DEPOIS</div>
+            
+            {firstTask && thenTask ? (
+              <>
+                <div className="text-7xl mt-8">
+                  {thenTask.customIcon ? (
+                    <img src={thenTask.customIcon} className="w-24 h-24 object-contain rounded-2xl" alt="" />
+                  ) : (
+                    <span>{thenTask.icon || '📅'}</span>
+                  )}
+                </div>
+                <div className="mt-4 flex flex-col gap-1 my-auto">
+                  <h2 className="text-xl font-black text-slate-300">{thenTask.title}</h2>
+                  <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">{thenTask.time} • {thenTask.duration || 30} min</span>
+                </div>
+                <div className="w-12 h-12 bg-slate-800 border-2 border-slate-650 rounded-full flex items-center justify-center text-slate-550 mb-4">
+                  🔒
+                </div>
+              </>
+            ) : firstTask && activeChild.rewardName ? (
+              <>
+                <div className="text-7xl mt-8">🏆</div>
+                <div className="mt-4 flex flex-col gap-1 my-auto">
+                  <h2 className="text-xl font-black text-yellow-300">{activeChild.rewardName}</h2>
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Seu prêmio / reforçador</span>
+                </div>
+                <div className="w-12 h-12 bg-yellow-500/10 border-2 border-yellow-500 text-yellow-500 rounded-full flex items-center justify-center font-black mb-4 animate-pulse">
+                  🪙
+                </div>
+              </>
+            ) : (
+              <div className="my-auto flex flex-col items-center gap-3">
+                <span className="text-6xl">😴</span>
+                <h2 className="text-xl font-black text-slate-350">Hora de descansar!</h2>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Bottom Mascot co-regulation widget */}
+        <div className="w-full max-w-4xl flex items-center gap-4 bg-slate-900/60 border border-slate-800 p-4 rounded-3xl z-10 text-left shrink-0">
+          <div className="w-14 h-14 bg-indigo-950 rounded-2xl flex items-center justify-center shrink-0 shadow-inner">
+            <HyperfocusMascot hyperfocus={childHyperfocus} state={collieState} size={55} />
+          </div>
+          <div>
+            <p className="text-[10px] font-black uppercase text-indigo-400 font-Outfit tracking-wide">Foco e Calmaria</p>
+            <p className="text-[10.5px] text-slate-300 font-semibold leading-normal mt-0.5">
+              {firstTask 
+                ? `Vamos fazer primeiro "${firstTask.title}". Concentre-se em concluir apenas esta tarefa!` 
+                : "Todas as tarefas foram concluídas. Muito bem! Você foi excelente!"}
+            </p>
+          </div>
+        </div>
       </main>
     );
   }

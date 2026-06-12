@@ -151,6 +151,10 @@ export async function PUT(req: Request) {
         audioAlert10: updates.audioAlert10,
         audioAlert5: updates.audioAlert5,
         audioAlert2: updates.audioAlert2,
+        monthlyTemplate: updates.monthlyTemplate,
+        emergencyFirstThen: updates.emergencyFirstThen !== undefined ? Boolean(updates.emergencyFirstThen) : undefined,
+        behaviorDictionary: updates.behaviorDictionary,
+        unexpectedChange: updates.unexpectedChange,
       }
     });
 

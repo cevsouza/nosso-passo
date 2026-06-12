@@ -52,6 +52,10 @@ model Child {
   audioAlert10    String?
   audioAlert5     String?
   audioAlert2     String?
+  monthlyTemplate String?
+  emergencyFirstThen Boolean @default(false)
+  behaviorDictionary String?
+  unexpectedChange String?
 
   parentUid       String
   parent          UserProfile @relation(fields: [parentUid], references: [uid], onDelete: Cascade)

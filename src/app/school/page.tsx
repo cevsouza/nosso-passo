@@ -21,6 +21,7 @@ function SchoolPortalContent() {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [activeTab, setActiveTab] = useState<'log' | 'dictionary'>('log');
 
   useEffect(() => {
     if (initialCode) {
@@ -141,7 +142,7 @@ function SchoolPortalContent() {
           </div>
         ) : (
           // Logging Screen
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <div className="flex flex-col gap-4">
             {/* Child Header Info */}
             <div className="p-3 bg-indigo-50/50 border-2 border-indigo-100 rounded-2xl flex items-center justify-between">
               <div className="flex items-center gap-2.5">
@@ -164,115 +165,178 @@ function SchoolPortalContent() {
               </button>
             </div>
 
-            <AnimatePresence>
-              {submitSuccess && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  className="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl text-emerald-805 text-xs font-semibold text-center flex flex-col gap-1"
-                >
-                  <span>✅ Checkpoint escolar salvo com sucesso!</span>
-                  <span className="text-[10px] text-emerald-600 font-medium">Os pais e terapeutas já receberam os dados no dashboard.</span>
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            {/* Mood Selector */}
-            <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-black text-slate-700 uppercase tracking-wider font-Outfit">Humor Predominante</label>
-              <div className="grid grid-cols-4 gap-2">
-                {[
-                  { key: 'feliz', emoji: '😊', label: 'Feliz' },
-                  { key: 'calmo', emoji: '😐', label: 'Calmo' },
-                  { key: 'triste', emoji: '😢', label: 'Triste' },
-                  { key: 'agitado', emoji: '😫', label: 'Agitado' }
-                ].map(item => (
-                  <button
-                    key={item.key}
-                    type="button"
-                    onClick={() => setMood(item.key)}
-                    className={`p-2.5 rounded-xl border-2 flex flex-col items-center gap-1 transition-all active:scale-95 cursor-pointer border-none ${
-                      mood === item.key
-                        ? 'bg-indigo-50 border-2 border-indigo-600 text-indigo-950 font-black shadow-xs'
-                        : 'bg-white border-2 border-slate-200 hover:border-slate-300 text-slate-500 font-bold'
-                    }`}
-                  >
-                    <span className="text-xl">{item.emoji}</span>
-                    <span className="text-[9px]">{item.label}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Crisis Toggle */}
-            <div className="flex items-center justify-between p-3 border border-slate-200 rounded-2xl bg-slate-50/50">
-              <div>
-                <label className="block text-xs font-black text-slate-800 font-Outfit">Crise de Desregulação?</label>
-                <span className="text-[9px] text-slate-450 font-bold">Ocorreu algum meltdown ou desregulação hoje?</span>
-              </div>
+            {/* Tab Switcher */}
+            <div className="flex bg-slate-100 p-1 rounded-xl">
               <button
                 type="button"
-                onClick={() => setCrisisOccurred(!crisisOccurred)}
-                className={`px-4 py-2 text-xs font-black rounded-xl transition-all border-b-2 cursor-pointer ${
-                  crisisOccurred
-                    ? 'bg-red-500 border-red-700 text-white shadow-sm'
-                    : 'bg-slate-200 border-slate-350 text-slate-700'
+                onClick={() => setActiveTab('log')}
+                className={`flex-1 py-2 text-[10px] font-black rounded-lg transition-all cursor-pointer font-Outfit border-none ${
+                  activeTab === 'log' ? 'bg-white text-indigo-950 shadow-xxs' : 'text-slate-500 hover:text-slate-700 bg-transparent'
                 }`}
               >
-                {crisisOccurred ? '🚨 Sim, ocorreu' : 'Não'}
+                🏫 Registrar Dia
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab('dictionary')}
+                className={`flex-1 py-2 text-[10px] font-black rounded-lg transition-all cursor-pointer font-Outfit border-none ${
+                  activeTab === 'dictionary' ? 'bg-white text-indigo-950 shadow-xxs' : 'text-slate-500 hover:text-slate-700 bg-transparent'
+                }`}
+              >
+                📖 Guia de Sinais
               </button>
             </div>
 
-            {/* School support dropdown selectors */}
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-[10px] font-black text-slate-700 uppercase tracking-wider mb-1 font-Outfit">Nível de Barulho na Sala</label>
-                <select
-                  value={schoolNoise}
-                  onChange={e => setSchoolNoise(e.target.value)}
-                  className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold outline-none cursor-pointer"
+            {activeTab === 'log' ? (
+              <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+                <AnimatePresence>
+                  {submitSuccess && (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      className="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl text-emerald-805 text-xs font-semibold text-center flex flex-col gap-1"
+                    >
+                      <span>✅ Checkpoint escolar salvo com sucesso!</span>
+                      <span className="text-[10px] text-emerald-600 font-medium">Os pais e terapeutas já receberam os dados no dashboard.</span>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                {/* Mood Selector */}
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs font-black text-slate-700 uppercase tracking-wider font-Outfit">Humor Predominante</label>
+                  <div className="grid grid-cols-4 gap-2">
+                    {[
+                      { key: 'feliz', emoji: '😊', label: 'Feliz' },
+                      { key: 'calmo', emoji: '😐', label: 'Calmo' },
+                      { key: 'triste', emoji: '😢', label: 'Triste' },
+                      { key: 'agitado', emoji: '😫', label: 'Agitado' }
+                    ].map(item => (
+                      <button
+                        key={item.key}
+                        type="button"
+                        onClick={() => setMood(item.key)}
+                        className={`p-2.5 rounded-xl border-2 flex flex-col items-center gap-1 transition-all active:scale-95 cursor-pointer border-none ${
+                          mood === item.key
+                            ? 'bg-indigo-50 border-2 border-indigo-600 text-indigo-950 font-black shadow-xs'
+                            : 'bg-white border-2 border-slate-200 hover:border-slate-300 text-slate-500 font-bold'
+                        }`}
+                      >
+                        <span className="text-xl">{item.emoji}</span>
+                        <span className="text-[9px]">{item.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Crisis Toggle */}
+                <div className="flex items-center justify-between p-3 border border-slate-200 rounded-2xl bg-slate-50/50">
+                  <div>
+                    <label className="block text-xs font-black text-slate-800 font-Outfit">Crise de Desregulação?</label>
+                    <span className="text-[9px] text-slate-450 font-bold">Ocorreu algum meltdown ou desregulação hoje?</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setCrisisOccurred(!crisisOccurred)}
+                    className={`px-4 py-2 text-xs font-black rounded-xl transition-all border-b-2 cursor-pointer ${
+                      crisisOccurred
+                        ? 'bg-red-500 border-red-700 text-white shadow-sm'
+                        : 'bg-slate-200 border-slate-350 text-slate-700'
+                    }`}
+                  >
+                    {crisisOccurred ? '🚨 Sim, ocorreu' : 'Não'}
+                  </button>
+                </div>
+
+                {/* School support dropdown selectors */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-[10px] font-black text-slate-700 uppercase tracking-wider mb-1 font-Outfit">Nível de Barulho na Sala</label>
+                    <select
+                      value={schoolNoise}
+                      onChange={e => setSchoolNoise(e.target.value)}
+                      className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold outline-none cursor-pointer"
+                    >
+                      <option value="baixo">Baixo (Ideal) 🔇</option>
+                      <option value="medio">Médio 🔉</option>
+                      <option value="alto">Alto (Barulhento) 🔊</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-[10px] font-black text-slate-700 uppercase tracking-wider mb-1 font-Outfit">Alimentação na Escola</label>
+                    <select
+                      value={foodIntake}
+                      onChange={e => setFoodIntake(e.target.value)}
+                      className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold outline-none cursor-pointer"
+                    >
+                      <option value="boa">Boa (Comeu tudo) 🍲</option>
+                      <option value="regular">Regular (Parcial) 🥣</option>
+                      <option value="recusou">Recusou Lanche 🚫</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* School notes */}
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs font-black text-slate-700 uppercase tracking-wider font-Outfit">Anotações do Dia (Texto Livre)</label>
+                  <textarea
+                    value={notes}
+                    onChange={e => setNotes(e.target.value)}
+                    placeholder="Ex: Teve foco nas atividades, interagiu bem no recreio, demonstrou desconforto no final da tarde..."
+                    className="w-full p-3 bg-white border-2 border-slate-200 rounded-2xl text-xs font-semibold outline-none focus:border-indigo-600 min-h-[90px] resize-none focus:ring-4 focus:ring-indigo-50"
+                  />
+                </div>
+
+                {/* Submit */}
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="w-full py-3.5 bg-yellow-500 hover:bg-yellow-600 disabled:bg-slate-200 disabled:text-slate-400 border-none text-slate-950 text-xs font-black rounded-2xl shadow-md uppercase tracking-wider transition-all active:scale-98 cursor-pointer font-Outfit"
                 >
-                  <option value="baixo">Baixo (Ideal) 🔇</option>
-                  <option value="medio">Médio 🔉</option>
-                  <option value="alto">Alto (Barulhento) 🔊</option>
-                </select>
+                  {isSubmitting ? 'Salvando Relatório...' : 'Enviar Checkpoint Escolar 🏫'}
+                </button>
+              </form>
+            ) : (
+              // Dictionary View Screen
+              <div className="flex flex-col gap-3.5 max-h-[480px] overflow-y-auto pr-1">
+                <div className="bg-slate-50 border border-slate-150 p-3 rounded-2xl text-xxs font-bold text-slate-500 leading-relaxed">
+                  💡 Este guia orienta sobre os sinais de autorregulação (stimming) e condutas recomendadas pelos responsáveis.
+                </div>
+                {(() => {
+                  let behaviorList = [];
+                  try {
+                    if (childData.behaviorDictionary) {
+                      behaviorList = JSON.parse(childData.behaviorDictionary);
+                    }
+                  } catch (e) {}
+
+                  if (behaviorList.length === 0) {
+                    return (
+                      <p className="text-center text-xs text-slate-400 font-semibold italic py-8 font-Outfit">
+                        Nenhum sinal comportamental cadastrado pelos pais no dicionário da criança.
+                      </p>
+                    );
+                  }
+
+                  return behaviorList.map((item: any) => (
+                    <div key={item.id} className="p-3.5 bg-indigo-50/20 border border-indigo-150 rounded-2xl flex flex-col gap-2 text-xxs text-left">
+                      <div className="font-Outfit font-extrabold text-xs text-indigo-950 border-b border-indigo-100/50 pb-1 flex justify-between">
+                        <span>📢 Sinal: {item.signal}</span>
+                      </div>
+                      <div className="text-slate-700 leading-normal font-semibold">
+                        <strong>🧠 Significado:</strong> {item.meaning}
+                      </div>
+                      <div className="text-emerald-800 leading-normal bg-emerald-50/50 border border-emerald-150 p-2.5 rounded-xl mt-1 font-semibold">
+                        <strong>👩‍🏫 Conduta recomendada:</strong> {item.intervention}
+                      </div>
+                    </div>
+                  ));
+                })()}
               </div>
-
-              <div>
-                <label className="block text-[10px] font-black text-slate-700 uppercase tracking-wider mb-1 font-Outfit">Alimentação na Escola</label>
-                <select
-                  value={foodIntake}
-                  onChange={e => setFoodIntake(e.target.value)}
-                  className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold outline-none cursor-pointer"
-                >
-                  <option value="boa">Boa (Comeu tudo) 🍲</option>
-                  <option value="regular">Regular (Parcial) 🥣</option>
-                  <option value="recusou">Recusou Lanche 🚫</option>
-                </select>
-              </div>
-            </div>
-
-            {/* School notes */}
-            <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-black text-slate-700 uppercase tracking-wider font-Outfit">Anotações do Dia (Texto Livre)</label>
-              <textarea
-                value={notes}
-                onChange={e => setNotes(e.target.value)}
-                placeholder="Ex: Teve foco nas atividades, interagiu bem no recreio, demonstrou desconforto no final da tarde..."
-                className="w-full p-3 bg-white border-2 border-slate-200 rounded-2xl text-xs font-semibold outline-none focus:border-indigo-600 min-h-[90px] resize-none focus:ring-4 focus:ring-indigo-50"
-              />
-            </div>
-
-            {/* Submit */}
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full py-3.5 bg-yellow-500 hover:bg-yellow-600 disabled:bg-slate-200 disabled:text-slate-400 border-none text-slate-950 text-xs font-black rounded-2xl shadow-md uppercase tracking-wider transition-all active:scale-98 cursor-pointer font-Outfit"
-            >
-              {isSubmitting ? 'Salvando Relatório...' : 'Enviar Checkpoint Escolar 🏫'}
-            </button>
-          </form>
+            )}
+          </div>
         )}
       </div>
     </main>
