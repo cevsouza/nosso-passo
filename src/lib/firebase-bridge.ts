@@ -680,7 +680,9 @@ export const firebaseBridge = {
 
       const handleUpdate = (e: Event) => {
         const customEvent = e as CustomEvent<Task[]>;
-        callback(customEvent.detail);
+        if (customEvent.detail && Array.isArray(customEvent.detail)) {
+          callback(customEvent.detail);
+        }
       };
 
       window.addEventListener(MOCK_DB_UPDATE_EVENT, handleUpdate);
@@ -711,7 +713,9 @@ export const firebaseBridge = {
       
       const handleUpdate = (e: Event) => {
         const customEvent = e as CustomEvent<Task>;
-        callback(customEvent.detail);
+        if (customEvent.detail) {
+          callback(customEvent.detail);
+        }
       };
       
       window.addEventListener('firebase-mock-task-completed', handleUpdate);

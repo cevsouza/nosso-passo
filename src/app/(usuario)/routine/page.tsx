@@ -1183,7 +1183,6 @@ export default function ChildRoutine() {
         loggedBy: 'child',
         crisisOccurred: item.alert || false,
       });
-      window.dispatchEvent(new CustomEvent('firebase-mock-db-update'));
     } catch (err) {
       console.error("Error logging AAC usage", err);
     }
@@ -1204,8 +1203,6 @@ export default function ChildRoutine() {
         loggedBy: 'child',
         crisisOccurred: false
       });
-      
-      window.dispatchEvent(new CustomEvent('firebase-mock-db-update'));
       speakText("Parabéns! Você completou a simulação e ganhou 3 estrelas!");
     } catch (err) {
       console.error("Error adding simulator reward tokens", err);
