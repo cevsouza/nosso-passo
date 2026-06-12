@@ -21,9 +21,11 @@ import {
   Plus,
   Trash2,
   Pencil,
-  X
+  X,
+  Map
 } from 'lucide-react';
 import { playBubble, playMarimba } from '../../lib/audio-synth';
+import { SensoryHeatmap } from '../../components/SensoryHeatmap';
 
 export default function TherapistPortal() {
   const [sharingCode, setSharingCode] = useState('');
@@ -1177,6 +1179,17 @@ export default function TherapistPortal() {
             {/* Right Side: Environmental Sensory Logs & Trigger Analysis */}
             <div className="lg:col-span-4 flex flex-col gap-6 text-left">
               
+              {/* Sensory Heatmap */}
+              {sensoryLogs.length > 0 && (
+                <div className="bg-white border border-slate-200 p-5 rounded-[28px] shadow-premium flex flex-col gap-4">
+                  <div className="flex items-center gap-2 text-indigo-650">
+                    <Map className="w-5 h-5 text-indigo-500" />
+                    <h3 className="font-black text-slate-900 text-md font-Outfit">Mapa de Calor Sensorial</h3>
+                  </div>
+                  <SensoryHeatmap logs={sensoryLogs} />
+                </div>
+              )}
+
               {/* Sensory Log / Crises History */}
               <div className="bg-white border border-slate-200 p-5 rounded-[28px] shadow-premium flex flex-col gap-4">
                 <div className="flex items-center gap-2 text-red-650">
@@ -1193,8 +1206,11 @@ export default function TherapistPortal() {
                     sensoryLogs.map((log: any) => {
                       const isSchool = log.loggedBy === 'school';
                       const isChild = log.loggedBy === 'child';
+                      const isAac = log.notes?.startsWith('Comunicação AAC:');
                       const cardBg = log.crisisOccurred 
                         ? 'bg-red-50/20 border-red-150 text-red-950' 
+                        : isAac
+                        ? 'bg-teal-50/30 border-teal-200 text-teal-950'
                         : isSchool 
                         ? 'bg-yellow-50/25 border-yellow-200 text-yellow-950' 
                         : isChild
@@ -1206,7 +1222,7 @@ export default function TherapistPortal() {
                           <div className="flex justify-between font-black text-[9px] text-slate-400 uppercase font-Outfit">
                             <span>{new Date(log.timestamp).toLocaleString()}</span>
                             <span className="tracking-wide">
-                              {isSchool ? '🏫 ESCOLA' : isChild ? '👶 CRIANÇA' : '👪 CUIDADOR'} - {log.crisisOccurred ? '🚨 Crise' : `🧠 Humor: ${log.mood}`}
+                              {isSchool ? '🏫 ESCOLA' : isAac ? '🗣️ COMUNICAÇÃO AAC' : isChild ? '👶 CRIANÇA' : '👪 CUIDADOR'} - {log.crisisOccurred ? '🚨 Crise' : `🧠 Humor: ${log.mood}`}
                             </span>
                           </div>
                           {log.notes && (
@@ -1338,6 +1354,15 @@ export default function TherapistPortal() {
               </div>
             </div>
 
+            {sensoryLogs.filter((log: any) => log.latitude !== undefined && log.longitude !== undefined).length > 0 && (
+              <div>
+                <h3 className="text-xs font-black uppercase text-slate-450 tracking-widest mb-3 border-b border-slate-100 pb-1 font-Outfit">Mapa de Calor Sensorial (Gatilhos de Crises)</h3>
+                <div className="mb-4">
+                  <SensoryHeatmap logs={sensoryLogs} />
+                </div>
+              </div>
+            )}
+
             {/* Sensory Log / Crises ABC Table */}
             <div>
               <h3 className="text-xs font-black uppercase text-slate-450 tracking-widest mb-3 border-b border-slate-100 pb-1 font-Outfit">Histórico Detalhado de Crises & Análise ABA (ABC)</h3>
@@ -1356,33 +1381,36 @@ export default function TherapistPortal() {
                     </tr>
                   </thead>
                   <tbody>
-                    {sensoryLogs.map((log: any) => (
-                      <tr key={log.id} className="border-b border-slate-200/80 py-2">
-                        <td className="py-2 pr-2 font-bold text-slate-500 whitespace-nowrap">{new Date(log.timestamp).toLocaleDateString()} {new Date(log.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</td>
-                        <td className="py-2 pr-2 font-extrabold text-slate-800">
-                          {log.crisisOccurred ? '🚨 Crise' : `Humor: ${log.mood}`}
-                          <span className="block text-[8px] text-slate-400 uppercase font-black tracking-wider mt-0.5">
-                            {log.loggedBy === 'school' ? '🏫 Escola' : log.loggedBy === 'child' ? '👶 Criança' : '👪 Cuidador'}
-                          </span>
-                        </td>
-                        <td className="py-2 pr-2 text-slate-650 font-semibold">{log.antecedent || '-'}</td>
-                        <td className="py-2 pr-2 text-slate-650 font-semibold">{log.behavior || '-'}</td>
-                        <td className="py-2 pr-2 text-slate-650 font-semibold">{log.consequence || '-'}</td>
-                        <td className="py-2 text-slate-500 font-bold">
-                          {log.loggedBy === 'school' ? (
-                            <div className="flex flex-col gap-0.5 text-[8px] font-Outfit">
-                              {log.foodIntake && <span>🍲 Alimentação: {log.foodIntake}</span>}
-                              {log.schoolNoise && <span>🔊 Barulho: {log.schoolNoise}</span>}
-                            </div>
-                          ) : (
-                            <>
-                              {log.trigger && <span>🎯 {log.trigger}</span>}
-                              {log.location && <span className="block text-[8px] mt-0.5">📍 {log.location} ({log.decibels || 50}dB)</span>}
-                            </>
-                          )}
-                        </td>
-                      </tr>
-                    ))}
+                    {sensoryLogs.map((log: any) => {
+                      const isAac = log.notes?.startsWith('Comunicação AAC:');
+                      return (
+                        <tr key={log.id} className="border-b border-slate-200/80 py-2">
+                          <td className="py-2 pr-2 font-bold text-slate-500 whitespace-nowrap">{new Date(log.timestamp).toLocaleDateString()} {new Date(log.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</td>
+                          <td className="py-2 pr-2 font-extrabold text-slate-800">
+                            {log.crisisOccurred ? '🚨 Crise' : isAac ? '🗣️ AAC' : `Humor: ${log.mood}`}
+                            <span className="block text-[8px] text-slate-400 uppercase font-black tracking-wider mt-0.5">
+                              {log.loggedBy === 'school' ? '🏫 Escola' : isAac ? '🗣️ Comunicação' : log.loggedBy === 'child' ? '👶 Criança' : '👪 Cuidador'}
+                            </span>
+                          </td>
+                          <td className="py-2 pr-2 text-slate-650 font-semibold">{log.antecedent || '-'}</td>
+                          <td className="py-2 pr-2 text-slate-650 font-semibold">{isAac ? log.notes : (log.behavior || '-')}</td>
+                          <td className="py-2 pr-2 text-slate-650 font-semibold">{log.consequence || '-'}</td>
+                          <td className="py-2 text-slate-500 font-bold">
+                            {log.loggedBy === 'school' ? (
+                              <div className="flex flex-col gap-0.5 text-[8px] font-Outfit">
+                                {log.foodIntake && <span>🍲 Alimentação: {log.foodIntake}</span>}
+                                {log.schoolNoise && <span>🔊 Barulho: {log.schoolNoise}</span>}
+                              </div>
+                            ) : (
+                              <>
+                                {log.trigger && <span>🎯 {log.trigger}</span>}
+                                {log.location && <span className="block text-[8px] mt-0.5">📍 {log.location} ({log.decibels || 50}dB)</span>}
+                              </>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               )}

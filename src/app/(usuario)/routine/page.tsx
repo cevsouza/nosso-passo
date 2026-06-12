@@ -191,6 +191,80 @@ const SOCIAL_STORIES = [
   }
 ];
 
+const GENERATOR_STATUSES = [
+  "🤖 IA Rotina Animada iniciando...",
+  "🦖 Analisando seu hiperfoco ativo...",
+  "📚 Estruturando parágrafos de previsibilidade...",
+  "🎨 Criando ilustrações lúdicas e emojis...",
+  "✨ Finalizando seu livro social personalizado!"
+];
+
+const generateAiStory = (theme: string, focus: string) => {
+  const cleanTheme = theme.trim() || "Ir ao Dentista";
+  const cleanFocus = focus.split(' ')[0] || "Dinossauro";
+  
+  const steps = [
+    {
+      text: `Era uma vez o ${cleanFocus}, que adorava explorar o mundo! Um dia, ele soube que tinha uma missão muito especial: ${cleanTheme}. Ele ficou um pouquinho curioso, mas sabia que era um herói aventureiro!`,
+      img: "🦖",
+    },
+    {
+      text: `Para começar a missão de ${cleanTheme}, o ${cleanFocus} respirou fundo e lembrou que toda grande aventura começa com calma. Ele deu um passo corajoso de cada vez!`,
+      img: "🧘",
+    },
+    {
+      text: `Durante a missão, o ${cleanFocus} viu coisas novas e ouviu sons diferentes. Ele pensou: "Se eu sentir qualquer incômodo, eu posso pedir uma pausa ou usar meu super escudo protetor!"`,
+      img: "🎧",
+    },
+    {
+      text: `O ${cleanFocus} cooperou super bem e completou cada etapa com muita paciência. Ele sabia que fazer ${cleanTheme} ajudava seu corpinho a ficar super forte e saudável!`,
+      img: "💪",
+    },
+    {
+      text: `Uau! A missão foi um sucesso absoluto! O ${cleanFocus} agora é o explorador mais feliz do mundo e ganhou estrelas brilhantes por ser tão incrível no ${cleanTheme}!`,
+      img: "🏆",
+    }
+  ];
+  
+  let focusEmoji = "🦖";
+  if (focus.toLowerCase().includes("astronauta") || focus.toLowerCase().includes("espaço") || focus.toLowerCase().includes("space")) focusEmoji = "🚀";
+  else if (focus.toLowerCase().includes("trem") || focus.toLowerCase().includes("train") || focus.toLowerCase().includes("locomotiva")) focusEmoji = "🚂";
+  else if (focus.toLowerCase().includes("gato") || focus.toLowerCase().includes("cat")) focusEmoji = "🐱";
+  else if (focus.toLowerCase().includes("carro") || focus.toLowerCase().includes("car")) focusEmoji = "🚗";
+  else if (focus.toLowerCase().includes("minecraft") || focus.toLowerCase().includes("bloco")) focusEmoji = "🟩";
+  else if (focus.toLowerCase().includes("herói") || focus.toLowerCase().includes("hero")) focusEmoji = "🦸‍♂️";
+  else if (focus.toLowerCase().includes("tubarão") || focus.toLowerCase().includes("shark")) focusEmoji = "🦈";
+  else if (focus.toLowerCase().includes("unicórnio") || focus.toLowerCase().includes("unicorn")) focusEmoji = "🦄";
+  else if (focus.toLowerCase().includes("robô") || focus.toLowerCase().includes("robot")) focusEmoji = "🤖";
+  else if (focus.toLowerCase().includes("border") || focus.toLowerCase().includes("collie")) focusEmoji = "🐶";
+  
+  steps[0].img = focusEmoji;
+  steps[1].img = "🧘";
+  steps[2].img = "🎧";
+  steps[3].img = focusEmoji;
+  steps[4].img = "🎉";
+  
+  return {
+    id: `ai-${Date.now()}`,
+    title: `Aventura do ${cleanFocus}: ${cleanTheme}`,
+    desc: `História social gerada pela IA com o tema ${cleanTheme} e hiperfoco ${cleanFocus}.`,
+    steps: steps
+  };
+};
+
+const AAC_ITEMS = [
+  { text: "Quero água 🥛", speech: "Quero água, por favor.", mood: "calmo" },
+  { text: "Tenho fome 🍎", speech: "Tenho fome, por favor.", mood: "calmo" },
+  { text: "Banheiro 🚽", speech: "Quero ir ao banheiro.", mood: "calmo" },
+  { text: "Estou com dor 🤕", speech: "Estou com dor.", mood: "triste", alert: true },
+  { text: "Estou cansado 🥱", speech: "Estou cansado.", mood: "triste" },
+  { text: "Preciso de ajuda 🆘", speech: "Preciso de ajuda.", mood: "agitado", alert: true },
+  { text: "Quero brincar 🧸", speech: "Quero brincar.", mood: "feliz" },
+  { text: "Fone de ouvido 🎧", speech: "Quero meu fone de ouvido.", mood: "calmo" },
+  { text: "Frio ❄️", speech: "Estou com frio.", mood: "calmo" },
+  { text: "Abraço 🤗", speech: "Quero um abraço.", mood: "feliz" }
+];
+
 interface TimerProps {
   progress: number;
   minutesLeft: number;
@@ -595,6 +669,21 @@ export default function ChildRoutine() {
   const exitTimeout = React.useRef<any>(null);
   const exitInterval = React.useRef<any>(null);
 
+  // AI Social Stories States
+  const [storiesTab, setStoriesTab] = useState<'preset' | 'ai'>('preset');
+  const [aiTheme, setAiTheme] = useState('');
+  const [generatingAi, setGeneratingAi] = useState(false);
+  const [aiStatusIdx, setAiStatusIdx] = useState(0);
+
+  // AAC Modal States
+  const [showAacModal, setShowAacModal] = useState(false);
+
+  // Routine Simulator States
+  const [showSimulatorModal, setShowSimulatorModal] = useState(false);
+  const [selectedScenario, setSelectedScenario] = useState<'dentist' | 'school' | null>(null);
+  const [simulatorStep, setSimulatorStep] = useState(0);
+  const [simulatorFinished, setSimulatorFinished] = useState(false);
+
   useEffect(() => {
     return () => {
       stopAmbientSound();
@@ -860,9 +949,29 @@ export default function ChildRoutine() {
       const warnKey = `${activeTask.id}-${currentMinute}`;
       if (!transitionMinutesWarned.includes(warnKey)) {
         setTransitionMinutesWarned(prev => [...prev, warnKey]);
-        
         const nextTaskName = nextTasks[0].title;
-        speakText(`Atenção! Em ${currentMinute} minutos, vamos terminar de ${activeTask.title} e começar a ${nextTaskName} com o seu mascote!`);
+        const customAudio = currentMinute === 10
+          ? activeChild?.audioAlert10
+          : currentMinute === 5
+          ? activeChild?.audioAlert5
+          : currentMinute === 2
+          ? activeChild?.audioAlert2
+          : null;
+
+        if (customAudio) {
+          try {
+            const audio = new Audio(customAudio);
+            audio.play().catch(() => {
+              speakText(`Atenção! Em ${currentMinute} minutos, vamos terminar de ${activeTask.title} e começar a ${nextTaskName} com o seu mascote!`);
+            });
+          } catch (e) {
+            speakText(`Atenção! Em ${currentMinute} minutos, vamos terminar de ${activeTask.title} e começar a ${nextTaskName} com o seu mascote!`);
+          }
+        } else {
+          speakText(`Atenção! Em ${currentMinute} minutos, vamos terminar de ${activeTask.title} e começar a ${nextTaskName} com o seu mascote!`);
+        }
+        
+
         
         if (typeof window !== 'undefined' && navigator.vibrate) {
           navigator.vibrate([100, 200, 100]); // Pulse feedback
@@ -994,6 +1103,73 @@ export default function ChildRoutine() {
     if (exitTimeout.current) clearTimeout(exitTimeout.current);
     if (exitInterval.current) clearInterval(exitInterval.current);
     setExitHoldProgress(0);
+  };
+
+  const handleAacClick = async (item: typeof AAC_ITEMS[0]) => {
+    speakText(item.speech);
+    
+    if (!activeChild) return;
+    try {
+      const newLog = await firebaseBridge.db.addSensoryLog({
+        childId: activeChild.id,
+        mood: item.mood as any,
+        notes: `Comunicação AAC: "${item.text}"`,
+        loggedBy: 'child',
+        crisisOccurred: item.alert || false,
+      });
+      window.dispatchEvent(new CustomEvent('firebase-mock-db-update'));
+    } catch (err) {
+      console.error("Error logging AAC usage", err);
+    }
+  };
+
+  const handleCompleteSimulator = async () => {
+    if (!activeChild) return;
+    try {
+      const updated = await firebaseBridge.auth.addTokens(activeChild.id, 3);
+      setActiveChild(updated);
+      firebaseBridge.auth.setActiveChild(updated);
+      setChildren(prev => prev.map(c => c.id === updated.id ? updated : c));
+      
+      await firebaseBridge.db.addSensoryLog({
+        childId: activeChild.id,
+        mood: 'feliz',
+        notes: `Completou o simulador de rotina: "${selectedScenario === 'dentist' ? 'Ir ao Dentista' : 'Primeiro Dia de Aula'}"`,
+        loggedBy: 'child',
+        crisisOccurred: false
+      });
+      
+      window.dispatchEvent(new CustomEvent('firebase-mock-db-update'));
+      speakText("Parabéns! Você completou a simulação e ganhou 3 estrelas!");
+    } catch (err) {
+      console.error("Error adding simulator reward tokens", err);
+    }
+    setSimulatorFinished(true);
+  };
+
+  const handleGenerateAiStory = () => {
+    if (!aiTheme.trim()) return;
+    setGeneratingAi(true);
+    setAiStatusIdx(0);
+    
+    playMarimba(261.63, 0.1);
+    
+    let currentIdx = 0;
+    const interval = setInterval(() => {
+      currentIdx++;
+      if (currentIdx < GENERATOR_STATUSES.length) {
+        setAiStatusIdx(currentIdx);
+        playMarimba(261.63 + currentIdx * 50, 0.1);
+      } else {
+        clearInterval(interval);
+        const generated = generateAiStory(aiTheme, childHyperfocus);
+        setSelectedStory(generated);
+        setCurrentStoryStep(0);
+        setGeneratingAi(false);
+        setAiTheme('');
+        speakText(generated.steps[0].text);
+      }
+    }, 700);
   };
 
   // Handle task completion click
@@ -1582,6 +1758,303 @@ export default function ChildRoutine() {
     );
   };
 
+  const renderAacModal = () => {
+    if (!showAacModal) return null;
+    return (
+      <AnimatePresence>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md"
+        >
+          <motion.div
+            initial={{ scale: 0.9, y: 20 }}
+            animate={{ scale: 1, y: 0 }}
+            exit={{ scale: 0.9, y: 20 }}
+            className="bg-white border-4 border-emerald-400 rounded-[32px] p-6 w-full max-w-2xl shadow-2xl flex flex-col gap-5 relative overflow-hidden text-slate-800"
+          >
+            <button
+              onClick={() => { playBubble(); setShowAacModal(false); }}
+              className="absolute top-4 right-4 w-9 h-9 bg-slate-100 border-2 border-slate-200 text-slate-500 rounded-full flex items-center justify-center font-black transition-all active:scale-90 cursor-pointer text-sm"
+            >
+              ✕
+            </button>
+
+            <div className="text-center mt-2">
+              <span className="text-3xl">🗣️</span>
+              <h3 className="text-xl font-black mt-1.5 font-Outfit text-emerald-805">Minha Voz (Prancha AAC)</h3>
+              <p className="text-xs text-slate-400 font-semibold mt-1">
+                Toque em um botão para falar o que você precisa! Seu guia vai te ajudar a falar bem alto.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 max-h-[380px] overflow-y-auto pr-1">
+              {AAC_ITEMS.map((item, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => {
+                    playBubble();
+                    handleAacClick(item);
+                  }}
+                  className={`p-3.5 flex flex-col items-center justify-center text-center gap-2 rounded-2xl border-2 transition-all active:scale-95 cursor-pointer hover:shadow-md ${
+                    item.alert 
+                      ? 'bg-red-50 border-red-300 hover:bg-red-100 hover:border-red-400 text-red-800' 
+                      : 'bg-emerald-50/30 border-emerald-200 hover:bg-emerald-50 hover:border-emerald-355 text-emerald-950'
+                  }`}
+                >
+                  <span className="text-4.5xl select-none leading-none">
+                    {item.text.match(/\p{Emoji}/gu)?.[0] || '💬'}
+                  </span>
+                  <span className="text-[11px] font-black tracking-tight leading-snug uppercase font-Outfit">
+                    {item.text.replace(/\p{Emoji}/gu, '').trim()}
+                  </span>
+                </button>
+              ))}
+            </div>
+
+            <div className="bg-slate-50 border border-slate-150 p-3.5 rounded-2xl flex gap-2.5 items-center">
+              <span className="text-lg">💡</span>
+              <p className="text-[10px] text-slate-500 leading-normal font-semibold">
+                Esta prancha ajuda crianças não-verbais ou em momentos de sobrecarga a expressarem suas necessidades imediatas. Cada toque é registrado no histórico para que o cuidador e terapeuta vejam.
+              </p>
+            </div>
+          </motion.div>
+        </motion.div>
+      </AnimatePresence>
+    );
+  };
+
+  const renderSimulatorModal = () => {
+    if (!showSimulatorModal) return null;
+    
+    const scenarios = [
+      {
+        id: 'dentist',
+        title: 'Ir ao Dentista 🦷',
+        desc: 'Aprenda como é a cadeira do dentista e como ele cuida dos seus dentes!',
+        icon: '🦷',
+        color: 'border-blue-400 bg-blue-50/20 hover:bg-blue-50 text-blue-955',
+        steps: [
+          {
+            title: 'Sala do Dentista 🚪',
+            desc: 'Você chegou na clínica! A sala tem brinquedos e o dentista tem uma cadeira de astronauta gigante. Vamos dar um tchau bem alegre!',
+            action: 'Dar tchau para o dentista 👋',
+            img: '👋🦷'
+          },
+          {
+            title: 'A Cadeira Mágica 🚀',
+            desc: 'Você senta na cadeira macia. Ela sobe e desce, parece um foguete espacial! Vamos subir a cadeira!',
+            action: 'Subir a cadeira de astronauta 🚀',
+            img: '💺'
+          },
+          {
+            title: 'O Espelhinho do Dentista 🔍',
+            desc: 'O dentista usa um espelhinho bem pequeno para contar quantos dentes você tem. Vamos abrir a boca bem grande e falar Aaaah!',
+            action: 'Abrir a boca bem grande 😮',
+            img: '😮'
+          },
+          {
+            title: 'A Escovinha Cócegas 🫧',
+            desc: 'O dentista passa uma escova elétrica super rápida. Ela faz um barulhinho suave e muitas cócegas nos dentes!',
+            action: 'Receber cócegas nos dentes 🫧',
+            img: '🪥✨'
+          },
+          {
+            title: 'Sorriso de Estrela! ⭐',
+            desc: 'Pronto! A consulta acabou super rápido e seus dentes estão brilhando como estrelas. Você foi muito corajoso!',
+            action: 'Ganhar minhas estrelas! 🏆',
+            img: '✨😎✨'
+          }
+        ]
+      },
+      {
+        id: 'school',
+        title: 'Ir para a Escola 🏫',
+        desc: 'Simule o primeiro dia de aula, conhecendo a professora e fazendo novos amigos!',
+        icon: '🏫',
+        color: 'border-purple-400 bg-purple-50/20 hover:bg-purple-50 text-purple-955',
+        steps: [
+          {
+            title: 'Entrada da Escola 🎒',
+            desc: 'Você chegou na escola com sua mochila colorida! Vamos dar um abraço bem gostoso no papai e na mamãe antes de entrar na sala.',
+            action: 'Dar um abraço e entrar na escola 🤗',
+            img: '🏫🎒'
+          },
+          {
+            title: 'A Minha Mesa 🪑',
+            desc: 'A sala de aula é cheia de cores! A professora te mostra a sua mesa com brinquedos e folhas para desenhar. Vamos escolher nosso lugar.',
+            action: 'Escolher minha mesa 🪑',
+            img: '🎨🪑'
+          },
+          {
+            title: 'Hora do Lanche 🍎',
+            desc: 'Que delícia! É hora de comer o lanchinho com os novos amigos. Cada um senta na sua cadeirinha e come devagar.',
+            action: 'Comer meu lanche gostoso 🍇',
+            img: '🥪🍎'
+          },
+          {
+            title: 'Brincando Juntos 🧱',
+            desc: 'Na hora de brincar, um amigo quer usar os mesmos blocos que você. Vamos emprestar um bloco e construir uma torre gigante juntos!',
+            action: 'Construir a torre gigante 🧱',
+            img: '🧩🧱'
+          },
+          {
+            title: 'Hora de Voltar! 🚗',
+            desc: 'O sinal da escola toca! Você arruma sua mochila e vê o papai e a mamãe te esperando na porta com um grande sorriso. Missão concluída!',
+            action: 'Pegar mochila e correr pro abraço! 🚀',
+            img: '🥳🚗'
+          }
+        ]
+      }
+    ];
+
+    const currentScenarioData = scenarios.find(s => s.id === selectedScenario);
+
+    return (
+      <AnimatePresence>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md"
+        >
+          <motion.div
+            initial={{ scale: 0.9, y: 20 }}
+            animate={{ scale: 1, y: 0 }}
+            exit={{ scale: 0.9, y: 20 }}
+            className="bg-white border-4 border-purple-400 rounded-[32px] p-6 w-full max-w-lg shadow-2xl flex flex-col gap-5 relative overflow-hidden text-slate-800"
+          >
+            <button
+              onClick={() => { playBubble(); setShowSimulatorModal(false); setSelectedScenario(null); setSimulatorStep(0); setSimulatorFinished(false); }}
+              className="absolute top-4 right-4 w-9 h-9 bg-slate-100 border-2 border-slate-200 text-slate-500 rounded-full flex items-center justify-center font-black transition-all active:scale-90 cursor-pointer text-sm"
+            >
+              ✕
+            </button>
+
+            {!selectedScenario ? (
+              <div className="flex flex-col gap-5">
+                <div className="text-center mt-2">
+                  <span className="text-3xl">🎮</span>
+                  <h3 className="text-xl font-black mt-1.5 font-Outfit text-purple-805">Simulador de Rotinas</h3>
+                  <p className="text-xs text-slate-400 font-semibold mt-1">
+                    Escolha uma simulação interativa para aprender como agir e se preparar para novos lugares!
+                  </p>
+                </div>
+
+                <div className="flex flex-col gap-3">
+                  {scenarios.map(sc => (
+                    <button
+                      key={sc.id}
+                      onClick={() => {
+                        playBubble();
+                        setSelectedScenario(sc.id as any);
+                        setSimulatorStep(0);
+                        setSimulatorFinished(false);
+                        speakText(`Vamos simular: ${sc.title}. ${sc.steps[0].desc}`);
+                      }}
+                      className={`p-4 border-2 rounded-2xl transition-all active:scale-98 text-left cursor-pointer flex items-center gap-4 group ${sc.color}`}
+                    >
+                      <div className="w-12 h-12 bg-white/80 border border-slate-200 rounded-xl flex items-center justify-center text-3xl shadow-xxs shrink-0 group-hover:scale-105 transition-all">
+                        {sc.icon}
+                      </div>
+                      <div>
+                        <h4 className="font-extrabold text-sm font-Outfit">{sc.title}</h4>
+                        <p className="text-[10px] text-slate-505 font-semibold mt-0.5 leading-normal">{sc.desc}</p>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : currentScenarioData ? (
+              <div className="flex flex-col items-center gap-5">
+                <div className="flex items-center justify-between w-full border-b border-slate-100 pb-3">
+                  <button
+                    onClick={() => { playBubble(); setSelectedScenario(null); setSimulatorStep(0); setSimulatorFinished(false); }}
+                    className="text-xxs font-black uppercase tracking-wider text-slate-400 hover:text-slate-650 flex items-center gap-1 cursor-pointer bg-transparent border-none"
+                  >
+                    ← Voltar
+                  </button>
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest font-Outfit">
+                    Etapa {simulatorStep + 1} de {currentScenarioData.steps.length}
+                  </span>
+                </div>
+
+                <div className="text-center">
+                  <h4 className="text-sm font-black text-purple-800 uppercase tracking-wider font-Outfit">
+                    {currentScenarioData.steps[simulatorStep].title}
+                  </h4>
+                </div>
+
+                <div className="w-full bg-slate-50 border-2 border-slate-150 rounded-[24px] py-6 flex flex-col items-center justify-center min-h-[160px] relative">
+                  <motion.div
+                    key={simulatorStep}
+                    initial={{ scale: 0.5, rotate: -15, opacity: 0 }}
+                    animate={{ scale: 1, rotate: 0, opacity: 1 }}
+                    className="text-6xl select-none"
+                  >
+                    {currentScenarioData.steps[simulatorStep].img}
+                  </motion.div>
+
+                  <div className="absolute bottom-2 right-4 flex items-center gap-1 bg-white border border-slate-200 px-2 py-1 rounded-full shadow-xxs">
+                    <span className="text-xs">🐾</span>
+                    <span className="text-[8px] font-black text-purple-700 uppercase tracking-wider font-Outfit">Mascote {childHyperfocus.split(' ')[0]}</span>
+                  </div>
+                </div>
+
+                <p className="text-xs text-slate-600 font-bold leading-relaxed text-center px-2 min-h-[50px]">
+                  {currentScenarioData.steps[simulatorStep].desc}
+                </p>
+
+                <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden border border-slate-200">
+                  <div 
+                    className="bg-purple-500 h-full rounded-full transition-all duration-300"
+                    style={{ width: `${((simulatorStep + 1) / currentScenarioData.steps.length) * 100}%` }}
+                  />
+                </div>
+
+                <button
+                  onClick={async () => {
+                    playBubble();
+                    if (simulatorStep < currentScenarioData.steps.length - 1) {
+                      const next = simulatorStep + 1;
+                      setSimulatorStep(next);
+                      speakText(currentScenarioData.steps[next].desc);
+                    } else {
+                      await handleCompleteSimulator();
+                    }
+                  }}
+                  disabled={simulatorFinished}
+                  className="w-full py-4 bg-gradient-to-r from-purple-600 to-indigo-650 text-white font-extrabold text-xs uppercase tracking-wider rounded-2xl shadow-lg hover:shadow-xl transition-all active:scale-[0.98] disabled:opacity-50"
+                >
+                  {simulatorFinished ? "Recompensa Resgatada! 🎉" : currentScenarioData.steps[simulatorStep].action}
+                </button>
+
+                {simulatorFinished && (
+                  <div className="text-center font-black text-emerald-600 text-xs flex flex-col gap-1.5 animate-bounce">
+                    <span>🌟 +3 Estrelas Adicionadas!</span>
+                    <button
+                      onClick={() => {
+                        playBubble();
+                        setShowSimulatorModal(false);
+                        setSelectedScenario(null);
+                        setSimulatorStep(0);
+                        setSimulatorFinished(false);
+                      }}
+                      className="px-4 py-1.5 bg-slate-100 hover:bg-slate-250 text-[10px] font-black uppercase text-slate-700 rounded-lg shadow-xxs border border-slate-300 cursor-pointer"
+                    >
+                      Fechar Simulador
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : null}
+          </motion.div>
+        </motion.div>
+      </AnimatePresence>
+    );
+  };
+
   // Dynamic visual layout for day finished (darker, cozy, resting theme)
   if (isDayFinished) {
     const profileClass = sensoryProfile === 'hypersensitive'
@@ -2103,13 +2576,29 @@ export default function ChildRoutine() {
           </button>
           
           {!sleepMode && (
-            <button
-              onClick={() => { playBubble(); setShowHyperfocusModal(true); }}
-              onMouseEnter={playBubble}
-              className="flex items-center gap-1.5 px-5 py-2.5 border-2 border-yellow-400 bg-yellow-50 hover:bg-yellow-100 text-yellow-750 text-xs font-black rounded-full shadow-premium transition-all active:scale-95 cursor-pointer"
-            >
-              🎮 Meu Mundo ({activeChild?.collectedParts || 0}/4)
-            </button>
+            <>
+              <button
+                onClick={() => { playBubble(); setShowHyperfocusModal(true); }}
+                onMouseEnter={playBubble}
+                className="flex items-center gap-1.5 px-5 py-2.5 border-2 border-yellow-400 bg-yellow-50 hover:bg-yellow-100 text-yellow-750 text-xs font-black rounded-full shadow-premium transition-all active:scale-95 cursor-pointer"
+              >
+                🎮 Meu Mundo ({activeChild?.collectedParts || 0}/4)
+              </button>
+              <button
+                onClick={() => { playBubble(); setShowAacModal(true); }}
+                onMouseEnter={playBubble}
+                className="flex items-center gap-1.5 px-5 py-2.5 border-2 border-emerald-400 bg-emerald-50 hover:bg-emerald-100 text-emerald-750 text-xs font-black rounded-full shadow-premium transition-all active:scale-95 cursor-pointer font-Outfit"
+              >
+                🗣️ Minha Voz
+              </button>
+              <button
+                onClick={() => { playBubble(); setShowSimulatorModal(true); setSelectedScenario(null); setSimulatorStep(0); setSimulatorFinished(false); }}
+                onMouseEnter={playBubble}
+                className="flex items-center gap-1.5 px-5 py-2.5 border-2 border-purple-400 bg-purple-50 hover:bg-purple-100 text-purple-750 text-xs font-black rounded-full shadow-premium transition-all active:scale-95 cursor-pointer font-Outfit"
+              >
+                🎮 Simulador
+              </button>
+            </>
           )}
 
           <button
@@ -2528,11 +3017,36 @@ export default function ChildRoutine() {
                         <div className={`absolute bottom-2 right-2 w-9 h-9 rounded-full bg-gradient-to-tr ${category.gradient} flex items-center justify-center shadow-md animate-bounce`}>
                           <category.icon className="w-5.5 h-5.5 text-white" />
                         </div>
-                        <HyperfocusMascot 
-                          hyperfocus={childHyperfocus}
-                          state={celebratingTaskId === activeTask.id ? 'celebrating' : collieState === 'celebrating' ? 'celebrating' : 'guiding'} 
-                          size={165} 
-                        />
+                        <div className="relative">
+                          <HyperfocusMascot 
+                            hyperfocus={childHyperfocus}
+                            state={
+                              celebratingTaskId === activeTask.id || collieState === 'celebrating'
+                                ? 'celebrating'
+                                : sleepMode || activeChild?.emotionalBattery === 'red' || activeChild?.emotionalBattery === 'yellow'
+                                ? 'sleeping'
+                                : 'guiding'
+                            } 
+                            size={165} 
+                          />
+                          {/* Equipped Accessories overlay */}
+                          {(() => {
+                            let inventory: string[] = [];
+                            try {
+                              if (activeChild?.toyInventory) {
+                                inventory = JSON.parse(activeChild.toyInventory);
+                              }
+                            } catch (e) {}
+                            return (
+                              <>
+                                {inventory.includes('acc_hat') && <span className="absolute -top-3 left-1/2 -translate-x-1/2 text-3xl pointer-events-none select-none z-10">🎩</span>}
+                                {inventory.includes('acc_glasses') && <span className="absolute top-[26%] left-1/2 -translate-x-1/2 text-2.5xl pointer-events-none select-none z-10">😎</span>}
+                                {inventory.includes('acc_medal') && <span className="absolute bottom-[20%] left-1/2 -translate-x-1/2 text-2.5xl pointer-events-none select-none z-10">🥇</span>}
+                                {inventory.includes('acc_cape') && <span className="absolute top-[35%] -left-3 text-3xl pointer-events-none select-none z-10">🦸‍♂️</span>}
+                              </>
+                            );
+                          })()}
+                        </div>
                       </div>
                     </div>
 
@@ -2986,7 +3500,7 @@ export default function ChildRoutine() {
 
               {!selectedStory ? (
                 // Story Selection Screen
-                <div className="flex flex-col gap-5">
+                <div className="flex flex-col gap-4">
                   <div className="text-center mt-2">
                     <span className="text-3xl">📖</span>
                     <h3 className={`text-xl font-black mt-2 font-Outfit ${sleepMode ? 'text-amber-200' : 'text-slate-855'}`}>Histórias do Mascote</h3>
@@ -2995,7 +3509,31 @@ export default function ChildRoutine() {
                     </p>
                   </div>
 
-                  <div className="flex flex-col gap-3 max-h-[350px] overflow-y-auto pr-1 scrollbar-thin">
+                  {!sleepMode && (
+                    <div className="flex bg-slate-100 border border-slate-200 p-1 rounded-xl shadow-xxs gap-1 mb-2">
+                      <button
+                        type="button"
+                        onClick={() => { playBubble(); setStoriesTab('preset'); }}
+                        className={`flex-1 py-2 text-xs font-black rounded-lg transition-all cursor-pointer font-Outfit ${
+                          storiesTab === 'preset' ? 'bg-indigo-650 text-white shadow-sm' : 'text-slate-650 hover:bg-white/50 border-none bg-transparent'
+                        }`}
+                      >
+                        Histórias Prontas 📚
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => { playBubble(); setStoriesTab('ai'); }}
+                        className={`flex-1 py-2 text-xs font-black rounded-lg transition-all cursor-pointer font-Outfit ${
+                          storiesTab === 'ai' ? 'bg-indigo-650 text-white shadow-sm' : 'text-slate-655 hover:bg-white/50 border-none bg-transparent'
+                        }`}
+                      >
+                        Criar com IA 🤖✨
+                      </button>
+                    </div>
+                  )}
+
+                  {storiesTab === 'preset' || sleepMode ? (
+                    <div className="flex flex-col gap-3 max-h-[320px] overflow-y-auto pr-1 scrollbar-thin">
                     <span className={`text-[10px] font-black uppercase tracking-wider font-Outfit ${sleepMode ? 'text-amber-500' : 'text-indigo-500'}`}>Histórias Sociais 📖</span>
                     {SOCIAL_STORIES.map(story => (
                       <button
@@ -3051,7 +3589,44 @@ export default function ChildRoutine() {
                         </div>
                       </button>
                     ))}
-                  </div>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col gap-4 py-2 text-left">
+                      <div className="flex flex-col gap-1.5">
+                        <label className="text-xs font-black text-slate-500 uppercase tracking-wider font-Outfit">Sobre qual atividade quer criar a história?</label>
+                        <input
+                          type="text"
+                          value={aiTheme}
+                          onChange={e => setAiTheme(e.target.value)}
+                          placeholder="Ex: ir ao dentista, tomar banho, ir à escola"
+                          className="w-full px-4 py-3 bg-slate-50 border-2 border-slate-300 focus:border-indigo-600 focus:bg-white rounded-xl text-xs font-bold outline-none transition-all shadow-xxs text-slate-900"
+                        />
+                      </div>
+                      
+                      <div className="p-3.5 bg-indigo-50 border border-indigo-150 rounded-2xl flex items-center justify-between text-xs font-bold text-indigo-955">
+                        <span>Mascote Guia Ativo:</span>
+                        <span className="bg-indigo-600 text-white px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider font-Outfit">
+                          {childHyperfocus.split(' ')[0]}
+                        </span>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={handleGenerateAiStory}
+                        disabled={generatingAi || !aiTheme.trim()}
+                        className="w-full py-3.5 bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-extrabold text-xs uppercase tracking-wider rounded-xl shadow-md hover:shadow-lg transition-all active:scale-[0.98] disabled:opacity-50 border-none cursor-pointer flex items-center justify-center gap-2"
+                      >
+                        {generatingAi ? (
+                          <>
+                            <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                            <span>{GENERATOR_STATUSES[aiStatusIdx]}</span>
+                          </>
+                        ) : (
+                          <>🤖 Gerar Aventura Social</>
+                        )}
+                      </button>
+                    </div>
+                  )}
                 </div>
               ) : (
                 // Story Reading Screen
@@ -3166,6 +3741,8 @@ export default function ChildRoutine() {
       </AnimatePresence>
 
       {renderHyperfocusModals()}
+      {renderAacModal()}
+      {renderSimulatorModal()}
 
       {/* SOS Sensorial Full Screen Modal */}
       <AnimatePresence>

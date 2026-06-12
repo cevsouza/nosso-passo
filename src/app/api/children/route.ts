@@ -148,6 +148,9 @@ export async function PUT(req: Request) {
         collectedParts: updates.collectedParts !== undefined ? Number(updates.collectedParts) : undefined,
         toyInventory: updates.toyInventory,
         emotionalBattery: updates.emotionalBattery,
+        audioAlert10: updates.audioAlert10,
+        audioAlert5: updates.audioAlert5,
+        audioAlert2: updates.audioAlert2,
       }
     });
 

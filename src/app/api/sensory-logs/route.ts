@@ -32,6 +32,8 @@ export async function GET(req: Request) {
       loggedBy: log.loggedBy,
       foodIntake: log.foodIntake,
       schoolNoise: log.schoolNoise,
+      latitude: log.latitude || undefined,
+      longitude: log.longitude || undefined,
     }));
 
     return NextResponse.json(formatted);
@@ -43,7 +45,7 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { childId, mood, crisisOccurred, notes, decibels, lightLevel, location, trigger, antecedent, behavior, consequence, loggedBy, foodIntake, schoolNoise } = body;
+    const { childId, mood, crisisOccurred, notes, decibels, lightLevel, location, trigger, antecedent, behavior, consequence, loggedBy, foodIntake, schoolNoise, latitude, longitude } = body;
 
     if (!childId) {
       return NextResponse.json({ error: 'ID da criança é obrigatório' }, { status: 400 });
@@ -65,6 +67,8 @@ export async function POST(req: Request) {
         loggedBy: loggedBy || 'parent',
         foodIntake: foodIntake || null,
         schoolNoise: schoolNoise || null,
+        latitude: latitude !== undefined && latitude !== null ? Number(latitude) : null,
+        longitude: longitude !== undefined && longitude !== null ? Number(longitude) : null,
       },
     });
 
@@ -84,6 +88,8 @@ export async function POST(req: Request) {
       loggedBy: log.loggedBy,
       foodIntake: log.foodIntake,
       schoolNoise: log.schoolNoise,
+      latitude: log.latitude || undefined,
+      longitude: log.longitude || undefined,
     });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });

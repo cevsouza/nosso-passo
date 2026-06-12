@@ -51,6 +51,9 @@ export interface Child {
   collectedParts?: number;
   toyInventory?: string;
   emotionalBattery?: string;
+  audioAlert10?: string;
+  audioAlert5?: string;
+  audioAlert2?: string;
 }
 
 export interface SensoryLog {
@@ -69,6 +72,8 @@ export interface SensoryLog {
   loggedBy?: 'parent' | 'child' | 'school';
   foodIntake?: string;
   schoolNoise?: string;
+  latitude?: number;
+  longitude?: number;
 }
 
 export interface Checkpoint {
@@ -451,6 +456,8 @@ export const firebaseBridge = {
       loggedBy?: string;
       foodIntake?: string;
       schoolNoise?: string;
+      latitude?: number;
+      longitude?: number;
     }): Promise<SensoryLog> => {
       const res = await safeFetch('/api/sensory-logs', {
         method: 'POST',

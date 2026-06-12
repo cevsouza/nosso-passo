@@ -22,9 +22,16 @@ import {
   Info,
   CheckCircle,
   RotateCcw,
-  Pencil
+  Pencil,
+  Mic,
+  Play,
+  Pause,
+  Square,
+  Map,
+  AlertTriangle
 } from 'lucide-react';
 import Link from 'next/link';
+import { SensoryHeatmap } from '../../../components/SensoryHeatmap';
 
 const DAYS_OF_MONTH = Array.from({ length: 31 }).map((_, i) => {
   const dayNum = i + 1;
@@ -336,6 +343,225 @@ export default function ParentDashboard() {
   const [children, setChildren] = useState<any[]>([]);
   const [activeChild, setActiveChild] = useState<any | null>(null);
   const [newChildModalOpen, setNewChildModalOpen] = useState(false);
+
+  // Alertas de Voz Familiar & GPS Simulation States
+  const [recordingType, setRecordingType] = useState<'audioAlert10' | 'audioAlert5' | 'audioAlert2' | null>(null);
+  const [recordingSecondsLeft, setRecordingSecondsLeft] = useState(10);
+  const [isPlayingAudio, setIsPlayingAudio] = useState<'audioAlert10' | 'audioAlert5' | 'audioAlert2' | null>(null);
+  const [simulatingGps, setSimulatingGps] = useState(false);
+
+  const mediaRecorderRef = React.useRef<MediaRecorder | null>(null);
+  const audioChunksRef = React.useRef<Blob[]>([]);
+  const recordingIntervalRef = React.useRef<any>(null);
+  const audioPlayRef = React.useRef<HTMLAudioElement | null>(null);
+
+  // Clean up recording on unmount
+  useEffect(() => {
+    return () => {
+      if (recordingIntervalRef.current) clearInterval(recordingIntervalRef.current);
+      if (audioPlayRef.current) audioPlayRef.current.pause();
+    };
+  }, []);
+
+  // Start recording voice (10s max limit)
+  const startRecording = async (type: 'audioAlert10' | 'audioAlert5' | 'audioAlert2') => {
+    if (recordingType) return;
+    playBubble();
+    
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      audioChunksRef.current = [];
+      
+      const mediaRecorder = new MediaRecorder(stream);
+      mediaRecorderRef.current = mediaRecorder;
+      
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
+      };
+      
+      mediaRecorder.onstop = async () => {
+        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+        const reader = new FileReader();
+        reader.readAsDataURL(audioBlob);
+        reader.onloadend = async () => {
+          const base64Audio = reader.result as string;
+          if (activeChild) {
+            try {
+              const updated = await firebaseBridge.auth.updateChildSettings(activeChild.id, {
+                [type]: base64Audio
+              });
+              setActiveChild(updated);
+              firebaseBridge.auth.setActiveChild(updated);
+              setChildren(prev => prev.map(c => c.id === updated.id ? updated : c));
+              
+              await immutableLogger.logChange(
+                'UPDATE_PROFILE',
+                `Gravou áudio personalizado de transição (${type === 'audioAlert10' ? '10 min' : type === 'audioAlert5' ? '5 min' : '2 min'}) para ${activeChild.name}.`,
+                currentUser?.email
+              );
+              triggerStatus('Áudio de alerta salvo com sucesso!');
+            } catch (err) {
+              triggerStatus('Erro ao salvar áudio no servidor.');
+            }
+          }
+        };
+        stream.getTracks().forEach(track => track.stop());
+      };
+      
+      mediaRecorder.start();
+      setRecordingType(type);
+      setRecordingSecondsLeft(10);
+      
+      if (recordingIntervalRef.current) clearInterval(recordingIntervalRef.current);
+      recordingIntervalRef.current = setInterval(() => {
+        setRecordingSecondsLeft(prev => {
+          if (prev <= 1) {
+            stopRecording();
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+      
+    } catch (err) {
+      console.error('Microphone access denied:', err);
+      triggerStatus('Permissão de microfone negada ou não suportada.');
+    }
+  };
+
+  const stopRecording = () => {
+    if (recordingIntervalRef.current) {
+      clearInterval(recordingIntervalRef.current);
+      recordingIntervalRef.current = null;
+    }
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+      mediaRecorderRef.current.stop();
+    }
+    setRecordingType(null);
+    playMarimba(300, 0.2);
+  };
+
+  const playRecordedAudio = (type: 'audioAlert10' | 'audioAlert5' | 'audioAlert2') => {
+    const audioData = activeChild?.[type];
+    if (!audioData) return;
+    
+    if (isPlayingAudio === type && audioPlayRef.current) {
+      audioPlayRef.current.pause();
+      setIsPlayingAudio(null);
+      return;
+    }
+    
+    if (audioPlayRef.current) {
+      audioPlayRef.current.pause();
+    }
+    
+    const audio = new Audio(audioData);
+    audioPlayRef.current = audio;
+    setIsPlayingAudio(type);
+    
+    audio.play().catch(() => {
+      triggerStatus('Erro ao reproduzir o áudio.');
+      setIsPlayingAudio(null);
+    });
+    
+    audio.onended = () => {
+      setIsPlayingAudio(null);
+    };
+  };
+
+  const deleteRecordedAudio = async (type: 'audioAlert10' | 'audioAlert5' | 'audioAlert2') => {
+    if (!activeChild) return;
+    playMarimba(200, 0.2);
+    
+    try {
+      const updated = await firebaseBridge.auth.updateChildSettings(activeChild.id, {
+        [type]: null
+      });
+      setActiveChild(updated);
+      firebaseBridge.auth.setActiveChild(updated);
+      setChildren(prev => prev.map(c => c.id === updated.id ? updated : c));
+      
+      await immutableLogger.logChange(
+        'UPDATE_PROFILE',
+        `Removeu o áudio personalizado de transição (${type === 'audioAlert10' ? '10 min' : type === 'audioAlert5' ? '5 min' : '2 min'}) de ${activeChild.name}.`,
+        currentUser?.email
+      );
+      triggerStatus('Áudio de alerta removido!');
+    } catch (err) {
+      triggerStatus('Erro ao remover áudio.');
+    }
+  };
+
+  const handleSimulateCrisisGps = async () => {
+    if (!activeChild) return;
+    setSimulatingGps(true);
+    playBubble();
+    
+    let latitude = -23.5505;
+    let longitude = -46.6333;
+    
+    if (typeof navigator !== 'undefined' && navigator.geolocation) {
+      try {
+        const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 3000, enableHighAccuracy: true });
+        });
+        latitude = position.coords.latitude;
+        longitude = position.coords.longitude;
+      } catch (err) {
+        console.warn('Real GPS access failed, simulating offset coords:', err);
+        latitude += (Math.random() - 0.5) * 0.02;
+        longitude += (Math.random() - 0.5) * 0.02;
+      }
+    } else {
+      latitude += (Math.random() - 0.5) * 0.02;
+      longitude += (Math.random() - 0.5) * 0.02;
+    }
+    
+    const locations = ['Supermercado', 'Shopping', 'Terapia ABA', 'Parque', 'Escola'];
+    const triggers = ['Barulho Elevado', 'Luz Estroboscópica / Forte', 'Transição de Atividade', 'Multidão'];
+    const notes = [
+      'Teve uma sobrecarga leve devido ao barulho de secador de mãos.',
+      'Meltdown moderado no setor de brinquedos por frustração e luz forte.',
+      'Dificuldade de transição com choro intenso ao sair do carro.',
+      'Hipersensibilidade tátil a texturas de roupas novas no shopping.'
+    ];
+    
+    const randomLoc = locations[Math.floor(Math.random() * locations.length)];
+    const randomTrigger = triggers[Math.floor(Math.random() * triggers.length)];
+    const randomNote = notes[Math.floor(Math.random() * notes.length)];
+    
+    try {
+      const newLog = await firebaseBridge.db.addSensoryLog({
+        childId: activeChild.id,
+        crisisOccurred: true,
+        notes: `Simulação: ${randomNote}`,
+        decibels: 75 + Math.floor(Math.random() * 20),
+        lightLevel: 'Alta',
+        location: randomLoc,
+        trigger: randomTrigger,
+        antecedent: 'Ambiente novo com muitos estímulos visuais e auditivos.',
+        behavior: 'Criança tapou os ouvidos, sentou no chão e chorou continuamente.',
+        consequence: 'Retirada imediata para local calmo com abafador de ruídos.',
+        latitude,
+        longitude
+      });
+      
+      setSensoryLogs(prev => [newLog, ...prev]);
+      triggerStatus('Simulação de crise registrada com GPS!');
+      
+      await immutableLogger.logChange(
+        'ADD_TASK',
+        `Simulou crise sensorial no local "${randomLoc}" com latitude: ${latitude.toFixed(4)}, longitude: ${longitude.toFixed(4)}.`,
+        currentUser?.email
+      );
+    } catch (err) {
+      triggerStatus('Erro ao salvar log de simulação.');
+    } finally {
+      setSimulatingGps(false);
+    }
+  };
   const [newChildName, setNewChildName] = useState('');
   const [newChildBirthDate, setNewChildBirthDate] = useState('');
   const [newChildGender, setNewChildGender] = useState('Não Informado');
@@ -1930,7 +2156,94 @@ export default function ParentDashboard() {
             </div>
           </div>
 
+          {/* Familiar Voice Recorder Card */}
+          {activeChild && (
+            <div className="bg-white border-2 border-slate-250 rounded-3xl p-6 shadow-premium flex flex-col gap-4">
+              <div className="flex items-center gap-2.5 text-indigo-600">
+                <Mic className="w-5 h-5 text-indigo-500" />
+                <h2 className="font-bold text-slate-900 text-base font-Outfit">IA de Voz Familiar (Regulação)</h2>
+              </div>
+              <p className="text-[10px] text-slate-500 font-semibold leading-relaxed">
+                Grave avisos de transição com sua voz real para acalmar a criança durante a contagem regressiva da rotina.
+              </p>
 
+              <div className="flex flex-col gap-3">
+                {(['audioAlert10', 'audioAlert5', 'audioAlert2'] as const).map((type) => {
+                  const label = type === 'audioAlert10' ? 'Alerta de 10 min' : type === 'audioAlert5' ? 'Alerta de 5 min' : 'Alerta de 2 min';
+                  const hasAudio = !!activeChild[type];
+                  const isRecording = recordingType === type;
+                  const isPlaying = isPlayingAudio === type;
+
+                  return (
+                    <div key={type} className="flex flex-col gap-1.5 p-3 rounded-2xl bg-slate-50 border border-slate-200">
+                      <div className="flex items-center justify-between text-xxs font-black text-slate-700">
+                        <span>{label}</span>
+                        {hasAudio && !isRecording && (
+                          <span className="text-[9px] text-emerald-600 font-bold bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-250">Gravado ✓</span>
+                        )}
+                        {!hasAudio && !isRecording && (
+                          <span className="text-[9px] text-slate-400 font-bold">Sem gravação</span>
+                        )}
+                        {isRecording && (
+                          <span className="text-[9px] text-red-600 font-bold animate-pulse flex items-center gap-1">
+                            <span className="w-1.5 h-1.5 rounded-full bg-red-600" />
+                            Gravando ({recordingSecondsLeft}s)
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="flex items-center gap-1.5 mt-1">
+                        {isRecording ? (
+                          <button
+                            type="button"
+                            onClick={stopRecording}
+                            className="flex-1 py-1.5 bg-red-600 hover:bg-red-750 text-white rounded-xl text-xxs font-black flex items-center justify-center gap-1 cursor-pointer transition-all"
+                          >
+                            <Square className="w-3.5 h-3.5 fill-current" /> Parar Gravação
+                          </button>
+                        ) : (
+                          <>
+                            <button
+                              type="button"
+                              onClick={() => startRecording(type)}
+                              className="flex-1 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 hover:text-indigo-800 border border-indigo-200 rounded-xl text-xxs font-black flex items-center justify-center gap-1 cursor-pointer transition-all"
+                            >
+                              <Mic className="w-3.5 h-3.5" /> Gravar 10s
+                            </button>
+
+                            {hasAudio && (
+                              <>
+                                <button
+                                  type="button"
+                                  onClick={() => playRecordedAudio(type)}
+                                  className={`p-1.5 rounded-xl border flex items-center justify-center cursor-pointer transition-all ${
+                                    isPlaying 
+                                      ? 'bg-amber-100 border-amber-300 text-amber-800' 
+                                      : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                                  }`}
+                                  title="Ouvir gravação"
+                                >
+                                  {isPlaying ? <Square className="w-3.5 h-3.5 fill-current" /> : <Play className="w-3.5 h-3.5 fill-current" />}
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => deleteRecordedAudio(type)}
+                                  className="p-1.5 bg-rose-50 border border-rose-200 text-rose-600 hover:bg-rose-100 rounded-xl flex items-center justify-center cursor-pointer transition-all"
+                                  title="Excluir gravação"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              </>
+                            )}
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
           {/* Quick Actions Card */}
           <div className="bg-white border-2 border-slate-250 rounded-3xl p-6 shadow-premium">
@@ -3408,6 +3721,30 @@ export default function ParentDashboard() {
                           </div>
                         </div>
 
+                        {/* Sensory Heatmap Card */}
+                        <div className="bg-slate-50 border border-slate-200/50 p-5 rounded-2xl flex flex-col gap-4 shadow-xxs">
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                            <div>
+                              <h4 className="font-extrabold text-xs text-slate-500 uppercase tracking-wider flex items-center gap-1.5 select-none font-Outfit">
+                                <Map className="w-4 h-4 text-indigo-500" /> Mapa de Calor Sensorial (Gatilhos de Crises)
+                              </h4>
+                              <p className="text-[10px] text-slate-400 font-semibold mt-0.5">
+                                Identifique picos de desregulação sensorial da criança mapeados por geolocalização.
+                              </p>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={handleSimulateCrisisGps}
+                              disabled={simulatingGps}
+                              className="px-3.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 hover:text-indigo-800 border border-indigo-200 rounded-xl text-xxs font-black transition-all cursor-pointer font-Outfit self-start sm:self-auto flex items-center gap-1 shrink-0"
+                            >
+                              {simulatingGps ? 'Buscando GPS...' : '📍 Simular Crise com GPS'}
+                            </button>
+                          </div>
+                          
+                          <SensoryHeatmap logs={sensoryLogs} />
+                        </div>
+
                         {/* Diário de Regulação & Registro de Crises */}
                         <div className="bg-slate-50 border border-slate-200/50 p-5 rounded-2xl flex flex-col gap-4 shadow-xxs">
                           <h4 className="font-extrabold text-xs text-slate-500 uppercase tracking-wider flex items-center gap-1">
@@ -3421,6 +3758,21 @@ export default function ParentDashboard() {
                               setSavingCrisis(true);
                               playMarimba(220, 0.35);
 
+                              let latitude: number | undefined = undefined;
+                              let longitude: number | undefined = undefined;
+
+                              if (typeof navigator !== 'undefined' && navigator.geolocation) {
+                                try {
+                                  const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+                                    navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 3000, enableHighAccuracy: true });
+                                  });
+                                  latitude = position.coords.latitude;
+                                  longitude = position.coords.longitude;
+                                } catch (geoErr) {
+                                  console.warn('Geolocation capture failed or denied:', geoErr);
+                                }
+                              }
+
                               try {
                                 const newLog = await firebaseBridge.db.addSensoryLog({
                                   childId: activeChild.id,
@@ -3433,6 +3785,8 @@ export default function ParentDashboard() {
                                   antecedent: crisisAntecedent.trim() || undefined,
                                   behavior: crisisBehavior.trim() || undefined,
                                   consequence: crisisConsequence.trim() || undefined,
+                                  latitude,
+                                  longitude
                                 });
 
                                 setSensoryLogs(prev => [newLog, ...prev]);
@@ -3715,6 +4069,13 @@ export default function ParentDashboard() {
                                 </div>
                               </div>
                             </div>
+
+                            {sensoryLogs.filter(log => log.latitude !== undefined && log.longitude !== undefined).length > 0 && (
+                              <div className="mt-8 border-t border-slate-100 pt-6">
+                                <h3 className="text-xs font-black uppercase text-slate-400 tracking-widest mb-3">Mapa de Calor Sensorial (GPS)</h3>
+                                <SensoryHeatmap logs={sensoryLogs} />
+                              </div>
+                            )}
 
                             <div className="mt-8 border-t border-slate-100 pt-6">
                               <h3 className="text-xs font-black uppercase text-slate-400 tracking-widest">Diário Emocional e Registros de Desregulação</h3>

@@ -49,6 +49,9 @@ model Child {
   collectedParts  Int         @default(0)
   toyInventory    String      @default("")
   emotionalBattery String     @default("green")
+  audioAlert10    String?
+  audioAlert5     String?
+  audioAlert2     String?
 
   parentUid       String
   parent          UserProfile @relation(fields: [parentUid], references: [uid], onDelete: Cascade)
@@ -107,6 +110,8 @@ model SensoryLog {
   loggedBy       String?     @default("parent")
   foodIntake     String?
   schoolNoise    String?
+  latitude       Float?
+  longitude      Float?
   childId        String
   child          Child       @relation(fields: [childId], references: [id], onDelete: Cascade)
 }
