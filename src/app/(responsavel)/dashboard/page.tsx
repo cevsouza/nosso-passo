@@ -613,6 +613,9 @@ export default function ParentDashboard() {
   const [changeReason, setChangeReason] = useState('');
   const [changeReplacement, setChangeReplacement] = useState('');
 
+  // Weekly and Monthly Schedule View Mode State
+  const [scheduleViewMode, setScheduleViewMode] = useState<'daily' | 'weekly' | 'monthly'>('daily');
+
   // Emotional sensory log states
   const [sensoryLogs, setSensoryLogs] = useState<any[]>([]);
   const [crisisNotes, setCrisisNotes] = useState('');
@@ -1704,6 +1707,11 @@ export default function ParentDashboard() {
 
     return insights;
   };
+
+  // Week calculations for weekly schedule view
+  const weekStart = Math.floor((parseInt(activeDayFilter || '1', 10) - 1) / 7) * 7 + 1;
+  const weekEnd = Math.min(weekStart + 6, 31);
+  const weekDays = Array.from({ length: weekEnd - weekStart + 1 }, (_, i) => weekStart + i);
 
   return (
     <main className="min-h-screen bg-[#f8fafc] text-slate-900 pb-16 relative">
@@ -2834,54 +2842,82 @@ export default function ParentDashboard() {
                 {/* Day Agenda Grid Card */}
                 <div className="bg-white border border-slate-200 rounded-[32px] p-6 shadow-md shadow-slate-100 flex flex-col gap-6">
                   
-                  <div className="flex items-center justify-between border-b border-slate-100 pb-4">
-                    <div>
-                      <h3 className="font-black text-slate-850 text-xl leading-tight font-Outfit">
-                        Agenda para {DAYS_OF_MONTH.find(d => d.key === activeDayFilter)?.label}
-                      </h3>
-                      <p className="text-xs text-slate-400 font-semibold mt-0.5">
-                        {tasks.filter(t => t.day === activeDayFilter).length} tarefas cadastradas
-                      </p>
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                      <div>
+                        <h3 className="font-black text-slate-850 text-xl leading-tight font-Outfit">
+                          {scheduleViewMode === 'daily' && `Agenda para ${DAYS_OF_MONTH.find(d => d.key === activeDayFilter)?.label}`}
+                          {scheduleViewMode === 'weekly' && `Agenda Semanal (Dias ${weekStart} a ${weekEnd}) 📅`}
+                          {scheduleViewMode === 'monthly' && `Agenda Mensal Completa 🗓️`}
+                        </h3>
+                        <p className="text-xs text-slate-400 font-semibold mt-0.5">
+                          {scheduleViewMode === 'daily' && `${tasks.filter(t => t.day === activeDayFilter).length} tarefas cadastradas`}
+                          {scheduleViewMode === 'weekly' && `${tasks.filter(t => parseInt(t.day) >= weekStart && parseInt(t.day) <= weekEnd).length} tarefas cadastradas na semana`}
+                          {scheduleViewMode === 'monthly' && `${tasks.length} tarefas cadastradas no total`}
+                        </p>
+                      </div>
+
+                      {/* View selector tabs */}
+                      <div className="flex bg-slate-100 p-0.5 rounded-full border border-slate-200 w-fit shrink-0">
+                        {(['daily', 'weekly', 'monthly'] as const).map(mode => (
+                          <button
+                            key={mode}
+                            type="button"
+                            onClick={() => { playBubble(); setScheduleViewMode(mode); }}
+                            className={`px-3.5 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer ${
+                              scheduleViewMode === mode
+                                ? 'bg-indigo-650 text-white shadow-xxs'
+                                : 'text-slate-500 hover:text-slate-800'
+                            }`}
+                          >
+                            {mode === 'daily' ? 'Diária' : mode === 'weekly' ? 'Semanal' : 'Mensal'}
+                          </button>
+                        ))}
+                      </div>
                     </div>
 
-                    <div className="flex gap-2">
-                      <button
-                        type="button"
-                        onClick={handleCopyDay}
-                        className="flex items-center gap-1 px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-black rounded-full border border-slate-300 transition-all cursor-pointer font-Outfit"
-                        title="Copiar todas as tarefas deste dia"
-                      >
-                        📋 Copiar
-                      </button>
-
-                      {copiedFromDay && copiedTasksBuffer.length > 0 && (
+                    {scheduleViewMode === 'daily' && (
+                      <div className="flex flex-wrap gap-2">
                         <button
                           type="button"
-                          onClick={handlePasteDay}
-                          className="flex items-center gap-1 px-3.5 py-2 bg-yellow-100 hover:bg-yellow-200 text-yellow-800 text-xs font-black rounded-full border border-yellow-350 transition-all cursor-pointer font-Outfit"
-                          title={`Colar tarefas copiadas do Dia ${copiedFromDay}`}
+                          onClick={handleCopyDay}
+                          className="flex items-center gap-1 px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-black rounded-full border border-slate-300 transition-all cursor-pointer font-Outfit"
+                          title="Copiar todas as tarefas deste dia"
                         >
-                          📥 Colar
+                          📋 Copiar
                         </button>
-                      )}
 
-                      <button
-                        onClick={() => { playBubble(); window.print(); }}
-                        className="flex items-center gap-1.5 px-4 py-2 bg-emerald-50 border border-emerald-250 hover:bg-emerald-100 text-emerald-700 text-xs font-black rounded-full shadow-sm transition-all cursor-pointer font-Outfit"
-                      >
-                        🖨️ Imprimir PECS
-                      </button>
+                        {copiedFromDay && copiedTasksBuffer.length > 0 && (
+                          <button
+                            type="button"
+                            onClick={handlePasteDay}
+                            className="flex items-center gap-1 px-3.5 py-2 bg-yellow-100 hover:bg-yellow-200 text-yellow-800 text-xs font-black rounded-full border border-yellow-350 transition-all cursor-pointer font-Outfit"
+                            title={`Colar tarefas copiadas do Dia ${copiedFromDay}`}
+                          >
+                            📥 Colar
+                          </button>
+                        )}
 
-                      <button
-                        onClick={() => { playBubble(); setFormOpen(!formOpen); }}
-                        className="flex items-center gap-1.5 px-4 py-2 bg-indigo-50 border border-indigo-100 hover:bg-indigo-100 text-indigo-600 text-xs font-black rounded-full shadow-sm transition-all cursor-pointer"
-                      >
-                        <Plus className="w-4 h-4" /> {formOpen ? 'Fechar Form' : 'Adicionar Tarefa'}
-                      </button>
-                    </div>
+                        <button
+                          onClick={() => { playBubble(); window.print(); }}
+                          className="flex items-center gap-1.5 px-4 py-2 bg-emerald-50 border border-emerald-250 hover:bg-emerald-100 text-emerald-700 text-xs font-black rounded-full shadow-sm transition-all cursor-pointer font-Outfit"
+                        >
+                          🖨️ Imprimir PECS
+                        </button>
+
+                        <button
+                          onClick={() => { playBubble(); setFormOpen(!formOpen); }}
+                          className="flex items-center gap-1.5 px-4 py-2 bg-indigo-50 border border-indigo-100 hover:bg-indigo-100 text-indigo-600 text-xs font-black rounded-full shadow-sm transition-all cursor-pointer"
+                        >
+                          <Plus className="w-4 h-4" /> {formOpen ? 'Fechar Form' : 'Adicionar Tarefa'}
+                        </button>
+                      </div>
+                    )}
                   </div>
 
-                  {/* Progress Bar & Rate in real-time */}
+                  {scheduleViewMode === 'daily' && (
+                    <>
+                      {/* Progress Bar & Rate in real-time */}
                   {(() => {
                     const activeDayTasks = tasks.filter(t => t.day === activeDayFilter);
                     const completedActiveDayTasks = activeDayTasks.filter(t => t.isCompleted);
@@ -3391,6 +3427,232 @@ export default function ParentDashboard() {
                       );
                     })}
                   </div>
+                    </>
+                  )}
+
+                  {/* Weekly View Block */}
+                  {scheduleViewMode === 'weekly' && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+                      {weekDays.map(dayNum => {
+                        const dayTasks = tasks.filter(t => t.day === String(dayNum));
+                        const completedTasks = dayTasks.filter(t => t.isCompleted);
+                        const isToday = String(dayNum) === activeDayFilter;
+                        const progressPercent = dayTasks.length > 0 ? Math.round((completedTasks.length / dayTasks.length) * 100) : 0;
+
+                        return (
+                          <div 
+                            key={dayNum}
+                            className={`flex flex-col justify-between p-4.5 rounded-3xl border-2 transition-all shadow-xxs hover:shadow-sm ${
+                              isToday 
+                                ? 'border-indigo-400 bg-indigo-50/15' 
+                                : 'border-slate-200 bg-white hover:border-slate-300'
+                            }`}
+                          >
+                            <div>
+                              {/* Header of the Day Card */}
+                              <div className="flex justify-between items-start mb-3">
+                                <div>
+                                  <span className={`text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md ${
+                                    isToday ? 'bg-indigo-650 text-white' : 'bg-slate-100 text-slate-655'
+                                  }`}>
+                                    Dia {dayNum}
+                                  </span>
+                                  <h4 className="font-extrabold text-slate-800 text-sm mt-1 font-Outfit">
+                                    {DAYS_OF_MONTH.find(d => d.key === String(dayNum))?.label || `Dia ${dayNum}`}
+                                  </h4>
+                                </div>
+                                <div className="text-right">
+                                  <span className="text-[10px] font-bold text-slate-450 block">
+                                    {completedTasks.length}/{dayTasks.length} Feitas
+                                  </span>
+                                  {dayTasks.length > 0 && (
+                                    <span className={`text-[9px] font-extrabold px-1.5 py-0.5 rounded-full border ${
+                                      progressPercent === 100 
+                                        ? 'bg-emerald-50 text-emerald-600 border-emerald-200' 
+                                        : 'bg-indigo-50 text-indigo-600 border-indigo-200'
+                                    }`}>
+                                      {progressPercent}%
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+
+                              {/* Progress Bar */}
+                              {dayTasks.length > 0 && (
+                                <div className="w-full bg-slate-105 rounded-full h-1.5 mb-4 overflow-hidden border border-slate-200/50">
+                                  <div 
+                                    className={`h-full rounded-full ${progressPercent === 100 ? 'bg-emerald-500' : 'bg-indigo-650'}`}
+                                    style={{ width: `${progressPercent}%` }}
+                                  />
+                                </div>
+                              )}
+
+                              {/* Tasks Mini List */}
+                              <div className="flex flex-col gap-2.5 max-h-[220px] overflow-y-auto pr-1 scrollbar-thin mb-4">
+                                {dayTasks.length === 0 ? (
+                                  <p className="text-[11px] text-slate-400 font-semibold italic text-center py-4 bg-slate-50/50 border border-dashed border-slate-150 rounded-xl">
+                                    Sem atividades.
+                                  </p>
+                                ) : (
+                                  dayTasks
+                                    .sort((a, b) => a.time.localeCompare(b.time))
+                                    .map(t => {
+                                      const taskCat = getTaskCategory(t.title);
+                                      return (
+                                        <div 
+                                          key={t.id} 
+                                          className="flex items-center justify-between p-2 bg-slate-50/50 border border-slate-150 rounded-xl hover:bg-slate-50 transition-all border-l-4"
+                                          style={{ borderLeftColor: 
+                                            taskCat.gradient.includes('teal') ? '#0d9488' : 
+                                            taskCat.gradient.includes('amber') || taskCat.gradient.includes('orange') ? '#ea580c' : 
+                                            taskCat.gradient.includes('sky') || taskCat.gradient.includes('blue') ? '#0284c7' : 
+                                            taskCat.gradient.includes('indigo') ? '#4338ca' : 
+                                            taskCat.gradient.includes('violet') ? '#7c3aed' : 
+                                            taskCat.gradient.includes('emerald') ? '#059669' : 
+                                            '#db2777' 
+                                          }}
+                                        >
+                                          <div className="flex items-center gap-2 min-w-0">
+                                            <div className="w-6 h-6 bg-white border border-slate-200 text-slate-700 rounded-lg flex items-center justify-center text-xs shrink-0 overflow-hidden select-none">
+                                              {t.customIcon ? (
+                                                <img src={t.customIcon} alt="" className="w-full h-full object-cover" />
+                                              ) : (
+                                                t.icon || '📅'
+                                              )}
+                                            </div>
+                                            <div className="min-w-0">
+                                              <p className="text-xxs font-black text-slate-450">{t.time}</p>
+                                              <p className="text-xs font-bold text-slate-700 truncate max-w-[110px]">{t.title}</p>
+                                            </div>
+                                          </div>
+                                          <span className={`text-[9px] font-black px-1.5 py-0.5 rounded-md shrink-0 ${
+                                            t.isCompleted 
+                                              ? 'bg-emerald-50 text-emerald-600 border border-emerald-250' 
+                                              : 'bg-amber-50 text-amber-600 border-amber-250'
+                                          }`}>
+                                            {t.isCompleted ? '✓' : '•'}
+                                          </span>
+                                        </div>
+                                      );
+                                    })
+                                )}
+                              </div>
+                            </div>
+
+                            {/* Action button */}
+                            <button
+                              type="button"
+                              onClick={() => {
+                                playBubble();
+                                setActiveDayFilter(String(dayNum));
+                                setScheduleViewMode('daily');
+                              }}
+                              className="w-full py-2 bg-indigo-50 hover:bg-indigo-150 text-indigo-700 text-xs font-black rounded-2xl border border-indigo-200 transition-all active:scale-95 cursor-pointer text-center mt-2 font-Outfit"
+                            >
+                              Ver Detalhes
+                            </button>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  {/* Monthly View Block */}
+                  {scheduleViewMode === 'monthly' && (
+                    <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-7 gap-3.5">
+                      {Array.from({ length: 31 }, (_, i) => i + 1).map(dayNum => {
+                        const dayTasks = tasks.filter(t => t.day === String(dayNum));
+                        const completedTasks = dayTasks.filter(t => t.isCompleted);
+                        const isSelected = String(dayNum) === activeDayFilter;
+                        const progressPercent = dayTasks.length > 0 ? Math.round((completedTasks.length / dayTasks.length) * 100) : 0;
+                        const taskPreview = dayTasks.slice(0, 2);
+
+                        return (
+                          <button
+                            key={dayNum}
+                            type="button"
+                            onClick={() => {
+                              playBubble();
+                              setActiveDayFilter(String(dayNum));
+                              setScheduleViewMode('daily');
+                            }}
+                            className={`flex flex-col items-center justify-between p-3.5 rounded-2xl border-2 transition-all text-left cursor-pointer active:scale-95 group h-32 ${
+                              isSelected 
+                                ? 'border-indigo-400 bg-indigo-50/15 shadow-sm' 
+                                : 'border-slate-150 bg-white hover:border-slate-300 hover:shadow-sm'
+                            }`}
+                          >
+                            {/* Day Number and Completion Rate */}
+                            <div className="flex justify-between items-start w-full">
+                              <span className={`text-sm font-black font-Outfit ${isSelected ? 'text-indigo-650' : 'text-slate-800'}`}>
+                                Dia {dayNum}
+                              </span>
+                              {dayTasks.length > 0 ? (
+                                <span className={`text-[9px] font-extrabold px-1.5 py-0.5 rounded-full border shrink-0 ${
+                                  progressPercent === 100 
+                                    ? 'bg-emerald-50 text-emerald-600 border-emerald-150' 
+                                    : 'bg-indigo-50 text-indigo-600 border-indigo-150'
+                                }`}>
+                                  {progressPercent}%
+                                </span>
+                              ) : (
+                                <span className="text-[8px] font-bold text-slate-400 uppercase tracking-wider shrink-0 select-none">
+                                  Livre
+                                </span>
+                              )}
+                            </div>
+
+                            {/* Task Emojis Preview */}
+                            <div className="flex gap-1.5 my-2.5 items-center justify-center w-full">
+                              {dayTasks.length === 0 ? (
+                                <span className="text-xs text-slate-350 select-none">🧸</span>
+                              ) : (
+                                taskPreview.map(t => (
+                                  <div 
+                                    key={t.id} 
+                                    title={t.title}
+                                    className="w-7 h-7 bg-slate-50 border border-slate-205 text-slate-700 rounded-lg flex items-center justify-center text-sm shadow-xxs overflow-hidden select-none shrink-0"
+                                  >
+                                    {t.customIcon ? (
+                                      <img src={t.customIcon} alt="" className="w-full h-full object-cover" />
+                                    ) : (
+                                      t.icon || '📅'
+                                    )}
+                                  </div>
+                                ))
+                              )}
+                              {dayTasks.length > 2 && (
+                                <span className="text-[9px] font-black text-slate-450 bg-slate-100 border border-slate-200/80 w-5 h-5 rounded-full flex items-center justify-center shrink-0">
+                                  +{dayTasks.length - 2}
+                                </span>
+                              )}
+                            </div>
+
+                            {/* Bottom Task count and progress bar */}
+                            <div className="w-full">
+                              {dayTasks.length > 0 ? (
+                                <div className="flex flex-col gap-1 w-full">
+                                  <span className="text-[9px] text-slate-450 font-bold block truncate">
+                                    {completedTasks.length}/{dayTasks.length} feitas
+                                  </span>
+                                  <div className="w-full bg-slate-100 rounded-full h-1 overflow-hidden">
+                                    <div 
+                                      className={`h-full rounded-full ${progressPercent === 100 ? 'bg-emerald-500' : 'bg-indigo-650'}`}
+                                      style={{ width: `${progressPercent}%` }}
+                                    />
+                                  </div>
+                                </div>
+                              ) : (
+                                <span className="text-[9px] text-slate-400 italic block font-semibold text-center select-none">
+                                  Sem tarefas
+                                </span>
+                              )}
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
 
                 </div>
               </motion.div>
