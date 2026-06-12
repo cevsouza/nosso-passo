@@ -28,7 +28,9 @@ import {
   Pause,
   Square,
   Map,
-  AlertTriangle
+  AlertTriangle,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 import Link from 'next/link';
 import { SensoryHeatmap } from '../../../components/SensoryHeatmap';
@@ -615,6 +617,21 @@ export default function ParentDashboard() {
 
   // Weekly and Monthly Schedule View Mode State
   const [scheduleViewMode, setScheduleViewMode] = useState<'daily' | 'weekly' | 'monthly'>('daily');
+
+  // Collapsible Sidebar Sections State
+  const [collapsedSections, setCollapsedSections] = useState({
+    emotionalBattery: false, // Default open since it is vital
+    dailyStatus: true,       // Default collapsed
+    profile: true,           // Default collapsed
+    voiceRecorder: true,     // Default collapsed
+    dictionary: true,        // Default collapsed
+    quickActions: true,      // Default collapsed
+  });
+
+  const toggleSection = (section: keyof typeof collapsedSections) => {
+    playBubble();
+    setCollapsedSections(prev => ({ ...prev, [section]: !prev[section] }));
+  };
 
   // Emotional sensory log states
   const [sensoryLogs, setSensoryLogs] = useState<any[]>([]);
@@ -1868,21 +1885,36 @@ export default function ParentDashboard() {
           {/* Active Emotional Battery Card */}
           {activeChild && (
             <div className="bg-white border-2 border-slate-250 rounded-[28px] p-6 shadow-premium flex flex-col gap-4">
-              <div className="flex items-center justify-between">
+              <button
+                type="button"
+                onClick={() => toggleSection('emotionalBattery')}
+                className="w-full flex items-center justify-between text-left cursor-pointer bg-transparent border-none outline-none select-none"
+              >
                 <div className="flex items-center gap-2.5 text-indigo-655">
                   <span className="text-base">🔋</span>
                   <h2 className="font-bold text-slate-900 text-sm font-Outfit uppercase tracking-wider">Energia Emocional</h2>
                 </div>
-                <span className={`text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full font-Outfit ${
-                  activeChild.emotionalBattery === 'green' 
-                    ? 'bg-emerald-100 text-emerald-800' 
-                    : activeChild.emotionalBattery === 'yellow'
-                    ? 'bg-yellow-100 text-yellow-800'
-                    : 'bg-red-100 text-red-805'
-                }`}>
-                  {activeChild.emotionalBattery === 'green' ? 'Ótimo' : activeChild.emotionalBattery === 'yellow' ? 'Cansado' : 'Sobrecarregado'}
-                </span>
-              </div>
+                <div className="flex items-center gap-2">
+                  <span className={`text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full font-Outfit ${
+                    activeChild.emotionalBattery === 'green' 
+                      ? 'bg-emerald-100 text-emerald-800' 
+                      : activeChild.emotionalBattery === 'yellow'
+                      ? 'bg-yellow-100 text-yellow-800'
+                      : 'bg-red-100 text-red-805'
+                  }`}>
+                    {activeChild.emotionalBattery === 'green' ? 'Ótimo' : activeChild.emotionalBattery === 'yellow' ? 'Cansado' : 'Sobrecarregado'}
+                  </span>
+                  {collapsedSections.emotionalBattery ? <ChevronDown className="w-4 h-4 text-slate-400 shrink-0" /> : <ChevronUp className="w-4 h-4 text-slate-400 shrink-0" />}
+                </div>
+              </button>
+
+              {!collapsedSections.emotionalBattery && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="flex flex-col gap-4 border-t border-slate-100 pt-4 w-full"
+                >
               
               <div className="flex items-center justify-center py-2 bg-slate-50 border border-slate-155 rounded-2xl">
                 <span className="text-3xl">
@@ -1909,19 +1941,36 @@ export default function ParentDashboard() {
                   </p>
                 </div>
               )}
+                </motion.div>
+              )}
             </div>
           )}
 
           {/* Daily Status Grid Card */}
           {activeChild && (
             <div className="bg-white border-2 border-slate-250 rounded-[28px] p-6 shadow-premium flex flex-col gap-4">
-              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                <div className="flex items-center gap-2 text-indigo-655">
+              <button
+                type="button"
+                onClick={() => toggleSection('dailyStatus')}
+                className="w-full flex items-center justify-between text-left cursor-pointer bg-transparent border-none outline-none select-none"
+              >
+                <div className="flex items-center gap-2.5 text-indigo-600">
                   <span className="text-base">📅</span>
                   <h2 className="font-bold text-slate-900 text-sm font-Outfit uppercase tracking-wider">Acompanhamento Diário</h2>
                 </div>
-                <span className="text-[9px] font-black text-slate-400 uppercase">Últimos 7 dias</span>
-              </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[9px] font-black text-slate-400 uppercase">Últimos 7 dias</span>
+                  {collapsedSections.dailyStatus ? <ChevronDown className="w-4 h-4 text-slate-400 shrink-0" /> : <ChevronUp className="w-4 h-4 text-slate-400 shrink-0" />}
+                </div>
+              </button>
+
+              {!collapsedSections.dailyStatus && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="flex flex-col gap-4 border-t border-slate-100 pt-4 w-full"
+                >
 
               <div className="flex flex-col gap-3">
                 {(() => {
@@ -1993,15 +2042,35 @@ export default function ParentDashboard() {
                   });
                 })()}
               </div>
+                </motion.div>
+              )}
             </div>
           )}
 
           {/* Child Hyperfocus Profile Card */}
           <div className="bg-white border-2 border-slate-250 rounded-[28px] p-6 shadow-premium flex flex-col gap-4">
-            <div className="flex items-center gap-2.5 text-indigo-600">
-              <Sparkles className="w-5 h-5" />
-              <h2 className="font-bold text-slate-900 text-lg font-Outfit">Perfil da Criança</h2>
-            </div>
+            <button
+              type="button"
+              onClick={() => toggleSection('profile')}
+              className="w-full flex items-center justify-between text-left cursor-pointer bg-transparent border-none outline-none select-none"
+            >
+              <div className="flex items-center gap-2.5 text-indigo-600">
+                <Sparkles className="w-5 h-5" />
+                <h2 className="font-bold text-slate-900 text-lg font-Outfit">Perfil da Criança</h2>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-[9px] font-black text-slate-400 uppercase">Configurações</span>
+                {collapsedSections.profile ? <ChevronDown className="w-4 h-4 text-slate-400 shrink-0" /> : <ChevronUp className="w-4 h-4 text-slate-400 shrink-0" />}
+              </div>
+            </button>
+
+            {!collapsedSections.profile && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                className="flex flex-col gap-4 border-t border-slate-100 pt-4 w-full"
+              >
             
             <form onSubmit={handleSaveProfile} className="flex flex-col gap-3">
               <div>
@@ -2392,18 +2461,38 @@ export default function ParentDashboard() {
                 {mascotLabel.emoji} {mascotLabel.text}
               </span>
             </div>
+            </motion.div>
+          )}
           </div>
 
           {/* Familiar Voice Recorder Card */}
           {activeChild && (
-            <div className="bg-white border-2 border-slate-250 rounded-3xl p-6 shadow-premium flex flex-col gap-4">
-              <div className="flex items-center gap-2.5 text-indigo-600">
-                <Mic className="w-5 h-5 text-indigo-500" />
-                <h2 className="font-bold text-slate-900 text-base font-Outfit">IA de Voz Familiar (Regulação)</h2>
-              </div>
-              <p className="text-[10px] text-slate-500 font-semibold leading-relaxed">
-                Grave avisos de transição com sua voz real para acalmar a criança durante a contagem regressiva da rotina.
-              </p>
+            <div className="bg-white border-2 border-slate-250 rounded-3xl p-6 shadow-premium">
+              <button
+                type="button"
+                onClick={() => toggleSection('voiceRecorder')}
+                className="w-full flex items-center justify-between text-left cursor-pointer bg-transparent border-none outline-none select-none"
+              >
+                <div className="flex items-center gap-2.5 text-indigo-600">
+                  <Mic className="w-5 h-5 text-indigo-500" />
+                  <h2 className="font-bold text-slate-900 text-base font-Outfit">IA de Voz Familiar (Regulação)</h2>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[9px] font-black text-slate-400 uppercase">Gravador de Voz</span>
+                  {collapsedSections.voiceRecorder ? <ChevronDown className="w-4 h-4 text-slate-400 shrink-0" /> : <ChevronUp className="w-4 h-4 text-slate-400 shrink-0" />}
+                </div>
+              </button>
+
+              {!collapsedSections.voiceRecorder && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="flex flex-col gap-4 border-t border-slate-100 pt-4 mt-4 w-full"
+                >
+                  <p className="text-[10px] text-slate-500 font-semibold leading-relaxed">
+                    Grave avisos de transição com sua voz real para acalmar a criança durante a contagem regressiva da rotina.
+                  </p>
 
               <div className="flex flex-col gap-3">
                 {(['audioAlert10', 'audioAlert5', 'audioAlert2'] as const).map((type) => {
@@ -2480,19 +2569,39 @@ export default function ParentDashboard() {
                   );
                 })}
               </div>
+                </motion.div>
+              )}
             </div>
           )}
 
           {/* Behavioral Dictionary CRUD Card */}
           {activeChild && (
-            <div className="bg-white border-2 border-slate-250 rounded-3xl p-6 shadow-premium flex flex-col gap-4 text-left">
-              <div className="flex items-center gap-2.5 text-indigo-600">
-                <span className="text-xl">📖</span>
-                <h2 className="font-bold text-slate-900 text-base font-Outfit">Dicionário Comportamental</h2>
-              </div>
-              <p className="text-[10px] text-slate-500 font-semibold leading-relaxed">
-                Mapeie os sinais corporais da criança, seus significados e a conduta recomendada para mediadores escolares e terapeutas.
-              </p>
+            <div className="bg-white border-2 border-slate-250 rounded-3xl p-6 shadow-premium text-left">
+              <button
+                type="button"
+                onClick={() => toggleSection('dictionary')}
+                className="w-full flex items-center justify-between text-left cursor-pointer bg-transparent border-none outline-none select-none"
+              >
+                <div className="flex items-center gap-2.5 text-indigo-600">
+                  <span className="text-xl">📖</span>
+                  <h2 className="font-bold text-slate-900 text-base font-Outfit">Dicionário Comportamental</h2>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[9px] font-black text-slate-400 uppercase">Guia de Sinais</span>
+                  {collapsedSections.dictionary ? <ChevronDown className="w-4 h-4 text-slate-400 shrink-0" /> : <ChevronUp className="w-4 h-4 text-slate-400 shrink-0" />}
+                </div>
+              </button>
+
+              {!collapsedSections.dictionary && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="flex flex-col gap-4 border-t border-slate-100 pt-4 mt-4 w-full"
+                >
+                  <p className="text-[10px] text-slate-500 font-semibold leading-relaxed">
+                    Mapeie os sinais corporais da criança, seus significados e a conduta recomendada para mediadores escolares e terapeutas.
+                  </p>
 
               {/* List of current signals */}
               <div className="flex flex-col gap-2.5 max-h-[300px] overflow-y-auto pr-1">
@@ -2565,15 +2674,35 @@ export default function ParentDashboard() {
                   ➕ Adicionar Sinal
                 </button>
               </form>
+                </motion.div>
+              )}
             </div>
           )}
 
           {/* Quick Actions Card */}
           <div className="bg-white border-2 border-slate-250 rounded-3xl p-6 shadow-premium">
-            <div className="flex items-center gap-2.5 mb-4 text-indigo-600">
-              <Settings className="w-5 h-5" />
-              <h2 className="font-bold text-slate-900 text-lg font-Outfit">Ações Rápidas</h2>
-            </div>
+            <button
+              type="button"
+              onClick={() => toggleSection('quickActions')}
+              className="w-full flex items-center justify-between text-left cursor-pointer bg-transparent border-none outline-none select-none"
+            >
+              <div className="flex items-center gap-2.5 text-indigo-600">
+                <Settings className="w-5 h-5" />
+                <h2 className="font-bold text-slate-900 text-sm font-Outfit uppercase tracking-wider">Ações Rápidas & Modelos</h2>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-[9px] font-black text-slate-400 uppercase">Restaurar / Modelos</span>
+                {collapsedSections.quickActions ? <ChevronDown className="w-4 h-4 text-slate-400 shrink-0" /> : <ChevronUp className="w-4 h-4 text-slate-400 shrink-0" />}
+              </div>
+            </button>
+
+            {!collapsedSections.quickActions && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                className="flex flex-col gap-4 border-t border-slate-100 pt-4 mt-4 w-full"
+              >
 
             <div className="flex flex-col gap-2">
               <button 
@@ -2631,6 +2760,8 @@ export default function ParentDashboard() {
                 Todas as ações executadas geram registros instantâneos e imutáveis no histórico de segurança para assegurar que rotinas não sejam sobrepostas acidentalmente por outros cuidadores.
               </p>
             </div>
+              </motion.div>
+            )}
           </div>
         </div>
 
