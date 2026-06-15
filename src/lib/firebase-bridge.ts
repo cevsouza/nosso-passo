@@ -58,6 +58,8 @@ export interface Child {
   emergencyFirstThen?: boolean;
   behaviorDictionary?: string | null;
   unexpectedChange?: string | null;
+  aacCustomItems?: string | null;
+  customStories?: string | null;
 }
 
 export interface SensoryLog {

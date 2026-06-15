@@ -155,6 +155,8 @@ export async function PUT(req: Request) {
         emergencyFirstThen: updates.emergencyFirstThen !== undefined ? Boolean(updates.emergencyFirstThen) : undefined,
         behaviorDictionary: updates.behaviorDictionary,
         unexpectedChange: updates.unexpectedChange,
+        aacCustomItems: updates.aacCustomItems,
+        customStories: updates.customStories,
       }
     });
 

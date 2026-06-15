@@ -1931,27 +1931,38 @@ export default function ChildRoutine() {
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 max-h-[380px] overflow-y-auto pr-1">
-              {AAC_ITEMS.map((item, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => {
-                    playBubble();
-                    handleAacClick(item);
-                  }}
-                  className={`p-3.5 flex flex-col items-center justify-center text-center gap-2 rounded-2xl border-2 transition-all active:scale-95 cursor-pointer hover:shadow-md ${
-                    item.alert 
-                      ? 'bg-red-50 border-red-300 hover:bg-red-100 hover:border-red-400 text-red-800' 
-                      : 'bg-emerald-50/30 border-emerald-200 hover:bg-emerald-50 hover:border-emerald-355 text-emerald-950'
-                  }`}
-                >
-                  <span className="text-4.5xl select-none leading-none">
-                    {item.text.match(/\p{Emoji}/gu)?.[0] || '💬'}
-                  </span>
-                  <span className="text-[11px] font-black tracking-tight leading-snug uppercase font-Outfit">
-                    {item.text.replace(/\p{Emoji}/gu, '').trim()}
-                  </span>
-                </button>
-              ))}
+              {(() => {
+                let mergedList = [...AAC_ITEMS];
+                if (activeChild?.aacCustomItems) {
+                  try {
+                    const customItems = JSON.parse(activeChild.aacCustomItems);
+                    if (Array.isArray(customItems)) {
+                      mergedList = [...mergedList, ...customItems];
+                    }
+                  } catch (e) {}
+                }
+                return mergedList.map((item, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => {
+                      playBubble();
+                      handleAacClick(item);
+                    }}
+                    className={`p-3.5 flex flex-col items-center justify-center text-center gap-2 rounded-2xl border-2 transition-all active:scale-95 cursor-pointer hover:shadow-md ${
+                      item.alert 
+                        ? 'bg-red-50 border-red-300 hover:bg-red-100 hover:border-red-400 text-red-800' 
+                        : 'bg-emerald-50/30 border-emerald-200 hover:bg-emerald-50 hover:border-emerald-355 text-emerald-950'
+                    }`}
+                  >
+                    <span className="text-4.5xl select-none leading-none">
+                      {item.text.match(/\p{Emoji}/gu)?.[0] || '💬'}
+                    </span>
+                    <span className="text-[11px] font-black tracking-tight leading-snug uppercase font-Outfit">
+                      {item.text.replace(/\p{Emoji}/gu, '').trim()}
+                    </span>
+                  </button>
+                ));
+              })()}
             </div>
 
             <div className="bg-slate-50 border border-slate-150 p-3.5 rounded-2xl flex gap-2.5 items-center">
@@ -2511,6 +2522,44 @@ export default function ChildRoutine() {
                           </div>
                         </button>
                       ))}
+
+                      {(() => {
+                        if (activeChild?.customStories) {
+                          try {
+                            const parsed = JSON.parse(activeChild.customStories);
+                            if (Array.isArray(parsed) && parsed.length > 0) {
+                              return (
+                                <>
+                                  <div className="text-[10px] font-black uppercase tracking-wider text-rose-500 font-Outfit mt-4 mb-1">
+                                    Criadas pelos Pais 💖
+                                  </div>
+                                  {parsed.map(story => (
+                                    <button
+                                      key={story.id}
+                                      onClick={() => {
+                                        playBubble();
+                                        setSelectedStory(story);
+                                        setCurrentStoryStep(0);
+                                        speakText(story.steps[0].text.replace('[Mascote]', childHyperfocus.split(' ')[0]));
+                                      }}
+                                      className="p-4 bg-slate-50 hover:bg-rose-50/40 hover:border-rose-300 border-2 border-slate-200/80 rounded-2xl transition-all active:scale-98 text-left cursor-pointer flex items-center gap-4 group"
+                                    >
+                                      <div className="w-12 h-12 bg-rose-50 border border-rose-100 rounded-xl flex items-center justify-center text-2xl shadow-xxs shrink-0 group-hover:scale-105 transition-all">
+                                        {story.steps[0]?.img || '📖'}
+                                      </div>
+                                      <div>
+                                        <h4 className="font-extrabold text-sm text-slate-850 font-Outfit group-hover:text-rose-750 transition-all">{story.title}</h4>
+                                        <p className="text-[10px] text-slate-500 font-semibold mt-0.5 leading-normal">{story.desc}</p>
+                                      </div>
+                                    </button>
+                                  ))}
+                                </>
+                              );
+                            }
+                          } catch (e) {}
+                        }
+                        return null;
+                      })()}
                     </div>
                   </div>
                 ) : (
@@ -3876,6 +3925,50 @@ export default function ChildRoutine() {
                         </div>
                       </button>
                     ))}
+
+                    {(() => {
+                      if (activeChild?.customStories) {
+                        try {
+                          const parsed = JSON.parse(activeChild.customStories);
+                          if (Array.isArray(parsed) && parsed.length > 0) {
+                            return (
+                              <>
+                                <span className={`text-[10px] font-black uppercase tracking-wider font-Outfit mt-3 ${sleepMode ? 'text-rose-400' : 'text-rose-500'}`}>
+                                  Criadas pelos Pais 💖
+                                </span>
+                                {parsed.map(story => (
+                                  <button
+                                    key={story.id}
+                                    onClick={() => {
+                                      playBubble();
+                                      setSelectedStory(story);
+                                      setCurrentStoryStep(0);
+                                      speakText(story.steps[0].text.replace('[Mascote]', childHyperfocus.split(' ')[0]));
+                                    }}
+                                    className={`p-4 border-2 rounded-2xl transition-all active:scale-98 text-left cursor-pointer flex items-center gap-4 group ${
+                                      sleepMode 
+                                        ? 'bg-[#121827] hover:bg-rose-950/20 hover:border-rose-900 border-rose-955' 
+                                        : 'bg-slate-50 hover:bg-rose-50/40 hover:border-rose-300 border-slate-200/80'
+                                    }`}
+                                  >
+                                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-2xl shadow-xxs shrink-0 group-hover:scale-105 transition-all ${
+                                      sleepMode ? 'bg-rose-950/20 border border-rose-900/40' : 'bg-rose-50 border border-rose-100'
+                                    }`}>
+                                      {story.steps[0]?.img || '📖'}
+                                    </div>
+                                    <div>
+                                      <h4 className={`font-extrabold text-sm font-Outfit transition-all ${sleepMode ? 'text-rose-205 group-hover:text-rose-305' : 'text-slate-855 group-hover:text-rose-750'}`}>{story.title}</h4>
+                                      <p className={`text-[10px] font-semibold mt-0.5 leading-normal ${sleepMode ? 'text-rose-450' : 'text-slate-500'}`}>{story.desc}</p>
+                                    </div>
+                                  </button>
+                                ))}
+                              </>
+                            );
+                          }
+                        } catch (e) {}
+                      }
+                      return null;
+                    })()}
 
                     <span className="text-[10px] font-black uppercase tracking-wider text-amber-500 font-Outfit mt-3">Histórias do Sono 🌙💤</span>
                     {BEDTIME_STORIES.map(story => (

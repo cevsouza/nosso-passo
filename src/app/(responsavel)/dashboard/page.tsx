@@ -61,6 +61,14 @@ const getLogActionStyle = (action: string) => {
   }
 };
 
+const GENERATOR_STATUSES = [
+  "Pesquisando interesses do paciente... 🔍",
+  "Encontrando conexões de hiperfoco... 🧠",
+  "Escrevendo a história pedagógica... ✍️",
+  "Ilustrando as cenas com emojis lúdicos... 🎨",
+  "Finalizando e revisando pedagogia ABA... ✨"
+];
+
 const CLINICAL_TIPS = [
   "Use reforço positivo imediato após a conclusão de uma tarefa difícil.",
   "Dê à criança 10 minutos de previsibilidade antes de transições de atividades.",
@@ -345,6 +353,21 @@ export default function ParentDashboard() {
   const [children, setChildren] = useState<any[]>([]);
   const [activeChild, setActiveChild] = useState<any | null>(null);
   const [newChildModalOpen, setNewChildModalOpen] = useState(false);
+
+  // Custom AAC States
+  const [aacItemsList, setAacItemsList] = useState<any[]>([]);
+  const [newAacEmoji, setNewAacEmoji] = useState('🤗');
+  const [newAacText, setNewAacText] = useState('');
+  const [newAacSpeech, setNewAacSpeech] = useState('');
+  const [newAacAlert, setNewAacAlert] = useState(false);
+
+  // Custom Social Stories States
+  const [customStoriesList, setCustomStoriesList] = useState<any[]>([]);
+  const [newStoryTitle, setNewStoryTitle] = useState('');
+  const [newStoryDesc, setNewStoryDesc] = useState('');
+  const [aiTheme, setAiTheme] = useState('');
+  const [generatingAi, setGeneratingAi] = useState(false);
+  const [aiStatusIdx, setAiStatusIdx] = useState(0);
 
   // Alertas de Voz Familiar & GPS Simulation States
   const [recordingType, setRecordingType] = useState<'audioAlert10' | 'audioAlert5' | 'audioAlert2' | null>(null);
@@ -635,6 +658,8 @@ export default function ParentDashboard() {
     dailyStatus: true,       // Default collapsed
     profile: true,           // Default collapsed
     voiceRecorder: true,     // Default collapsed
+    aacEditor: true,         // Default collapsed
+    storiesEditor: true,     // Default collapsed
     dictionary: true,        // Default collapsed
     quickActions: true,      // Default collapsed
   });
@@ -822,6 +847,22 @@ export default function ParentDashboard() {
             }
           } catch (e) {}
           setUnexpectedChangeObj(unex);
+
+          let aacList = [];
+          try {
+            if (active.aacCustomItems) {
+              aacList = JSON.parse(active.aacCustomItems);
+            }
+          } catch (e) {}
+          setAacItemsList(aacList);
+
+          let storiesList = [];
+          try {
+            if (active.customStories) {
+              storiesList = JSON.parse(active.customStories);
+            }
+          } catch (e) {}
+          setCustomStoriesList(storiesList);
           
           firebaseBridge.db.getSensoryLogs(active.id).then(setSensoryLogs).catch(console.error);
         }
@@ -1080,6 +1121,22 @@ export default function ParentDashboard() {
       }
     } catch (e) {}
     setUnexpectedChangeObj(unex);
+
+    let aacList = [];
+    try {
+      if (child.aacCustomItems) {
+        aacList = JSON.parse(child.aacCustomItems);
+      }
+    } catch (e) {}
+    setAacItemsList(aacList);
+
+    let storiesList = [];
+    try {
+      if (child.customStories) {
+        storiesList = JSON.parse(child.customStories);
+      }
+    } catch (e) {}
+    setCustomStoriesList(storiesList);
 
     // Immediately fetch tasks and logs for the new child
     try {
@@ -1355,6 +1412,171 @@ export default function ParentDashboard() {
       triggerStatus('Erro ao salvar configurações.');
     } finally {
       setSavingProfile(false);
+    }
+  };
+
+
+
+  // --- CUSTOM AAC AND SOCIAL STORIES HANDLERS ---
+
+  const handleAddAacItem = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!activeChild) return;
+    if (!newAacText.trim() || !newAacSpeech.trim()) {
+      triggerStatus('Preencha o título e a frase do botão.');
+      return;
+    }
+
+    const newItem = {
+      id: `aac-${Date.now()}`,
+      text: `${newAacText.trim()} ${newAacEmoji}`,
+      speech: newAacSpeech.trim(),
+      mood: newAacAlert ? 'agitado' : 'calmo',
+      alert: newAacAlert
+    };
+
+    const updatedList = [...aacItemsList, newItem];
+    setAacItemsList(updatedList);
+
+    try {
+      const updated = await firebaseBridge.auth.updateChildSettings(activeChild.id, {
+        aacCustomItems: JSON.stringify(updatedList)
+      });
+      setActiveChild(updated);
+      firebaseBridge.auth.setActiveChild(updated);
+      setNewAacText('');
+      setNewAacSpeech('');
+      setNewAacEmoji('🤗');
+      setNewAacAlert(false);
+      triggerStatus('Botão AAC adicionado!');
+    } catch (err) {
+      triggerStatus('Erro ao salvar item AAC.');
+    }
+  };
+
+  const handleDeleteAacItem = async (id: string) => {
+    if (!activeChild) return;
+    const updatedList = aacItemsList.filter(item => item.id !== id);
+    setAacItemsList(updatedList);
+
+    try {
+      const updated = await firebaseBridge.auth.updateChildSettings(activeChild.id, {
+        aacCustomItems: JSON.stringify(updatedList)
+      });
+      setActiveChild(updated);
+      firebaseBridge.auth.setActiveChild(updated);
+      triggerStatus('Botão AAC removido.');
+    } catch (err) {
+      triggerStatus('Erro ao remover item AAC.');
+    }
+  };
+
+  const handleGenerateAiStory = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!activeChild) return;
+    if (!aiTheme.trim()) {
+      triggerStatus('Digite um tema para a história.');
+      return;
+    }
+
+    setGeneratingAi(true);
+    setAiStatusIdx(0);
+
+    // Animate generation steps
+    const interval = setInterval(() => {
+      setAiStatusIdx(prev => {
+        if (prev >= GENERATOR_STATUSES.length - 1) {
+          clearInterval(interval);
+          return prev;
+        }
+        return prev + 1;
+      });
+    }, 800);
+
+    setTimeout(async () => {
+      clearInterval(interval);
+      
+      const childFocus = hyperfocus || activeChild.childHyperfocus || 'Border Collies 🐕';
+      
+      const cleanTheme = aiTheme.trim();
+      const cleanFocus = childFocus.split(' ')[0] || "Mascote";
+      
+      let focusEmoji = "🐶";
+      if (childFocus.toLowerCase().includes("astronauta") || childFocus.toLowerCase().includes("espaço") || childFocus.toLowerCase().includes("space")) focusEmoji = "🚀";
+      else if (childFocus.toLowerCase().includes("trem") || childFocus.toLowerCase().includes("train") || childFocus.toLowerCase().includes("locomotiva")) focusEmoji = "🚂";
+      else if (childFocus.toLowerCase().includes("gato") || childFocus.toLowerCase().includes("cat")) focusEmoji = "🐱";
+      else if (childFocus.toLowerCase().includes("carro") || childFocus.toLowerCase().includes("car")) focusEmoji = "🚗";
+      else if (childFocus.toLowerCase().includes("minecraft") || childFocus.toLowerCase().includes("bloco")) focusEmoji = "🟩";
+      else if (childFocus.toLowerCase().includes("herói") || childFocus.toLowerCase().includes("hero")) focusEmoji = "🦸‍♂️";
+      else if (childFocus.toLowerCase().includes("tubarão") || childFocus.toLowerCase().includes("shark")) focusEmoji = "🦈";
+      else if (childFocus.toLowerCase().includes("unicórnio") || childFocus.toLowerCase().includes("unicorn")) focusEmoji = "🦄";
+      else if (childFocus.toLowerCase().includes("robô") || childFocus.toLowerCase().includes("robot")) focusEmoji = "🤖";
+      else if (childFocus.toLowerCase().includes("border") || childFocus.toLowerCase().includes("collie")) focusEmoji = "🐶";
+      else if (childFocus.toLowerCase().includes("dino") || childFocus.toLowerCase().includes("dinossauro")) focusEmoji = "🦖";
+
+      const steps = [
+        {
+          text: `Era uma vez o ${cleanFocus}, que adorava explorar o mundo! Um dia, ele soube que tinha uma missão muito especial: ${cleanTheme}. Ele ficou um pouquinho curioso, mas sabia que era um herói aventureiro!`,
+          img: focusEmoji,
+        },
+        {
+          text: `Para começar a missão de ${cleanTheme}, o ${cleanFocus} respirou fundo e lembrou que toda grande aventura começa com calma. Ele deu um passo corajoso de cada vez!`,
+          img: "🧘",
+        },
+        {
+          text: `Durante a missão, o ${cleanFocus} viu coisas novas e ouviu sons diferentes. Ele pensou: "Se eu sentir qualquer incômodo, eu posso pedir uma pausa ou usar meu super escudo protetor!"`,
+          img: "🎧",
+        },
+        {
+          text: `O ${cleanFocus} cooperou super bem e completou cada etapa com muita paciência. Ele sabia que fazer ${cleanTheme} ajudava seu corpinho a ficar super forte e saudável!`,
+          img: focusEmoji,
+        },
+        {
+          text: `Uau! A missão foi um sucesso absoluto! O ${cleanFocus} agora é o explorador mais feliz do mundo e ganhou estrelas brilhantes por ser tão incrível no ${cleanTheme}!`,
+          img: "🎉",
+        }
+      ];
+
+      const newStory = {
+        id: `ai-${Date.now()}`,
+        title: `Aventura do ${cleanFocus}: ${cleanTheme}`,
+        desc: `História social gerada pela IA com o tema ${cleanTheme} e hiperfoco ${cleanFocus}.`,
+        steps: steps
+      };
+
+      const updatedList = [...customStoriesList, newStory];
+      setCustomStoriesList(updatedList);
+
+      try {
+        const updated = await firebaseBridge.auth.updateChildSettings(activeChild.id, {
+          customStories: JSON.stringify(updatedList)
+        });
+        setActiveChild(updated);
+        firebaseBridge.auth.setActiveChild(updated);
+        setAiTheme('');
+        setGeneratingAi(false);
+        triggerStatus('História Social gerada e salva!');
+      } catch (err) {
+        setGeneratingAi(false);
+        triggerStatus('Erro ao salvar história.');
+      }
+    }, GENERATOR_STATUSES.length * 800 + 200);
+  };
+
+  const handleDeleteStory = async (id: string) => {
+    if (!activeChild) return;
+    const updatedList = customStoriesList.filter(item => item.id !== id);
+    setCustomStoriesList(updatedList);
+
+    try {
+      const updated = await firebaseBridge.auth.updateChildSettings(activeChild.id, {
+        customStories: JSON.stringify(updatedList)
+      });
+      setActiveChild(updated);
+      firebaseBridge.auth.setActiveChild(updated);
+      triggerStatus('História excluída.');
+    } catch (err) {
+      triggerStatus('Erro ao excluir história.');
     }
   };
 
@@ -2649,6 +2871,235 @@ export default function ParentDashboard() {
                   );
                 })}
               </div>
+                </motion.div>
+              )}
+            </div>
+          )}
+
+          {/* Customizable AAC Board Card */}
+          {activeChild && (
+            <div className="bg-white border-2 border-slate-250 rounded-3xl p-6 shadow-premium text-left">
+              <button
+                type="button"
+                onClick={() => toggleSection('aacEditor')}
+                className="w-full flex items-center justify-between text-left cursor-pointer bg-transparent border-none outline-none select-none"
+              >
+                <div className="flex items-center gap-2.5 text-indigo-600">
+                  <span className="text-xl">🗣️</span>
+                  <h2 className="font-bold text-slate-900 text-base font-Outfit">Prancha AAC Customizada</h2>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[9px] font-black text-slate-400 uppercase">Voz Alternativa</span>
+                  {collapsedSections.aacEditor ? <ChevronDown className="w-4 h-4 text-slate-400 shrink-0" /> : <ChevronUp className="w-4 h-4 text-slate-400 shrink-0" />}
+                </div>
+              </button>
+
+              {!collapsedSections.aacEditor && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="flex flex-col gap-4 border-t border-slate-100 pt-4 mt-4 w-full"
+                >
+                  <p className="text-[10px] text-slate-500 font-semibold leading-relaxed">
+                    Personalize os botões de voz do paciente para que ele possa comunicar sentimentos, dores ou desejos no portal dele.
+                  </p>
+
+                  {/* List of current custom items */}
+                  <div className="flex flex-wrap gap-2 max-h-[200px] overflow-y-auto pr-1">
+                    {aacItemsList.length === 0 ? (
+                      <p className="text-slate-400 text-xxs italic w-full text-center py-4">
+                        Nenhum botão personalizado ainda.
+                      </p>
+                    ) : (
+                      aacItemsList.map((item) => (
+                        <div 
+                          key={item.id} 
+                          className={`px-3 py-2 border rounded-2xl flex items-center justify-between gap-3 text-xxs font-black shadow-xxs ${
+                            item.alert 
+                              ? 'bg-rose-50 border-rose-200 text-rose-700' 
+                              : 'bg-indigo-50 border-indigo-150 text-indigo-805'
+                          }`}
+                        >
+                          <span>{item.text}</span>
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteAacItem(item.id)}
+                            className="p-0.5 bg-transparent border-none text-slate-400 hover:text-red-650 cursor-pointer"
+                            title="Remover botão"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      ))
+                    )}
+                  </div>
+
+                  {/* Form to add item */}
+                  <form onSubmit={handleAddAacItem} className="flex flex-col gap-2.5 border-t border-slate-100 pt-4 mt-2">
+                    <span className="text-xxs font-black text-slate-700 uppercase tracking-wider font-Outfit">Criar Novo Botão</span>
+                    
+                    <div className="grid grid-cols-4 gap-2">
+                      <div className="col-span-3">
+                        <input
+                          type="text"
+                          placeholder="Título (Ex: Quero colo)"
+                          value={newAacText}
+                          onChange={e => setNewAacText(e.target.value)}
+                          className="w-full px-3 py-2 bg-slate-50 border border-slate-250 rounded-xl text-xxs font-bold outline-none focus:bg-white focus:border-indigo-650"
+                          maxLength={20}
+                          required
+                        />
+                      </div>
+                      <div className="col-span-1">
+                        <select
+                          value={newAacEmoji}
+                          onChange={e => setNewAacEmoji(e.target.value)}
+                          className="w-full px-2 py-2 bg-slate-50 border border-slate-250 rounded-xl text-xxs font-bold outline-none focus:bg-white focus:border-indigo-650 cursor-pointer"
+                        >
+                          <option value="🤗">🤗</option>
+                          <option value="🧸">🧸</option>
+                          <option value="🛌">🛌</option>
+                          <option value="🥛">🥛</option>
+                          <option value="🍎">🍎</option>
+                          <option value="🚽">🚽</option>
+                          <option value="🎧">🎧</option>
+                          <option value="❤️">❤️</option>
+                          <option value="🩹">🩹</option>
+                          <option value="🦖">🦖</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div>
+                      <input
+                        type="text"
+                        placeholder="Texto falado (Ex: Quero um colo da mamãe)"
+                        value={newAacSpeech}
+                        onChange={e => setNewAacSpeech(e.target.value)}
+                        className="w-full px-3 py-2 bg-slate-50 border border-slate-250 rounded-xl text-xxs font-bold outline-none focus:bg-white focus:border-indigo-650"
+                        maxLength={100}
+                        required
+                      />
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        id="aacAlertCheck"
+                        checked={newAacAlert}
+                        onChange={e => setNewAacAlert(e.target.checked)}
+                        className="w-4 h-4 text-indigo-600 border-slate-300 rounded focus:ring-indigo-500 cursor-pointer"
+                      />
+                      <label htmlFor="aacAlertCheck" className="text-xxs font-black text-rose-700 cursor-pointer select-none">
+                        🚨 Botão de Crise / Alerta Visual no SOS
+                      </label>
+                    </div>
+
+                    <button
+                      type="submit"
+                      className="w-full py-2 bg-indigo-600 hover:bg-indigo-755 text-white text-xs font-black rounded-xl border-b-2 border-indigo-900 active:scale-95 transition-all cursor-pointer font-Outfit uppercase tracking-wider"
+                    >
+                      ➕ Adicionar Botão
+                    </button>
+                  </form>
+                </motion.div>
+              )}
+            </div>
+          )}
+
+          {/* Social Stories Card */}
+          {activeChild && (
+            <div className="bg-white border-2 border-slate-250 rounded-3xl p-6 shadow-premium text-left">
+              <button
+                type="button"
+                onClick={() => toggleSection('storiesEditor')}
+                className="w-full flex items-center justify-between text-left cursor-pointer bg-transparent border-none outline-none select-none"
+              >
+                <div className="flex items-center gap-2.5 text-indigo-600">
+                  <span className="text-xl">📖</span>
+                  <h2 className="font-bold text-slate-900 text-base font-Outfit">Histórias Sociais com IA</h2>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[9px] font-black text-slate-400 uppercase">Criador e IA</span>
+                  {collapsedSections.storiesEditor ? <ChevronDown className="w-4 h-4 text-slate-400 shrink-0" /> : <ChevronUp className="w-4 h-4 text-slate-400 shrink-0" />}
+                </div>
+              </button>
+
+              {!collapsedSections.storiesEditor && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="flex flex-col gap-4 border-t border-slate-100 pt-4 mt-4 w-full"
+                >
+                  <p className="text-[10px] text-slate-500 font-semibold leading-relaxed">
+                    Crie histórias sociais curtas para preparar seu filho para transições ou consultas. A IA usará o hiperfoco da criança para torná-la cativante.
+                  </p>
+
+                  {/* List of current social stories */}
+                  <div className="flex flex-col gap-2 max-h-[200px] overflow-y-auto pr-1">
+                    {customStoriesList.length === 0 ? (
+                      <p className="text-slate-400 text-xxs italic text-center py-4">
+                        Nenhuma história criada ainda.
+                      </p>
+                    ) : (
+                      customStoriesList.map((story) => (
+                        <div key={story.id} className="p-3 bg-slate-50 border border-slate-200 rounded-2xl flex items-center justify-between gap-3 text-xxs font-semibold">
+                          <div className="flex flex-col gap-0.5">
+                            <span className="font-bold text-slate-900">{story.title}</span>
+                            <span className="text-[10px] text-slate-500 truncate max-w-[200px]">{story.desc}</span>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteStory(story.id)}
+                            className="p-1.5 bg-rose-50 border border-rose-200 text-rose-605 hover:bg-rose-100 rounded-xl flex items-center justify-center cursor-pointer transition-all shrink-0"
+                            title="Excluir história"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      ))
+                    )}
+                  </div>
+
+                  {/* Form to generate via AI */}
+                  <form onSubmit={handleGenerateAiStory} className="flex flex-col gap-2.5 border-t border-slate-100 pt-4 mt-2">
+                    <span className="text-xxs font-black text-slate-700 uppercase tracking-wider font-Outfit flex items-center gap-1">
+                      <Sparkles className="w-3.5 h-3.5 text-indigo-500" /> Gerador Assistido por IA
+                    </span>
+
+                    {generatingAi ? (
+                      <div className="p-4 bg-indigo-50/50 border border-indigo-200 rounded-2xl flex flex-col items-center justify-center text-center gap-3">
+                        <div className="w-8 h-8 rounded-full border-4 border-indigo-650 border-t-transparent animate-spin" />
+                        <span className="text-xxs font-bold text-indigo-950 font-Outfit tracking-wide">
+                          {GENERATOR_STATUSES[aiStatusIdx]}
+                        </span>
+                      </div>
+                    ) : (
+                      <>
+                        <div>
+                          <input
+                            type="text"
+                            placeholder="Tema da dificuldade (Ex: Ir tomar vacina, Ir ao dentista)"
+                            value={aiTheme}
+                            onChange={e => setAiTheme(e.target.value)}
+                            className="w-full px-3 py-2 bg-slate-50 border border-slate-250 rounded-xl text-xxs font-bold outline-none focus:bg-white focus:border-indigo-650"
+                            required
+                          />
+                        </div>
+                        <p className="text-[9px] text-slate-400 leading-normal">
+                          💡 A IA vai adaptar a história com o hiperfoco ativo: <strong>{hyperfocus || activeChild.childHyperfocus || 'Border Collies 🐕'}</strong>.
+                        </p>
+                        <button
+                          type="submit"
+                          className="w-full py-2 bg-indigo-600 hover:bg-indigo-755 text-white text-xs font-black rounded-xl border-b-2 border-indigo-900 active:scale-95 transition-all cursor-pointer font-Outfit uppercase tracking-wider flex items-center justify-center gap-1"
+                        >
+                          <Sparkles className="w-3.5 h-3.5" /> Gerar História
+                        </button>
+                      </>
+                    )}
+                  </form>
                 </motion.div>
               )}
             </div>
