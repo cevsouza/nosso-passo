@@ -618,6 +618,17 @@ export default function ParentDashboard() {
   // Weekly and Monthly Schedule View Mode State
   const [scheduleViewMode, setScheduleViewMode] = useState<'daily' | 'weekly' | 'monthly'>('daily');
 
+  // Onboarding help state
+  const [showOnboardingHelp, setShowOnboardingHelp] = useState(true);
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('showOnboardingHelp');
+      if (stored === 'false') {
+        setShowOnboardingHelp(false);
+      }
+    }
+  }, []);
+
   // Collapsible Sidebar Sections State
   const [collapsedSections, setCollapsedSections] = useState({
     emotionalBattery: false, // Default open since it is vital
@@ -682,6 +693,7 @@ export default function ParentDashboard() {
   
   // UI states
   const [formOpen, setFormOpen] = useState(false);
+  const [formStep, setFormStep] = useState<1 | 2>(1);
   const [savingProfile, setSavingProfile] = useState(false);
   const [statusMessage, setStatusMessage] = useState('');
 
@@ -1241,6 +1253,7 @@ export default function ParentDashboard() {
       setTaskDuration(30);
       setTaskDescription('');
       setFormOpen(false);
+      setFormStep(1);
       triggerStatus('Tarefa adicionada com sucesso!');
     } catch (err) {
       triggerStatus('Erro ao adicionar tarefa.');
@@ -1872,6 +1885,73 @@ export default function ParentDashboard() {
               >
                 Limpar Feed
               </button>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Educational Clinical Onboarding & Help Widget */}
+      <AnimatePresence>
+        {activeChild && showOnboardingHelp && (
+          <div className="max-w-6xl mx-auto px-4 md:px-6 mt-6">
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="bg-white border-2 border-indigo-250 p-6 rounded-[28px] shadow-premium relative overflow-hidden"
+            >
+              {/* Background gradient hint */}
+              <div className="absolute top-0 inset-x-0 h-2 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"></div>
+              
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <span className="text-3xl animate-pulse">🎓</span>
+                  <div>
+                    <h2 className="text-lg font-black text-slate-900 font-Outfit">Guia de Mediação Clínica e Rotina</h2>
+                    <p className="text-xs text-slate-500 font-semibold mt-0.5">
+                      Entenda como estruturar um ambiente previsível e sensorialmente seguro para o seu filho.
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => {
+                    playBubble();
+                    setShowOnboardingHelp(false);
+                    localStorage.setItem('showOnboardingHelp', 'false');
+                  }}
+                  className="text-[10px] font-black text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100/60 px-3 py-1.5 rounded-xl transition-all cursor-pointer border-none font-Outfit uppercase tracking-wider"
+                  title="Ocultar guia de onboarding permanentemente"
+                >
+                  Entendi, Ocultar ×
+                </button>
+              </div>
+
+              {/* Grid with 3 columns describing clinical benefits */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6 pt-5 border-t border-slate-100">
+                <div className="flex flex-col gap-2 p-4 rounded-2xl bg-indigo-50/40 border border-indigo-100">
+                  <span className="text-xl">📅</span>
+                  <h3 className="text-xs font-black text-slate-900 font-Outfit uppercase tracking-wider">1. Previsibilidade & Ansiedade</h3>
+                  <p className="text-[10px] text-slate-600 font-semibold leading-relaxed">
+                    Crianças no espectro TEA ou com TDAH beneficiam-se muito da previsibilidade. Rotinas visuais bem estruturadas reduzem a carga cognitiva do lobo frontal, diminuindo o estresse e prevenindo crises de desregulação emocional.
+                  </p>
+                </div>
+
+                <div className="flex flex-col gap-2 p-4 rounded-2xl bg-emerald-50/40 border border-emerald-100">
+                  <span className="text-xl">🧠</span>
+                  <h3 className="text-xs font-black text-slate-900 font-Outfit uppercase tracking-wider">2. Ajuste Sensorial Fino</h3>
+                  <p className="text-[10px] text-slate-600 font-semibold leading-relaxed">
+                    O processamento sensorial varia de acordo com o estado do dia. Ajustar a velocidade da voz do mascote (TTS) e o nível de estímulo visual (rich ou minimal) permite criar uma interface adaptável e acolhedora de acordo com a fadiga do dia.
+                  </p>
+                </div>
+
+                <div className="flex flex-col gap-2 p-4 rounded-2xl bg-amber-50/40 border border-amber-100">
+                  <span className="text-xl">🤝</span>
+                  <h3 className="text-xs font-black text-slate-900 font-Outfit uppercase tracking-wider">3. Sintonia Escola-Terapia</h3>
+                  <p className="text-[10px] text-slate-600 font-semibold leading-relaxed">
+                    Quando a escola, os pais e a equipe terapêutica usam o mesmo <strong>Dicionário Comportamental</strong>, as respostas aos comportamentos da criança tornam-se consistentes. Isso gera estabilidade e reforça a segurança social do indivíduo.
+                  </p>
+                </div>
+              </div>
             </motion.div>
           </div>
         )}
@@ -3048,7 +3128,6 @@ export default function ParentDashboard() {
 
                   {scheduleViewMode === 'daily' && (
                     <>
-                      {/* Progress Bar & Rate in real-time */}
                   {(() => {
                     const activeDayTasks = tasks.filter(t => t.day === activeDayFilter);
                     const completedActiveDayTasks = activeDayTasks.filter(t => t.isCompleted);
@@ -3086,7 +3165,7 @@ export default function ParentDashboard() {
                         <button
                           key={idx}
                           onClick={() => handleAddPreset(preset)}
-                          className="px-3.5 py-2.5 bg-slate-50 hover:bg-indigo-50/50 hover:border-indigo-250 border border-slate-200 text-slate-700 hover:text-indigo-700 text-xs font-black rounded-2xl transition-all shrink-0 active:scale-95 shadow-xxs flex items-center gap-1.5 cursor-pointer"
+                          className="px-3.5 py-2.5 bg-slate-50 hover:bg-indigo-50/50 hover:border-indigo-250 border border-slate-200 text-slate-707 hover:text-indigo-700 text-xs font-black rounded-2xl transition-all shrink-0 active:scale-95 shadow-xxs flex items-center gap-1.5 cursor-pointer"
                         >
                           <Plus className="w-3.5 h-3.5 text-indigo-500" /> {preset.title}
                         </button>
@@ -3104,169 +3183,258 @@ export default function ParentDashboard() {
                         onSubmit={handleAddTask}
                         className="bg-slate-50 border border-slate-200 p-5 rounded-2xl overflow-hidden flex flex-col gap-4"
                       >
-                        <h4 className="font-bold text-xs text-slate-600 uppercase tracking-wider">Nova Tarefa</h4>
-                        
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div>
-                            <label className="block text-xxs font-bold text-slate-500 uppercase mb-1">Título da Atividade</label>
-                            <input
-                              type="text"
-                              required
-                              value={title}
-                              onChange={e => setTitle(e.target.value)}
-                              placeholder="Ex: Escovar os dentes 🪥"
-                              className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-700 placeholder-slate-400 outline-none text-sm"
-                            />
-                          </div>
-
-                          <div className="grid grid-cols-2 gap-3">
-                            <div>
-                              <label className="block text-xxs font-bold text-slate-500 uppercase mb-1">Horário (Previsão)</label>
-                              <div className="relative">
-                                <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                                <input
-                                  type="time"
-                                  required
-                                  value={time}
-                                  onChange={e => setTime(e.target.value)}
-                                  className="w-full pl-9 pr-3 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-700 outline-none text-sm"
-                                />
-                              </div>
-                            </div>
-                            
-                            <div>
-                              <label className="block text-xxs font-bold text-slate-500 uppercase mb-1">Período</label>
-                              <select
-                                value={period}
-                                onChange={e => setPeriod(e.target.value as any)}
-                                className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-700 outline-none text-sm"
-                              >
-                                <option value="manhã">Manhã</option>
-                                <option value="tarde">Tarde</option>
-                                <option value="noite">Noite</option>
-                              </select>
-                            </div>
+                        <div className="flex items-center justify-between border-b border-slate-200/60 pb-3 mb-1">
+                          <h4 className="font-bold text-xs text-slate-605 uppercase tracking-wider font-Outfit">Nova Tarefa</h4>
+                          
+                          {/* Step Indicators */}
+                          <div className="flex items-center gap-1.5">
+                            <span className={`px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-wider font-Outfit transition-all ${
+                              formStep === 1 ? 'bg-indigo-600 text-white shadow-xxs' : 'bg-slate-200 text-slate-500'
+                            }`}>
+                              1. Identificação
+                            </span>
+                            <span className="text-slate-355 text-[10px] select-none">➔</span>
+                            <span className={`px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-wider font-Outfit transition-all ${
+                              formStep === 2 ? 'bg-indigo-600 text-white shadow-xxs' : 'bg-slate-200 text-slate-500'
+                            }`}>
+                              2. Didática & PECS
+                            </span>
                           </div>
                         </div>
 
-                        {/* Duration and Description Inputs */}
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 border-t border-slate-200/60 pt-3 mt-1">
-                          <div className="md:col-span-1">
-                            <label className="block text-xxs font-bold text-slate-500 uppercase mb-1">Duração (Minutos)</label>
-                            <input
-                              type="number"
-                              min={1}
-                              max={240}
-                              required
-                              value={taskDuration}
-                              onChange={e => setTaskDuration(parseInt(e.target.value) || 30)}
-                              className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-700 outline-none text-sm font-bold"
-                            />
-                          </div>
-                          <div className="md:col-span-2">
-                            <label className="block text-xxs font-bold text-slate-500 uppercase mb-1">Descrição Detalhada / Instruções (Opcional)</label>
-                            <input
-                              type="text"
-                              value={taskDescription}
-                              onChange={e => setTaskDescription(e.target.value)}
-                              placeholder="Ex: Escove com movimentos circulares, use pouca pasta..."
-                              className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-700 placeholder-slate-400 outline-none text-sm"
-                            />
-                          </div>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-1 border-t border-slate-200/60 pt-3">
-                          <div>
-                            <label className="block text-xxs font-bold text-slate-500 uppercase mb-1">Domínio da Atividade (Categoria)</label>
-                            <select
-                              value={taskCategory}
-                              onChange={e => setTaskCategory(e.target.value as any)}
-                              className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-700 outline-none text-sm font-bold cursor-pointer"
-                            >
-                              <option value="AVD">AVD (Vida Diária) 🧼</option>
-                              <option value="Aprendizado">Aprendizado 📚</option>
-                              <option value="Lazer">Lazer 🧸</option>
-                            </select>
-                          </div>
-                          <div>
-                            <label className="block text-xxs font-bold text-slate-500 uppercase mb-1">Cartão PECS (Ícone): {taskIcon}</label>
-                            <div className="flex flex-wrap gap-1.5 p-2 bg-white border border-slate-200 rounded-xl max-h-[82px] overflow-y-auto">
-                              {['🪥', '🍞', '🏫', '🍲', '🧸', '🛌', '🚶', '🚿', '📚', '🐶', '🍕', '🧼', '🎨', '⚽', '🧘', '🦷', '🍎', '💤', '🧴', '👕'].map(emoji => (
-                                <button
-                                  type="button"
-                                  key={emoji}
-                                  onClick={() => setTaskIcon(emoji)}
-                                  className={`w-7 h-7 rounded-lg text-sm flex items-center justify-center transition-all cursor-pointer ${
-                                    taskIcon === emoji ? 'bg-indigo-650 text-white' : 'bg-slate-50 hover:bg-slate-100 text-slate-700'
-                                  }`}
-                                >
-                                  {emoji}
-                                </button>
-                              ))}
-                            </div>
-                            <div className="mt-2.5">
-                              <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Ou Foto Real do Pertence (PECS Customizado)</label>
-                              <div className="flex gap-2 items-center">
-                                <input
-                                  type="file"
-                                  accept="image/*"
-                                  onChange={e => handleFileChange(e, false)}
-                                  className="hidden"
-                                  id="task-file-upload"
-                                />
-                                <label
-                                  htmlFor="task-file-upload"
-                                  className="px-2.5 py-1.5 bg-indigo-50 border border-indigo-250 text-indigo-700 rounded-xl text-[10px] font-black hover:bg-indigo-100/50 cursor-pointer shadow-xxs transition-all flex items-center gap-1 shrink-0"
-                                >
-                                  📷 Upload
-                                </label>
+                        {/* STEP 1: Basic Identification */}
+                        {formStep === 1 && (
+                          <div className="flex flex-col gap-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <div>
+                                <label className="block text-xxs font-bold text-slate-500 uppercase mb-1">Título da Atividade</label>
                                 <input
                                   type="text"
-                                  placeholder="Ou cole a URL da imagem..."
-                                  value={taskCustomIcon}
-                                  onChange={e => setTaskCustomIcon(e.target.value)}
-                                  className="flex-1 px-2.5 py-1.5 bg-white border border-slate-200 rounded-xl text-slate-700 outline-none text-[10px] font-semibold focus:border-indigo-400"
+                                  required
+                                  value={title}
+                                  onChange={e => setTitle(e.target.value)}
+                                  placeholder="Ex: Escovar os dentes 🪥"
+                                  className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-755 placeholder-slate-400 outline-none text-sm font-semibold"
                                 />
-                                {taskCustomIcon && (
-                                  <button
-                                    type="button"
-                                    onClick={() => setTaskCustomIcon('')}
-                                    className="text-red-500 text-[10px] font-black cursor-pointer hover:underline"
-                                  >
-                                    Limpar
-                                  </button>
-                                )}
                               </div>
-                              {taskCustomIcon && (
-                                <div className="mt-2 flex items-center gap-2">
-                                  <span className="text-[9px] text-slate-400 font-semibold">Pré-visualização:</span>
-                                  <div className="w-8 h-8 border border-slate-200 rounded-lg overflow-hidden flex items-center justify-center bg-slate-50 shadow-xxs">
-                                    <img src={taskCustomIcon} alt="Preview" className="w-full h-full object-cover" />
+
+                              <div className="grid grid-cols-2 gap-3">
+                                <div>
+                                  <label className="block text-xxs font-bold text-slate-500 uppercase mb-1">Horário (Previsão)</label>
+                                  <div className="relative">
+                                    <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                                    <input
+                                      type="time"
+                                      required
+                                      value={time}
+                                      onChange={e => setTime(e.target.value)}
+                                      className="w-full pl-9 pr-3 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-705 outline-none text-sm font-bold"
+                                    />
                                   </div>
                                 </div>
-                              )}
+                                
+                                <div>
+                                  <label className="block text-xxs font-bold text-slate-500 uppercase mb-1">Período</label>
+                                  <select
+                                    value={period}
+                                    onChange={e => setPeriod(e.target.value as any)}
+                                    className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-705 outline-none text-sm font-bold cursor-pointer"
+                                  >
+                                    <option value="manhã">Manhã ☀️</option>
+                                    <option value="tarde">Tarde ⛅</option>
+                                    <option value="noite">Noite 🌙</option>
+                                  </select>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-slate-200/60 pt-3">
+                              <div>
+                                <label className="block text-xxs font-bold text-slate-500 uppercase mb-1">Domínio da Atividade (Categoria)</label>
+                                <select
+                                  value={taskCategory}
+                                  onChange={e => setTaskCategory(e.target.value as any)}
+                                  className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-705 outline-none text-sm font-bold cursor-pointer"
+                                >
+                                  <option value="AVD">AVD (Vida Diária) 🧼</option>
+                                  <option value="Aprendizado">Aprendizado 📚</option>
+                                  <option value="Lazer">Lazer 🧸</option>
+                                </select>
+                              </div>
+                            </div>
+
+                            <div className="flex gap-3 mt-2 self-end">
+                              <button
+                                type="button"
+                                onClick={() => { playBubble(); setFormOpen(false); }}
+                                className="px-4 py-2.5 bg-slate-200 text-slate-600 text-xs font-bold rounded-xl active:scale-95 cursor-pointer font-Outfit uppercase tracking-wider text-[10px]"
+                              >
+                                Cancelar
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  playBubble();
+                                  if (title.trim() && time) {
+                                    setFormStep(2);
+                                  }
+                                }}
+                                disabled={!title.trim() || !time}
+                                className="px-5 py-2.5 bg-indigo-650 text-white text-xs font-bold rounded-xl shadow-sm hover:bg-indigo-700 active:scale-95 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed cursor-pointer font-Outfit uppercase tracking-wider text-[10px]"
+                              >
+                                Próximo Passo →
+                              </button>
                             </div>
                           </div>
-                        </div>
+                        )}
 
-                        <div className="flex gap-3 mt-2 self-end">
-                          <button
-                            type="button"
-                            onClick={() => { playBubble(); setFormOpen(false); }}
-                            className="px-4 py-2.5 bg-slate-200 text-slate-600 text-xs font-bold rounded-xl active:scale-95"
-                          >
-                            Cancelar
-                          </button>
-                          <button
-                            type="submit"
-                            className="px-5 py-2.5 bg-indigo-600 text-white text-xs font-bold rounded-xl shadow-sm hover:bg-indigo-700 active:scale-95"
-                          >
-                            Salvar na Agenda
-                          </button>
-                        </div>
+                        {/* STEP 2: Sensory details & PECS */}
+                        {formStep === 2 && (
+                          <div className="flex flex-col gap-4">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                              <div className="md:col-span-1">
+                                <label className="block text-xxs font-bold text-slate-500 uppercase mb-1">Duração (Minutos)</label>
+                                <input
+                                  type="number"
+                                  min={1}
+                                  max={240}
+                                  required
+                                  value={taskDuration}
+                                  onChange={e => setTaskDuration(parseInt(e.target.value) || 30)}
+                                  className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-707 outline-none text-sm font-bold"
+                                />
+                              </div>
+                              <div className="md:col-span-2">
+                                <label className="block text-xxs font-bold text-slate-500 uppercase mb-1">Descrição Detalhada / Instruções (Opcional)</label>
+                                <input
+                                  type="text"
+                                  value={taskDescription}
+                                  onChange={e => setTaskDescription(e.target.value)}
+                                  placeholder="Ex: Escove com movimentos circulares, use pouca pasta..."
+                                  className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-707 placeholder-slate-400 outline-none text-sm font-semibold"
+                                />
+                              </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-slate-200/60 pt-3">
+                              <div>
+                                <label className="block text-xxs font-bold text-slate-500 uppercase mb-1">Cartão PECS (Ícone): {taskIcon}</label>
+                                <div className="flex flex-wrap gap-1.5 p-2 bg-white border border-slate-200 rounded-xl max-h-[82px] overflow-y-auto">
+                                  {['🪥', '🍞', '🏫', '🍲', '🧸', '🛌', '🚶', '🚿', '📚', '🐶', '🍕', '🧼', '🎨', '⚽', '🧘', '🦷', '🍎', '💤', '🧴', '👕'].map(emoji => (
+                                    <button
+                                      type="button"
+                                      key={emoji}
+                                      onClick={() => setTaskIcon(emoji)}
+                                      className={`w-7 h-7 rounded-lg text-sm flex items-center justify-center transition-all cursor-pointer ${
+                                        taskIcon === emoji ? 'bg-indigo-650 text-white' : 'bg-slate-50 hover:bg-slate-100 text-slate-700'
+                                      }`}
+                                    >
+                                      {emoji}
+                                    </button>
+                                  ))}
+                                </div>
+                              </div>
+                              
+                              <div>
+                                <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Ou Foto Real (PECS Customizado)</label>
+                                <div className="flex gap-2 items-center">
+                                  <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={e => handleFileChange(e, false)}
+                                    className="hidden"
+                                    id="task-file-upload"
+                                  />
+                                  <label
+                                    htmlFor="task-file-upload"
+                                    className="px-2.5 py-1.5 bg-indigo-50 border border-indigo-250 text-indigo-700 rounded-xl text-[10px] font-black hover:bg-indigo-100/50 cursor-pointer shadow-xxs transition-all flex items-center gap-1 shrink-0"
+                                  >
+                                    📷 Upload
+                                  </label>
+                                  <input
+                                    type="text"
+                                    placeholder="Ou cole a URL da imagem..."
+                                    value={taskCustomIcon}
+                                    onChange={e => setTaskCustomIcon(e.target.value)}
+                                    className="flex-1 px-2.5 py-1.5 bg-white border border-slate-205 rounded-xl text-slate-707 outline-none text-[10px] font-semibold focus:border-indigo-400"
+                                  />
+                                  {taskCustomIcon && (
+                                    <button
+                                      type="button"
+                                      onClick={() => setTaskCustomIcon('')}
+                                      className="text-red-500 text-[10px] font-black cursor-pointer hover:underline"
+                                    >
+                                      Limpar
+                                    </button>
+                                  )}
+                                </div>
+                                {taskCustomIcon && (
+                                  <div className="mt-2 flex items-center gap-2">
+                                    <span className="text-[9px] text-slate-400 font-semibold">Pré-visualização:</span>
+                                    <div className="w-8 h-8 border border-slate-200 rounded-lg overflow-hidden flex items-center justify-center bg-slate-50 shadow-xxs">
+                                      <img src={taskCustomIcon} alt="Preview" className="w-full h-full object-cover" />
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+
+                            <div className="flex gap-3 mt-2 self-end">
+                              <button
+                                type="button"
+                                onClick={() => { playBubble(); setFormStep(1); }}
+                                className="px-4 py-2.5 bg-slate-200 text-slate-600 text-xs font-bold rounded-xl active:scale-95 cursor-pointer font-Outfit uppercase tracking-wider text-[10px]"
+                              >
+                                ← Voltar
+                              </button>
+                              <button
+                                type="submit"
+                                className="px-5 py-2.5 bg-indigo-600 text-white text-xs font-bold rounded-xl shadow-sm hover:bg-indigo-700 active:scale-95 cursor-pointer font-Outfit uppercase tracking-wider text-[10px]"
+                              >
+                                Salvar na Agenda
+                              </button>
+                            </div>
+                          </div>
+                        )}
                       </motion.form>
                     )}
                   </AnimatePresence>
+
+                  {/* Sensory & Clinical Legend Card */}
+                  <div className="bg-white border border-slate-200 p-4.5 rounded-2xl shadow-sm flex flex-col gap-2">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 select-none">
+                      📚 Didática & Apoio de Mediação Clínica
+                    </span>
+                    <p className="text-[10px] text-slate-500 font-semibold leading-relaxed">
+                      Cada atividade pode possuir demandas de processamento sensorial. Entenda os símbolos e categorias nos cartões do seu filho:
+                    </p>
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-3.5 mt-1 pt-3 border-t border-slate-100">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xl">🧼</span>
+                        <div className="text-[9px] font-bold text-slate-605">
+                          <strong>AVD (Vida Diária):</strong> Higiene, alimentação, autocuidado.
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xl">📚</span>
+                        <div className="text-[9px] font-bold text-slate-605">
+                          <strong>Aprendizado:</strong> Terapia, tarefas escolares, leitura.
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xl">🧸</span>
+                        <div className="text-[9px] font-bold text-slate-605">
+                          <strong>Lazer/Lúdico:</strong> Brincadeiras, tempo livre, reforço.
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xl">🗣️</span>
+                        <div className="text-[9px] font-bold text-slate-605">
+                          <strong>Voz Familiar:</strong> Gravações de áudios para acalmar na transição.
+                        </div>
+                      </div>
+                    </div>
+                  </div>
 
                   {/* Tasks Lists divided by Periods */}
                   <div className="flex flex-col gap-6">

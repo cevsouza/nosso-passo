@@ -165,6 +165,20 @@ function SchoolPortalContent() {
               </button>
             </div>
 
+            {/* Didactic Clinical Banner */}
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-indigo-150 p-4 rounded-2xl text-left shadow-sm">
+              <div className="flex items-start gap-2.5">
+                <span className="text-xl">📊</span>
+                <div>
+                  <h4 className="text-xs font-black text-indigo-950 font-Outfit">Integração Clínica Ativa</h4>
+                  <p className="text-[10px] text-indigo-900 leading-normal font-semibold mt-0.5">
+                    Este diário sincroniza os comportamentos observados na escola com os relatórios analíticos dos terapeutas e pais. 
+                    Sempre consulte a aba <strong>Guia de Sinais</strong> para seguir as condutas regulatórias recomendadas para o(a) {childData.name.split(' ')[0]}.
+                  </p>
+                </div>
+              </div>
+            </div>
+
             {/* Tab Switcher */}
             <div className="flex bg-slate-100 p-1 rounded-xl">
               <button

@@ -40,7 +40,10 @@ const getAudioContext = (): AudioContext | null => {
 export const playMarimba = (frequency: number = SENSORY_AUDIO.frequencies.marimbaCore, duration: number = 0.5) => {
   const child = firebaseBridge.auth.getActiveChild();
   const user = firebaseBridge.auth.getCurrentUser();
-  const soundPref = child?.sensorySound ?? user?.sensorySound ?? 'marimba';
+  let soundPref = child?.sensorySound ?? user?.sensorySound ?? 'marimba';
+  if (typeof window !== 'undefined' && localStorage.getItem('localCalmMode') === 'true') {
+    soundPref = 'silent';
+  }
   if (soundPref === 'silent') return;
   if (soundPref === 'bubble') {
     playBubble();
@@ -76,7 +79,10 @@ export const playMarimba = (frequency: number = SENSORY_AUDIO.frequencies.marimb
 export const playBubble = () => {
   const child = firebaseBridge.auth.getActiveChild();
   const user = firebaseBridge.auth.getCurrentUser();
-  const soundPref = child?.sensorySound ?? user?.sensorySound ?? 'marimba';
+  let soundPref = child?.sensorySound ?? user?.sensorySound ?? 'marimba';
+  if (typeof window !== 'undefined' && localStorage.getItem('localCalmMode') === 'true') {
+    soundPref = 'silent';
+  }
   if (soundPref === 'silent') return;
 
   const ctx = getAudioContext();
@@ -114,7 +120,10 @@ export const playBubble = () => {
 export const playCelebration = () => {
   const child = firebaseBridge.auth.getActiveChild();
   const user = firebaseBridge.auth.getCurrentUser();
-  const soundPref = child?.sensorySound ?? user?.sensorySound ?? 'marimba';
+  let soundPref = child?.sensorySound ?? user?.sensorySound ?? 'marimba';
+  if (typeof window !== 'undefined' && localStorage.getItem('localCalmMode') === 'true') {
+    soundPref = 'silent';
+  }
   if (soundPref === 'silent') return;
 
   const notes = SENSORY_AUDIO.frequencies.celebrationChord;
@@ -143,7 +152,10 @@ export const speakText = (text: string) => {
 
   const child = firebaseBridge.auth.getActiveChild();
   const user = firebaseBridge.auth.getCurrentUser();
-  const rawSpeed = child?.sensorySpeed ?? user?.sensorySpeed ?? 1.0;
+  let rawSpeed = child?.sensorySpeed ?? user?.sensorySpeed ?? 1.0;
+  if (typeof window !== 'undefined' && localStorage.getItem('localCalmMode') === 'true') {
+    rawSpeed = 0.7;
+  }
   
   // Map sensory speed: 0.7 -> 0.65 (very slow), 1.0 -> 0.85 (calm), 1.2 -> 1.05 (normal)
   let speedRate = 0.85;

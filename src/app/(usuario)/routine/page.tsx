@@ -603,6 +603,17 @@ export default function ChildRoutine() {
   const [celebratingTaskId, setCelebratingTaskId] = useState<string | null>(null);
   const [childHyperfocus, setChildHyperfocus] = useState('Border Collies 🐕');
   const [sensoryVisuals, setSensoryVisuals] = useState<'rich' | 'minimal'>('rich');
+  const [localCalmMode, setLocalCalmMode] = useState(false);
+  const effectiveVisuals = localCalmMode ? 'minimal' : sensoryVisuals;
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('localCalmMode');
+      if (stored === 'true') {
+        setLocalCalmMode(true);
+      }
+    }
+  }, []);
 
   // Child Multi-profile states
   const [children, setChildren] = useState<any[]>([]);
@@ -644,6 +655,7 @@ export default function ChildRoutine() {
   const [activeAmbientType, setActiveAmbientType] = useState<'none' | 'rain' | 'binaural' | 'white' | 'pink'>('none');
   const [selectedChoice, setSelectedChoice] = useState<string | null>(null);
   const [sensoryProfile, setSensoryProfile] = useState<'balanced' | 'hypersensitive' | 'hyposensitive'>('balanced');
+  const effectiveProfile = localCalmMode ? 'hypersensitive' : sensoryProfile;
   const [timerStyle, setTimerStyle] = useState<'circle' | 'hourglass' | 'droplets' | 'hyperfocus'>('circle');
   const [showStoriesModal, setShowStoriesModal] = useState(false);
   const [selectedStory, setSelectedStory] = useState<any | null>(null);
@@ -785,7 +797,7 @@ export default function ChildRoutine() {
   const [starParticles, setStarParticles] = useState<{ id: number; x: number; y: number; scale: number; rotate: number }[]>([]);
 
   const generateStars = () => {
-    if (sensoryVisuals === 'minimal') return; // Skip star explosions to avoid sensory overload
+    if (effectiveVisuals === 'minimal') return; // Skip star explosions to avoid sensory overload
     const newStars = Array.from({ length: 15 }).map((_, idx) => ({
       id: Date.now() + idx,
       x: (Math.random() - 0.5) * 220, // horizontal spread
@@ -2186,9 +2198,9 @@ export default function ChildRoutine() {
 
   // Dynamic visual layout for day finished (darker, cozy, resting theme)
   if (isDayFinished) {
-    const profileClass = sensoryProfile === 'hypersensitive'
+    const profileClass = effectiveProfile === 'hypersensitive'
       ? 'saturate-[60%] brightness-[90%] contrast-[88%]'
-      : sensoryProfile === 'hyposensitive'
+      : effectiveProfile === 'hyposensitive'
       ? 'saturate-[125%] contrast-[110%]'
       : '';
 
@@ -2205,7 +2217,7 @@ export default function ChildRoutine() {
           </div>
         )}
         {/* Twinkling stars in the background */}
-        {sensoryVisuals === 'rich' && (
+        {effectiveVisuals === 'rich' && (
           <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
             {twinklingStars.map(star => (
               <motion.div
@@ -2220,7 +2232,7 @@ export default function ChildRoutine() {
         )}
 
         {/* Floating cozy moon */}
-        {sensoryVisuals === 'rich' && (
+        {effectiveVisuals === 'rich' && (
           <motion.div 
             className="absolute top-10 right-10 w-24 h-24 pointer-events-none select-none z-0 hidden md:block"
             animate={{ y: [0, -4, 0] }}
@@ -2600,9 +2612,9 @@ export default function ChildRoutine() {
 
   // FIRST-THEN EMERGENCY BOARD
   if (activeChild && activeChild.emergencyFirstThen) {
-    const profileClass = sensoryProfile === 'hypersensitive'
+    const profileClass = effectiveProfile === 'hypersensitive'
       ? 'saturate-[65%] brightness-[92%] contrast-[88%]'
-      : sensoryProfile === 'hyposensitive'
+      : effectiveProfile === 'hyposensitive'
       ? 'saturate-[120%] contrast-[108%]'
       : '';
 
@@ -2735,9 +2747,9 @@ export default function ChildRoutine() {
     );
   }
 
-  const profileClass = sensoryProfile === 'hypersensitive'
+  const profileClass = effectiveProfile === 'hypersensitive'
     ? 'saturate-[65%] brightness-[92%] contrast-[88%]'
-    : sensoryProfile === 'hyposensitive'
+    : effectiveProfile === 'hyposensitive'
     ? 'saturate-[120%] contrast-[108%]'
     : '';
 
@@ -2789,7 +2801,7 @@ export default function ChildRoutine() {
         </div>
       )}
       {/* Background Soft Glows */}
-      {sensoryVisuals === 'rich' && (
+      {effectiveVisuals === 'rich' && (
         <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
           {sleepMode ? (
             <>
@@ -2885,6 +2897,30 @@ export default function ChildRoutine() {
             }`}
           >
             🌙 {sleepMode ? 'Modo Normal' : 'Modo Sono'}
+          </button>
+
+          <button
+            onClick={() => {
+              playBubble();
+              const nextVal = !localCalmMode;
+              setLocalCalmMode(nextVal);
+              localStorage.setItem('localCalmMode', nextVal ? 'true' : 'false');
+              if (nextVal) {
+                speakText("Modo calmo ativado.");
+              } else {
+                speakText("Modo calmo desativado.");
+              }
+            }}
+            onMouseEnter={playBubble}
+            className={`flex items-center gap-1.5 px-5 py-2.5 border-2 text-xs font-black rounded-full shadow-premium transition-all active:scale-95 cursor-pointer font-Outfit ${
+              localCalmMode
+                ? 'bg-teal-500 border-teal-600 text-white animate-pulse'
+                : sleepMode
+                ? 'bg-slate-905 border-slate-700 text-amber-200 hover:bg-slate-800'
+                : 'bg-white hover:bg-teal-50 border-teal-200 text-teal-700'
+            }`}
+          >
+            🧘 {localCalmMode ? 'Modo Calmo Ativo' : 'Modo Calmo'}
           </button>
 
           <button
@@ -3123,7 +3159,7 @@ export default function ChildRoutine() {
                     className={`bg-white border-4 rounded-[36px] p-8 shadow-premium flex flex-col items-center text-center gap-6 relative overflow-hidden transition-all duration-500 border-t-8 border-t-transparent md:col-span-7 ${category.shadow}`}
                   >
                     {/* Glowing outer soft neon reflection underneath */}
-                    {sensoryVisuals === 'rich' && (
+                    {effectiveVisuals === 'rich' && (
                       <div className={`absolute -inset-4 bg-gradient-to-tr ${category.gradient} opacity-5 filter blur-3xl -z-10`}></div>
                     )}
 
@@ -3273,11 +3309,24 @@ export default function ChildRoutine() {
                         ))}
                       </AnimatePresence>
 
+                      {/* Mascot Speech Bubble */}
+                      <div className="absolute top-[-24px] left-1/2 -translate-x-1/2 bg-slate-900 border-2 border-indigo-400 text-white text-[10px] font-extrabold px-3.5 py-1.5 rounded-2xl shadow-premium text-center select-none pointer-events-none animate-bounce font-Outfit whitespace-nowrap z-45">
+                        {collieState === 'celebrating' 
+                          ? 'Excelente! 🎉' 
+                          : sleepMode 
+                          ? 'Hora de dormir... 🌙' 
+                          : localCalmMode 
+                          ? 'Respire fundo... 🧘' 
+                          : 'Toque em mim! 🐾'}
+                        {/* Little triangle arrow pointing down */}
+                        <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-0 h-0 border-l-6 border-l-transparent border-r-6 border-r-transparent border-t-6 border-t-slate-900"></div>
+                      </div>
+
                       <div 
                         className="cursor-pointer relative p-5 rounded-full border border-slate-100 bg-slate-50/50 hover:bg-white hover:scale-[1.04] active:scale-95 transition-all shadow-premium"
                         onClick={handleMascotClick}
                       >
-                        {sensoryVisuals === 'rich' && (
+                        {effectiveVisuals === 'rich' && (
                           <div className={`absolute -inset-1 rounded-full bg-gradient-to-tr ${category.gradient} opacity-15 filter blur-md`}></div>
                         )}
                         <div className={`absolute bottom-2 right-2 w-9 h-9 rounded-full bg-gradient-to-tr ${category.gradient} flex items-center justify-center shadow-md animate-bounce`}>
@@ -3342,7 +3391,7 @@ export default function ChildRoutine() {
             </AnimatePresence>
 
             {/* 2. PROGRESS TRACKER OR CLINICAL FIRST-THEN BOARD */}
-            {sensoryVisuals === 'minimal' ? (
+            {effectiveVisuals === 'minimal' ? (
               /* TEACCH FIRST-THEN (PRIMEIRO-DEPOIS) BOARD */
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 w-full mt-2 md:col-span-5 md:mt-0">
                 {/* FIRST CARD (CURRENT ACTIVE TASK) */}

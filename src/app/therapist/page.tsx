@@ -547,6 +547,20 @@ export default function TherapistPortal() {
             </div>
           </div>
 
+          {/* Clinical Correlation & AI Banner */}
+          <div className="bg-gradient-to-r from-teal-50 to-cyan-50 border-2 border-teal-150 p-4.5 rounded-[24px] text-left shadow-sm flex items-start gap-3.5">
+            <div className="w-10 h-10 bg-teal-100 text-teal-700 rounded-xl flex items-center justify-center text-xl shrink-0 shadow-inner border border-teal-150">
+              🧠
+            </div>
+            <div>
+              <h4 className="text-xs font-black text-teal-950 font-Outfit">Sincronização Clínica Inteligente</h4>
+              <p className="text-[10.5px] text-teal-900 leading-relaxed font-semibold mt-0.5">
+                Os checkpoints clínicos registrados nesta plataforma cruzam dados em tempo real com as anotações escolares do mediador e os registros de rotina inseridos pela família. 
+                Nossa IA de correlação analisa essas três fontes para prever picos de estresse, meltdowns e determinar a Aderência Sensorial do paciente.
+              </p>
+            </div>
+          </div>
+
           {/* Metrics Grid */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-5">
             
