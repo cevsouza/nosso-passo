@@ -2902,7 +2902,7 @@ export default function ChildRoutine() {
       )}
 
       {/* Top Navigation */}
-      <div className="w-full max-w-2xl md:max-w-5xl flex items-center justify-between mb-8 z-10 px-4 md:px-6">
+      <div className="w-full max-w-2xl md:max-w-5xl flex items-center justify-between mb-8 z-30 px-4 md:px-6">
         <div className="flex gap-2 items-center">
           <button 
             onClick={() => handleAttemptExit('/')}
