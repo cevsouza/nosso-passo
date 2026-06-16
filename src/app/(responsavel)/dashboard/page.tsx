@@ -30,7 +30,11 @@ import {
   Map,
   AlertTriangle,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  Briefcase,
+  BookOpen,
+  MessageSquare,
+  Activity
 } from 'lucide-react';
 import Link from 'next/link';
 import { SensoryHeatmap } from '../../../components/SensoryHeatmap';
@@ -257,6 +261,16 @@ export default function ParentDashboard() {
   // Mascot Collie state for parent dashboard
   const [collieState, setCollieState] = useState<CollieState>('idle');
   const [activeTipIdx, setActiveTipIdx] = useState(0);
+
+  // States for simplified visual layout
+  const [expandedTasks, setExpandedTasks] = useState<Record<string, boolean>>({});
+  const [activeSidebarTool, setActiveSidebarTool] = useState<'none' | 'aac' | 'stories' | 'dictionary' | 'voice'>('none');
+  const [sidebarCollapsedStates, setSidebarCollapsedStates] = useState<Record<string, boolean>>({
+    profile: false,
+    monitoring: false,
+    tools: true,
+    actions: true,
+  });
 
   const rotateTip = () => {
     setActiveTipIdx(prev => (prev + 1) % CLINICAL_TIPS.length);
@@ -2845,450 +2859,419 @@ export default function ParentDashboard() {
           )}
           </div>
 
-          {/* Familiar Voice Recorder Card */}
+                    {/* Unified Clinical Support Tools & Attachments Card */}
           {activeChild && (
             <div className="bg-white border-2 border-slate-250 rounded-3xl p-6 shadow-premium">
               <button
                 type="button"
-                onClick={() => toggleSection('voiceRecorder')}
+                onClick={() => {
+                  playBubble();
+                  setSidebarCollapsedStates(prev => ({ ...prev, tools: !prev.tools }));
+                }}
                 className="w-full flex items-center justify-between text-left cursor-pointer bg-transparent border-none outline-none select-none"
               >
-                <div className="flex items-center gap-2.5 text-indigo-600">
-                  <Mic className="w-5 h-5 text-indigo-500" />
-                  <h2 className="font-bold text-slate-900 text-base font-Outfit">IA de Voz Familiar (Regulação)</h2>
+                <div className="flex items-center gap-2.5 text-indigo-650">
+                  <Briefcase className="w-5 h-5 text-indigo-500" />
+                  <h2 className="font-bold text-slate-900 text-base font-Outfit">Apoio Clínico & Anexos 🎒</h2>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-[9px] font-black text-slate-400 uppercase">Gravador de Voz</span>
-                  {collapsedSections.voiceRecorder ? <ChevronDown className="w-4 h-4 text-slate-400 shrink-0" /> : <ChevronUp className="w-4 h-4 text-slate-400 shrink-0" />}
+                  <span className="text-[9px] font-black text-slate-400 uppercase">Ferramentas</span>
+                  {sidebarCollapsedStates.tools ? <ChevronDown className="w-4 h-4 text-slate-400 shrink-0" /> : <ChevronUp className="w-4 h-4 text-slate-400 shrink-0" />}
                 </div>
               </button>
 
-              {!collapsedSections.voiceRecorder && (
+              {!sidebarCollapsedStates.tools && (
                 <motion.div
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: 'auto' }}
                   exit={{ opacity: 0, height: 0 }}
                   className="flex flex-col gap-4 border-t border-slate-100 pt-4 mt-4 w-full"
                 >
-                  <p className="text-[10px] text-slate-500 font-semibold leading-relaxed">
-                    Grave avisos de transição com sua voz real para acalmar a criança durante a contagem regressiva da rotina.
-                  </p>
+                  <label className="block text-[10px] font-black text-slate-500 uppercase">
+                    Selecione uma ferramenta de apoio:
+                  </label>
+                  <select
+                    value={activeSidebarTool}
+                    onChange={(e) => {
+                      playBubble();
+                      setActiveSidebarTool(e.target.value as any);
+                    }}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 text-slate-700 text-xs font-bold rounded-xl outline-none focus:border-indigo-500 transition-all cursor-pointer shadow-xxs"
+                  >
+                    <option value="none">Nenhuma ferramenta ativa</option>
+                    <option value="aac">🗣️ Prancha AAC Customizada</option>
+                    <option value="stories">📖 Histórias Sociais com IA</option>
+                    <option value="dictionary">🧠 Dicionário Comportamental</option>
+                    <option value="voice">📻 Gravador de Voz Familiar</option>
+                  </select>
 
-              <div className="flex flex-col gap-3">
-                {(['audioAlert10', 'audioAlert5', 'audioAlert2'] as const).map((type) => {
-                  const label = type === 'audioAlert10' ? 'Alerta de 10 min' : type === 'audioAlert5' ? 'Alerta de 5 min' : 'Alerta de 2 min';
-                  const hasAudio = !!activeChild[type];
-                  const isRecording = recordingType === type;
-                  const isPlaying = isPlayingAudio === type;
-
-                  return (
-                    <div key={type} className="flex flex-col gap-1.5 p-3 rounded-2xl bg-slate-50 border border-slate-200">
-                      <div className="flex items-center justify-between text-xxs font-black text-slate-700">
-                        <span>{label}</span>
-                        {hasAudio && !isRecording && (
-                          <span className="text-[9px] text-emerald-600 font-bold bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-250">Gravado ✓</span>
-                        )}
-                        {!hasAudio && !isRecording && (
-                          <span className="text-[9px] text-slate-400 font-bold">Sem gravação</span>
-                        )}
-                        {isRecording && (
-                          <span className="text-[9px] text-red-600 font-bold animate-pulse flex items-center gap-1">
-                            <span className="w-1.5 h-1.5 rounded-full bg-red-600" />
-                            Gravando ({recordingSecondsLeft}s)
-                          </span>
-                        )}
+                  {/* Render voice alert content if active */}
+                  {activeSidebarTool === 'voice' && (
+                    <div className="flex flex-col gap-4 border-t border-slate-100/60 pt-4 mt-1">
+                      <div className="flex items-center gap-2 text-indigo-650">
+                        <Mic className="w-4 h-4 text-indigo-500" />
+                        <h3 className="font-extrabold text-slate-900 text-xs font-Outfit">IA de Voz Familiar (Regulação)</h3>
                       </div>
+                      <p className="text-[10px] text-slate-500 font-semibold leading-relaxed">
+                        Grave avisos de transição com sua voz real para acalmar a criança durante a contagem regressiva da rotina.
+                      </p>
 
-                      <div className="flex items-center gap-1.5 mt-1">
-                        {isRecording ? (
-                          <button
-                            type="button"
-                            onClick={stopRecording}
-                            className="flex-1 py-1.5 bg-red-600 hover:bg-red-750 text-white rounded-xl text-xxs font-black flex items-center justify-center gap-1 cursor-pointer transition-all"
-                          >
-                            <Square className="w-3.5 h-3.5 fill-current" /> Parar Gravação
-                          </button>
+                      <div className="flex flex-col gap-3">
+                        {(['audioAlert10', 'audioAlert5', 'audioAlert2'] as const).map((type) => {
+                          const label = type === 'audioAlert10' ? 'Alerta de 10 min' : type === 'audioAlert5' ? 'Alerta de 5 min' : 'Alerta de 2 min';
+                          const hasAudio = !!activeChild[type];
+                          const isRecording = recordingType === type;
+                          const isPlaying = isPlayingAudio === type;
+
+                          return (
+                            <div key={type} className="flex flex-col gap-1.5 p-3 rounded-2xl bg-slate-50 border border-slate-200">
+                              <div className="flex items-center justify-between text-xxs font-black text-slate-700">
+                                <span>{label}</span>
+                                {hasAudio && !isRecording && (
+                                  <span className="text-[9px] text-emerald-600 font-bold bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-250">Gravado ✓</span>
+                                )}
+                                {!hasAudio && !isRecording && (
+                                  <span className="text-[9px] text-slate-400 font-bold">Sem gravação</span>
+                                )}
+                                {isRecording && (
+                                  <span className="text-[9px] text-red-600 font-bold animate-pulse flex items-center gap-1">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-red-600" />
+                                    Gravando ({recordingSecondsLeft}s)
+                                  </span>
+                                )}
+                              </div>
+
+                              <div className="flex items-center gap-1.5 mt-1">
+                                {isRecording ? (
+                                  <button
+                                    type="button"
+                                    onClick={stopRecording}
+                                    className="flex-1 py-1.5 bg-red-600 hover:bg-red-750 text-white rounded-xl text-xxs font-black flex items-center justify-center gap-1 cursor-pointer transition-all"
+                                  >
+                                    <Square className="w-3.5 h-3.5 fill-current" /> Parar Gravação
+                                  </button>
+                                ) : (
+                                  <>
+                                    <button
+                                      type="button"
+                                      onClick={() => startRecording(type)}
+                                      className="flex-1 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 hover:text-indigo-800 border border-indigo-200 rounded-xl text-xxs font-black flex items-center justify-center gap-1 cursor-pointer transition-all"
+                                    >
+                                      <Mic className="w-3.5 h-3.5" /> Gravar 10s
+                                    </button>
+
+                                    {hasAudio && (
+                                      <>
+                                        <button
+                                          type="button"
+                                          onClick={() => playRecordedAudio(type)}
+                                          className={`p-1.5 rounded-xl border flex items-center justify-center cursor-pointer transition-all ${
+                                            isPlaying 
+                                              ? 'bg-amber-100 border-amber-300 text-amber-850' 
+                                              : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                                          }`}
+                                          title="Ouvir gravação"
+                                        >
+                                          {isPlaying ? <Square className="w-3.5 h-3.5 fill-current" /> : <Play className="w-3.5 h-3.5 fill-current" />}
+                                        </button>
+                                        <button
+                                          type="button"
+                                          onClick={() => deleteRecordedAudio(type)}
+                                          className="p-1.5 bg-rose-50 border border-rose-200 text-rose-600 hover:bg-rose-100 rounded-xl flex items-center justify-center cursor-pointer transition-all"
+                                          title="Excluir gravação"
+                                        >
+                                          <Trash2 className="w-3.5 h-3.5" />
+                                        </button>
+                                      </>
+                                    )}
+                                  </>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Render AAC board content if active */}
+                  {activeSidebarTool === 'aac' && (
+                    <div className="flex flex-col gap-4 border-t border-slate-100/60 pt-4 mt-1">
+                      <div className="flex items-center gap-2 text-indigo-655">
+                        <MessageSquare className="w-4 h-4 text-indigo-500" />
+                        <h3 className="font-extrabold text-slate-900 text-xs font-Outfit">Prancha AAC Customizada</h3>
+                      </div>
+                      <p className="text-[10px] text-slate-500 font-semibold leading-relaxed">
+                        Personalize os botões de voz do paciente para que ele possa comunicar sentimentos, dores ou desejos no portal dele.
+                      </p>
+
+                      {/* List of current custom items */}
+                      <div className="flex flex-wrap gap-2 max-h-[200px] overflow-y-auto pr-1">
+                        {aacItemsList.length === 0 ? (
+                          <p className="text-slate-400 text-xxs italic w-full text-center py-4">
+                            Nenhum botão personalizado ainda.
+                          </p>
                         ) : (
-                          <>
-                            <button
-                              type="button"
-                              onClick={() => startRecording(type)}
-                              className="flex-1 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 hover:text-indigo-800 border border-indigo-200 rounded-xl text-xxs font-black flex items-center justify-center gap-1 cursor-pointer transition-all"
+                          aacItemsList.map((item) => (
+                            <div 
+                              key={item.id} 
+                              className={`px-3 py-2 border rounded-2xl flex items-center justify-between gap-3 text-xxs font-black shadow-xxs ${
+                                item.alert 
+                                  ? 'bg-rose-50 border-rose-200 text-rose-700' 
+                                  : 'bg-indigo-50 border-indigo-150 text-indigo-805'
+                              }`}
                             >
-                              <Mic className="w-3.5 h-3.5" /> Gravar 10s
-                            </button>
-
-                            {hasAudio && (
-                              <>
-                                <button
-                                  type="button"
-                                  onClick={() => playRecordedAudio(type)}
-                                  className={`p-1.5 rounded-xl border flex items-center justify-center cursor-pointer transition-all ${
-                                    isPlaying 
-                                      ? 'bg-amber-100 border-amber-300 text-amber-800' 
-                                      : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
-                                  }`}
-                                  title="Ouvir gravação"
-                                >
-                                  {isPlaying ? <Square className="w-3.5 h-3.5 fill-current" /> : <Play className="w-3.5 h-3.5 fill-current" />}
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() => deleteRecordedAudio(type)}
-                                  className="p-1.5 bg-rose-50 border border-rose-200 text-rose-600 hover:bg-rose-100 rounded-xl flex items-center justify-center cursor-pointer transition-all"
-                                  title="Excluir gravação"
-                                >
-                                  <Trash2 className="w-3.5 h-3.5" />
-                                </button>
-                              </>
-                            )}
-                          </>
+                              <span>{item.text}</span>
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteAacItem(item.id)}
+                                className="p-0.5 bg-transparent border-none text-slate-400 hover:text-red-655 cursor-pointer"
+                                title="Remover botão"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          ))
                         )}
                       </div>
-                    </div>
-                  );
-                })}
-              </div>
-                </motion.div>
-              )}
-            </div>
-          )}
 
-          {/* Customizable AAC Board Card */}
-          {activeChild && (
-            <div className="bg-white border-2 border-slate-250 rounded-3xl p-6 shadow-premium text-left">
-              <button
-                type="button"
-                onClick={() => toggleSection('aacEditor')}
-                className="w-full flex items-center justify-between text-left cursor-pointer bg-transparent border-none outline-none select-none"
-              >
-                <div className="flex items-center gap-2.5 text-indigo-600">
-                  <span className="text-xl">🗣️</span>
-                  <h2 className="font-bold text-slate-900 text-base font-Outfit">Prancha AAC Customizada</h2>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-[9px] font-black text-slate-400 uppercase">Voz Alternativa</span>
-                  {collapsedSections.aacEditor ? <ChevronDown className="w-4 h-4 text-slate-400 shrink-0" /> : <ChevronUp className="w-4 h-4 text-slate-400 shrink-0" />}
-                </div>
-              </button>
-
-              {!collapsedSections.aacEditor && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: 'auto' }}
-                  exit={{ opacity: 0, height: 0 }}
-                  className="flex flex-col gap-4 border-t border-slate-100 pt-4 mt-4 w-full"
-                >
-                  <p className="text-[10px] text-slate-500 font-semibold leading-relaxed">
-                    Personalize os botões de voz do paciente para que ele possa comunicar sentimentos, dores ou desejos no portal dele.
-                  </p>
-
-                  {/* List of current custom items */}
-                  <div className="flex flex-wrap gap-2 max-h-[200px] overflow-y-auto pr-1">
-                    {aacItemsList.length === 0 ? (
-                      <p className="text-slate-400 text-xxs italic w-full text-center py-4">
-                        Nenhum botão personalizado ainda.
-                      </p>
-                    ) : (
-                      aacItemsList.map((item) => (
-                        <div 
-                          key={item.id} 
-                          className={`px-3 py-2 border rounded-2xl flex items-center justify-between gap-3 text-xxs font-black shadow-xxs ${
-                            item.alert 
-                              ? 'bg-rose-50 border-rose-200 text-rose-700' 
-                              : 'bg-indigo-50 border-indigo-150 text-indigo-805'
-                          }`}
-                        >
-                          <span>{item.text}</span>
-                          <button
-                            type="button"
-                            onClick={() => handleDeleteAacItem(item.id)}
-                            className="p-0.5 bg-transparent border-none text-slate-400 hover:text-red-650 cursor-pointer"
-                            title="Remover botão"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-                      ))
-                    )}
-                  </div>
-
-                  {/* Form to add item */}
-                  <form onSubmit={handleAddAacItem} className="flex flex-col gap-2.5 border-t border-slate-100 pt-4 mt-2">
-                    <span className="text-xxs font-black text-slate-700 uppercase tracking-wider font-Outfit">Criar Novo Botão</span>
-                    
-                    <div className="grid grid-cols-4 gap-2">
-                      <div className="col-span-3">
-                        <input
-                          type="text"
-                          placeholder="Título (Ex: Quero colo)"
-                          value={newAacText}
-                          onChange={e => setNewAacText(e.target.value)}
-                          className="w-full px-3 py-2 bg-slate-50 border border-slate-250 rounded-xl text-xxs font-bold outline-none focus:bg-white focus:border-indigo-650"
-                          maxLength={20}
-                          required
-                        />
-                      </div>
-                      <div className="col-span-1">
-                        <select
-                          value={newAacEmoji}
-                          onChange={e => setNewAacEmoji(e.target.value)}
-                          className="w-full px-2 py-2 bg-slate-50 border border-slate-250 rounded-xl text-xxs font-bold outline-none focus:bg-white focus:border-indigo-650 cursor-pointer"
-                        >
-                          <option value="🤗">🤗</option>
-                          <option value="🧸">🧸</option>
-                          <option value="🛌">🛌</option>
-                          <option value="🥛">🥛</option>
-                          <option value="🍎">🍎</option>
-                          <option value="🚽">🚽</option>
-                          <option value="🎧">🎧</option>
-                          <option value="❤️">❤️</option>
-                          <option value="🩹">🩹</option>
-                          <option value="🦖">🦖</option>
-                        </select>
-                      </div>
-                    </div>
-
-                    <div>
-                      <input
-                        type="text"
-                        placeholder="Texto falado (Ex: Quero um colo da mamãe)"
-                        value={newAacSpeech}
-                        onChange={e => setNewAacSpeech(e.target.value)}
-                        className="w-full px-3 py-2 bg-slate-50 border border-slate-250 rounded-xl text-xxs font-bold outline-none focus:bg-white focus:border-indigo-650"
-                        maxLength={100}
-                        required
-                      />
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="checkbox"
-                        id="aacAlertCheck"
-                        checked={newAacAlert}
-                        onChange={e => setNewAacAlert(e.target.checked)}
-                        className="w-4 h-4 text-indigo-600 border-slate-300 rounded focus:ring-indigo-500 cursor-pointer"
-                      />
-                      <label htmlFor="aacAlertCheck" className="text-xxs font-black text-rose-700 cursor-pointer select-none">
-                        🚨 Botão de Crise / Alerta Visual no SOS
-                      </label>
-                    </div>
-
-                    <button
-                      type="submit"
-                      className="w-full py-2 bg-indigo-600 hover:bg-indigo-755 text-white text-xs font-black rounded-xl border-b-2 border-indigo-900 active:scale-95 transition-all cursor-pointer font-Outfit uppercase tracking-wider"
-                    >
-                      ➕ Adicionar Botão
-                    </button>
-                  </form>
-                </motion.div>
-              )}
-            </div>
-          )}
-
-          {/* Social Stories Card */}
-          {activeChild && (
-            <div className="bg-white border-2 border-slate-250 rounded-3xl p-6 shadow-premium text-left">
-              <button
-                type="button"
-                onClick={() => toggleSection('storiesEditor')}
-                className="w-full flex items-center justify-between text-left cursor-pointer bg-transparent border-none outline-none select-none"
-              >
-                <div className="flex items-center gap-2.5 text-indigo-600">
-                  <span className="text-xl">📖</span>
-                  <h2 className="font-bold text-slate-900 text-base font-Outfit">Histórias Sociais com IA</h2>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-[9px] font-black text-slate-400 uppercase">Criador e IA</span>
-                  {collapsedSections.storiesEditor ? <ChevronDown className="w-4 h-4 text-slate-400 shrink-0" /> : <ChevronUp className="w-4 h-4 text-slate-400 shrink-0" />}
-                </div>
-              </button>
-
-              {!collapsedSections.storiesEditor && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: 'auto' }}
-                  exit={{ opacity: 0, height: 0 }}
-                  className="flex flex-col gap-4 border-t border-slate-100 pt-4 mt-4 w-full"
-                >
-                  <p className="text-[10px] text-slate-500 font-semibold leading-relaxed">
-                    Crie histórias sociais curtas para preparar seu filho para transições ou consultas. A IA usará o hiperfoco da criança para torná-la cativante.
-                  </p>
-
-                  {/* List of current social stories */}
-                  <div className="flex flex-col gap-2 max-h-[200px] overflow-y-auto pr-1">
-                    {customStoriesList.length === 0 ? (
-                      <p className="text-slate-400 text-xxs italic text-center py-4">
-                        Nenhuma história criada ainda.
-                      </p>
-                    ) : (
-                      customStoriesList.map((story) => (
-                        <div key={story.id} className="p-3 bg-slate-50 border border-slate-200 rounded-2xl flex items-center justify-between gap-3 text-xxs font-semibold">
-                          <div className="flex flex-col gap-0.5">
-                            <span className="font-bold text-slate-900">{story.title}</span>
-                            <span className="text-[10px] text-slate-500 truncate max-w-[200px]">{story.desc}</span>
+                      {/* Form to add item */}
+                      <form onSubmit={handleAddAacItem} className="flex flex-col gap-2.5 border-t border-slate-100 pt-4 mt-2">
+                        <span className="text-xxs font-black text-slate-700 uppercase tracking-wider font-Outfit">Criar Novo Botão</span>
+                        
+                        <div className="grid grid-cols-4 gap-2">
+                          <div className="col-span-3">
+                            <input
+                              type="text"
+                              placeholder="Título (Ex: Quero colo)"
+                              value={newAacText}
+                              onChange={e => setNewAacText(e.target.value)}
+                              className="w-full px-3 py-2 bg-slate-50 border border-slate-255 rounded-xl text-xxs font-bold outline-none focus:bg-white focus:border-indigo-650"
+                              maxLength={20}
+                              required
+                            />
                           </div>
-                          <button
-                            type="button"
-                            onClick={() => handleDeleteStory(story.id)}
-                            className="p-1.5 bg-rose-50 border border-rose-200 text-rose-605 hover:bg-rose-100 rounded-xl flex items-center justify-center cursor-pointer transition-all shrink-0"
-                            title="Excluir história"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
+                          <div className="col-span-1">
+                            <select
+                              value={newAacEmoji}
+                              onChange={e => setNewAacEmoji(e.target.value)}
+                              className="w-full px-2 py-2 bg-slate-50 border border-slate-255 rounded-xl text-xxs font-bold outline-none focus:bg-white focus:border-indigo-650 cursor-pointer"
+                            >
+                              <option value="🤗">🤗</option>
+                              <option value="🧸">🧸</option>
+                              <option value="🛌">🛌</option>
+                              <option value="🥛">🥛</option>
+                              <option value="🍎">🍎</option>
+                              <option value="🚽">🚽</option>
+                              <option value="🎧">🎧</option>
+                              <option value="❤️">❤️</option>
+                              <option value="🩹">🩹</option>
+                              <option value="🦖">🦖</option>
+                            </select>
+                          </div>
                         </div>
-                      ))
-                    )}
-                  </div>
 
-                  {/* Form to generate via AI */}
-                  <form onSubmit={handleGenerateAiStory} className="flex flex-col gap-2.5 border-t border-slate-100 pt-4 mt-2">
-                    <span className="text-xxs font-black text-slate-700 uppercase tracking-wider font-Outfit flex items-center gap-1">
-                      <Sparkles className="w-3.5 h-3.5 text-indigo-500" /> Gerador Assistido por IA
-                    </span>
-
-                    {generatingAi ? (
-                      <div className="p-4 bg-indigo-50/50 border border-indigo-200 rounded-2xl flex flex-col items-center justify-center text-center gap-3">
-                        <div className="w-8 h-8 rounded-full border-4 border-indigo-650 border-t-transparent animate-spin" />
-                        <span className="text-xxs font-bold text-indigo-950 font-Outfit tracking-wide">
-                          {GENERATOR_STATUSES[aiStatusIdx]}
-                        </span>
-                      </div>
-                    ) : (
-                      <>
                         <div>
                           <input
                             type="text"
-                            placeholder="Tema da dificuldade (Ex: Ir tomar vacina, Ir ao dentista)"
-                            value={aiTheme}
-                            onChange={e => setAiTheme(e.target.value)}
-                            className="w-full px-3 py-2 bg-slate-50 border border-slate-250 rounded-xl text-xxs font-bold outline-none focus:bg-white focus:border-indigo-650"
+                            placeholder="Texto falado (Ex: Quero um colo da mamãe)"
+                            value={newAacSpeech}
+                            onChange={e => setNewAacSpeech(e.target.value)}
+                            className="w-full px-3 py-2 bg-slate-50 border border-slate-255 rounded-xl text-xxs font-bold outline-none focus:bg-white focus:border-indigo-650"
+                            maxLength={100}
                             required
                           />
                         </div>
-                        <p className="text-[9px] text-slate-400 leading-normal">
-                          💡 A IA vai adaptar a história com o hiperfoco ativo: <strong>{hyperfocus || activeChild.childHyperfocus || 'Border Collies 🐕'}</strong>.
-                        </p>
+
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="checkbox"
+                            id="aacAlertCheck"
+                            checked={newAacAlert}
+                            onChange={e => setNewAacAlert(e.target.checked)}
+                            className="w-4 h-4 text-indigo-600 border-slate-300 rounded focus:ring-indigo-500 cursor-pointer"
+                          />
+                          <label htmlFor="aacAlertCheck" className="text-xxs font-black text-rose-700 cursor-pointer select-none">
+                            🚨 Botão de Crise / Alerta Visual no SOS
+                          </label>
+                        </div>
+
                         <button
                           type="submit"
-                          className="w-full py-2 bg-indigo-600 hover:bg-indigo-755 text-white text-xs font-black rounded-xl border-b-2 border-indigo-900 active:scale-95 transition-all cursor-pointer font-Outfit uppercase tracking-wider flex items-center justify-center gap-1"
+                          className="w-full py-2 bg-indigo-600 hover:bg-indigo-755 text-white text-xs font-black rounded-xl border-b-2 border-indigo-900 active:scale-95 transition-all cursor-pointer font-Outfit uppercase tracking-wider"
                         >
-                          <Sparkles className="w-3.5 h-3.5" /> Gerar História
+                          ➕ Adicionar Botão
                         </button>
-                      </>
-                    )}
-                  </form>
-                </motion.div>
-              )}
-            </div>
-          )}
-
-          {/* Behavioral Dictionary CRUD Card */}
-          {activeChild && (
-            <div className="bg-white border-2 border-slate-250 rounded-3xl p-6 shadow-premium text-left">
-              <button
-                type="button"
-                onClick={() => toggleSection('dictionary')}
-                className="w-full flex items-center justify-between text-left cursor-pointer bg-transparent border-none outline-none select-none"
-              >
-                <div className="flex items-center gap-2.5 text-indigo-600">
-                  <span className="text-xl">📖</span>
-                  <h2 className="font-bold text-slate-900 text-base font-Outfit">Dicionário Comportamental</h2>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-[9px] font-black text-slate-400 uppercase">Guia de Sinais</span>
-                  {collapsedSections.dictionary ? <ChevronDown className="w-4 h-4 text-slate-400 shrink-0" /> : <ChevronUp className="w-4 h-4 text-slate-400 shrink-0" />}
-                </div>
-              </button>
-
-              {!collapsedSections.dictionary && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: 'auto' }}
-                  exit={{ opacity: 0, height: 0 }}
-                  className="flex flex-col gap-4 border-t border-slate-100 pt-4 mt-4 w-full"
-                >
-                  <p className="text-[10px] text-slate-500 font-semibold leading-relaxed">
-                    Mapeie os sinais corporais da criança, seus significados e a conduta recomendada para mediadores escolares e terapeutas.
-                  </p>
-
-              {/* List of current signals */}
-              <div className="flex flex-col gap-2.5 max-h-[300px] overflow-y-auto pr-1">
-                {behaviorList.length === 0 ? (
-                  <p className="text-slate-400 text-xxs italic text-center py-4">
-                    Nenhum sinal cadastrado ainda.
-                  </p>
-                ) : (
-                  behaviorList.map((item) => (
-                    <div key={item.id} className="p-3 bg-slate-50 border border-slate-200 rounded-2xl flex flex-col gap-1.5 relative group">
-                      <button
-                        type="button"
-                        onClick={() => handleDeleteBehaviorSignal(item.id)}
-                        className="absolute top-2.5 right-2.5 p-1 bg-transparent hover:bg-rose-50 text-slate-405 hover:text-red-650 rounded-md border-none cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity"
-                        title="Excluir sinal"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
-                      <div className="text-xxs font-black text-indigo-950 font-Outfit pr-6">
-                        📢 Sinal: {item.signal}
-                      </div>
-                      <div className="text-[10px] text-slate-600 font-semibold leading-tight">
-                        <strong>🧠 Significado:</strong> {item.meaning}
-                      </div>
-                      <div className="text-[10px] text-emerald-800 font-semibold bg-emerald-50/60 border border-emerald-150 p-2 rounded-xl mt-1 leading-normal">
-                        <strong>👩‍🏫 Conduta:</strong> {item.intervention}
-                      </div>
+                      </form>
                     </div>
-                  ))
-                )}
-              </div>
+                  )}
 
-              {/* Add form */}
-              <form onSubmit={handleAddBehaviorSignal} className="flex flex-col gap-2.5 border-t border-slate-100 pt-4 mt-2">
-                <span className="text-xxs font-black text-slate-700 uppercase tracking-wider font-Outfit">Cadastrar Novo Sinal</span>
-                <div>
-                  <input
-                    type="text"
-                    placeholder="Sinal (Ex: Aleteo / Agitar mãos)"
-                    value={newSignal}
-                    onChange={e => setNewSignal(e.target.value)}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-250 rounded-xl text-xxs font-bold outline-none focus:bg-white focus:border-indigo-650"
-                    required
-                  />
-                </div>
-                <div>
-                  <input
-                    type="text"
-                    placeholder="Significado (Ex: Excitação ou sobrecarga)"
-                    value={newMeaning}
-                    onChange={e => setNewMeaning(e.target.value)}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-250 rounded-xl text-xxs font-bold outline-none focus:bg-white focus:border-indigo-650"
-                    required
-                  />
-                </div>
-                <div>
-                  <input
-                    type="text"
-                    placeholder="Conduta (Ex: Reduzir estímulos / Dar tempo)"
-                    value={newIntervention}
-                    onChange={e => setNewIntervention(e.target.value)}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-250 rounded-xl text-xxs font-bold outline-none focus:bg-white focus:border-indigo-650"
-                    required
-                  />
-                </div>
-                <button
-                  type="submit"
-                  className="w-full py-2 bg-indigo-600 hover:bg-indigo-755 text-white text-xs font-black rounded-xl border-b-2 border-indigo-900 active:scale-95 transition-all cursor-pointer font-Outfit uppercase tracking-wider"
-                >
-                  ➕ Adicionar Sinal
-                </button>
-              </form>
+                  {/* Render social stories content if active */}
+                  {activeSidebarTool === 'stories' && (
+                    <div className="flex flex-col gap-4 border-t border-slate-100/60 pt-4 mt-1">
+                      <div className="flex items-center gap-2 text-indigo-655">
+                        <BookOpen className="w-4 h-4 text-indigo-500" />
+                        <h3 className="font-extrabold text-slate-900 text-xs font-Outfit">Histórias Sociais com IA</h3>
+                      </div>
+                      <p className="text-[10px] text-slate-500 font-semibold leading-relaxed">
+                        Crie histórias sociais curtas para preparar seu filho para transições ou consultas. A IA usará o hiperfoco da criança para torná-la cativante.
+                      </p>
+
+                      {/* List of current social stories */}
+                      <div className="flex flex-col gap-2 max-h-[200px] overflow-y-auto pr-1">
+                        {customStoriesList.length === 0 ? (
+                          <p className="text-slate-400 text-xxs italic text-center py-4">
+                            Nenhuma história criada ainda.
+                          </p>
+                        ) : (
+                          customStoriesList.map((story) => (
+                            <div key={story.id} className="p-3 bg-slate-50 border border-slate-200 rounded-2xl flex items-center justify-between gap-3 text-xxs font-semibold">
+                              <div className="flex flex-col gap-0.5">
+                                <span className="font-bold text-slate-900">{story.title}</span>
+                                <span className="text-[10px] text-slate-505 truncate max-w-[200px]">{story.desc}</span>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteStory(story.id)}
+                                className="p-1.5 bg-rose-50 border border-rose-200 text-rose-605 hover:bg-rose-100 rounded-xl flex items-center justify-center cursor-pointer transition-all shrink-0"
+                                title="Excluir história"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          ))
+                        )}
+                      </div>
+
+                      {/* Form to generate via AI */}
+                      <form onSubmit={handleGenerateAiStory} className="flex flex-col gap-2.5 border-t border-slate-100 pt-4 mt-2">
+                        <span className="text-xxs font-black text-slate-700 uppercase tracking-wider font-Outfit flex items-center gap-1">
+                          <Sparkles className="w-3.5 h-3.5 text-indigo-500" /> Gerador Assistido por IA
+                        </span>
+
+                        {generatingAi ? (
+                          <div className="p-4 bg-indigo-50/50 border border-indigo-200 rounded-2xl flex flex-col items-center justify-center text-center gap-3">
+                            <div className="w-8 h-8 rounded-full border-4 border-indigo-650 border-t-transparent animate-spin" />
+                            <span className="text-xxs font-bold text-indigo-950 font-Outfit tracking-wide">
+                              {GENERATOR_STATUSES[aiStatusIdx]}
+                            </span>
+                          </div>
+                        ) : (
+                          <>
+                            <div>
+                              <input
+                                type="text"
+                                placeholder="Tema da dificuldade (Ex: Ir tomar vacina, Ir ao dentista)"
+                                value={aiTheme}
+                                onChange={e => setAiTheme(e.target.value)}
+                                className="w-full px-3 py-2 bg-slate-50 border border-slate-255 rounded-xl text-xxs font-bold outline-none focus:bg-white focus:border-indigo-650"
+                                required
+                              />
+                            </div>
+                            <p className="text-[9px] text-slate-400 leading-normal">
+                              💡 A IA vai adaptar a história com o hiperfoco ativo: <strong>{hyperfocus || activeChild.childHyperfocus || 'Border Collies 🐕'}</strong>.
+                            </p>
+                            <button
+                              type="submit"
+                              className="w-full py-2 bg-indigo-600 hover:bg-indigo-755 text-white text-xs font-black rounded-xl border-b-2 border-indigo-900 active:scale-95 transition-all cursor-pointer font-Outfit uppercase tracking-wider flex items-center justify-center gap-1"
+                            >
+                              <Sparkles className="w-3.5 h-3.5" /> Gerar História
+                            </button>
+                          </>
+                        )}
+                      </form>
+                    </div>
+                  )}
+
+                  {/* Render behavior dictionary content if active */}
+                  {activeSidebarTool === 'dictionary' && (
+                    <div className="flex flex-col gap-4 border-t border-slate-100/60 pt-4 mt-1">
+                      <div className="flex items-center gap-2 text-indigo-655">
+                        <Activity className="w-4 h-4 text-indigo-500" />
+                        <h3 className="font-extrabold text-slate-900 text-xs font-Outfit">Dicionário Comportamental</h3>
+                      </div>
+                      <p className="text-[10px] text-slate-500 font-semibold leading-relaxed">
+                        Mapeie os sinais corporais da criança, seus significados e a conduta recomendada para mediadores escolares e terapeutas.
+                      </p>
+
+                      {/* List of current signals */}
+                      <div className="flex flex-col gap-2.5 max-h-[300px] overflow-y-auto pr-1">
+                        {behaviorList.length === 0 ? (
+                          <p className="text-slate-400 text-xxs italic text-center py-4">
+                            Nenhum sinal cadastrado ainda.
+                          </p>
+                        ) : (
+                          behaviorList.map((item) => (
+                            <div key={item.id} className="p-3 bg-slate-50 border border-slate-200 rounded-2xl flex flex-col gap-1.5 relative group">
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteBehaviorSignal(item.id)}
+                                className="absolute top-2.5 right-2.5 p-1 bg-transparent hover:bg-rose-50 text-slate-405 hover:text-red-655 rounded-md border-none cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity"
+                                title="Excluir sinal"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                              <div className="text-xxs font-black text-indigo-950 font-Outfit pr-6">
+                                📢 Sinal: {item.signal}
+                              </div>
+                              <div className="text-[10px] text-slate-600 font-semibold leading-tight">
+                                <strong>🧠 Significado:</strong> {item.meaning}
+                              </div>
+                              <div className="text-[10px] text-emerald-800 font-semibold bg-emerald-50/60 border border-emerald-150 p-2 rounded-xl mt-1 leading-normal">
+                                <strong>👩‍🏫 Conduta:</strong> {item.intervention}
+                              </div>
+                            </div>
+                          ))
+                        )}
+                      </div>
+
+                      {/* Add form */}
+                      <form onSubmit={handleAddBehaviorSignal} className="flex flex-col gap-2.5 border-t border-slate-100 pt-4 mt-2">
+                        <span className="text-xxs font-black text-slate-700 uppercase tracking-wider font-Outfit">Cadastrar Novo Sinal</span>
+                        <div>
+                          <input
+                            type="text"
+                            placeholder="Sinal (Ex: Aleteo / Agitar mãos)"
+                            value={newSignal}
+                            onChange={e => setNewSignal(e.target.value)}
+                            className="w-full px-3 py-2 bg-slate-50 border border-slate-255 rounded-xl text-xxs font-bold outline-none focus:bg-white focus:border-indigo-650"
+                            required
+                          />
+                        </div>
+                        <div>
+                          <input
+                            type="text"
+                            placeholder="Significado (Ex: Excitação ou sobrecarga)"
+                            value={newMeaning}
+                            onChange={e => setNewMeaning(e.target.value)}
+                            className="w-full px-3 py-2 bg-slate-50 border border-slate-255 rounded-xl text-xxs font-bold outline-none focus:bg-white focus:border-indigo-650"
+                            required
+                          />
+                        </div>
+                        <div>
+                          <input
+                            type="text"
+                            placeholder="Conduta (Ex: Reduzir estímulos / Dar tempo)"
+                            value={newIntervention}
+                            onChange={e => setNewIntervention(e.target.value)}
+                            className="w-full px-3 py-2 bg-slate-50 border border-slate-255 rounded-xl text-xxs font-bold outline-none focus:bg-white focus:border-indigo-650"
+                            required
+                          />
+                        </div>
+                        <button
+                          type="submit"
+                          className="w-full py-2 bg-indigo-600 hover:bg-indigo-755 text-white text-xs font-black rounded-xl border-b-2 border-indigo-900 active:scale-95 transition-all cursor-pointer font-Outfit uppercase tracking-wider"
+                        >
+                          ➕ Adicionar Sinal
+                        </button>
+                      </form>
+                    </div>
+                  )}
                 </motion.div>
               )}
             </div>
           )}
-
-          {/* Quick Actions Card */}
+{/* Quick Actions Card */}
           <div className="bg-white border-2 border-slate-250 rounded-3xl p-6 shadow-premium">
             <button
               type="button"
@@ -3684,22 +3667,29 @@ export default function ParentDashboard() {
                     ) : null;
                   })()}
 
-                  {/* Presets Carrossel for 1-click add */}
+                  {/* Presets Dropdown select for 1-click add */}
                   <div className="flex flex-col gap-2 border-b border-slate-100 pb-5">
                     <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-1 select-none">
-                      ✨ Modelos Rápidos (Adicione com 1 clique)
+                      ✨ Modelos de Atividades Rápidas
                     </span>
-                    <div className="flex gap-2 overflow-x-auto pb-1.5 pt-0.5 scrollbar-thin">
+                    <select
+                      onChange={(e) => {
+                        const idx = e.target.value;
+                        if (idx !== "") {
+                          handleAddPreset(PRESETS[parseInt(idx)]);
+                          e.target.value = ""; // Reset selection
+                        }
+                      }}
+                      defaultValue=""
+                      className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 text-slate-700 text-xs font-bold rounded-xl outline-none focus:border-indigo-500 transition-all cursor-pointer shadow-xxs"
+                    >
+                      <option value="" disabled>Escolha um modelo rápido para adicionar...</option>
                       {PRESETS.map((preset, idx) => (
-                        <button
-                          key={idx}
-                          onClick={() => handleAddPreset(preset)}
-                          className="px-3.5 py-2.5 bg-slate-50 hover:bg-indigo-50/50 hover:border-indigo-250 border border-slate-200 text-slate-707 hover:text-indigo-700 text-xs font-black rounded-2xl transition-all shrink-0 active:scale-95 shadow-xxs flex items-center gap-1.5 cursor-pointer"
-                        >
-                          <Plus className="w-3.5 h-3.5 text-indigo-500" /> {preset.title}
-                        </button>
+                        <option key={idx} value={idx}>
+                          ➕ {preset.title} ({preset.time} - {preset.period === 'manhã' ? 'Manhã' : preset.period === 'tarde' ? 'Tarde' : 'Noite'})
+                        </option>
                       ))}
-                    </div>
+                    </select>
                   </div>
 
                   {/* Add Task Collapsible Form */}
@@ -4175,11 +4165,12 @@ export default function ParentDashboard() {
                                   );
                                 }
 
+                                                                const isExpanded = !!expandedTasks[task.id];
                                 return (
                                   <motion.div
                                     layout
                                     key={task.id}
-                                    className={`flex items-center justify-between p-4 bg-white border-2 rounded-2xl hover:border-slate-350 transition-all group border-l-6 shadow-xxs hover:shadow-sm`}
+                                    className={`flex flex-col bg-white border-2 rounded-2xl hover:border-slate-350 transition-all group border-l-6 shadow-xxs hover:shadow-sm overflow-hidden`}
                                     style={{ borderLeftColor: 
                                       taskCat.gradient.includes('teal') ? '#0d9488' : 
                                       taskCat.gradient.includes('amber') || taskCat.gradient.includes('orange') ? '#ea580c' : 
@@ -4191,74 +4182,106 @@ export default function ParentDashboard() {
                                       '#db2777' 
                                     }}
                                   >
-                                    <div className="flex items-center gap-3">
-                                      <div className="w-9 h-9 bg-indigo-50 border border-indigo-100 text-slate-700 rounded-xl flex items-center justify-center text-lg shadow-xxs shrink-0 overflow-hidden select-none">
-                                        {task.customIcon ? (
-                                          <img src={task.customIcon} alt="" className="w-full h-full object-cover" />
-                                        ) : (
-                                          task.icon || '📅'
-                                        )}
-                                      </div>
-                                      <div className="w-9 h-9 bg-slate-50 border border-slate-200/60 text-slate-500 rounded-xl flex items-center justify-center text-xs font-black shadow-xxs shrink-0">
-                                        {task.time}
-                                      </div>
-                                      <div>
-                                        <div className="flex items-center gap-2">
-                                          <span className="font-extrabold text-slate-700 text-sm">{task.title}</span>
-                                          <span className="text-[9px] px-2 py-0.5 rounded-full font-black bg-slate-100 text-slate-550 border border-slate-200 uppercase tracking-wider">
-                                            {task.category || 'AVD'}
-                                          </span>
-                                          {task.duration && (
-                                            <span className="text-[9px] px-2 py-0.5 rounded-full font-black bg-indigo-50/50 text-indigo-700 border border-indigo-100 uppercase tracking-wider">
-                                              ⏱️ {task.duration} min
-                                            </span>
+                                    {/* Main Header Row: Clickable to expand */}
+                                    <div 
+                                      onClick={() => {
+                                        playBubble();
+                                        setExpandedTasks(prev => ({
+                                          ...prev,
+                                          [task.id]: !prev[task.id]
+                                        }));
+                                      }}
+                                      className="flex items-center justify-between p-4 cursor-pointer select-none"
+                                    >
+                                      <div className="flex items-center gap-3">
+                                        <div className="w-9 h-9 bg-indigo-50 border border-indigo-100 text-slate-700 rounded-xl flex items-center justify-center text-lg shadow-xxs shrink-0 overflow-hidden">
+                                          {task.customIcon ? (
+                                            <img src={task.customIcon} alt="" className="w-full h-full object-cover" />
+                                          ) : (
+                                            task.icon || '📅'
                                           )}
                                         </div>
-                                        {task.description && (
-                                          <p className="text-[11px] text-slate-400 font-semibold mt-0.5 leading-tight">
-                                            {task.description}
-                                          </p>
+                                        <div className="w-9 h-9 bg-slate-50 border border-slate-200/60 text-slate-500 rounded-xl flex items-center justify-center text-xs font-black shadow-xxs shrink-0">
+                                          {task.time}
+                                        </div>
+                                        <span className="font-extrabold text-slate-700 text-sm">{task.title}</span>
+                                      </div>
+
+                                      <div className="flex items-center gap-2">
+                                        <span className={`text-xxs font-black uppercase tracking-wider px-3 py-1 rounded-full border shadow-xxs ${
+                                          task.isCompleted 
+                                            ? 'bg-emerald-50 text-emerald-600 border-emerald-200' 
+                                            : 'bg-amber-50 text-amber-600 border-amber-250'
+                                        }`}>
+                                          {task.isCompleted ? 'Feito ✓' : 'Pendente'}
+                                        </span>
+                                        {isExpanded ? (
+                                          <ChevronUp className="w-4 h-4 text-slate-400 shrink-0" />
+                                        ) : (
+                                          <ChevronDown className="w-4 h-4 text-slate-400 shrink-0" />
                                         )}
                                       </div>
                                     </div>
 
-                                    <div className="flex items-center gap-2">
-                                      <span className={`text-xxs font-black uppercase tracking-wider px-3 py-1 rounded-full border shadow-xxs ${
-                                        task.isCompleted 
-                                          ? 'bg-emerald-50 text-emerald-600 border-emerald-200' 
-                                          : 'bg-amber-50 text-amber-600 border-amber-250'
-                                      }`}>
-                                        {task.isCompleted ? 'Feito ✓' : 'Pendente'}
-                                      </span>
-
-                                      {!task.isCompleted && (
-                                        <button
-                                          onClick={() => {
-                                            playBubble();
-                                            setEditingTaskId(task.id);
-                                            setEditTaskTitle(task.title);
-                                            setEditTaskTime(task.time);
-                                            setEditTaskPeriod(task.period as any);
-                                            setEditTaskDuration(task.duration || 30);
-                                            setEditTaskDescription(task.description || '');
-                                            setEditTaskCategory(task.category as any || 'AVD');
-                                            setEditTaskIcon(task.icon || '📅');
-                                          }}
-                                          className="p-2 text-slate-400 hover:text-indigo-650 hover:bg-indigo-50 rounded-lg opacity-85 group-hover:opacity-100 transition-all active:scale-90 cursor-pointer"
-                                          title="Editar Atividade"
+                                    {/* Expanded Details Row: Description, Category, Duration, Action Buttons */}
+                                    <AnimatePresence>
+                                      {isExpanded && (
+                                        <motion.div
+                                          initial={{ height: 0, opacity: 0 }}
+                                          animate={{ height: 'auto', opacity: 1 }}
+                                          exit={{ height: 0, opacity: 0 }}
+                                          className="border-t border-slate-100 bg-slate-50/50 p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 overflow-hidden"
                                         >
-                                          <Pencil className="w-4 h-4" />
-                                        </button>
-                                      )}
+                                          <div className="flex flex-col gap-2">
+                                            <div className="flex items-center gap-2">
+                                              <span className="text-[9px] px-2 py-0.5 rounded-full font-black bg-slate-200 text-slate-600 border border-slate-300 uppercase tracking-wider">
+                                                {task.category || 'AVD'}
+                                              </span>
+                                              {task.duration && (
+                                                <span className="text-[9px] px-2 py-0.5 rounded-full font-black bg-indigo-50 text-indigo-750 border border-indigo-150 uppercase tracking-wider">
+                                                  ⏱️ {task.duration} min
+                                                </span>
+                                              )}
+                                            </div>
+                                            {task.description && (
+                                              <p className="text-[11px] text-slate-500 font-semibold leading-tight mt-1">
+                                                {task.description}
+                                              </p>
+                                            )}
+                                          </div>
 
-                                      <button
-                                        onClick={() => handleDeleteTask(task)}
-                                        className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg opacity-85 group-hover:opacity-100 transition-all active:scale-90 cursor-pointer"
-                                        title="Excluir Atividade"
-                                      >
-                                        <Trash2 className="w-4 h-4" />
-                                      </button>
-                                    </div>
+                                          <div className="flex items-center gap-2 self-end md:self-center">
+                                            {!task.isCompleted && (
+                                              <button
+                                                onClick={() => {
+                                                  playBubble();
+                                                  setEditingTaskId(task.id);
+                                                  setEditTaskTitle(task.title);
+                                                  setEditTaskTime(task.time);
+                                                  setEditTaskPeriod(task.period as any);
+                                                  setEditTaskDuration(task.duration || 30);
+                                                  setEditTaskDescription(task.description || '');
+                                                  setEditTaskCategory(task.category as any || 'AVD');
+                                                  setEditTaskIcon(task.icon || '📅');
+                                                }}
+                                                className="flex items-center gap-1 px-3 py-1.5 bg-indigo-50 border border-indigo-150 text-indigo-650 hover:bg-indigo-100/50 rounded-xl text-xxs font-black transition-all active:scale-95 cursor-pointer"
+                                                title="Editar Atividade"
+                                              >
+                                                <Pencil className="w-3 h-3" /> Editar
+                                              </button>
+                                            )}
+
+                                            <button
+                                              onClick={() => handleDeleteTask(task)}
+                                              className="flex items-center gap-1 px-3 py-1.5 bg-red-50 border border-red-150 text-red-600 hover:bg-red-100/50 rounded-xl text-xxs font-black transition-all active:scale-95 cursor-pointer"
+                                              title="Excluir Atividade"
+                                            >
+                                              <Trash2 className="w-3 h-3" /> Excluir
+                                            </button>
+                                          </div>
+                                        </motion.div>
+                                      )}
+                                    </AnimatePresence>
                                   </motion.div>
                                 );
                               })}

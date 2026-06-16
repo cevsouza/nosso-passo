@@ -696,6 +696,9 @@ export default function ChildRoutine() {
   const [simulatorStep, setSimulatorStep] = useState(0);
   const [simulatorFinished, setSimulatorFinished] = useState(false);
 
+  // State for consolidated supports dropdown
+  const [showSupportMenu, setShowSupportMenu] = useState(false);
+
   useEffect(() => {
     return () => {
       stopAmbientSound();
@@ -2913,43 +2916,87 @@ export default function ChildRoutine() {
             🏠 Início
           </button>
           
-          <button
-            onClick={() => { playBubble(); setShowStoriesModal(true); }}
-            onMouseEnter={playBubble}
-            className={`flex items-center gap-1.5 px-5 py-2.5 border-2 text-xs font-black rounded-full shadow-premium transition-all active:scale-95 cursor-pointer ${
-              sleepMode 
-                ? 'bg-amber-950/20 border-amber-900/50 text-amber-300 hover:bg-amber-950/50' 
-                : 'bg-white hover:bg-indigo-50 border-indigo-250 text-indigo-700'
-            }`}
-          >
-            📖 Histórias
-          </button>
-          
-          {!sleepMode && (
-            <>
-              <button
-                onClick={() => { playBubble(); setShowHyperfocusModal(true); }}
-                onMouseEnter={playBubble}
-                className="flex items-center gap-1.5 px-5 py-2.5 border-2 border-yellow-400 bg-yellow-50 hover:bg-yellow-100 text-yellow-750 text-xs font-black rounded-full shadow-premium transition-all active:scale-95 cursor-pointer"
+          {/* Consolidated Supports Dropdown */}
+          <div className="relative">
+            <button
+              onClick={() => { playBubble(); setShowSupportMenu(!showSupportMenu); }}
+              onMouseEnter={playBubble}
+              className={`flex items-center gap-1.5 px-5 py-2.5 border-2 text-xs font-black rounded-full shadow-premium transition-all active:scale-95 cursor-pointer ${
+                sleepMode 
+                  ? 'bg-amber-950/20 border-amber-900/50 text-amber-300 hover:bg-amber-950/50' 
+                  : 'bg-white hover:bg-indigo-50 border-indigo-250 text-indigo-700'
+              }`}
+            >
+              🎒 Apoios & Jogos {showSupportMenu ? '▲' : '▼'}
+            </button>
+
+            {showSupportMenu && (
+              <div 
+                className={`absolute left-0 mt-2 p-2 rounded-2xl border-2 shadow-2xl flex flex-col gap-1.5 min-w-[200px] z-50 ${
+                  sleepMode 
+                    ? 'bg-[#090d1a] border-amber-900/50 text-amber-200' 
+                    : 'bg-white border-slate-200 text-slate-800'
+                }`}
               >
-                🎮 Meu Mundo ({activeChild?.collectedParts || 0}/4)
-              </button>
-              <button
-                onClick={() => { playBubble(); setShowAacModal(true); }}
-                onMouseEnter={playBubble}
-                className="flex items-center gap-1.5 px-5 py-2.5 border-2 border-emerald-400 bg-emerald-50 hover:bg-emerald-100 text-emerald-750 text-xs font-black rounded-full shadow-premium transition-all active:scale-95 cursor-pointer font-Outfit"
-              >
-                🗣️ Minha Voz
-              </button>
-              <button
-                onClick={() => { playBubble(); setShowSimulatorModal(true); setSelectedScenario(null); setSimulatorStep(0); setSimulatorFinished(false); }}
-                onMouseEnter={playBubble}
-                className="flex items-center gap-1.5 px-5 py-2.5 border-2 border-purple-400 bg-purple-50 hover:bg-purple-100 text-purple-750 text-xs font-black rounded-full shadow-premium transition-all active:scale-95 cursor-pointer font-Outfit"
-              >
-                🎮 Simulador
-              </button>
-            </>
-          )}
+                <button
+                  onClick={() => { 
+                    playBubble(); 
+                    setShowStoriesModal(true); 
+                    setShowSupportMenu(false); 
+                  }}
+                  className={`flex items-center gap-2 w-full px-4 py-2 text-left text-xs font-bold rounded-xl transition-colors border-none bg-transparent cursor-pointer ${
+                    sleepMode ? 'hover:bg-slate-850 text-amber-205' : 'hover:bg-slate-50 text-slate-700'
+                  }`}
+                >
+                  📖 Histórias
+                </button>
+                
+                {!sleepMode && (
+                  <>
+                    <button
+                      onClick={() => { 
+                        playBubble(); 
+                        setShowHyperfocusModal(true); 
+                        setShowSupportMenu(false); 
+                      }}
+                      className={`flex items-center gap-2 w-full px-4 py-2 text-left text-xs font-bold rounded-xl transition-colors border-none bg-transparent cursor-pointer ${
+                        sleepMode ? 'hover:bg-slate-850 text-amber-205' : 'hover:bg-slate-50 text-slate-700'
+                      }`}
+                    >
+                      🎮 Meu Mundo ({activeChild?.collectedParts || 0}/4)
+                    </button>
+                    <button
+                      onClick={() => { 
+                        playBubble(); 
+                        setShowAacModal(true); 
+                        setShowSupportMenu(false); 
+                      }}
+                      className={`flex items-center gap-2 w-full px-4 py-2 text-left text-xs font-bold rounded-xl transition-colors border-none bg-transparent cursor-pointer font-Outfit ${
+                        sleepMode ? 'hover:bg-slate-850 text-amber-205' : 'hover:bg-slate-50 text-slate-700'
+                      }`}
+                    >
+                      🗣️ Minha Voz
+                    </button>
+                    <button
+                      onClick={() => { 
+                        playBubble(); 
+                        setShowSimulatorModal(true); 
+                        setSelectedScenario(null); 
+                        setSimulatorStep(0); 
+                        setSimulatorFinished(false); 
+                        setShowSupportMenu(false); 
+                      }}
+                      className={`flex items-center gap-2 w-full px-4 py-2 text-left text-xs font-bold rounded-xl transition-colors border-none bg-transparent cursor-pointer font-Outfit ${
+                        sleepMode ? 'hover:bg-slate-850 text-amber-205' : 'hover:bg-slate-50 text-slate-700'
+                      }`}
+                    >
+                      🎮 Simulador
+                    </button>
+                  </>
+                )}
+              </div>
+            )}
+          </div>
 
           <button
             onClick={() => {
