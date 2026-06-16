@@ -3322,7 +3322,7 @@ export default function ParentDashboard() {
                   : 'text-slate-700 hover:text-slate-955 hover:bg-slate-50 border-2 border-transparent'
               }`}
             >
-              <ListTodo className="w-4 h-4" /> Agenda Mensal
+              <ListTodo className="w-4 h-4" /> Agenda
             </button>
             <button
               onClick={() => { playBubble(); setActivePanelTab('checkpoints'); }}
@@ -3393,14 +3393,14 @@ export default function ParentDashboard() {
                 {/* GLOBAL CALENDAR REPLICATION & UNEXPECTED CHANGES */}
                 {activeChild && (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Monthly Template Replication */}
+                    {/* Template Replication */}
                     <div className="bg-gradient-to-br from-indigo-50/50 to-sky-50/50 border border-indigo-150 p-6 rounded-[28px] shadow-sm flex flex-col gap-4 text-left">
                       <div className="flex items-center gap-2 text-indigo-950">
                         <span className="text-xl">📅</span>
-                        <h4 className="font-extrabold text-sm font-Outfit uppercase tracking-wide">Modelo de Agenda Mensal</h4>
+                        <h4 className="font-extrabold text-sm font-Outfit uppercase tracking-wide">Modelo de Agenda</h4>
                       </div>
                       <p className="text-[10px] text-slate-500 font-semibold leading-relaxed">
-                        Salve o calendário completo de atividades personalizadas para o paciente e replique-o no início de cada mês para zerar o progresso em 1 clique.
+                        Salve o calendário completo de atividades personalizadas para o paciente e replique-o no início de cada semana para zerar o progresso em 1 clique.
                       </p>
                       <div className="flex gap-2.5 mt-2">
                         <button
