@@ -35,19 +35,33 @@ import {
 import Link from 'next/link';
 import { SensoryHeatmap } from '../../../components/SensoryHeatmap';
 
-const DAYS_OF_WEEK = [
-  { key: 'segunda', label: 'Segunda-feira 📅', short: 'SEG' },
-  { key: 'terca', label: 'Terça-feira 📅', short: 'TER' },
-  { key: 'quarta', label: 'Quarta-feira 📅', short: 'QUA' },
-  { key: 'quinta', label: 'Quinta-feira 📅', short: 'QUI' },
-  { key: 'sexta', label: 'Sexta-feira 📅', short: 'SEX' },
-  { key: 'sabado', label: 'Sábado ☀️', short: 'SÁB' },
-  { key: 'domingo', label: 'Domingo ☀️', short: 'DOM' }
-];
+const getDaysOfCurrentMonth = () => {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth(); // 0-indexed
+  const numDays = new Date(year, month + 1, 0).getDate();
+  const DAYS_PORTUGUESE = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+  const WEEKDAY_KEYS = ['domingo', 'segunda', 'terca', 'quarta', 'quinta', 'sexta', 'sabado'];
+  
+  return Array.from({ length: numDays }).map((_, i) => {
+    const dayNum = i + 1;
+    const date = new Date(year, month, dayNum);
+    const dayOfWeek = DAYS_PORTUGUESE[date.getDay()];
+    return {
+      key: String(dayNum),
+      label: `Dia ${dayNum} (${dayOfWeek}) 📅`,
+      short: `${dayNum}`,
+      weekdayKey: WEEKDAY_KEYS[date.getDay()],
+      weekdayShort: dayOfWeek
+    };
+  });
+};
+
+const DAYS_OF_MONTH = getDaysOfCurrentMonth();
 
 const getDayLabel = (dayKey: string) => {
-  const day = DAYS_OF_WEEK.find(d => d.key === dayKey);
-  return day ? day.label : dayKey;
+  const day = DAYS_OF_MONTH.find(d => d.key === dayKey);
+  return day ? day.label : `Dia ${dayKey}`;
 };
 
 const PERIODS = [
@@ -326,9 +340,9 @@ export default function ParentDashboard() {
         );
         triggerStatus(`Modelo aplicado para ${dayLabel}!`);
       } else {
-        // Replace all week tasks
+        // Replace all month tasks
         const allNewTasks: any[] = [];
-        DAYS_OF_WEEK.forEach(day => {
+        DAYS_OF_MONTH.forEach(day => {
           template.tasks.forEach((t, idx) => {
             allNewTasks.push({
               ...t,
@@ -344,10 +358,10 @@ export default function ParentDashboard() {
         
         await immutableLogger.logChange(
           'RESET_ROUTINE',
-          `Carregou o modelo "${template.name}" para toda a semana (segunda a domingo).`,
+          `Carregou o modelo "${template.name}" para todo o mês.`,
           currentUser?.email
         );
-        triggerStatus(`Modelo aplicado para toda a semana!`);
+        triggerStatus(`Modelo aplicado para todo o mês!`);
       }
     } catch (err) {
       triggerStatus('Erro ao carregar modelo.');
@@ -649,7 +663,7 @@ export default function ParentDashboard() {
   const [changeReplacement, setChangeReplacement] = useState('');
 
   // Weekly and Monthly Schedule View Mode State
-  const [scheduleViewMode, setScheduleViewMode] = useState<'daily' | 'weekly'>('daily');
+  const [scheduleViewMode, setScheduleViewMode] = useState<'daily' | 'weekly' | 'monthly'>('daily');
 
   // Onboarding help state
   const [showOnboardingHelp, setShowOnboardingHelp] = useState(true);
@@ -698,7 +712,7 @@ export default function ParentDashboard() {
   const [notifications, setNotifications] = useState<{ id: string; message: string; timestamp: Date }[]>([]);
   
   // Tab/Filter states
-  const [activeDayFilter, setActiveDayFilter] = useState('segunda');
+  const [activeDayFilter, setActiveDayFilter] = useState(new Date().getDate().toString());
   const [activePanelTab, setActivePanelTab] = useState<'tasks' | 'reports' | 'logs' | 'checkpoints'>('tasks');
   const [checkpoints, setCheckpoints] = useState<any[]>([]);
   const [loadingCheckpoints, setLoadingCheckpoints] = useState(false);
@@ -1975,7 +1989,7 @@ export default function ParentDashboard() {
 
   // Week calculations for weekly schedule view
   const weekStart = Math.floor((parseInt(activeDayFilter || '1', 10) - 1) / 7) * 7 + 1;
-  const weekEnd = Math.min(weekStart + 6, 31);
+  const weekEnd = Math.min(weekStart + 6, DAYS_OF_MONTH.length);
   const weekDays = Array.from({ length: weekEnd - weekStart + 1 }, (_, i) => weekStart + i);
 
   return (
@@ -3373,12 +3387,12 @@ export default function ParentDashboard() {
               >
                 
                 {/* Wrapped Days Calendar Grid Selector */}
-                <div className="flex justify-between items-center gap-1.5 pb-3 border-b border-slate-100 select-none overflow-x-auto w-full">
-                  {DAYS_OF_WEEK.map(day => (
+                <div className="flex flex-wrap gap-2 pb-3 max-h-36 overflow-y-auto pr-1 scrollbar-thin border-b border-slate-100 select-none">
+                  {DAYS_OF_MONTH.map(day => (
                     <button
                       key={day.key}
                       onClick={() => { playBubble(); setActiveDayFilter(day.key); }}
-                      className={`flex-1 min-w-[42px] h-9 flex items-center justify-center text-[10px] font-black rounded-xl border transition-all active:scale-95 cursor-pointer uppercase ${
+                      className={`w-9 h-9 flex items-center justify-center text-xs font-black rounded-xl border transition-all shrink-0 active:scale-95 cursor-pointer ${
                         activeDayFilter === day.key
                           ? 'bg-indigo-600 border-indigo-600 text-white shadow-md shadow-indigo-100'
                           : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300 hover:text-slate-800 hover:bg-slate-50'
@@ -3521,18 +3535,20 @@ export default function ParentDashboard() {
                     <div className="flex flex-col sm:flex-row sm:items-center gap-4">
                       <div>
                         <h3 className="font-black text-slate-850 text-xl leading-tight font-Outfit">
-                          {scheduleViewMode === 'daily' && `Agenda para ${DAYS_OF_WEEK.find(d => d.key === activeDayFilter)?.label}`}
-                          {scheduleViewMode === 'weekly' && `Agenda Semanal de Rotina 📅`}
+                          {scheduleViewMode === 'daily' && `Agenda para ${DAYS_OF_MONTH.find(d => d.key === activeDayFilter)?.label}`}
+                          {scheduleViewMode === 'weekly' && `Agenda Semanal (Dias ${weekStart} a ${weekEnd}) 📅`}
+                          {scheduleViewMode === 'monthly' && `Agenda Mensal Completa 🗓️`}
                         </h3>
                         <p className="text-xs text-slate-400 font-semibold mt-0.5">
                           {scheduleViewMode === 'daily' && `${tasks.filter(t => t.day === activeDayFilter).length} tarefas cadastradas`}
-                          {scheduleViewMode === 'weekly' && `${tasks.length} tarefas cadastradas na semana`}
+                          {scheduleViewMode === 'weekly' && `${tasks.filter(t => parseInt(t.day) >= weekStart && parseInt(t.day) <= weekEnd).length} tarefas cadastradas na semana`}
+                          {scheduleViewMode === 'monthly' && `${tasks.length} tarefas cadastradas no total`}
                         </p>
                       </div>
 
                       {/* View selector tabs */}
                       <div className="flex bg-slate-100 p-0.5 rounded-full border border-slate-200 w-fit shrink-0">
-                        {(['daily', 'weekly'] as const).map(mode => (
+                        {(['daily', 'weekly', 'monthly'] as const).map(mode => (
                           <button
                             key={mode}
                             type="button"
@@ -3543,7 +3559,7 @@ export default function ParentDashboard() {
                                 : 'text-slate-500 hover:text-slate-800'
                             }`}
                           >
-                            {mode === 'daily' ? 'Diária' : 'Semanal'}
+                            {mode === 'daily' ? 'Diária' : mode === 'weekly' ? 'Semanal' : 'Mensal'}
                           </button>
                         ))}
                       </div>
@@ -4194,7 +4210,9 @@ export default function ParentDashboard() {
                   {/* Weekly View Block */}
                   {scheduleViewMode === 'weekly' && (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-                      {DAYS_OF_WEEK.map(day => {
+                      {weekDays.map(dayNum => {
+                        const day = DAYS_OF_MONTH.find(d => d.key === String(dayNum));
+                        if (!day) return null;
                         const dayTasks = tasks.filter(t => t.day === day.key);
                         const completedTasks = dayTasks.filter(t => t.isCompleted);
                         const isToday = day.key === activeDayFilter;
@@ -4216,7 +4234,7 @@ export default function ParentDashboard() {
                                   <span className={`text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md ${
                                     isToday ? 'bg-indigo-650 text-white' : 'bg-slate-100 text-slate-655'
                                   }`}>
-                                    {day.short}
+                                    {day.weekdayShort}
                                   </span>
                                   <h4 className="font-extrabold text-slate-800 text-sm mt-1 font-Outfit">
                                     {day.label}
@@ -4313,6 +4331,108 @@ export default function ParentDashboard() {
                               Ver Detalhes
                             </button>
                           </div>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  {/* Monthly View Block */}
+                  {scheduleViewMode === 'monthly' && (
+                    <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-7 gap-3.5">
+                      {DAYS_OF_MONTH.map(day => {
+                        const dayTasks = tasks.filter(t => t.day === day.key);
+                        const completedTasks = dayTasks.filter(t => t.isCompleted);
+                        const isSelected = day.key === activeDayFilter;
+                        const progressPercent = dayTasks.length > 0 ? Math.round((completedTasks.length / dayTasks.length) * 100) : 0;
+                        const taskPreview = dayTasks.slice(0, 2);
+
+                        return (
+                          <button
+                            key={day.key}
+                            type="button"
+                            onClick={() => {
+                              playBubble();
+                              setActiveDayFilter(day.key);
+                              setScheduleViewMode('daily');
+                            }}
+                            className={`flex flex-col items-center justify-between p-3.5 rounded-2xl border-2 transition-all text-left cursor-pointer active:scale-95 group h-32 ${
+                              isSelected 
+                                ? 'border-indigo-400 bg-indigo-50/15 shadow-sm' 
+                                : 'border-slate-150 bg-white hover:border-slate-300 hover:shadow-sm'
+                            }`}
+                          >
+                            {/* Day Number and Completion Rate */}
+                            <div className="flex justify-between items-start w-full">
+                              <div className="flex flex-col">
+                                <span className={`text-sm font-black font-Outfit ${isSelected ? 'text-indigo-650' : 'text-slate-800'}`}>
+                                  Dia {day.key}
+                                </span>
+                                <span className="text-[8px] font-bold text-slate-450 uppercase">{day.weekdayShort}</span>
+                              </div>
+                              {dayTasks.length > 0 ? (
+                                <span className={`text-[9px] font-extrabold px-1.5 py-0.5 rounded-full border shrink-0 ${
+                                  progressPercent === 100 
+                                    ? 'bg-emerald-50 text-emerald-600 border-emerald-150' 
+                                    : 'bg-indigo-50 text-indigo-600 border-indigo-150'
+                                }`}>
+                                  {progressPercent}%
+                                </span>
+                              ) : (
+                                <span className="text-[8px] font-bold text-slate-400 uppercase tracking-wider shrink-0 select-none">
+                                  Livre
+                                </span>
+                              )}
+                            </div>
+
+                            {/* Task Emojis Preview */}
+                            <div className="flex gap-1.5 my-2.5 items-center justify-center w-full">
+                              {dayTasks.length === 0 ? (
+                                <span className="text-xs text-slate-350 select-none">🧸</span>
+                              ) : (
+                                <>
+                                  {taskPreview.map(t => (
+                                    <div 
+                                      key={t.id} 
+                                      title={t.title}
+                                      className="w-7 h-7 bg-slate-50 border border-slate-205 text-slate-700 rounded-lg flex items-center justify-center text-sm shadow-xxs overflow-hidden select-none shrink-0"
+                                    >
+                                      {t.customIcon ? (
+                                        <img src={t.customIcon} alt="" className="w-full h-full object-cover" />
+                                      ) : (
+                                        t.icon || '📅'
+                                      )}
+                                    </div>
+                                  ))}
+                                  {dayTasks.length > 2 && (
+                                    <span className="text-[9px] font-black text-slate-450 bg-slate-100 border border-slate-200/80 w-5 h-5 rounded-full flex items-center justify-center shrink-0">
+                                      +{(dayTasks.length - 2)}
+                                    </span>
+                                  )}
+                                </>
+                              )}
+                            </div>
+
+                            {/* Bottom Task count and progress bar */}
+                            <div className="w-full">
+                              {dayTasks.length > 0 ? (
+                                <div className="flex flex-col gap-1 w-full">
+                                  <span className="text-[9px] text-slate-450 font-bold block truncate">
+                                    {completedTasks.length}/{dayTasks.length} feitas
+                                  </span>
+                                  <div className="w-full bg-slate-100 rounded-full h-1 overflow-hidden">
+                                    <div 
+                                      className={`h-full rounded-full ${progressPercent === 100 ? 'bg-emerald-500' : 'bg-indigo-650'}`}
+                                      style={{ width: `${progressPercent}%` }}
+                                    />
+                                  </div>
+                                </div>
+                              ) : (
+                                <span className="text-[9px] text-slate-400 italic block font-semibold text-center select-none">
+                                  Sem tarefas
+                                </span>
+                              )}
+                            </div>
+                          </button>
                         );
                       })}
                     </div>

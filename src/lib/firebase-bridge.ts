@@ -590,9 +590,7 @@ export const firebaseBridge = {
           window.dispatchEvent(new CustomEvent('firebase-mock-task-completed', { detail: completedTask }));
         }
       }
-    },
-
-    resetToDefaults: async (): Promise<void> => {
+    },    resetToDefaults: async (): Promise<void> => {
       const current = getLocalProfile();
       const userUid = current?.uid || 'user-123';
       const childId = typeof window !== 'undefined' ? localStorage.getItem('tea_active_child_id') : null;
@@ -641,8 +639,49 @@ export const firebaseBridge = {
         { title: 'Almoço Saudável 🍲', time: '12:30', period: 'tarde', day: 'sexta' },
         { title: 'Parquinho ao Ar Livre 🛝', time: '16:00', period: 'tarde', day: 'sexta' },
         { title: 'Jantar em Família 🍽️', time: '19:00', period: 'noite', day: 'sexta' },
-        { title: 'Banho e Dormir 😴', time: '21:00', period: 'noite', day: 'sexta' }
+        { title: 'Banho e Dormir 😴', time: '21:00', period: 'noite', day: 'sexta' },
+
+        // Sábado
+        { title: 'Escovar os dentes 🪥', time: '09:00', period: 'manhã', day: 'sabado' },
+        { title: 'Café Especial 🥞', time: '09:30', period: 'manhã', day: 'sabado' },
+        { title: 'Parque e Natureza 🌳', time: '10:30', period: 'manhã', day: 'sabado' },
+        { title: 'Almoço em Família 🍲', time: '13:00', period: 'tarde', day: 'sabado' },
+        { title: 'Tempo de Hiperfoco 🧸', time: '15:30', period: 'tarde', day: 'sabado' },
+        { title: 'Jantar em Família 🍽️', time: '19:30', period: 'noite', day: 'sabado' },
+        { title: 'Banho e Dormir 😴', time: '21:00', period: 'noite', day: 'sabado' },
+
+        // Domingo
+        { title: 'Escovar os dentes 🪥', time: '09:00', period: 'manhã', day: 'domingo' },
+        { title: 'Café Especial 🥞', time: '09:30', period: 'manhã', day: 'domingo' },
+        { title: 'Organizar Brinquedos 🧸', time: '11:00', period: 'manhã', day: 'domingo' },
+        { title: 'Almoço em Família 🍲', time: '13:00', period: 'tarde', day: 'domingo' },
+        { title: 'Atividade Livre 🏃‍♂️', time: '15:30', period: 'tarde', day: 'domingo' },
+        { title: 'Jantar em Família 🍽️', time: '19:30', period: 'noite', day: 'domingo' },
+        { title: 'Banho e Dormir 😴', time: '21:00', period: 'noite', day: 'domingo' }
       ];
+
+      // Map DEFAULT_TASKS to the actual days of the current month based on calendar weekday
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = now.getMonth();
+      const numDays = new Date(year, month + 1, 0).getDate();
+      const WEEKDAY_KEYS = ['domingo', 'segunda', 'terca', 'quarta', 'quinta', 'sexta', 'sabado'];
+
+      const monthTasks: any[] = [];
+      for (let dayNum = 1; dayNum <= numDays; dayNum++) {
+        const date = new Date(year, month, dayNum);
+        const weekdayKey = WEEKDAY_KEYS[date.getDay()];
+        
+        const daySeedTasks = DEFAULT_TASKS.filter(t => t.day === weekdayKey);
+        daySeedTasks.forEach(t => {
+          monthTasks.push({
+            title: t.title,
+            time: t.time,
+            period: t.period,
+            day: String(dayNum)
+          });
+        });
+      }
 
       const headers: Record<string, string> = { 
         'Content-Type': 'application/json',
@@ -655,7 +694,7 @@ export const firebaseBridge = {
       const res = await safeFetch('/api/tasks', {
         method: 'PUT',
         headers,
-        body: JSON.stringify({ overwrite: true, tasks: DEFAULT_TASKS })
+        body: JSON.stringify({ overwrite: true, tasks: monthTasks })
       });
       const data = await res.json();
       if (data.error) throw new Error(data.error);

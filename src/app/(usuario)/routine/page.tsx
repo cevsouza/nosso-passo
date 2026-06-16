@@ -598,7 +598,7 @@ export default function ChildRoutine() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [offline, setOffline] = useState(false);
   const [offlineQueueSize, setOfflineQueueSize] = useState(0);
-  const [currentDay, setCurrentDay] = useState('1');
+  const [currentDay, setCurrentDay] = useState(new Date().getDate().toString());
   const [collieState, setCollieState] = useState<CollieState>('idle');
   const [celebratingTaskId, setCelebratingTaskId] = useState<string | null>(null);
   const [childHyperfocus, setChildHyperfocus] = useState('Border Collies 🐕');
@@ -811,11 +811,10 @@ export default function ChildRoutine() {
     }, 2000);
   };
   
-  // 1. Detect current day of week, load children and subscribe to tasks
+  // 1. Detect current day of month, load children and subscribe to tasks
   useEffect(() => {
-    const dayOfWeekIndex = new Date().getDay();
-    const todayDayOfWeek = DAYS_PORTUGUESE[dayOfWeekIndex] || 'segunda';
-    setCurrentDay(todayDayOfWeek);
+    const todayDay = new Date().getDate().toString();
+    setCurrentDay(todayDay);
 
     const loadPortal = async () => {
       setLoadingChildren(true);
