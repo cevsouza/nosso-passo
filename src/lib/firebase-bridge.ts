@@ -598,13 +598,50 @@ export const firebaseBridge = {
       const childId = typeof window !== 'undefined' ? localStorage.getItem('tea_active_child_id') : null;
 
       const DEFAULT_TASKS = [
+        // Segunda-feira
         { title: 'Escovar os dentes 🪥', time: '08:00', period: 'manhã', day: 'segunda' },
-        { title: 'Tomar café da manhã 🍞', time: '08:30', period: 'manhã', day: 'segunda' },
-        { title: 'Aulas e Estudo 🏫', time: '09:00', period: 'manhã', day: 'segunda' },
+        { title: 'Café da manhã 🍞', time: '08:30', period: 'manhã', day: 'segunda' },
+        { title: 'Terapia Ocupacional 🧠', time: '09:30', period: 'manhã', day: 'segunda' },
         { title: 'Almoço Saudável 🍲', time: '12:30', period: 'tarde', day: 'segunda' },
         { title: 'Brincar com o Collie 🐶', time: '15:00', period: 'tarde', day: 'segunda' },
         { title: 'Jantar em Família 🍽️', time: '19:00', period: 'noite', day: 'segunda' },
-        { title: 'Tomar Banho e Dormir 😴', time: '21:00', period: 'noite', day: 'segunda' },
+        { title: 'Banho e Dormir 😴', time: '21:00', period: 'noite', day: 'segunda' },
+
+        // Terça-feira
+        { title: 'Escovar os dentes 🪥', time: '08:00', period: 'manhã', day: 'terca' },
+        { title: 'Café da manhã 🍞', time: '08:30', period: 'manhã', day: 'terca' },
+        { title: 'Fonoaudiologia 🗣️', time: '10:00', period: 'manhã', day: 'terca' },
+        { title: 'Almoço Saudável 🍲', time: '12:30', period: 'tarde', day: 'terca' },
+        { title: 'Atividade de Desenho 🎨', time: '16:00', period: 'tarde', day: 'terca' },
+        { title: 'Jantar em Família 🍽️', time: '19:00', period: 'noite', day: 'terca' },
+        { title: 'Banho e Dormir 😴', time: '21:00', period: 'noite', day: 'terca' },
+
+        // Quarta-feira
+        { title: 'Escovar os dentes 🪥', time: '08:00', period: 'manhã', day: 'quarta' },
+        { title: 'Café da manhã 🍞', time: '08:30', period: 'manhã', day: 'quarta' },
+        { title: 'Psicopedagogia 🧠', time: '10:30', period: 'manhã', day: 'quarta' },
+        { title: 'Almoço Saudável 🍲', time: '12:30', period: 'tarde', day: 'quarta' },
+        { title: 'Natação Adaptada 🏊‍♂️', time: '15:30', period: 'tarde', day: 'quarta' },
+        { title: 'Jantar em Família 🍽️', time: '19:00', period: 'noite', day: 'quarta' },
+        { title: 'Banho e Dormir 😴', time: '21:00', period: 'noite', day: 'quarta' },
+
+        // Quinta-feira
+        { title: 'Escovar os dentes 🪥', time: '08:00', period: 'manhã', day: 'quinta' },
+        { title: 'Café da manhã 🍞', time: '08:30', period: 'manhã', day: 'quinta' },
+        { title: 'Integração Sensorial 🤸‍♂️', time: '09:00', period: 'manhã', day: 'quinta' },
+        { title: 'Almoço Saudável 🍲', time: '12:30', period: 'tarde', day: 'quinta' },
+        { title: 'Montar Lego/Blocos 🧱', time: '15:00', period: 'tarde', day: 'quinta' },
+        { title: 'Jantar em Família 🍽️', time: '19:00', period: 'noite', day: 'quinta' },
+        { title: 'Banho e Dormir 😴', time: '21:00', period: 'noite', day: 'quinta' },
+
+        // Sexta-feira
+        { title: 'Escovar os dentes 🪥', time: '08:00', period: 'manhã', day: 'sexta' },
+        { title: 'Café da manhã 🍞', time: '08:30', period: 'manhã', day: 'sexta' },
+        { title: 'Musicoterapia 🎵', time: '10:00', period: 'manhã', day: 'sexta' },
+        { title: 'Almoço Saudável 🍲', time: '12:30', period: 'tarde', day: 'sexta' },
+        { title: 'Parquinho ao Ar Livre 🛝', time: '16:00', period: 'tarde', day: 'sexta' },
+        { title: 'Jantar em Família 🍽️', time: '19:00', period: 'noite', day: 'sexta' },
+        { title: 'Banho e Dormir 😴', time: '21:00', period: 'noite', day: 'sexta' }
       ];
 
       const headers: Record<string, string> = { 
@@ -624,6 +661,32 @@ export const firebaseBridge = {
       if (data.error) throw new Error(data.error);
 
       window.dispatchEvent(new CustomEvent(MOCK_DB_UPDATE_EVENT, { detail: data }));
+    },
+
+    resetCompletions: async (): Promise<void> => {
+      const current = getLocalProfile();
+      const userUid = current?.uid || 'user-123';
+      const childId = typeof window !== 'undefined' ? localStorage.getItem('tea_active_child_id') : null;
+
+      const headers: Record<string, string> = { 
+        'Content-Type': 'application/json',
+        'x-user-uid': userUid
+      };
+      if (childId) {
+        headers['x-child-id'] = childId;
+      }
+
+      const res = await safeFetch('/api/tasks', {
+        method: 'PUT',
+        headers,
+        body: JSON.stringify({ resetCompletions: true })
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+
+      // Fetch new task list
+      const tasks = await firebaseBridge.db.getTasks();
+      window.dispatchEvent(new CustomEvent(MOCK_DB_UPDATE_EVENT, { detail: tasks }));
     },
 
     loadTemplate: async (templateTasks: Omit<Task, 'id' | 'isCompleted' | 'order'>[]): Promise<void> => {

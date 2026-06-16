@@ -2,13 +2,13 @@ import { NextResponse } from 'next/server';
 import { prisma } from '../../../lib/prisma';
 
 const DEFAULT_SEED_TASKS = [
-  { title: 'Escovar os dentes 🪥', time: '08:00', period: 'manhã', day: '1', order: 1 },
-  { title: 'Tomar café da manhã 🍞', time: '08:30', period: 'manhã', day: '1', order: 2 },
-  { title: 'Aulas e Estudo 🏫', time: '09:00', period: 'manhã', day: '1', order: 3 },
-  { title: 'Almoço Saudável 🍲', time: '12:30', period: 'tarde', day: '1', order: 4 },
-  { title: 'Brincar com o Collie 🐶', time: '15:00', period: 'tarde', day: '1', order: 5 },
-  { title: 'Jantar em Família 🍽️', time: '19:00', period: 'noite', day: '1', order: 6 },
-  { title: 'Tomar Banho e Dormir 😴', time: '21:00', period: 'noite', day: '1', order: 7 },
+  { title: 'Escovar os dentes 🪥', time: '08:00', period: 'manhã', day: 'segunda', order: 1 },
+  { title: 'Tomar café da manhã 🍞', time: '08:30', period: 'manhã', day: 'segunda', order: 2 },
+  { title: 'Aulas e Estudo 🏫', time: '09:00', period: 'manhã', day: 'segunda', order: 3 },
+  { title: 'Almoço Saudável 🍲', time: '12:30', period: 'tarde', day: 'segunda', order: 4 },
+  { title: 'Brincar com o Collie 🐶', time: '15:00', period: 'tarde', day: 'segunda', order: 5 },
+  { title: 'Jantar em Família 🍽️', time: '19:00', period: 'noite', day: 'segunda', order: 6 },
+  { title: 'Tomar Banho e Dormir 😴', time: '21:00', period: 'noite', day: 'segunda', order: 7 },
 ];
 
 export async function GET(req: Request) {
@@ -105,6 +105,30 @@ export async function PUT(req: Request) {
     const userUid = req.headers.get('x-user-uid') || 'user-123';
     const childId = req.headers.get('x-child-id');
     const body = await req.json();
+
+    if (body.resetCompletions) {
+      if (childId) {
+        await prisma.task.updateMany({
+          where: { childId },
+          data: { isCompleted: false },
+        });
+        const updatedTasks = await prisma.task.findMany({
+          where: { childId },
+          orderBy: [{ day: 'asc' }, { time: 'asc' }],
+        });
+        return NextResponse.json(updatedTasks);
+      } else {
+        await prisma.task.updateMany({
+          where: { userUid },
+          data: { isCompleted: false },
+        });
+        const updatedTasks = await prisma.task.findMany({
+          where: { userUid },
+          orderBy: [{ day: 'asc' }, { time: 'asc' }],
+        });
+        return NextResponse.json(updatedTasks);
+      }
+    }
 
     if (body.overwrite && Array.isArray(body.tasks)) {
       // Bulk overwrite tasks (loadTemplate, resetToDefaults, etc.)

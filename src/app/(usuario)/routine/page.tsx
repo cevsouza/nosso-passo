@@ -811,10 +811,11 @@ export default function ChildRoutine() {
     }, 2000);
   };
   
-  // 1. Detect current day of month, load children and subscribe to tasks
+  // 1. Detect current day of week, load children and subscribe to tasks
   useEffect(() => {
-    const todayDayOfMonth = new Date().getDate().toString();
-    setCurrentDay(todayDayOfMonth);
+    const dayOfWeekIndex = new Date().getDay();
+    const todayDayOfWeek = DAYS_PORTUGUESE[dayOfWeekIndex] || 'segunda';
+    setCurrentDay(todayDayOfWeek);
 
     const loadPortal = async () => {
       setLoadingChildren(true);
@@ -901,6 +902,29 @@ export default function ChildRoutine() {
     }, 4000);
     return () => clearInterval(interval);
   }, [activeChild?.id, activeChild]);
+
+  // Automatic Daily Reset on new day detection
+  useEffect(() => {
+    if (!activeChild?.id) return;
+    
+    const checkAndResetDailyCompletions = async () => {
+      try {
+        const todayStr = new Date().toLocaleDateString('pt-BR');
+        const storageKey = `tea_last_opened_date_${activeChild.id}`;
+        const lastOpenedDate = localStorage.getItem(storageKey);
+        
+        if (lastOpenedDate !== todayStr) {
+          console.log(`[AutoReset] Novo dia detectado! Antigo: ${lastOpenedDate}, Novo: ${todayStr}. Resetando conclusões.`);
+          await firebaseBridge.db.resetCompletions();
+          localStorage.setItem(storageKey, todayStr);
+        }
+      } catch (err) {
+        console.error('Erro ao verificar ou resetar tarefas diárias:', err);
+      }
+    };
+    
+    checkAndResetDailyCompletions();
+  }, [activeChild?.id]);
 
   // Speak unexpected change on load
   useEffect(() => {
