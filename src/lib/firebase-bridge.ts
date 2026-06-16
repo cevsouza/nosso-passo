@@ -491,7 +491,7 @@ export const firebaseBridge = {
       return data;
     },
 
-    addTask: async (taskData: Omit<Task, 'id' | 'isCompleted' | 'order'>): Promise<Task> => {
+    addTask: async (taskData: Omit<Task, 'id' | 'isCompleted' | 'order'> | Omit<Task, 'id' | 'isCompleted' | 'order'>[]): Promise<any> => {
       const current = getLocalProfile();
       const userUid = current?.uid || 'user-123';
       const childId = typeof window !== 'undefined' ? localStorage.getItem('tea_active_child_id') : null;

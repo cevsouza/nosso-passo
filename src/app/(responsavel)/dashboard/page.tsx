@@ -64,6 +64,23 @@ const getDayLabel = (dayKey: string) => {
   return day ? day.label : `Dia ${dayKey}`;
 };
 
+const getRecurrenceWeekdayLabel = (dayKey: string) => {
+  const dayObj = DAYS_OF_MONTH.find(d => d.key === dayKey);
+  if (!dayObj) return 'no mesmo dia da semana';
+  
+  const mapping: Record<string, string> = {
+    domingo: 'Domingos',
+    segunda: 'Segundas-feiras',
+    terca: 'Terças-feiras',
+    quarta: 'Quartas-feiras',
+    quinta: 'Quintas-feiras',
+    sexta: 'Sextas-feiras',
+    sabado: 'Sábados'
+  };
+  
+  return `Todas as ${mapping[dayObj.weekdayKey] || dayObj.weekdayKey} do mês`;
+};
+
 const PERIODS = [
   { key: 'manhã', label: 'Manhã ☀️', color: 'bg-amber-55 text-amber-700 border-amber-150' },
   { key: 'tarde', label: 'Tarde ⛅', color: 'bg-blue-55 text-blue-700 border-blue-150' },
@@ -625,6 +642,7 @@ export default function ParentDashboard() {
   const [taskCategory, setTaskCategory] = useState<'AVD' | 'Aprendizado' | 'Lazer'>('AVD');
   const [taskDuration, setTaskDuration] = useState(30);
   const [taskDescription, setTaskDescription] = useState('');
+  const [recurrenceMode, setRecurrenceMode] = useState<'single' | 'weekday' | 'monthly'>('single');
 
   // Edit states for single tasks
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
@@ -1310,23 +1328,48 @@ export default function ParentDashboard() {
     playMarimba(392, 0.4);
 
     try {
-      const added = await firebaseBridge.db.addTask({
+      let targetDays = [activeDayFilter];
+      if (recurrenceMode === 'weekday') {
+        const targetDayObj = DAYS_OF_MONTH.find(d => d.key === activeDayFilter);
+        if (targetDayObj) {
+          targetDays = DAYS_OF_MONTH.filter(d => d.weekdayKey === targetDayObj.weekdayKey).map(d => d.key);
+        }
+      } else if (recurrenceMode === 'monthly') {
+        targetDays = DAYS_OF_MONTH.map(d => d.key);
+      }
+
+      // Map to tasks payload
+      const tasksToCreate = targetDays.map(dayKey => ({
         title: title.trim(),
         time,
         period,
-        day: activeDayFilter,
+        day: dayKey,
         icon: taskIcon,
         customIcon: taskCustomIcon.trim() || undefined,
         category: taskCategory,
         duration: taskDuration,
         description: taskDescription.trim()
-      });
+      }));
+
+      // Call database bridge (supports single or array)
+      const payload = tasksToCreate.length === 1 ? tasksToCreate[0] : tasksToCreate;
+      await firebaseBridge.db.addTask(payload);
 
       // Write IMUTABLE LOG trail
-      const dayLabel = getDayLabel(activeDayFilter);
+      let logMessage = '';
+      if (recurrenceMode === 'single') {
+        const dayLabel = getDayLabel(activeDayFilter).replace(/ 📅| ☀️/, '');
+        logMessage = `Adicionou a tarefa "${title.trim()}" (Duração: ${taskDuration}min, Ícone: ${taskIcon}, Categoria: ${taskCategory}) às ${time} (${period}) na agenda de ${dayLabel}.`;
+      } else if (recurrenceMode === 'weekday') {
+        const dayLabel = getRecurrenceWeekdayLabel(activeDayFilter);
+        logMessage = `Adicionou a tarefa "${title.trim()}" (Duração: ${taskDuration}min, Ícone: ${taskIcon}, Categoria: ${taskCategory}) às ${time} (${period}) em ${dayLabel}.`;
+      } else {
+        logMessage = `Adicionou a tarefa "${title.trim()}" (Duração: ${taskDuration}min, Ícone: ${taskIcon}, Categoria: ${taskCategory}) às ${time} (${period}) em todos os dias do mês.`;
+      }
+
       await immutableLogger.logChange(
         'ADD_TASK', 
-        `Adicionou a tarefa "${title.trim()}" (Duração: ${taskDuration}min, Ícone: ${taskIcon}, Categoria: ${taskCategory}) às ${time} (${period}) na ${dayLabel}.`,
+        logMessage,
         currentUser?.email
       );
 
@@ -1336,9 +1379,17 @@ export default function ParentDashboard() {
       setTaskCategory('AVD');
       setTaskDuration(30);
       setTaskDescription('');
+      
+      const successMsg = recurrenceMode === 'single' 
+        ? 'Tarefa adicionada com sucesso!' 
+        : recurrenceMode === 'weekday' 
+        ? 'Tarefa adicionada para os dias selecionados!' 
+        : 'Tarefa adicionada para todo o mês!';
+      
+      setRecurrenceMode('single');
       setFormOpen(false);
       setFormStep(1);
-      triggerStatus('Tarefa adicionada com sucesso!');
+      triggerStatus(successMsg);
     } catch (err) {
       triggerStatus('Erro ao adicionar tarefa.');
     }
@@ -3737,6 +3788,19 @@ export default function ParentDashboard() {
                                   <option value="AVD">AVD (Vida Diária) 🧼</option>
                                   <option value="Aprendizado">Aprendizado 📚</option>
                                   <option value="Lazer">Lazer 🧸</option>
+                                </select>
+                              </div>
+
+                              <div>
+                                <label className="block text-xxs font-bold text-slate-500 uppercase mb-1">Recorrência / Inclusão</label>
+                                <select
+                                  value={recurrenceMode}
+                                  onChange={e => setRecurrenceMode(e.target.value as any)}
+                                  className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-705 outline-none text-sm font-bold cursor-pointer"
+                                >
+                                  <option value="single">Apenas neste dia ({getDayLabel(activeDayFilter).replace(/ 📅| ☀️/, '')})</option>
+                                  <option value="weekday">Repetir no dia da semana ({getRecurrenceWeekdayLabel(activeDayFilter).replace('Todas as ', '')})</option>
+                                  <option value="monthly">Repetir em todos os dias do mês (Diária)</option>
                                 </select>
                               </div>
                             </div>
