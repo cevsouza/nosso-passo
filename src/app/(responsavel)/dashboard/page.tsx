@@ -2097,36 +2097,54 @@ export default function ParentDashboard() {
       </header>
 
       {/* Child Selector & Management Bar */}
-      <section className="bg-white border-b-2 border-slate-250 py-4 shadow-sm">
+      <section className="bg-white border-b-2 border-slate-250 py-4.5 shadow-sm select-none">
         <div className="max-w-6xl mx-auto px-4 md:px-6 flex flex-wrap items-center justify-between gap-4">
-          <div className="flex items-center gap-3 flex-wrap">
-            <span className="text-xs font-black text-slate-500 uppercase tracking-wider font-Outfit">Crianças:</span>
-            {children.map(child => {
+          <div className="flex items-center gap-3.5 flex-wrap">
+            <span className="text-xs font-black text-slate-450 uppercase tracking-widest font-Outfit">Crianças:</span>
+            {children.map((child, index) => {
               const isActive = activeChild?.id === child.id;
+              const colors = [
+                'bg-indigo-500 text-indigo-50 border-indigo-600 shadow-indigo-100',
+                'bg-emerald-500 text-emerald-50 border-emerald-600 shadow-emerald-100',
+                'bg-amber-500 text-amber-50 border-amber-600 shadow-amber-100',
+                'bg-rose-500 text-rose-50 border-rose-600 shadow-rose-100',
+                'bg-sky-500 text-sky-50 border-sky-600 shadow-sky-100'
+              ];
+              const colorClass = colors[index % colors.length];
+              const initials = child.name.substring(0, 2).toUpperCase();
+
               return (
-                <div key={child.id} className="flex items-center gap-1 bg-slate-50 border-2 border-slate-250 rounded-xl p-1 shadow-xs">
+                <div key={child.id} className="flex items-center gap-1.5 shrink-0 relative group">
                   <button
                     onClick={() => handleSelectChild(child)}
-                    className={`px-4 py-2 rounded-lg text-sm font-black flex items-center gap-2 transition-all cursor-pointer font-Outfit ${
+                    className={`flex items-center gap-2.5 pl-2 pr-4 py-1.5 rounded-full text-xs font-black transition-all cursor-pointer font-Outfit border-2 select-none active:scale-95 ${
                       isActive
-                        ? 'bg-indigo-600 text-white border-2 border-indigo-850 shadow-md'
-                        : 'bg-slate-100 hover:bg-slate-200 text-slate-800 border-2 border-slate-300'
+                        ? `${colorClass} ring-4 ring-indigo-500/30 ring-offset-2 scale-105 shadow-md`
+                        : 'bg-white hover:bg-slate-50 text-slate-700 border-slate-250 shadow-xxs'
                     }`}
                   >
-                    <span>👶</span> {child.name}
-                    {child.diagnosis && child.diagnosis !== 'Não Informado' && (
-                      <span className={`text-[9px] px-2 py-0.5 rounded-md font-black uppercase tracking-wider ${isActive ? 'bg-indigo-855 text-indigo-100 border border-indigo-700' : 'bg-slate-250 text-slate-700 border border-slate-350'}`}>
-                        {child.diagnosis}
-                      </span>
-                    )}
+                    <div className={`w-7 h-7 rounded-full flex items-center justify-center font-bold text-[10px] border ${
+                      isActive ? 'bg-white/20 border-white/30 text-white' : 'bg-slate-150 border-slate-250 text-slate-500'
+                    }`}>
+                      {initials}
+                    </div>
+                    <div className="text-left flex flex-col justify-center">
+                      <span className="leading-none text-xxs font-black">{child.name}</span>
+                      {child.diagnosis && child.diagnosis !== 'Não Informado' && (
+                        <span className={`text-[8px] font-black uppercase tracking-wider mt-0.5 ${isActive ? 'text-indigo-100' : 'text-slate-400'}`}>
+                          {child.diagnosis}
+                        </span>
+                      )}
+                    </div>
                   </button>
+
                   {children.length > 1 && (
                     <button
                       onClick={() => handleDeleteChild(child.id, child.name)}
-                      className="p-1.5 text-slate-450 hover:text-red-655 rounded-lg hover:bg-red-50 transition-colors border border-transparent hover:border-red-200"
+                      className="absolute -top-1 -right-1 w-5 h-5 bg-red-100 text-red-600 hover:bg-red-500 hover:text-white rounded-full flex items-center justify-center transition-all border border-red-200 shadow-xxs opacity-0 group-hover:opacity-100 cursor-pointer text-[9px] font-black"
                       title="Excluir Criança"
                     >
-                      <Trash2 className="w-3.5 h-3.5" />
+                      ✕
                     </button>
                   )}
                 </div>
@@ -2135,9 +2153,12 @@ export default function ParentDashboard() {
             
             <button
               onClick={() => setNewChildModalOpen(true)}
-              className="px-4 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-855 border-2 border-emerald-350 text-sm font-black rounded-xl flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer shadow-xs font-Outfit"
+              className="pl-2 pr-4 py-1.5 bg-slate-50 hover:bg-slate-100 hover:border-slate-350 border-2 border-dashed border-slate-300 text-xs font-black rounded-full flex items-center gap-2 transition-all active:scale-95 cursor-pointer shadow-xxs font-Outfit"
             >
-              <Plus className="w-4 h-4" /> Cadastrar Criança
+              <div className="w-7 h-7 rounded-full bg-slate-200 border border-slate-300 flex items-center justify-center font-extrabold text-xs text-slate-550">
+                +
+              </div>
+              <span>Cadastrar Criança</span>
             </button>
           </div>
 
@@ -2147,9 +2168,9 @@ export default function ParentDashboard() {
                 href={`/routine?childId=${activeChild.id}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-5 py-2.5 bg-indigo-600 text-white hover:bg-indigo-750 text-sm font-black rounded-xl shadow-md border-b-4 border-indigo-900 transition-all active:scale-95 flex items-center gap-2 font-Outfit"
+                className="px-5 py-2.5 bg-indigo-600 text-white hover:bg-indigo-755 text-xs font-black rounded-xl shadow-md border-b-4 border-indigo-900 transition-all active:scale-95 flex items-center gap-2 font-Outfit uppercase tracking-wider"
               >
-                <span>🚀</span> Ir para Tela de {activeChild.name}
+                <span>🚀</span> Ir para Tela de {activeChild.name.split(' ')[0]}
               </a>
             </div>
           ) : (
@@ -3361,47 +3382,47 @@ export default function ParentDashboard() {
         <div className="md:col-span-8 flex flex-col gap-6">
           
           {/* Tabs for switching Tasks Routine vs Reports vs Audit Logs */}
-          <div className="bg-white border-2 border-slate-250 p-2 rounded-2xl flex shadow-sm gap-1 overflow-x-auto scrollbar-none">
+          <div className="bg-slate-100/80 p-1.5 rounded-2xl flex shadow-inner gap-1 overflow-x-auto scrollbar-none">
             <button
               onClick={() => { playBubble(); setActivePanelTab('tasks'); }}
-              className={`flex-1 py-3 text-sm font-black rounded-xl transition-all flex items-center justify-center gap-2 shrink-0 font-Outfit cursor-pointer ${
+              className={`flex-1 py-2.5 text-xs font-black rounded-xl transition-all flex items-center justify-center gap-2 shrink-0 font-Outfit cursor-pointer select-none active:scale-95 ${
                 activePanelTab === 'tasks' 
-                  ? 'bg-slate-900 text-white border-2 border-slate-950 shadow-md' 
-                  : 'text-slate-700 hover:text-slate-955 hover:bg-slate-50 border-2 border-transparent'
+                  ? 'bg-white text-indigo-950 shadow-sm border border-slate-200/50 scale-100' 
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/40 border-2 border-transparent'
               }`}
             >
-              <ListTodo className="w-4 h-4" /> Agenda
+              <ListTodo className="w-4.5 h-4.5" /> Agenda
             </button>
             <button
               onClick={() => { playBubble(); setActivePanelTab('checkpoints'); }}
-              className={`flex-1 py-3 text-sm font-black rounded-xl transition-all flex items-center justify-center gap-2 shrink-0 font-Outfit cursor-pointer ${
+              className={`flex-1 py-2.5 text-xs font-black rounded-xl transition-all flex items-center justify-center gap-2 shrink-0 font-Outfit cursor-pointer select-none active:scale-95 ${
                 activePanelTab === 'checkpoints' 
-                  ? 'bg-slate-900 text-white border-2 border-slate-950 shadow-md' 
-                  : 'text-slate-700 hover:text-slate-955 hover:bg-slate-50 border-2 border-transparent'
+                  ? 'bg-white text-indigo-950 shadow-sm border border-slate-200/50 scale-100' 
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/40 border-2 border-transparent'
               }`}
             >
-              <span>🤝</span> Checkpoints Clínicos
+              <span className="text-sm">🤝</span> Checkpoints Clínicos
             </button>
             <button
               onClick={() => { playBubble(); setActivePanelTab('reports'); }}
-              className={`flex-1 py-3 text-sm font-black rounded-xl transition-all flex items-center justify-center gap-2 shrink-0 font-Outfit cursor-pointer ${
+              className={`flex-1 py-2.5 text-xs font-black rounded-xl transition-all flex items-center justify-center gap-2 shrink-0 font-Outfit cursor-pointer select-none active:scale-95 ${
                 activePanelTab === 'reports' 
-                  ? 'bg-slate-900 text-white border-2 border-slate-950 shadow-md' 
-                  : 'text-slate-700 hover:text-slate-955 hover:bg-slate-50 border-2 border-transparent'
+                  ? 'bg-white text-indigo-950 shadow-sm border border-slate-200/50 scale-100' 
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/40 border-2 border-transparent'
               }`}
             >
-              <span>📊</span> Relatório Clínico
+              <span className="text-sm">📊</span> Relatório Clínico
             </button>
             <button
               onClick={() => { playBubble(); setActivePanelTab('logs'); }}
-              className={`flex-1 py-3 text-sm font-black rounded-xl transition-all flex items-center justify-center gap-2 shrink-0 font-Outfit cursor-pointer ${
+              className={`flex-1 py-2.5 text-xs font-black rounded-xl transition-all flex items-center justify-center gap-2 shrink-0 font-Outfit cursor-pointer select-none active:scale-95 ${
                 activePanelTab === 'logs' 
-                  ? 'bg-slate-900 text-white border-2 border-slate-950 shadow-md' 
-                  : 'text-slate-700 hover:text-slate-955 hover:bg-slate-50 border-2 border-transparent'
+                  ? 'bg-white text-indigo-950 shadow-sm border border-slate-200/50 scale-100' 
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/40 border-2 border-transparent'
               }`}
             >
-              <History className="w-4 h-4" /> Logs de Segurança
-              <span className="text-xxs bg-indigo-100 border-2 border-indigo-300 text-indigo-955 px-2 py-0.5 rounded-full font-extrabold shadow-sm">
+              <History className="w-4.5 h-4.5" /> Logs de Segurança
+              <span className="text-[10px] bg-indigo-50 border border-indigo-150 text-indigo-755 px-2 py-0.5 rounded-full font-extrabold shadow-xxs">
                 {logs.length}
               </span>
             </button>
@@ -3692,6 +3713,7 @@ export default function ParentDashboard() {
                     </select>
                   </div>
 
+                  <div id="add-task-form-anchor" />
                   {/* Add Task Collapsible Form */}
                   <AnimatePresence>
                     {formOpen && (
@@ -5750,6 +5772,55 @@ export default function ParentDashboard() {
         </div>
 
       </div>
+
+      {/* Sticky Caregiver Toolbar at Bottom Right */}
+      {activeChild && (
+        <div className="fixed bottom-6 right-6 z-40 flex flex-col sm:flex-row items-center gap-2.5 bg-white/90 backdrop-blur-md border border-slate-200/60 p-2.5 rounded-3xl shadow-xl select-none">
+          <button
+            onClick={() => {
+              playBubble();
+              setFormOpen(true);
+              const formEl = document.getElementById('add-task-form-anchor');
+              if (formEl) {
+                formEl.scrollIntoView({ behavior: 'smooth' });
+              }
+            }}
+            className="flex items-center gap-1.5 px-4.5 py-2.5 bg-indigo-600 hover:bg-indigo-755 border-b-2 border-indigo-900 text-white text-xs font-black rounded-2xl active:scale-95 transition-all cursor-pointer font-Outfit uppercase tracking-wider"
+            title="Criar nova atividade"
+          >
+            <Plus className="w-4 h-4" /> Criar Atividade
+          </button>
+          <button
+            onClick={() => {
+              playBubble();
+              window.print();
+            }}
+            className="flex items-center gap-1.5 px-4.5 py-2.5 bg-emerald-600 hover:bg-emerald-755 border-b-2 border-emerald-900 text-white text-xs font-black rounded-2xl active:scale-95 transition-all cursor-pointer font-Outfit uppercase tracking-wider"
+            title="Imprimir cartões PECS"
+          >
+            🖨️ Imprimir PECS
+          </button>
+          <a
+            href={`/routine?childId=${activeChild.id}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1.5 px-4.5 py-2.5 bg-amber-500 hover:bg-amber-600 border-b-2 border-amber-700 text-slate-950 text-xs font-black rounded-2xl active:scale-95 transition-all cursor-pointer font-Outfit uppercase tracking-wider"
+            title="Ver portal do paciente"
+          >
+            🚀 Ver Portal
+          </a>
+          <button
+            onClick={() => {
+              playBubble();
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            className="w-10 h-10 bg-slate-105 hover:bg-slate-200 border border-slate-250 text-slate-600 rounded-2xl active:scale-95 transition-all cursor-pointer flex items-center justify-center font-black"
+            title="Voltar ao Topo"
+          >
+            ▲
+          </button>
+        </div>
+      )}
 
       {/* Cadastro de Criança Modal */}
       <AnimatePresence>
