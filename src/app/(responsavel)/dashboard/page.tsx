@@ -1,6 +1,6 @@
 "use client";
-import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useState, useEffect, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { firebaseBridge, Task, UserProfile, getOfflineQueue } from '../../../lib/firebase-bridge';
 import { immutableLogger, AuditLog } from '../../../lib/immutable-logger';
@@ -234,8 +234,9 @@ const CLINICAL_TEMPLATES = {
 };
 
 
-export default function ParentDashboard() {
+function ParentDashboardContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);
   const [offline, setOffline] = useState(false);
   const [offlineQueueSize, setOfflineQueueSize] = useState(0);
@@ -847,6 +848,29 @@ export default function ParentDashboard() {
   };
 
   const mascotLabel = getMascotLabelInfo();
+
+  // 1.1 Sync profile if returning from Stripe checkout
+  useEffect(() => {
+    const success = searchParams.get('success');
+    const sessionId = searchParams.get('session_id');
+    if (success === 'true' && sessionId) {
+      const sync = async () => {
+        try {
+          if ((firebaseBridge.auth as any).syncProfile) {
+            const updatedProfile = await (firebaseBridge.auth as any).syncProfile();
+            if (updatedProfile) {
+              setPlan(updatedProfile.plan || 'free');
+              triggerStatus('Assinatura Premium ativa! Obrigado 💎');
+            }
+          }
+        } catch (err) {
+          console.error("Erro ao sincronizar assinatura:", err);
+        }
+      };
+      sync();
+      router.replace('/dashboard');
+    }
+  }, [searchParams, router]);
 
   // 1. Verification of authentication & fetch profile & children
   useEffect(() => {
@@ -5981,17 +6005,52 @@ export default function ParentDashboard() {
                       playMarimba(392, 0.1);
                       setCheckingOut(true);
                       
-                      // Simulate Stripe redirect and payments checkout loop
-                      setTimeout(async () => {
-                        playMarimba(523.25, 0.12);
-                        setTimeout(() => playMarimba(659.25, 0.15), 100);
+                      try {
+                        const response = await fetch('/api/checkout', {
+                          method: 'POST',
+                          headers: {
+                            'Content-Type': 'application/json',
+                          },
+                          body: JSON.stringify({
+                            uid: currentUser?.uid,
+                            email: currentUser?.email,
+                          }),
+                        });
                         
-                        await firebaseBridge.auth.updateProfileSettings({ plan: 'premium' });
-                        setPlan('premium');
-                        setShowPaywall(false);
-                        setCheckingOut(false);
-                        triggerStatus('Assinatura Premium ativa! Obrigado 💎');
-                      }, 2000);
+                        if (response.ok) {
+                          const data = await response.json();
+                          if (data.url) {
+                            if (data.url.includes('mock_checkout=true')) {
+                              setTimeout(async () => {
+                                playMarimba(523.25, 0.12);
+                                setTimeout(() => playMarimba(659.25, 0.15), 100);
+                                
+                                await firebaseBridge.auth.updateProfileSettings({ plan: 'premium' });
+                                setPlan('premium');
+                                setShowPaywall(false);
+                                setCheckingOut(false);
+                                triggerStatus('Assinatura Premium ativa (Simulação)! Obrigado 💎');
+                              }, 1500);
+                            } else {
+                              window.location.href = data.url;
+                            }
+                            return;
+                          }
+                        }
+                        throw new Error('Falha ao conectar com o provedor de cobrança');
+                      } catch (err: any) {
+                        console.warn("Erro ao iniciar checkout, utilizando simulação local:", err);
+                        setTimeout(async () => {
+                          playMarimba(523.25, 0.12);
+                          setTimeout(() => playMarimba(659.25, 0.15), 100);
+                          
+                          await firebaseBridge.auth.updateProfileSettings({ plan: 'premium' });
+                          setPlan('premium');
+                          setShowPaywall(false);
+                          setCheckingOut(false);
+                          triggerStatus('Assinatura Premium ativa (Simulação local)! Obrigado 💎');
+                        }, 1500);
+                      }
                     }}
                     className="w-full py-3 bg-gradient-to-r from-amber-450 via-yellow-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-indigo-950 font-black text-sm rounded-xl shadow-lg shadow-amber-300/10 cursor-pointer transition-all active:scale-95 border-b-2 border-amber-700/50"
                   >
@@ -6030,5 +6089,18 @@ export default function ParentDashboard() {
         </div>
       </div>
     </main>
+  );
+}
+
+export default function ParentDashboard() {
+  return (
+    <Suspense fallback={
+      <div className="flex flex-col items-center justify-center min-h-screen bg-[#0f172a] text-white gap-3">
+        <div className="w-10 h-10 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+        <span className="text-xs font-bold text-slate-300 animate-pulse">Carregando painel...</span>
+      </div>
+    }>
+      <ParentDashboardContent />
+    </Suspense>
   );
 }

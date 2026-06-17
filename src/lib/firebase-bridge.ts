@@ -302,6 +302,20 @@ export const firebaseBridge = {
       return getLocalProfile();
     },
 
+    syncProfile: async (): Promise<UserProfile | null> => {
+      const current = getLocalProfile();
+      if (!current) return null;
+      const res = await safeFetch('/api/profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: current.email })
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      saveLocalProfile(data);
+      return data;
+    },
+
     onAuthStateChanged: (callback: (user: UserProfile | null) => void) => {
       if (typeof window === 'undefined') return () => {};
       
