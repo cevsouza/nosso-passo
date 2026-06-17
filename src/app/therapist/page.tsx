@@ -1188,6 +1188,179 @@ export default function TherapistPortal() {
                 </AnimatePresence>
               </div>
 
+              {/* Clinical Presets & Analytics Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                
+                {/* Visual Analytics Card */}
+                <div className="bg-white border border-slate-200 p-6 rounded-[28px] shadow-premium flex flex-col gap-4 text-left">
+                  <div className="flex items-center gap-2 text-teal-650">
+                    <TrendingUp className="w-5 h-5 text-teal-600" />
+                    <h3 className="font-black text-slate-900 text-md font-Outfit">Métricas de Aderência e Sucesso</h3>
+                  </div>
+
+                  {/* 1. Category Success Rates */}
+                  <div className="flex flex-col gap-3">
+                    <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 font-Outfit">Sucesso por Categoria (Hoje)</h4>
+                    {(() => {
+                      const childTasks = childData?.tasks || [];
+                      const categories = ['AVD', 'Aprendizado', 'Lazer'];
+                      return categories.map(cat => {
+                        const catTasks = childTasks.filter((t: any) => t.category === cat);
+                        const total = catTasks.length;
+                        const completed = catTasks.filter((t: any) => t.isCompleted).length;
+                        const pct = total > 0 ? Math.round((completed / total) * 100) : 0;
+                        return (
+                          <div key={cat} className="flex flex-col gap-1 text-[11px] font-bold text-slate-700">
+                            <div className="flex justify-between items-center">
+                              <span>{cat === 'AVD' ? '🏠 AVDs' : cat === 'Aprendizado' ? '📚 Aprendizado' : '🎮 Lazer'}</span>
+                              <span className="font-black text-slate-900">{completed}/{total} ({pct}%)</span>
+                            </div>
+                            <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                              <div 
+                                className={`h-full rounded-full transition-all duration-500 ${
+                                  cat === 'AVD' ? 'bg-indigo-650' : cat === 'Aprendizado' ? 'bg-teal-500' : 'bg-emerald-500'
+                                }`}
+                                style={{ width: `${pct}%` }}
+                              />
+                            </div>
+                          </div>
+                        );
+                      });
+                    })()}
+                  </div>
+
+                  {/* 2. Crises Trend Over Time */}
+                  <div className="flex flex-col gap-2 border-t border-slate-100 pt-3">
+                    <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 font-Outfit">Tendência de Desregulação Sensorial (Semana)</h4>
+                    {(() => {
+                      const cLogs = childData?.sensoryLogs || [];
+                      const last7Days = Array.from({ length: 7 }).map((_, i) => {
+                        const d = new Date();
+                        d.setDate(d.getDate() - i);
+                        return d.toISOString().split('T')[0];
+                      }).reverse();
+
+                      const crisesPerDay = last7Days.map(dayStr => {
+                        return cLogs.filter((l: any) => {
+                          const logDay = new Date(l.timestamp).toISOString().split('T')[0];
+                          return logDay === dayStr && l.crisisOccurred;
+                        }).length;
+                      });
+
+                      const maxCrises = Math.max(1, ...crisesPerDay);
+                      
+                      return (
+                        <div className="flex items-end justify-between h-20 px-2 pt-4 bg-slate-50 border border-slate-205 rounded-2xl gap-2">
+                          {last7Days.map((dayStr, idx) => {
+                            const count = crisesPerDay[idx];
+                            const heightPct = (count / maxCrises) * 100;
+                            const shortLabel = dayStr.split('-')[2];
+                            return (
+                              <div key={dayStr} className="flex-1 flex flex-col items-center gap-1 group relative">
+                                <div 
+                                  className="w-full rounded-t-md bg-red-400 hover:bg-red-500 transition-all cursor-pointer"
+                                  style={{ height: `${Math.max(15, heightPct)}px`, opacity: count > 0 ? 1 : 0.25 }}
+                                  title={`${count} crises em ${dayStr}`}
+                                />
+                                <span className="text-[8px] font-black text-slate-400">{shortLabel}</span>
+                                {count > 0 && (
+                                  <span className="absolute top-[-18px] bg-slate-900 text-white text-[8px] font-bold px-1.5 py-0.5 rounded-md pointer-events-none select-none opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-20">
+                                    🚨 {count}
+                                  </span>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      );
+                    })()}
+                  </div>
+                </div>
+
+                {/* Presets Manager Card */}
+                <div className="bg-white border border-slate-200 p-6 rounded-[28px] shadow-premium flex flex-col gap-4 text-left">
+                  <div className="flex items-center gap-2 text-teal-650">
+                    <Brain className="w-5 h-5 text-indigo-500" />
+                    <h3 className="font-black text-slate-900 text-md font-Outfit">Prescrever Presets Terapêuticos</h3>
+                  </div>
+                  
+                  <p className="text-[10px] text-slate-500 font-semibold leading-relaxed">
+                    Escolha um dos modelos abaixo baseados em metodologias clínicas e adicione as atividades instantaneamente à rotina do paciente.
+                  </p>
+
+                  <div className="flex flex-col gap-3">
+                    {[
+                      {
+                        title: 'Intervenção Comportamental ABA 🧩',
+                        desc: 'Rotina estruturada com treinos de foco e pausas lúdicas.',
+                        tasks: [
+                          { title: 'Foco: Treino de Imitação ABA 🧩', time: '09:00', period: 'manhã', day: '1', order: 1, icon: '🧩', category: 'Aprendizado', duration: 30, description: 'Trabalho de foco e atenção compartilhada.' },
+                          { title: 'Treino de AVD: Lavar as mãos 🧼', time: '10:00', period: 'manhã', day: '1', order: 2, icon: '🧼', category: 'AVD', duration: 15, description: 'Lavar as mãos de forma independente.' },
+                          { title: 'Pausa Sensorial Livre 🧸', time: '10:30', period: 'manhã', day: '1', order: 3, icon: '🧸', category: 'Lazer', duration: 20, description: 'Brincadeira livre reguladora.' }
+                        ]
+                      },
+                      {
+                        title: 'Integração Sensorial T.O. 🏃‍♂️',
+                        desc: 'Foco em regulação psicomotora e relaxamento corporal.',
+                        tasks: [
+                          { title: 'Circuito Psicomotor Sensorial 🏃‍♂️', time: '14:00', period: 'tarde', day: '1', order: 1, icon: '🏃‍♂️', category: 'Aprendizado', duration: 45, description: 'Circuito com almofadas e saltos.' },
+                          { title: 'Banho de Espuma Regulador 🚿', time: '15:00', period: 'tarde', day: '1', order: 2, icon: '🚿', category: 'AVD', duration: 30, description: 'Estimulação tátil suave com espuma.' },
+                          { title: 'Descanso na Rede 💤', time: '15:45', period: 'tarde', day: '1', order: 3, icon: '💤', category: 'Lazer', duration: 20, description: 'Regulação vestibular passiva.' }
+                        ]
+                      },
+                      {
+                        title: 'Comunicação e Linguagem 🗣️',
+                        desc: 'Foco em treinos de fala, cartões PECS e refeição social.',
+                        tasks: [
+                          { title: 'Treino de PECS / Nomeação 🗣️', time: '11:00', period: 'manhã', day: '1', order: 1, icon: '🗣️', category: 'Aprendizado', duration: 30, description: 'Exercícios de comunicação aumentativa.' },
+                          { title: 'Almoço Social Sem Telas 🍱', time: '12:00', period: 'tarde', day: '1', order: 2, icon: '🍱', category: 'AVD', duration: 45, description: 'Almoço focado em mastigação e interação.' },
+                          { title: 'Leitura Compartilhada 📖', time: '20:00', period: 'noite', day: '1', order: 3, icon: '📖', category: 'Lazer', duration: 30, description: 'Leitura interativa de histórias sociais.' }
+                        ]
+                      }
+                    ].map((preset, pIdx) => (
+                      <div key={pIdx} className="bg-slate-50 border border-slate-150 p-3 rounded-2xl flex flex-col gap-1 text-left">
+                        <div className="flex justify-between items-start gap-2">
+                          <div>
+                            <h4 className="text-[11px] font-black text-slate-800 font-Outfit">{preset.title}</h4>
+                            <p className="text-[9px] text-slate-500 font-semibold mt-0.5 leading-normal">{preset.desc}</p>
+                          </div>
+                          <button
+                            onClick={async () => {
+                              playMarimba(392, 0.2);
+                              setStatusMsg('Prescrevendo rotina...');
+                              try {
+                                for (const t of preset.tasks) {
+                                  await fetch('/api/therapist', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({
+                                      sharingCode: childData.sharingCode,
+                                      action: 'CREATE_TASK',
+                                      taskData: t
+                                    })
+                                  });
+                                }
+                                playMarimba(523.25, 0.3);
+                                setStatusMsg(`Rotina "${preset.title}" prescrita com sucesso! 🎉`);
+                                handleVerify(undefined, childData.sharingCode);
+                                setTimeout(() => setStatusMsg(''), 4000);
+                              } catch (err) {
+                                console.error("Erro ao prescrever preset:", err);
+                                setStatusMsg('Falha ao prescrever rotina.');
+                              }
+                            }}
+                            className="px-3.5 py-1.5 bg-indigo-650 hover:bg-indigo-700 text-white text-[9px] font-black rounded-lg cursor-pointer border-none font-Outfit shadow-sm shrink-0 active:scale-95 transition-all outline-none"
+                          >
+                            Prescrever
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+              </div>
+
             </div>
 
             {/* Right Side: Environmental Sensory Logs & Trigger Analysis */}

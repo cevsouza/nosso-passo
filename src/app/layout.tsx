@@ -11,6 +11,12 @@ const nunito = Nunito({
 export const metadata: Metadata = {
   title: "Rotina Animada",
   description: "Um app divertido e previsível para rotinas de crianças com TEA",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Rotina Animada",
+  },
 };
 
 export default function RootLayout({

@@ -700,6 +700,84 @@ export default function ChildRoutine() {
   const [showSupportMenu, setShowSupportMenu] = useState(false);
   const [showAmbientMenu, setShowAmbientMenu] = useState(false);
 
+  // Mascot Shop and Continuous Sensory Monitor states
+  const [showShopModal, setShowShopModal] = useState(false);
+  const [bgNoiseMonitor, setBgNoiseMonitor] = useState(false);
+  const [showSensoryAlert, setShowSensoryAlert] = useState(false);
+  const [sensoryAlertDb, setSensoryAlertDb] = useState(0);
+  const [equippedAccessories, setEquippedAccessories] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('tea_equipped_accessories');
+      if (saved) {
+        try {
+          setEquippedAccessories(JSON.parse(saved));
+        } catch (e) {}
+      }
+    }
+  }, []);
+
+  // 1.2 Background decibel monitor logic
+  useEffect(() => {
+    let audioContext: AudioContext | null = null;
+    let analyser: AnalyserNode | null = null;
+    let stream: MediaStream | null = null;
+    let animationFrameId: number;
+    let consecutiveLoudCounts = 0;
+
+    if (bgNoiseMonitor) {
+      navigator.mediaDevices.getUserMedia({ audio: true })
+        .then((s) => {
+          stream = s;
+          audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+          const source = audioContext.createMediaStreamSource(s);
+          analyser = audioContext.createAnalyser();
+          analyser.fftSize = 256;
+          source.connect(analyser);
+          
+          const bufferLength = analyser.frequencyBinCount;
+          const dataArray = new Uint8Array(bufferLength);
+
+          const checkVolume = () => {
+            if (!analyser) return;
+            analyser.getByteFrequencyData(dataArray);
+            let sum = 0;
+            for (let i = 0; i < bufferLength; i++) {
+              sum += dataArray[i];
+            }
+            const average = sum / bufferLength;
+            const dbVal = Math.round(30 + (average / 255) * 70);
+            
+            if (dbVal > 70) {
+              consecutiveLoudCounts++;
+              if (consecutiveLoudCounts >= 15) { // ~3 seconds at 5fps
+                setSensoryAlertDb(dbVal);
+                setShowSensoryAlert(true);
+                consecutiveLoudCounts = 0;
+              }
+            } else {
+              consecutiveLoudCounts = Math.max(0, consecutiveLoudCounts - 1);
+            }
+
+            animationFrameId = requestAnimationFrame(checkVolume);
+          };
+
+          checkVolume();
+        })
+        .catch((err) => {
+          console.warn("Permissão de microfone negada ou indisponível para monitor de ruídos:", err);
+          setBgNoiseMonitor(false);
+        });
+    }
+
+    return () => {
+      if (animationFrameId) cancelAnimationFrame(animationFrameId);
+      if (audioContext) audioContext.close();
+      if (stream) stream.getTracks().forEach((track) => track.stop());
+    };
+  }, [bgNoiseMonitor]);
+
   useEffect(() => {
     return () => {
       stopAmbientSound();
@@ -2234,6 +2312,197 @@ export default function ChildRoutine() {
     );
   };
 
+  const renderSensoryAlertModal = () => {
+    if (!showSensoryAlert) return null;
+    return (
+      <AnimatePresence>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md"
+        >
+          <motion.div
+            initial={{ scale: 0.95, y: 15 }}
+            animate={{ scale: 1, y: 0 }}
+            exit={{ scale: 0.95, y: 15 }}
+            className="bg-white border-4 border-amber-400 rounded-[32px] p-6 w-full max-w-sm shadow-2xl flex flex-col items-center text-center gap-4 text-slate-800"
+          >
+            <span className="text-5xl animate-bounce">🎧</span>
+            <div>
+              <h3 className="text-xl font-black text-amber-950 font-Outfit">Ambiente Muito Barulhento!</h3>
+              <p className="text-xs text-slate-500 font-bold mt-1">
+                Detectamos ruídos de <strong className="text-red-500">{sensoryAlertDb} dB</strong>. Que tal se acalmar ou colocar abafadores?
+              </p>
+            </div>
+            
+            <button
+              onClick={() => {
+                playBubble();
+                setLocalCalmMode(true);
+                localStorage.setItem('localCalmMode', 'true');
+                speakText("Modo calmo ativado automaticamente para regulação.");
+                setShowSensoryAlert(false);
+              }}
+              className="w-full py-3 bg-teal-500 hover:bg-teal-600 text-white font-black text-xs rounded-xl shadow-md transition-all active:scale-95 border-none font-Outfit"
+            >
+              🧘 Ativar Modo Calmo
+            </button>
+
+            <button
+              onClick={() => {
+                playBubble();
+                setShowSensoryAlert(false);
+              }}
+              className="w-full py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-black text-xs rounded-xl shadow-xs transition-all active:scale-95 border-none"
+            >
+              Entendido 🎧
+            </button>
+          </motion.div>
+        </motion.div>
+      </AnimatePresence>
+    );
+  };
+
+  const renderMascotShopModal = () => {
+    if (!showShopModal || !activeChild) return null;
+
+    const shopItems = [
+      { id: 'acc_hat', label: '🎩 Chapéu Elegante', cost: 5, desc: 'Dê um visual super fino ao seu mascote!' },
+      { id: 'acc_glasses', label: '😎 Óculos Maneiro', cost: 10, desc: 'Óculos de sol descolados para o seu pet.' },
+      { id: 'acc_medal', label: '🥇 Medalha de Campeão', cost: 15, desc: 'Mostre a bravura do seu mascote!' },
+      { id: 'acc_cape', label: '🦸‍♂️ Capa de Herói', cost: 20, desc: 'Dê superpoderes incríveis ao seu companheiro.' }
+    ];
+
+    let owned: string[] = [];
+    try {
+      if (activeChild.toyInventory) {
+        const parsed = JSON.parse(activeChild.toyInventory);
+        if (parsed && typeof parsed === 'object') {
+          owned = parsed.owned || [];
+        } else if (Array.isArray(parsed)) {
+          owned = parsed;
+        }
+      }
+    } catch (e) {}
+
+    const handleBuyItem = async (itemId: string, cost: number) => {
+      if (activeChild.tokens < cost) return;
+      playMarimba(523, 0.4);
+      
+      const newOwned = [...owned, itemId];
+      const newEquipped = [...equippedAccessories, itemId];
+      const newTokens = activeChild.tokens - cost;
+      
+      try {
+        const updated = await firebaseBridge.auth.updateChildSettings(activeChild.id, {
+          tokens: newTokens,
+          toyInventory: JSON.stringify({ owned: newOwned, equipped: newEquipped })
+        });
+        setActiveChild(updated);
+        setEquippedAccessories(newEquipped);
+        localStorage.setItem('tea_equipped_accessories', JSON.stringify(newEquipped));
+      } catch (err) {
+        console.error("Erro ao comprar item:", err);
+      }
+    };
+
+    const handleEquipItem = async (itemId: string) => {
+      let nextEquipped = [...equippedAccessories];
+      if (nextEquipped.includes(itemId)) {
+        nextEquipped = nextEquipped.filter(id => id !== itemId);
+        playBubble();
+      } else {
+        nextEquipped.push(itemId);
+        playMarimba(392, 0.3);
+      }
+      
+      setEquippedAccessories(nextEquipped);
+      localStorage.setItem('tea_equipped_accessories', JSON.stringify(nextEquipped));
+
+      try {
+        await firebaseBridge.auth.updateChildSettings(activeChild.id, {
+          toyInventory: JSON.stringify({ owned, equipped: nextEquipped })
+        });
+      } catch (err) {
+        console.error("Erro ao equipar item:", err);
+      }
+    };
+
+    return (
+      <AnimatePresence>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md"
+        >
+          <motion.div
+            initial={{ scale: 0.95, y: 15 }}
+            animate={{ scale: 1, y: 0 }}
+            exit={{ scale: 0.95, y: 15 }}
+            className="bg-white border-4 border-indigo-500 rounded-[36px] p-6 w-full max-w-md shadow-2xl flex flex-col gap-5 text-slate-800"
+          >
+            <div className="flex justify-between items-center border-b border-slate-100 pb-3">
+              <h3 className="text-xl font-black text-slate-900 font-Outfit">🛒 Loja do Mascote</h3>
+              <button
+                onClick={() => { playBubble(); setShowShopModal(false); }}
+                className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center font-bold text-sm border-none cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="flex items-center justify-between bg-indigo-50/50 border border-indigo-100 p-3.5 rounded-2xl">
+              <span className="text-xs font-black text-indigo-950 font-Outfit">Suas Estrelas:</span>
+              <div className="flex items-center gap-1.5 bg-yellow-450 text-indigo-955 font-black px-3.5 py-1 rounded-full text-xs shadow-sm">
+                ⭐ {activeChild.tokens}
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-3.5 max-h-[300px] overflow-y-auto pr-1">
+              {shopItems.map(item => {
+                const isOwned = owned.includes(item.id);
+                const isEquipped = equippedAccessories.includes(item.id);
+                return (
+                  <div key={item.id} className="flex items-center justify-between bg-slate-50 border border-slate-150 p-3.5 rounded-2xl gap-3 text-left">
+                    <div className="flex-1">
+                      <h4 className="text-sm font-black text-slate-805 font-Outfit">{item.label}</h4>
+                      <p className="text-[10px] text-slate-500 font-semibold mt-0.5">{item.desc}</p>
+                    </div>
+
+                    {isOwned ? (
+                      <button
+                        onClick={() => handleEquipItem(item.id)}
+                        className={`px-4 py-2 text-[10px] font-black rounded-xl cursor-pointer transition-all active:scale-95 border-none font-Outfit ${
+                          isEquipped ? 'bg-indigo-650 hover:bg-indigo-700 text-white shadow-sm' : 'bg-slate-200 hover:bg-slate-300 text-slate-705'
+                        }`}
+                      >
+                        {isEquipped ? 'Desequipar ✖' : 'Equipar 👕'}
+                      </button>
+                    ) : (
+                      <button
+                        disabled={activeChild.tokens < item.cost}
+                        onClick={() => handleBuyItem(item.id, item.cost)}
+                        className={`px-4 py-2 text-[10px] font-black rounded-xl cursor-pointer transition-all active:scale-95 border-none font-Outfit ${
+                          activeChild.tokens >= item.cost
+                            ? 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-sm'
+                            : 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                        }`}
+                      >
+                        Comprar ⭐ {item.cost}
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </motion.div>
+        </motion.div>
+      </AnimatePresence>
+    );
+  };
+
   // Dynamic visual layout for day finished (darker, cozy, resting theme)
   if (isDayFinished) {
     const profileClass = effectiveProfile === 'hypersensitive'
@@ -2988,6 +3257,38 @@ export default function ChildRoutine() {
                       <button
                         onClick={() => { 
                           playBubble(); 
+                          setShowShopModal(true); 
+                          setShowSupportMenu(false); 
+                        }}
+                        className={`flex items-center gap-2 w-full px-4 py-2 text-left text-xs font-bold rounded-xl transition-colors border-none bg-transparent cursor-pointer ${
+                          sleepMode ? 'hover:bg-slate-850 text-amber-205' : 'hover:bg-slate-50 text-slate-705'
+                        }`}
+                      >
+                        🛒 Loja do Mascote
+                      </button>
+                      <button
+                        onClick={() => { 
+                          playBubble(); 
+                          const nextVal = !bgNoiseMonitor;
+                          setBgNoiseMonitor(nextVal); 
+                          setShowSupportMenu(false); 
+                          if (nextVal) {
+                            speakText("Monitor de ruído ativado.");
+                          } else {
+                            speakText("Monitor de ruído desativado.");
+                          }
+                        }}
+                        className={`flex items-center gap-2 w-full px-4 py-2 text-left text-xs font-bold rounded-xl transition-colors border-none bg-transparent cursor-pointer ${
+                          bgNoiseMonitor ? 'text-teal-650 font-extrabold' : ''
+                        } ${
+                          sleepMode ? 'hover:bg-slate-850 text-amber-205' : 'hover:bg-slate-50 text-slate-705'
+                        }`}
+                      >
+                        🎤 {bgNoiseMonitor ? 'Desativar Monitor' : 'Monitor de Ruídos'}
+                      </button>
+                      <button
+                        onClick={() => { 
+                          playBubble(); 
                           setShowAacModal(true); 
                           setShowSupportMenu(false); 
                         }}
@@ -3521,22 +3822,12 @@ export default function ChildRoutine() {
                             size={165} 
                           />
                           {/* Equipped Accessories overlay */}
-                          {(() => {
-                            let inventory: string[] = [];
-                            try {
-                              if (activeChild?.toyInventory) {
-                                inventory = JSON.parse(activeChild.toyInventory);
-                              }
-                            } catch (e) {}
-                            return (
-                              <>
-                                {inventory.includes('acc_hat') && <span className="absolute -top-3 left-1/2 -translate-x-1/2 text-3xl pointer-events-none select-none z-10">🎩</span>}
-                                {inventory.includes('acc_glasses') && <span className="absolute top-[26%] left-1/2 -translate-x-1/2 text-2.5xl pointer-events-none select-none z-10">😎</span>}
-                                {inventory.includes('acc_medal') && <span className="absolute bottom-[20%] left-1/2 -translate-x-1/2 text-2.5xl pointer-events-none select-none z-10">🥇</span>}
-                                {inventory.includes('acc_cape') && <span className="absolute top-[35%] -left-3 text-3xl pointer-events-none select-none z-10">🦸‍♂️</span>}
-                              </>
-                            );
-                          })()}
+                          <>
+                            {equippedAccessories.includes('acc_hat') && <span className="absolute -top-3 left-1/2 -translate-x-1/2 text-3xl pointer-events-none select-none z-10">🎩</span>}
+                            {equippedAccessories.includes('acc_glasses') && <span className="absolute top-[26%] left-1/2 -translate-x-1/2 text-2.5xl pointer-events-none select-none z-10">😎</span>}
+                            {equippedAccessories.includes('acc_medal') && <span className="absolute bottom-[20%] left-1/2 -translate-x-1/2 text-2.5xl pointer-events-none select-none z-10">🥇</span>}
+                            {equippedAccessories.includes('acc_cape') && <span className="absolute top-[35%] -left-3 text-3xl pointer-events-none select-none z-10">🦸‍♂️</span>}
+                          </>
                         </div>
                       </div>
                     </div>
@@ -4278,6 +4569,8 @@ export default function ChildRoutine() {
       {renderHyperfocusModals()}
       {renderAacModal()}
       {renderSimulatorModal()}
+      {renderMascotShopModal()}
+      {renderSensoryAlertModal()}
 
       {/* SOS Sensorial Full Screen Modal */}
       <AnimatePresence>

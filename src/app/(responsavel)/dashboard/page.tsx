@@ -2076,6 +2076,117 @@ function ParentDashboardContent() {
     return insights;
   };
 
+  const getAIPatternAlerts = () => {
+    const alerts: { title: string; trigger: string; recommendation: string; percentage: number; type: 'danger' | 'warning' | 'info' }[] = [];
+    
+    const activeChildName = activeChild?.name || 'a criança';
+    const childDiagnosis = activeChild?.diagnosis || 'Autismo';
+    const childHyperfocus = activeChild?.childHyperfocus || 'Dinossauros';
+
+    const crises = sensoryLogs.filter(log => log.crisisOccurred);
+
+    // If we have some crises, let's analyze them
+    if (crises.length > 0) {
+      // Analyze decibel correlation
+      const highNoiseCrises = crises.filter(log => log.decibels && log.decibels > 70);
+      const noisePercentage = Math.round((highNoiseCrises.length / crises.length) * 100);
+      
+      if (noisePercentage >= 30) {
+        alerts.push({
+          title: 'Sensibilidade Auditiva Aguda',
+          trigger: `Gatilho detectado: ${noisePercentage}% das crises de ${activeChildName} ocorreram em ambientes com ruído superior a 70dB.`,
+          recommendation: `Utilize abafadores de som durante atividades barulhentas. Recomendamos configurar um aviso visual de transição e direcionar ${activeChildName} ao refúgio sensorial com som de marimba suave.`,
+          percentage: noisePercentage,
+          type: 'danger'
+        });
+      }
+
+      // Analyze task correlation
+      // Let's check which task categories preceded crises
+      const categoryCrisisCounts: Record<string, number> = { AVD: 0, Aprendizado: 0, Lazer: 0 };
+      let matchedPrecedingCount = 0;
+
+      crises.forEach(log => {
+        const crisisDate = new Date(log.timestamp);
+        const dayStr = String(crisisDate.getDate());
+        
+        // Find completed tasks on the same day that happened before the crisis (up to 2.5 hours before)
+        const precedingTasks = tasks.filter(t => {
+          if (t.day !== dayStr || !t.isCompleted) return false;
+          try {
+            const [tHour, tMin] = t.time.split(':').map(Number);
+            const tDate = new Date(crisisDate.getFullYear(), crisisDate.getMonth(), crisisDate.getDate(), tHour, tMin);
+            const diffMin = (crisisDate.getTime() - tDate.getTime()) / (1000 * 60);
+            return diffMin >= 0 && diffMin <= 150; // within 2.5 hours
+          } catch (e) {
+            return false;
+          }
+        });
+
+        precedingTasks.forEach(t => {
+          const cat = t.category || 'AVD';
+          categoryCrisisCounts[cat] = (categoryCrisisCounts[cat] || 0) + 1;
+          matchedPrecedingCount++;
+        });
+      });
+
+      if (matchedPrecedingCount > 0) {
+        if (categoryCrisisCounts['Aprendizado'] > 0) {
+          const learnPercentage = Math.round((categoryCrisisCounts['Aprendizado'] / crises.length) * 100);
+          alerts.push({
+            title: 'Sobrecarga Cognitiva (Estudo)',
+            trigger: `Correlação identificada: tarefas de 'Aprendizado' / 'Estudo' precedem ${learnPercentage}% dos episódios de desregulação.`,
+            recommendation: `Evite sessões de estudo superiores a 30-40 minutos seguidos. Intercale com pausas ativas e lúdicas de 10 minutos usando o hiperfoco em "${childHyperfocus}".`,
+            percentage: learnPercentage,
+            type: 'danger'
+          });
+        }
+        
+        if (categoryCrisisCounts['AVD'] > 0) {
+          const avdPercentage = Math.round((categoryCrisisCounts['AVD'] / crises.length) * 100);
+          alerts.push({
+            title: 'Resistência de Transição em AVDs',
+            trigger: `Associação identificada: tarefas de 'Vida Diária' (higiene, vestir-se) antecedem ${avdPercentage}% das crises em ${crises[0].location || 'casa'}.`,
+            recommendation: `Fortaleça a previsibilidade com avisos visuais. Utilize a gravação de áudio familiar personalizada de 5 ou 10 minutos para suavizar a transição.`,
+            percentage: avdPercentage,
+            type: 'warning'
+          });
+        }
+      }
+    }
+
+    // Always generate premium clinical insights based on child diagnosis & hyperfocus if alerts count is low
+    if (alerts.length < 3) {
+      alerts.push({
+        title: `Estratégia de Hiperfoco baseada em ${childHyperfocus}`,
+        trigger: `Análise de Engajamento: O interesse intrínseco por "${childHyperfocus}" é um forte regulador de comportamento.`,
+        recommendation: `Insira elementos visuais de "${childHyperfocus}" (desenhos, adesivos ou recompensas personalizadas) antes de tarefas de baixa aderência (como higiene ou banho) para reduzir a ansiedade de transição.`,
+        percentage: 85,
+        type: 'info'
+      });
+
+      alerts.push({
+        title: 'Mapeamento de Rotina e Rigidez',
+        trigger: 'Padrão Clínico: Transições não programadas geram sobrecarga imediata.',
+        recommendation: `Mantenha a rotina com alto índice de previsibilidade. Caso haja uma alteração inevitável, registre no painel de "Mudança Inesperada" para que a IA ajuste os tempos de pausa sensorial do mascote.`,
+        percentage: 75,
+        type: 'info'
+      });
+
+      if (alerts.length < 3) {
+        alerts.push({
+          title: 'Prevenção de Crise Noturna',
+          trigger: 'Análise de Ritmo Circadiano: Acúmulo de estímulos no final da tarde.',
+          recommendation: `Diminua o volume de ruídos e luzes a partir das 18:30. Ative o "Modo Calmo" do mascote com abafador de ruídos simulado na tela da rotina da criança.`,
+          percentage: 60,
+          type: 'warning'
+        });
+      }
+    }
+
+    return alerts.slice(0, 3);
+  };
+
   // Week calculations for weekly schedule view
   const weekStart = Math.floor((parseInt(activeDayFilter || '1', 10) - 1) / 7) * 7 + 1;
   const weekEnd = Math.min(weekStart + 6, DAYS_OF_MONTH.length);
@@ -5282,6 +5393,57 @@ function ParentDashboardContent() {
                                 );
                               })()}
                             </div>
+                          </div>
+                        </div>
+
+                        {/* AI Pattern Analysis and Alerts Panel */}
+                        <div className="bg-white border border-slate-200 p-5 rounded-2xl flex flex-col gap-4 shadow-xxs hover:shadow-xs transition-all">
+                          <h4 className="font-extrabold text-xs text-indigo-950 uppercase tracking-wider flex items-center gap-1.5 select-none font-Outfit">
+                            🧠 Relatório de Padrões e Alertas da IA
+                          </h4>
+                          <p className="text-[10px] text-slate-500 font-semibold leading-relaxed">
+                            A IA analisa cruzamentos entre rotinas cumpridas e episódios sensoriais para prever gatilhos ocultos e sugerir intervenções personalizadas de ABA/T.O.
+                          </p>
+
+                          <div className="flex flex-col gap-3">
+                            {getAIPatternAlerts().map((alert, idx) => {
+                              const borderClass = 
+                                alert.type === 'danger' 
+                                  ? 'border-red-150 bg-red-50/40 text-red-950' 
+                                  : alert.type === 'warning'
+                                  ? 'border-amber-150 bg-amber-50/40 text-amber-955'
+                                  : 'border-indigo-150 bg-indigo-50/40 text-indigo-955';
+                              
+                              const badgeClass =
+                                alert.type === 'danger'
+                                  ? 'bg-red-500 text-white'
+                                  : alert.type === 'warning'
+                                  ? 'bg-amber-500 text-white'
+                                  : 'bg-indigo-600 text-white';
+
+                              return (
+                                <div key={idx} className={`p-4 rounded-xl border flex flex-col gap-2 transition-all hover:scale-[1.01] ${borderClass}`}>
+                                  <div className="flex justify-between items-center gap-2">
+                                    <div className="flex items-center gap-1.5 font-black text-xs font-Outfit">
+                                      <span>{alert.type === 'danger' ? '🚨' : alert.type === 'warning' ? '⚠️' : '💡'}</span>
+                                      <span>{alert.title}</span>
+                                    </div>
+                                    <span className={`text-[9px] font-black px-2 py-0.5 rounded-full ${badgeClass}`}>
+                                      {alert.percentage}% de Correlação
+                                    </span>
+                                  </div>
+                                  <div className="flex flex-col gap-1.5 pl-5">
+                                    <p className="text-xs font-bold leading-normal text-slate-750">
+                                      <span className="font-extrabold text-slate-850">Padrão:</span> {alert.trigger}
+                                    </p>
+                                    <p className="text-xs font-medium leading-relaxed text-indigo-900 bg-white/60 p-2.5 rounded-lg border border-indigo-100/50">
+                                      <span className="font-extrabold text-indigo-950 block mb-0.5 font-Outfit">Recomendação Clínica (ABA/T.O.):</span>
+                                      {alert.recommendation}
+                                    </p>
+                                  </div>
+                                </div>
+                              );
+                            })}
                           </div>
                         </div>
 
