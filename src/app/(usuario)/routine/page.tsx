@@ -2915,13 +2915,25 @@ export default function ChildRoutine() {
             <button 
               onClick={() => handleAttemptExit('/')}
               onMouseEnter={playBubble}
-              className={`flex items-center gap-1.5 px-5 py-2.5 text-xs font-black rounded-full border-2 shadow-premium transition-all active:scale-95 cursor-pointer ${
+              className={`flex items-center gap-1.5 px-3.5 py-2 sm:px-5 sm:py-2.5 text-[10px] sm:text-xs font-black rounded-full border-2 shadow-premium transition-all active:scale-95 cursor-pointer ${
                 sleepMode 
                   ? 'bg-slate-905 border-slate-700 text-amber-200 hover:bg-slate-805' 
                   : 'bg-white hover:bg-slate-50 border-slate-350 text-slate-805'
               }`}
             >
-              🏠 Início
+              🏠 <span className="hidden sm:inline">Início</span>
+            </button>
+
+            <button 
+              onClick={() => handleAttemptExit('/dashboard')}
+              onMouseEnter={playBubble}
+              className={`flex items-center gap-1.5 px-3.5 py-2 sm:px-5 sm:py-2.5 text-[10px] sm:text-xs font-black rounded-full border-2 shadow-premium transition-all active:scale-95 cursor-pointer ${
+                sleepMode 
+                  ? 'bg-slate-905 border-slate-700 text-amber-200 hover:bg-slate-805' 
+                  : 'bg-white hover:bg-slate-50 border-slate-350 text-slate-850'
+              }`}
+            >
+              🔒 <span className="hidden sm:inline">Painel do Responsável</span><span className="sm:hidden">Painel</span>
             </button>
             
             {/* Consolidated Supports Dropdown */}
@@ -2929,13 +2941,13 @@ export default function ChildRoutine() {
               <button
                 onClick={() => { playBubble(); setShowSupportMenu(!showSupportMenu); }}
                 onMouseEnter={playBubble}
-                className={`flex items-center gap-1.5 px-5 py-2.5 border-2 text-xs font-black rounded-full shadow-premium transition-all active:scale-95 cursor-pointer ${
+                className={`flex items-center gap-1.5 px-3.5 py-2 sm:px-5 sm:py-2.5 border-2 text-[10px] sm:text-xs font-black rounded-full shadow-premium transition-all active:scale-95 cursor-pointer ${
                   sleepMode 
                     ? 'bg-amber-950/20 border-amber-900/50 text-amber-300 hover:bg-amber-950/55' 
                     : 'bg-white hover:bg-indigo-50 border-indigo-250 text-indigo-700'
                 }`}
               >
-                🎒 Apoios & Jogos {showSupportMenu ? '▲' : '▼'}
+                🎒 <span className="hidden sm:inline">Apoios & Jogos</span><span className="sm:hidden">Apoios</span> {showSupportMenu ? '▲' : '▼'}
               </button>
 
               {showSupportMenu && (
@@ -3017,13 +3029,13 @@ export default function ChildRoutine() {
                 }
               }}
               onMouseEnter={playBubble}
-              className={`flex items-center gap-1.5 px-5 py-2.5 text-xs font-black rounded-full shadow-premium transition-all active:scale-95 cursor-pointer border-2 ${
+              className={`flex items-center gap-1.5 px-3.5 py-2 sm:px-5 sm:py-2.5 text-[10px] sm:text-xs font-black rounded-full shadow-premium transition-all active:scale-95 cursor-pointer border-2 ${
                 sleepMode 
                   ? 'bg-amber-950/80 border-amber-600 text-amber-200' 
                   : 'bg-white hover:bg-amber-50 border-amber-200 text-amber-700'
               }`}
             >
-              🌙 {sleepMode ? 'Modo Normal' : 'Modo Sono'}
+              🌙 <span className="hidden sm:inline">{sleepMode ? 'Modo Normal' : 'Modo Sono'}</span><span className="sm:hidden">{sleepMode ? 'Normal' : 'Sono'}</span>
             </button>
 
             <button
@@ -3039,7 +3051,7 @@ export default function ChildRoutine() {
                 }
               }}
               onMouseEnter={playBubble}
-              className={`flex items-center gap-1.5 px-5 py-2.5 border-2 text-xs font-black rounded-full shadow-premium transition-all active:scale-95 cursor-pointer font-Outfit ${
+              className={`flex items-center gap-1.5 px-3.5 py-2 sm:px-5 sm:py-2.5 border-2 text-[10px] sm:text-xs font-black rounded-full shadow-premium transition-all active:scale-95 cursor-pointer font-Outfit ${
                 localCalmMode
                   ? 'bg-teal-500 border-teal-605 text-white animate-pulse'
                   : sleepMode
@@ -3047,13 +3059,13 @@ export default function ChildRoutine() {
                   : 'bg-white hover:bg-teal-50 border-teal-200 text-teal-700'
               }`}
             >
-              🧘 {localCalmMode ? 'Modo Calmo Ativo' : 'Modo Calmo'}
+              🧘 <span className="hidden sm:inline">{localCalmMode ? 'Modo Calmo Ativo' : 'Modo Calmo'}</span><span className="sm:hidden">{localCalmMode ? 'Calmo Ativo' : 'Calmo'}</span>
             </button>
 
             <button
               onClick={handleTriggerSos}
               onMouseEnter={playBubble}
-              className={`flex items-center gap-1.5 px-5 py-2.5 border-2 text-xs font-black rounded-full shadow-premium transition-all active:scale-95 cursor-pointer ${
+              className={`flex items-center gap-1.5 px-3.5 py-2 sm:px-5 sm:py-2.5 border-2 text-[10px] sm:text-xs font-black rounded-full shadow-premium transition-all active:scale-95 cursor-pointer ${
                 sleepMode 
                   ? 'bg-red-950/20 border-red-900/50 text-red-300 hover:bg-red-950/50' 
                   : 'bg-red-50 hover:bg-red-100 border-red-250 text-red-650 animate-pulse font-Outfit'
@@ -3063,11 +3075,11 @@ export default function ChildRoutine() {
             </button>
             
             {!sleepMode && (
-              <div className="flex items-center gap-1 bg-white border-2 border-slate-200 rounded-full px-2.5 py-1 shadow-sm shrink-0">
-                <span className="text-[9px] font-black text-slate-500 uppercase font-Outfit mr-0.5">Bateria:</span>
+              <div className="flex items-center gap-1 bg-white border-2 border-slate-200 rounded-full px-1.5 py-0.5 sm:px-2.5 sm:py-1 shadow-sm shrink-0">
+                <span className="text-[9px] font-black text-slate-500 uppercase font-Outfit mr-0.5 hidden md:inline">Bateria:</span>
                 <button
                   onClick={() => handleUpdateBattery('green')}
-                  className={`w-7 h-7 rounded-full flex items-center justify-center text-xs transition-all active:scale-90 cursor-pointer border-none ${
+                  className={`w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center text-xs transition-all active:scale-90 cursor-pointer border-none ${
                     activeChild?.emotionalBattery === 'green' ? 'bg-emerald-500 text-white shadow-sm' : 'bg-slate-100 grayscale opacity-40 hover:opacity-100 hover:grayscale-0'
                   }`}
                   title="Ótimo"
@@ -3076,7 +3088,7 @@ export default function ChildRoutine() {
                 </button>
                 <button
                   onClick={() => handleUpdateBattery('yellow')}
-                  className={`w-7 h-7 rounded-full flex items-center justify-center text-xs transition-all active:scale-90 cursor-pointer border-none ${
+                  className={`w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center text-xs transition-all active:scale-90 cursor-pointer border-none ${
                     activeChild?.emotionalBattery === 'yellow' ? 'bg-yellow-450 text-slate-950 shadow-sm' : 'bg-slate-100 grayscale opacity-40 hover:opacity-100 hover:grayscale-0'
                   }`}
                   title="Cansado"
@@ -3085,7 +3097,7 @@ export default function ChildRoutine() {
                 </button>
                 <button
                   onClick={() => handleUpdateBattery('red')}
-                  className={`w-7 h-7 rounded-full flex items-center justify-center text-xs transition-all active:scale-90 cursor-pointer border-none ${
+                  className={`w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center text-xs transition-all active:scale-90 cursor-pointer border-none ${
                     activeChild?.emotionalBattery === 'red' ? 'bg-red-500 text-white shadow-sm' : 'bg-slate-100 grayscale opacity-40 hover:opacity-100 hover:grayscale-0'
                   }`}
                   title="Sobrecarregado"
@@ -3097,7 +3109,7 @@ export default function ChildRoutine() {
           </div>
 
           <div className="flex items-center gap-3 justify-between md:justify-end">
-            <h2 className={`text-xs font-black border-2 px-5 py-2.5 rounded-full shadow-premium uppercase tracking-widest font-Outfit leading-none ${
+            <h2 className={`text-[10px] sm:text-xs font-black border-2 px-3.5 py-2 sm:px-5 sm:py-2.5 rounded-full shadow-premium uppercase tracking-widest font-Outfit leading-none ${
               sleepMode ? 'bg-[#090d1a] border-amber-900/50 text-amber-200' : 'bg-white border-slate-350 text-slate-805'
             }`}>
               {DAY_LABELS[currentDay] || `Dia ${currentDay} 📅`}
@@ -3107,7 +3119,7 @@ export default function ChildRoutine() {
             <div className="relative">
               <button
                 onClick={() => { playBubble(); setShowAmbientMenu(!showAmbientMenu); }}
-                className={`flex items-center gap-1.5 px-5 py-2.5 border-2 text-xs font-black rounded-full shadow-premium transition-all active:scale-95 cursor-pointer font-Outfit ${
+                className={`flex items-center gap-1.5 px-3.5 py-2 sm:px-5 sm:py-2.5 border-2 text-[10px] sm:text-xs font-black rounded-full shadow-premium transition-all active:scale-95 cursor-pointer font-Outfit ${
                   activeAmbientType !== 'none'
                     ? sleepMode 
                       ? 'bg-blue-950 border-blue-600 text-blue-200' 
@@ -3117,15 +3129,14 @@ export default function ChildRoutine() {
                       : 'bg-white border-slate-350 text-slate-705'
                 }`}
               >
-                {(() => {
-                  switch(activeAmbientType) {
-                    case 'rain': return '📻 🌧️ Som Ambiente';
-                    case 'white': return '📻 🤍 Som Ambiente';
-                    case 'pink': return '📻 💗 Som Ambiente';
-                    case 'binaural': return '📻 🧠 Som Ambiente';
-                    default: return '📻 Som Ambiente';
-                  }
-                })()} {showAmbientMenu ? '▲' : '▼'}
+                📻{" "}
+                {activeAmbientType === 'rain' && '🌧️ '}
+                {activeAmbientType === 'white' && '🤍 '}
+                {activeAmbientType === 'pink' && '💗 '}
+                {activeAmbientType === 'binaural' && '🧠 '}
+                <span className="hidden sm:inline">Som Ambiente</span>
+                <span className="sm:hidden">Som</span>{" "}
+                {showAmbientMenu ? '▲' : '▼'}
               </button>
 
               {showAmbientMenu && (
