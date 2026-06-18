@@ -4,6 +4,7 @@
   "description": "Agenda e rotina lúdica semanal estruturada para autismo e neurodiversidade",
   "start_url": "/login",
   "display": "standalone",
+  "orientation": "landscape",
   "background_color": "#0f172a",
   "theme_color": "#4f46e5",
   "icons": [

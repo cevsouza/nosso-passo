@@ -1605,6 +1605,69 @@ export default function ChildRoutine() {
     }, 2000);
   };
 
+  const handleDragEnd = async (itemId: string, info: any) => {
+    // If dragged upwards (towards the mascot)
+    if (info.offset.y < -50) {
+      if (!equippedAccessories.includes(itemId)) {
+        const nextEquipped = [...equippedAccessories, itemId];
+        setEquippedAccessories(nextEquipped);
+        localStorage.setItem('tea_equipped_accessories', JSON.stringify(nextEquipped));
+        playMarimba(392, 0.45); // Warm confirmation sound
+        
+        try {
+          if (activeChild) {
+            let owned: string[] = [];
+            if (activeChild.toyInventory) {
+              const parsed = JSON.parse(activeChild.toyInventory);
+              if (parsed && typeof parsed === 'object') {
+                owned = parsed.owned || [];
+              } else if (Array.isArray(parsed)) {
+                owned = parsed;
+              }
+            }
+            await firebaseBridge.auth.updateChildSettings(activeChild.id, {
+              toyInventory: JSON.stringify({ owned, equipped: nextEquipped })
+            });
+          }
+        } catch (e) {
+          console.error("Erro ao equipar via drag:", e);
+        }
+      }
+    }
+  };
+
+  const handleTrayItemClick = async (itemId: string) => {
+    let nextEquipped = [...equippedAccessories];
+    if (nextEquipped.includes(itemId)) {
+      nextEquipped = nextEquipped.filter(id => id !== itemId);
+      playBubble();
+    } else {
+      nextEquipped.push(itemId);
+      playMarimba(392, 0.3);
+    }
+    setEquippedAccessories(nextEquipped);
+    localStorage.setItem('tea_equipped_accessories', JSON.stringify(nextEquipped));
+
+    try {
+      if (activeChild) {
+        let owned: string[] = [];
+        if (activeChild.toyInventory) {
+          const parsed = JSON.parse(activeChild.toyInventory);
+          if (parsed && typeof parsed === 'object') {
+            owned = parsed.owned || [];
+          } else if (Array.isArray(parsed)) {
+            owned = parsed;
+          }
+        }
+        await firebaseBridge.auth.updateChildSettings(activeChild.id, {
+          toyInventory: JSON.stringify({ owned, equipped: nextEquipped })
+        });
+      }
+    } catch (e) {
+      console.error("Erro ao equipar via clique:", e);
+    }
+  };
+
   const getHyperfocusParts = (theme: string) => {
     const focus = (theme || "").toLowerCase();
     if (focus.includes("dino") || focus.includes("dinossauro") || focus.includes("dinosaur")) {
@@ -1629,6 +1692,22 @@ export default function ChildRoutine() {
         { id: 'train_passenger', name: 'Vagão de Passageiros 🚃', cost: 3, icon: '🚃' },
         { id: 'train_cargo', name: 'Vagão de Carga 📦', cost: 3, icon: '📦' },
         { id: 'train_tracks', name: 'Trilhos de Ferro 🛤️', cost: 3, icon: '🛤️' },
+      ];
+    }
+    if (focus.includes("mar") || focus.includes("sea") || focus.includes("ocean") || focus.includes("submarino")) {
+      return [
+        { id: 'sea_submarine', name: 'Submarino Amarelo 💛', cost: 3, icon: '🛥️' },
+        { id: 'sea_propeller', name: 'Hélice do Submarino 🌀', cost: 3, icon: '🌀' },
+        { id: 'sea_periscope', name: 'Periscópio Óptico 👁️', cost: 3, icon: '👁️' },
+        { id: 'sea_treasure', name: 'Baú do Tesouro 🪙', cost: 3, icon: '🪙' },
+      ];
+    }
+    if (focus.includes("mine") || focus.includes("block") || focus.includes("bloco") || focus.includes("creeper")) {
+      return [
+        { id: 'mine_sword', name: 'Espada de Diamante 💎', cost: 3, icon: '🗡️' },
+        { id: 'mine_pickaxe', name: 'Picareta de Ferro ⛏️', cost: 3, icon: '⛏️' },
+        { id: 'mine_chest', name: 'Baú de Blocos 📦', cost: 3, icon: '📦' },
+        { id: 'mine_creeper', name: 'Mini Creeper Verde 🟩', cost: 3, icon: '🟩' },
       ];
     }
     return [
@@ -2042,6 +2121,8 @@ export default function ChildRoutine() {
                       if (focus.includes("space")) speakText(t.routine.spaceLaunch);
                       else if (focus.includes("dino")) speakText(t.routine.dinoLaunch);
                       else if (focus.includes("trem")) speakText(t.routine.tremLaunch);
+                      else if (focus.includes("sea") || focus.includes("mar") || focus.includes("ocean")) speakText(t.routine.seaLaunch);
+                      else if (focus.includes("mine") || focus.includes("block") || focus.includes("bloco")) speakText(t.routine.mineLaunch);
                       else speakText(t.routine.congratsAllParts);
                     }}
                     className="w-full py-3 bg-gradient-to-r from-yellow-450 to-amber-500 hover:from-yellow-500 hover:to-amber-600 text-slate-950 text-xs font-black rounded-2xl shadow-md uppercase tracking-wider select-none animate-bounce font-Outfit border-none cursor-pointer mt-1"
@@ -2110,6 +2191,28 @@ export default function ChildRoutine() {
                       </motion.div>
                     );
                   }
+                  if (focus.includes("sea") || focus.includes("mar") || focus.includes("ocean")) {
+                    return (
+                      <motion.div
+                        animate={{ y: [-30, 30, -30], x: [-15, 15, -15], rotate: [0, 5, -5, 0] }}
+                        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                        className="text-9xl select-none"
+                      >
+                        🐳
+                      </motion.div>
+                    );
+                  }
+                  if (focus.includes("mine") || focus.includes("block") || focus.includes("bloco")) {
+                    return (
+                      <motion.div
+                        animate={{ scale: [1, 1.15, 0.9, 1.15, 1], rotate: [0, 10, -10, 10, 0] }}
+                        transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
+                        className="text-9xl select-none"
+                      >
+                        🟩
+                      </motion.div>
+                    );
+                  }
                   return (
                     <motion.div
                       animate={{ scale: [1, 1.15, 1], y: [0, -20, 0] }}
@@ -2126,6 +2229,8 @@ export default function ChildRoutine() {
                     if (focus.includes("space")) return "Foguete Decolando!";
                     if (focus.includes("dino")) return "T-Rex Ganhou Vida!";
                     if (focus.includes("trem")) return "Trem em Movimento!";
+                    if (focus.includes("sea") || focus.includes("mar") || focus.includes("ocean")) return "Submarino Navegando! 🐳";
+                    if (focus.includes("mine") || focus.includes("block") || focus.includes("bloco")) return "Mundo de Blocos Ativado! 🟩";
                     return "Brinquedo Ativado!";
                   })()}
                 </h1>
@@ -3908,7 +4013,7 @@ export default function ChildRoutine() {
                     </div>
 
                     {/* Mascot Collie in Interactive Pedestal with category color background and rewarding stars */}
-                    <div className="relative p-8">
+                    <div className="relative p-8 flex flex-col items-center">
                       {/* Star particles overlay cascade */}
                       <AnimatePresence>
                         {starParticles.map(star => (
@@ -3976,6 +4081,64 @@ export default function ChildRoutine() {
                           </>
                         </div>
                       </div>
+
+                      {/* Armário do Mascote (Drag & Drop) */}
+                      {(() => {
+                        let ownedAccessories: string[] = [];
+                        try {
+                          if (activeChild?.toyInventory) {
+                            const parsed = JSON.parse(activeChild.toyInventory);
+                            if (parsed && typeof parsed === 'object') {
+                              ownedAccessories = parsed.owned || [];
+                            } else if (Array.isArray(parsed)) {
+                              ownedAccessories = parsed;
+                            }
+                          }
+                        } catch (e) {}
+                        
+                        const accessoryMeta: { [key: string]: { emoji: string; label: string } } = {
+                          acc_hat: { emoji: '🎩', label: 'Chapéu' },
+                          acc_glasses: { emoji: '😎', label: 'Óculos' },
+                          acc_medal: { emoji: '🥇', label: 'Medalha' },
+                          acc_cape: { emoji: '🦸‍♂️', label: 'Capa' }
+                        };
+
+                        if (ownedAccessories.length === 0) return null;
+
+                        return (
+                          <div className="mt-6 p-3 bg-slate-100/80 border-2 border-slate-200 rounded-[24px] flex flex-col items-center gap-1.5 w-full max-w-[280px] shadow-sm select-none z-20">
+                            <span className="text-[9px] font-black uppercase tracking-wider text-slate-500 font-Outfit">
+                              👕 Guardaroupa (Arraste para Vestir)
+                            </span>
+                            <div className="flex items-center justify-center gap-3">
+                              {ownedAccessories.map(itemId => {
+                                const meta = accessoryMeta[itemId];
+                                if (!meta) return null;
+                                const isEquipped = equippedAccessories.includes(itemId);
+                                return (
+                                  <motion.div
+                                    key={itemId}
+                                    drag
+                                    dragSnapToOrigin
+                                    onDragEnd={(event, info) => handleDragEnd(itemId, info)}
+                                    onClick={() => handleTrayItemClick(itemId)}
+                                    whileHover={{ scale: 1.15 }}
+                                    whileDrag={{ scale: 1.25, zIndex: 50 }}
+                                    className={`w-11 h-11 rounded-xl flex items-center justify-center text-2.5xl cursor-grab active:cursor-grabbing border-2 transition-colors ${
+                                      isEquipped 
+                                        ? 'bg-indigo-100 border-indigo-400 text-indigo-700 shadow-inner' 
+                                        : 'bg-white border-slate-200 hover:border-slate-350 shadow-sm'
+                                    }`}
+                                    title={`${meta.label} - Arraste para o mascote ou clique para vestir`}
+                                  >
+                                    {meta.emoji}
+                                  </motion.div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        );
+                      })()}
                     </div>
 
                     {/* LARGE COMPLETE MISSION BUTTON */}
@@ -4741,6 +4904,8 @@ export default function ChildRoutine() {
                   if (focus.includes('dino')) return '🦕';
                   if (focus.includes('space')) return '🛸';
                   if (focus.includes('trem')) return '💤🚂';
+                  if (focus.includes('sea') || focus.includes('mar') || focus.includes('ocean')) return '💤🐳';
+                  if (focus.includes('mine') || focus.includes('block') || focus.includes('bloco')) return '💤🟩';
                   return '💤🐶';
                 })()}
               </div>
