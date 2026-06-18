@@ -2493,7 +2493,7 @@ function ParentDashboardContent() {
       <div className="max-w-6xl mx-auto px-4 md:px-6 mt-8 grid grid-cols-1 md:grid-cols-12 gap-6 lg:gap-8">
         
         {/* Left Side: Child Settings & Fast Actions */}
-        <div className="md:col-span-4 flex flex-col gap-6">
+        <div className="md:col-span-4 flex flex-col gap-6 md:sticky md:top-[80px] md:max-h-[calc(100vh-120px)] md:overflow-y-auto scrollbar-none">
           
           {/* Active Emotional Battery Card */}
           {activeChild && (
@@ -3579,8 +3579,9 @@ function ParentDashboardContent() {
         {/* Right Side: Routine Composer / Logs */}
         <div className="md:col-span-8 flex flex-col gap-6">
           
-          {/* Tabs for switching Tasks Routine vs Reports vs Audit Logs */}
-          <div className="bg-slate-100/80 p-1.5 rounded-2xl flex shadow-inner gap-1 overflow-x-auto scrollbar-none">
+          {/* Sticky Tab Bar Container for Desktop/Tablet landscape navigation */}
+          <div className="sticky top-[130px] md:top-[80px] z-20 bg-[#f8fafc]/95 backdrop-blur-md py-3 -mx-2 px-2">
+            <div className="bg-slate-100/80 p-1.5 rounded-2xl flex shadow-inner gap-1 overflow-x-auto scrollbar-none">
             <button
               onClick={() => { playBubble(); setActivePanelTab('tasks'); }}
               className={`flex-1 py-2.5 text-xs font-black rounded-xl transition-all flex items-center justify-center gap-2 shrink-0 font-Outfit cursor-pointer select-none active:scale-95 ${
@@ -3624,6 +3625,7 @@ function ParentDashboardContent() {
                 {logs.length}
               </span>
             </button>
+            </div>
           </div>
 
           <AnimatePresence mode="wait">

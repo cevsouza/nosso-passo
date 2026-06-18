@@ -3779,7 +3779,7 @@ export default function ChildRoutine() {
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.97 }}
                     transition={transitionConfig}
-                    className={`bg-white border-4 rounded-[36px] p-8 shadow-premium flex flex-col items-center text-center gap-6 relative overflow-hidden transition-all duration-500 border-t-8 border-t-transparent md:col-span-7 ${category.shadow}`}
+                    className={`bg-white border-4 rounded-[36px] p-8 shadow-premium flex flex-col lg:grid lg:grid-cols-12 lg:gap-8 items-center justify-center text-center gap-6 relative overflow-hidden transition-all duration-500 border-t-8 border-t-transparent md:col-span-7 ${category.shadow}`}
                   >
                     {/* Glowing outer soft neon reflection underneath */}
                     {effectiveVisuals === 'rich' && (
@@ -3789,7 +3789,9 @@ export default function ChildRoutine() {
                     {/* Dynamic gradient background hint underlay */}
                     <div className={`absolute top-0 inset-x-0 h-2 bg-gradient-to-r ${category.gradient}`}></div>
 
-                    <div className="flex flex-col items-center gap-2">
+                    {/* Left Column: Task Illustration, Details, Timer */}
+                    <div className="flex flex-col items-center gap-5 w-full lg:col-span-6">
+                      <div className="flex flex-col items-center gap-2">
                       <div className="relative">
                         <RoutineIllustration category={activeTask.title} size={150} hyperfocus={childHyperfocus} />
                         {(activeTask.customIcon || activeTask.icon) && (
@@ -3906,9 +3908,12 @@ export default function ChildRoutine() {
                         </div>
                       )}
                     </div>
+                    </div>
 
-                    {/* Mascot Collie in Interactive Pedestal with category color background and rewarding stars */}
-                    <div className="relative p-8">
+                    {/* Right Column: Mascot Pedestal and Complete Button */}
+                    <div className="flex flex-col items-center gap-6 w-full justify-center lg:col-span-6 lg:border-l lg:border-slate-100 lg:pl-4">
+                      {/* Mascot Collie in Interactive Pedestal with category color background and rewarding stars */}
+                      <div className="relative p-8">
                       {/* Star particles overlay cascade */}
                       <AnimatePresence>
                         {starParticles.map(star => (
@@ -3998,6 +4003,7 @@ export default function ChildRoutine() {
                         'EU TERMINEI! ✅'
                       )}
                     </motion.button>
+                    </div>
                   </motion.div>
                 );
               })()}
