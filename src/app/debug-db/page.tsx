@@ -1,21 +1,8 @@
 import { prisma } from '@/lib/prisma';
-import { readDebugFile } from '../../lib/debug-logger';
-import fs from 'fs';
-import path from 'path';
 
 export const dynamic = 'force-dynamic';
 
-export default async function DebugDbPage({ searchParams }: { searchParams: any }) {
-  const params = await searchParams;
-  const clear = typeof params === 'object' && params !== null ? params.clear : undefined;
-  if (clear === 'true') {
-    try {
-      const logPath = path.join(process.cwd(), 'public', 'debug-log.txt');
-      if (fs.existsSync(logPath)) {
-        fs.writeFileSync(logPath, '', 'utf8');
-      }
-    } catch (e) {}
-  }
+export default async function DebugDbPage() {
   let errorMsg = null;
   let users: any[] = [];
   let children: any[] = [];
@@ -108,27 +95,6 @@ export default async function DebugDbPage({ searchParams }: { searchParams: any 
         </table>
       )}
 
-      <h2>Logs de Execução (public/debug-log.txt)</h2>
-      <div style={{ marginBottom: 15 }}>
-        <a href="/debug-db?clear=true" style={{ padding: '8px 12px', backgroundColor: '#ef4444', color: 'white', textDecoration: 'none', borderRadius: 4, fontWeight: 'bold', fontSize: '12px' }}>
-          Limpar Logs
-        </a>
-        <a href="/debug-db" style={{ padding: '8px 12px', backgroundColor: '#3b82f6', color: 'white', textDecoration: 'none', borderRadius: 4, fontWeight: 'bold', marginLeft: 10, fontSize: '12px' }}>
-          Atualizar Página
-        </a>
-      </div>
-      <pre style={{ 
-        padding: 15, 
-        backgroundColor: '#0f172a', 
-        color: '#38bdf8', 
-        borderRadius: 8, 
-        overflowX: 'auto',
-        maxHeight: '400px',
-        overflowY: 'auto',
-        fontSize: '12px'
-      }}>
-        {readDebugFile()}
-      </pre>
     </div>
   );
 }
