@@ -120,7 +120,7 @@ export default function ParentAuth() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="nome@exemplo.com"
+                placeholder={locale === 'en' ? 'name@example.com' : locale === 'es' ? 'nombre@ejemplo.com' : 'nome@exemplo.com'}
                 className="w-full pl-11 pr-4 py-3.5 bg-white border-2 border-slate-300 focus:border-indigo-600 focus:bg-white rounded-xl text-slate-900 placeholder-slate-400 outline-none transition-all text-xs font-bold shadow-xxs focus:ring-4 focus:ring-indigo-100"
               />
             </div>

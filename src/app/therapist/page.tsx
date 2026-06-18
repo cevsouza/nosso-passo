@@ -81,12 +81,12 @@ export default function TherapistPortal() {
       const res = await fetch(`/api/therapist?sharingCode=${finalCode.toUpperCase()}`);
       const data = await res.json();
       if (!res.ok) {
-        throw new Error(data.error || 'Código inválido');
+        throw new Error(data.error || (locale === 'en' ? 'Invalid code' : locale === 'es' ? 'Código inválido' : 'Código inválido'));
       }
       setChildData(data);
       playMarimba(523, 0.4);
     } catch (err: any) {
-      setErrorMsg(err.message || 'Código de compartilhamento inválido ou inativo.');
+      setErrorMsg(err.message || (locale === 'en' ? 'Invalid or inactive sharing code.' : locale === 'es' ? 'Código de compartido inválido o inactivo.' : 'Código de compartilhamento inválido ou inativo.'));
       playMarimba(180, 0.2);
     } finally {
       setVerifying(false);
@@ -365,7 +365,7 @@ export default function TherapistPortal() {
       });
 
       const created = await res.json();
-      if (!res.ok) throw new Error(created.error || 'Erro ao criar checkpoint diário');
+      if (!res.ok) throw new Error(created.error || (locale === 'en' ? 'Error creating daily checkpoint' : locale === 'es' ? 'Error al crear el punto de control diario' : 'Erro ao criar checkpoint diário'));
 
       setChildData((prev: any) => {
         const idx = prev.checkpoints.findIndex((c: any) => c.date === created.date);
@@ -1598,11 +1598,17 @@ export default function TherapistPortal() {
             {/* Header */}
             <div className="border-b-4 border-teal-650 pb-4 flex justify-between items-center">
               <div>
-                <h1 className="text-3xl font-black text-teal-605 tracking-tight font-Outfit">LAUDO COMPORTAMENTAL / SENSORIAL</h1>
-                <p className="text-sm text-slate-505 font-semibold mt-1">Rotina Animada SaaS - Relatório Clínico de Aderência</p>
+                <h1 className="text-3xl font-black text-teal-605 tracking-tight font-Outfit">
+                  {locale === 'en' ? 'BEHAVIORAL / SENSORY REPORT' : locale === 'es' ? 'INFORME CONDUCTUAL / SENSORIAL' : 'LAUDO COMPORTAMENTAL / SENSORIAL'}
+                </h1>
+                <p className="text-sm text-slate-505 font-semibold mt-1">
+                  {locale === 'en' ? 'Rotina Animada SaaS - Clinical Adherence Report' : locale === 'es' ? 'Rotina Animada SaaS - Reporte Clínico de Adherencia' : 'Rotina Animada SaaS - Relatório Clínico de Aderência'}
+                </p>
               </div>
               <div className="text-right">
-                <p className="text-[10px] font-black text-slate-400 uppercase">Data de Emissão</p>
+                <p className="text-[10px] font-black text-slate-400 uppercase">
+                  {locale === 'en' ? 'Issue Date' : locale === 'es' ? 'Fecha de Emisión' : 'Data de Emissão'}
+                </p>
                 <p className="text-sm font-black text-slate-700 font-Outfit">{new Date().toLocaleDateString()}</p>
               </div>
             </div>

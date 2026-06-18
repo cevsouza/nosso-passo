@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { MapPin, Info } from 'lucide-react';
+import { useLanguage } from '../lib/LanguageContext';
 
 interface SensoryLog {
   id: string;
@@ -26,6 +27,7 @@ interface SensoryHeatmapProps {
 }
 
 export const SensoryHeatmap: React.FC<SensoryHeatmapProps> = ({ logs }) => {
+  const { locale } = useLanguage();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [hoveredLog, setHoveredLog] = useState<SensoryLog | null>(null);
@@ -236,9 +238,11 @@ export const SensoryHeatmap: React.FC<SensoryHeatmapProps> = ({ logs }) => {
             🗺️
           </div>
           <div>
-            <p className="text-xs font-bold text-slate-700">Sem Coordenadas GPS Registradas</p>
+            <p className="text-xs font-bold text-slate-700">
+              {locale === 'en' ? 'No GPS Coordinates Registered' : locale === 'es' ? 'Sin Coordenadas GPS Registradas' : 'Sem Coordenadas GPS Registradas'}
+            </p>
             <p className="text-[10px] text-slate-400 mt-1 max-w-xs leading-normal">
-              Registre crises usando o diário sensorial para capturar a geolocalização e gerar o mapa de calor.
+              {locale === 'en' ? 'Register crises using the sensory log to capture geolocation and generate the heatmap.' : locale === 'es' ? 'Registre las crisis utilizando el diario sensorial para capturar la geolocalización y generar el mapa de calor.' : 'Registre crises usando o diário sensorial para capturar a geolocalização e gerar o mapa de calor.'}
             </p>
           </div>
         </div>
@@ -265,22 +269,54 @@ export const SensoryHeatmap: React.FC<SensoryHeatmapProps> = ({ logs }) => {
               className="z-50 w-56 bg-slate-900/95 text-white p-3.5 rounded-2xl text-[10px] leading-relaxed shadow-lg border border-slate-700/50 backdrop-blur-md pointer-events-none select-none text-left flex flex-col gap-1.5 font-Nunito font-medium transition-all"
             >
               <div className="flex justify-between items-center font-Outfit font-bold uppercase tracking-wider text-[8px] text-indigo-300 border-b border-slate-750 pb-1">
-                <span>📍 {hoveredLog.location || 'Local Não Informado'}</span>
-                <span>{hoveredLog.crisisOccurred ? '🔴 CRISE' : '🟢 REGULADO'}</span>
+                <span>
+                  📍 {
+                    hoveredLog.location === 'Escola' ? (locale === 'en' ? 'School' : locale === 'es' ? 'Escuela' : 'Escola') :
+                    hoveredLog.location === 'Casa' ? (locale === 'en' ? 'Home' : locale === 'es' ? 'Casa' : 'Casa') :
+                    hoveredLog.location === 'Consultório' ? (locale === 'en' ? 'Clinic' : locale === 'es' ? 'Consultorio' : 'Consultório') :
+                    (hoveredLog.location || (locale === 'en' ? 'Unknown Location' : locale === 'es' ? 'Lugar No Informado' : 'Local Não Informado'))
+                  }
+                </span>
+                <span>
+                  {hoveredLog.crisisOccurred 
+                    ? (locale === 'en' ? '🔴 CRISIS' : locale === 'es' ? '🔴 CRISIS' : '🔴 CRISE') 
+                    : (locale === 'en' ? '🟢 REGULATED' : locale === 'es' ? '🟢 REGULADO' : '🟢 REGULADO')
+                  }
+                </span>
               </div>
               <div>
-                <p className="text-[9px] font-bold text-slate-350">{new Date(hoveredLog.timestamp).toLocaleString()}</p>
-                <p className="font-semibold text-white mt-1 leading-normal">"{hoveredLog.notes || 'Sem observações'}"</p>
+                <p className="text-[9px] font-bold text-slate-350">{new Date(hoveredLog.timestamp).toLocaleString(locale)}</p>
+                <p className="font-semibold text-white mt-1 leading-normal">
+                  "{hoveredLog.notes || (locale === 'en' ? 'No observations' : locale === 'es' ? 'Sin observaciones' : 'Sem observações')}"
+                </p>
               </div>
               <div className="grid grid-cols-2 gap-1.5 pt-1.5 border-t border-slate-750 text-[9px] font-extrabold text-slate-300">
                 {hoveredLog.decibels !== undefined && (
-                  <span>🔊 Som: {hoveredLog.decibels}dB</span>
+                  <span>
+                    🔊 {locale === 'en' ? 'Sound' : locale === 'es' ? 'Sonido' : 'Som'}: {hoveredLog.decibels}dB
+                  </span>
                 )}
                 {hoveredLog.lightLevel && (
-                  <span>💡 Luz: {hoveredLog.lightLevel}</span>
+                  <span>
+                    💡 {locale === 'en' ? 'Light' : locale === 'es' ? 'Luz' : 'Luz'}: {
+                      hoveredLog.lightLevel === 'Alta' ? (locale === 'en' ? 'High' : locale === 'es' ? 'Alta' : 'Alta') :
+                      hoveredLog.lightLevel === 'Média' ? (locale === 'en' ? 'Medium' : locale === 'es' ? 'Media' : 'Média') :
+                      hoveredLog.lightLevel === 'Baixa' ? (locale === 'en' ? 'Low' : locale === 'es' ? 'Baja' : 'Baixa') :
+                      hoveredLog.lightLevel
+                    }
+                  </span>
                 )}
                 {hoveredLog.trigger && (
-                  <span className="col-span-2">🎯 Gatilho: {hoveredLog.trigger}</span>
+                  <span className="col-span-2">
+                    🎯 {locale === 'en' ? 'Trigger' : locale === 'es' ? 'Desencadenante' : 'Gatilho'}: {
+                      hoveredLog.trigger === 'Nenhum' ? (locale === 'en' ? 'None' : locale === 'es' ? 'Ninguno' : 'Nenhum') :
+                      hoveredLog.trigger === 'Barulho Elevado' ? (locale === 'en' ? 'High Noise' : locale === 'es' ? 'Ruido Elevado' : 'Barulho Elevado') :
+                      hoveredLog.trigger === 'Luz Estroboscópica / Forte' ? (locale === 'en' ? 'Strobe / Strong Light' : locale === 'es' ? 'Luz Estroboscópica / Fuerte' : 'Luz Estroboscópica / Forte') :
+                      hoveredLog.trigger === 'Transição de Atividade' ? (locale === 'en' ? 'Activity Transition' : locale === 'es' ? 'Transición de Actividad' : 'Transição de Atividade') :
+                      hoveredLog.trigger === 'Multidão' ? (locale === 'en' ? 'Crowd' : locale === 'es' ? 'Multitud' : 'Multidão') :
+                      hoveredLog.trigger
+                    }
+                  </span>
                 )}
               </div>
             </div>
@@ -288,7 +324,9 @@ export const SensoryHeatmap: React.FC<SensoryHeatmapProps> = ({ logs }) => {
 
           <div className="absolute bottom-2 right-2 flex items-center gap-1.5 bg-white/90 border border-slate-200 rounded-full px-2 py-1 shadow-sm pointer-events-none select-none text-[8px] font-bold text-slate-500 backdrop-blur-xxs">
             <Info className="w-3 h-3 text-slate-400" />
-            <span>Passe o mouse nos pontos para ver detalhes</span>
+            <span>
+              {locale === 'en' ? 'Hover over points to see details' : locale === 'es' ? 'Pase el mouse sobre los puntos para ver detalles' : 'Passe o mouse nos pontos para ver detalhes'}
+            </span>
           </div>
         </>
       )}

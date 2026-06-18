@@ -66,9 +66,27 @@ const getDaysOfCurrentMonth = () => {
 
 const DAYS_OF_MONTH = getDaysOfCurrentMonth();
 
-const getDayLabel = (dayKey: string) => {
+const getDayLabel = (dayKey: string, locale: string = 'pt') => {
   const day = DAYS_OF_MONTH.find(d => d.key === dayKey);
-  return day ? day.label : `Dia ${dayKey}`;
+  if (!day) return locale === 'en' ? `Day ${dayKey}` : locale === 'es' ? `Día ${dayKey}` : `Dia ${dayKey}`;
+  
+  const weekdayShortMap: Record<string, Record<string, string>> = {
+    'Dom': { pt: 'Dom', es: 'Dom', en: 'Sun' },
+    'Seg': { pt: 'Seg', es: 'Lun', en: 'Mon' },
+    'Ter': { pt: 'Ter', es: 'Mar', en: 'Tue' },
+    'Qua': { pt: 'Qua', es: 'Mié', en: 'Wed' },
+    'Qui': { pt: 'Qui', es: 'Jue', en: 'Thu' },
+    'Sex': { pt: 'Sex', es: 'Vie', en: 'Fri' },
+    'Sáb': { pt: 'Sáb', es: 'Sáb', en: 'Sat' }
+  };
+  
+  const wTrans = weekdayShortMap[day.weekdayShort]?.[locale] || day.weekdayShort;
+  
+  return locale === 'en'
+    ? `Day ${day.key} (${wTrans}) 📅`
+    : locale === 'es'
+    ? `Día ${day.key} (${wTrans}) 📅`
+    : `Dia ${day.key} (${day.weekdayShort}) 📅`;
 };
 
 const getRecurrenceWeekdayLabel = (dayKey: string, locale: string = 'pt') => {
@@ -459,7 +477,7 @@ function ParentDashboardContent() {
         day: activeDayFilter
       });
 
-      const dayLabel = getDayLabel(activeDayFilter).replace(/ 📅| ☀️/, '');
+      const dayLabel = getDayLabel(activeDayFilter, locale).replace(/ 📅| ☀️/, '');
       await immutableLogger.logChange(
         'ADD_TASK', 
         `Adicionou a tarefa rápida "${preset.title}" na agenda de ${dayLabel}.`,
@@ -491,7 +509,7 @@ function ParentDashboardContent() {
     }
 
     const confirmMsg = target === 'day'
-      ? `Deseja realmente carregar o modelo "${template.name}" para o dia atual? Isso substituirá as tarefas existentes de ${getDayLabel(activeDayFilter).replace(/ 📅| ☀️/, '')}.`
+      ? `Deseja realmente carregar o modelo "${template.name}" para o dia atual? Isso substituirá as tarefas existentes de ${getDayLabel(activeDayFilter, locale).replace(/ 📅| ☀️/, '')}.`
       : `Deseja realmente carregar o modelo "${template.name}" para TODOS OS DIAS do mês? Isso substituirá todas as tarefas existentes do dia 1 ao 31.`;
 
     if (!window.confirm(confirmMsg)) return;
@@ -514,7 +532,7 @@ function ParentDashboardContent() {
         
         await firebaseBridge.db.loadTemplate([...otherDaysTasks, ...newDayTasks]);
         
-        const dayLabel = getDayLabel(activeDayFilter).replace(/ 📅| ☀️/, '');
+        const dayLabel = getDayLabel(activeDayFilter, locale).replace(/ 📅| ☀️/, '');
         await immutableLogger.logChange(
           'RESET_ROUTINE',
           `Carregou o modelo "${template.name}" na agenda de ${dayLabel}.`,
@@ -1203,7 +1221,7 @@ function ParentDashboardContent() {
     }
     setCopiedTasksBuffer(dayTasks);
     setCopiedFromDay(activeDayFilter);
-    const dayLabel = getDayLabel(activeDayFilter).replace(/ 📅| ☀️/, '');
+    const dayLabel = getDayLabel(activeDayFilter, locale).replace(/ 📅| ☀️/, '');
     triggerStatus(`Rotina de ${dayLabel} copiada! (${dayTasks.length} tarefas)`);
   };
 
@@ -1212,8 +1230,8 @@ function ParentDashboardContent() {
     
     playMarimba(392, 0.4);
     
-    const targetDayLabel = getDayLabel(activeDayFilter).replace(/ 📅| ☀️/, '');
-    const sourceDayLabel = getDayLabel(copiedFromDay).replace(/ 📅| ☀️/, '');
+    const targetDayLabel = getDayLabel(activeDayFilter, locale).replace(/ 📅| ☀️/, '');
+    const sourceDayLabel = getDayLabel(copiedFromDay, locale).replace(/ 📅| ☀️/, '');
     const confirmPaste = window.confirm(
       `Deseja substituir as tarefas existentes de ${targetDayLabel} pelas ${copiedTasksBuffer.length} tarefas copiadas de ${sourceDayLabel}?`
     );
@@ -1546,7 +1564,7 @@ function ParentDashboardContent() {
       // Write IMUTABLE LOG trail
       let logMessage = '';
       if (recurrenceMode === 'single') {
-        const dayLabel = getDayLabel(activeDayFilter).replace(/ 📅| ☀️/, '');
+        const dayLabel = getDayLabel(activeDayFilter, locale).replace(/ 📅| ☀️/, '');
         logMessage = locale === 'en'
           ? `Added task "${title.trim()}" (Duration: ${taskDuration}min, Icon: ${taskIcon}, Category: ${taskCategory}) at ${time} (${period}) in the schedule for ${dayLabel}.`
           : locale === 'es'
@@ -1601,7 +1619,7 @@ function ParentDashboardContent() {
     try {
       await firebaseBridge.db.deleteTask(task.id);
       
-      const dayLabel = getDayLabel(task.day);
+      const dayLabel = getDayLabel(task.day, locale);
       await immutableLogger.logChange(
         'DELETE_TASK', 
         `Removeu a tarefa "${task.title}" de ${dayLabel} (${task.period}).`,
@@ -1629,7 +1647,7 @@ function ParentDashboardContent() {
         customIcon: editTaskCustomIcon.trim() || undefined
       });
 
-      const dayLabel = getDayLabel(activeDayFilter);
+      const dayLabel = getDayLabel(activeDayFilter, locale);
       await immutableLogger.logChange(
         'UPDATE_PROFILE', 
         `Editou a tarefa "${editTaskTitle}" (Duração: ${editTaskDuration}min, Ícone: ${editTaskIcon}, Categoria: ${editTaskCategory}) às ${editTaskTime} (${editTaskPeriod}) na ${dayLabel}.`,
@@ -2874,52 +2892,52 @@ function ParentDashboardContent() {
             <form onSubmit={handleSaveProfile} className="flex flex-col gap-3">
               <div>
                 <label className="block text-xs font-black text-slate-700 uppercase tracking-wider mb-1.5 font-Outfit">
-                  Hiperfoco Principal do Usuário
+                  {locale === 'en' ? 'User\'s Main Hyperfocus' : locale === 'es' ? 'Hiperenfoque Principal del Usuario' : 'Hiperfoco Principal do Usuário'}
                 </label>
                 <select
                   value={hyperfocus}
                   onChange={e => setHyperfocus(e.target.value)}
                   className="w-full px-4 py-2.5 bg-white border-2 border-slate-300 focus:border-indigo-600 focus:bg-white rounded-xl text-slate-900 outline-none text-sm transition-all shadow-xxs font-bold cursor-pointer focus:ring-4 focus:ring-indigo-100"
                 >
-                  <option value="Border Collies 🐕">Cachorro Border Collie 🐶</option>
-                  <option value="Dinossauro 🦖">Dinossauro 🦖</option>
-                  <option value="Astronauta / Espaço 🚀">Espaço / Astronauta 🚀</option>
-                  <option value="Minecraft / Blocos 🟩">Minecraft / Blocos 🟩</option>
-                  <option value="Gato 🐱">Gato 🐱</option>
-                  <option value="Carro 🚗">Carro 🚗</option>
-                  <option value="Trem / Locomotiva 🚂">Trem / Locomotiva 🚂</option>
-                  <option value="Super-herói 🦸">Super-herói 🦸</option>
-                  <option value="Tubarão / Fundo do Mar 🦈">Tubarão / Fundo do Mar 🦈</option>
-                  <option value="Unicórnio 🦄">Unicórnio 🦄</option>
-                  <option value="Robô / Tecnologia 🤖">Robô / Tecnologia 🤖</option>
+                  <option value="Border Collies 🐕">{locale === 'en' ? 'Border Collie Dog 🐶' : locale === 'es' ? 'Perro Border Collie 🐶' : 'Cachorro Border Collie 🐶'}</option>
+                  <option value="Dinossauro 🦖">{locale === 'en' ? 'Dinosaur 🦖' : locale === 'es' ? 'Dinosaurio 🦖' : 'Dinossauro 🦖'}</option>
+                  <option value="Astronauta / Espaço 🚀">{locale === 'en' ? 'Space / Astronaut 🚀' : locale === 'es' ? 'Espacio / Astronauta 🚀' : 'Espaço / Astronauta 🚀'}</option>
+                  <option value="Minecraft / Blocos 🟩">{locale === 'en' ? 'Minecraft / Blocks 🟩' : locale === 'es' ? 'Minecraft / Bloques 🟩' : 'Minecraft / Blocos 🟩'}</option>
+                  <option value="Gato 🐱">{locale === 'en' ? 'Cat 🐱' : locale === 'es' ? 'Gato 🐱' : 'Gato 🐱'}</option>
+                  <option value="Carro 🚗">{locale === 'en' ? 'Car 🚗' : locale === 'es' ? 'Coche 🚗' : 'Carro 🚗'}</option>
+                  <option value="Trem / Locomotiva 🚂">{locale === 'en' ? 'Train / Locomotive 🚂' : locale === 'es' ? 'Tren / Locomotora 🚂' : 'Trem / Locomotiva 🚂'}</option>
+                  <option value="Super-herói 🦸">{locale === 'en' ? 'Superhero 🦸' : locale === 'es' ? 'Superhéroe 🦸' : 'Super-herói 🦸'}</option>
+                  <option value="Tubarão / Fundo do Mar 🦈">{locale === 'en' ? 'Shark / Undersea 🦈' : locale === 'es' ? 'Tiburón / Fondo del Mar 🦈' : 'Tubarão / Fundo do Mar 🦈'}</option>
+                  <option value="Unicórnio 🦄">{locale === 'en' ? 'Unicorn 🦄' : locale === 'es' ? 'Unicornio 🦄' : 'Unicórnio 🦄'}</option>
+                  <option value="Robô / Tecnologia 🤖">{locale === 'en' ? 'Robot / Technology 🤖' : locale === 'es' ? 'Robot / Tecnología 🤖' : 'Robô / Tecnologia 🤖'}</option>
                 </select>
               </div>
               <div>
                 <label className="block text-xs font-black text-slate-700 uppercase tracking-wider mb-1.5 font-Outfit">
-                  Tipo de Bloqueio Infantil
+                  {locale === 'en' ? 'Child Lock Type' : locale === 'es' ? 'Tipo de Bloqueo Infantil' : 'Tipo de Bloqueo Infantil'}
                 </label>
                 <select
                   value={lockType}
                   onChange={e => setLockType(e.target.value as any)}
                   className="w-full px-4 py-2.5 bg-white border-2 border-slate-300 focus:border-indigo-600 focus:bg-white rounded-xl text-slate-900 outline-none text-sm transition-all shadow-xxs font-bold cursor-pointer focus:ring-4 focus:ring-indigo-100"
                 >
-                  <option value="math">Desafio de Matemática 🧮</option>
-                  <option value="pin">PIN de 4 dígitos 🔑</option>
-                  <option value="none">Nenhum (Livre) 🔓</option>
+                  <option value="math">{locale === 'en' ? 'Math Challenge 🧮' : locale === 'es' ? 'Desafío de Matemáticas 🧮' : 'Desafio de Matemática 🧮'}</option>
+                  <option value="pin">{locale === 'en' ? '4-digit PIN 🔑' : locale === 'es' ? 'PIN de 4 dígitos 🔑' : 'PIN de 4 dígitos 🔑'}</option>
+                  <option value="none">{locale === 'en' ? 'None (Free) 🔓' : locale === 'es' ? 'Ninguno (Libre) 🔓' : 'Nenhum (Livre) 🔓'}</option>
                 </select>
               </div>
 
               {lockType === 'pin' && (
                 <div>
                   <label className="block text-xs font-black text-slate-700 uppercase tracking-wider mb-1.5 font-Outfit">
-                    PIN do Responsável (4 dígitos)
+                    {locale === 'en' ? 'Guardian PIN (4 digits)' : locale === 'es' ? 'PIN del Tutor (4 dígitos)' : 'PIN do Responsável (4 dígitos)'}
                   </label>
                   <input 
                     type="text" 
                     maxLength={4}
                     value={parentPinCode}
                     onChange={e => setParentPinCode(e.target.value.replace(/\D/g, ''))}
-                    placeholder="Ex: 1234"
+                    placeholder={locale === 'en' ? 'e.g. 1234' : locale === 'es' ? 'Ej: 1234' : 'Ex: 1234'}
                     className="w-full px-4 py-2.5 bg-white border-2 border-slate-300 focus:border-indigo-600 focus:bg-white rounded-xl text-slate-900 placeholder-slate-400 outline-none text-sm transition-all shadow-xxs font-bold text-center tracking-widest text-lg focus:ring-4 focus:ring-indigo-100"
                   />
                 </div>
@@ -2928,54 +2946,54 @@ function ParentDashboardContent() {
               {/* Sensory speed select */}
               <div>
                 <label className="block text-xs font-black text-slate-700 uppercase tracking-wider mb-1.5 font-Outfit">
-                  Velocidade da Fala do Mascote (TTS) 🗣️
+                  {locale === 'en' ? 'Mascot Speech Speed (TTS) 🗣️' : locale === 'es' ? 'Velocidad de Habla de la Mascota (TTS) 🗣️' : 'Velocidade da Fala do Mascote (TTS) 🗣️'}
                 </label>
                 <select
                   value={sensorySpeed}
                   onChange={e => setSensorySpeed(parseFloat(e.target.value) as any)}
                   className="w-full px-4 py-2.5 bg-white border-2 border-slate-300 focus:border-indigo-600 focus:bg-white rounded-xl text-slate-900 outline-none text-sm transition-all shadow-xxs font-bold cursor-pointer focus:ring-4 focus:ring-indigo-100"
                 >
-                  <option value={0.7}>Muito Calma / Lenta (0.7x) 🐢</option>
-                  <option value={1.0}>Calma Recomendada (1.0x) ☕</option>
-                  <option value={1.2}>Dinâmica / Padrão (1.2x) ⚡</option>
+                  <option value={0.7}>{locale === 'en' ? 'Very Calm / Slow (0.7x) 🐢' : locale === 'es' ? 'Muy Tranquila / Lenta (0.7x) 🐢' : 'Muito Calma / Lenta (0.7x) 🐢'}</option>
+                  <option value={1.0}>{locale === 'en' ? 'Recommended Calm (1.0x) ☕' : locale === 'es' ? 'Calma Recomendada (1.0x) ☕' : 'Calma Recomendada (1.0x) ☕'}</option>
+                  <option value={1.2}>{locale === 'en' ? 'Dynamic / Standard (1.2x) ⚡' : locale === 'es' ? 'Dinámica / Estándar (1.2x) ⚡' : 'Dinâmica / Padrão (1.2x) ⚡'}</option>
                 </select>
               </div>
 
               {/* Sensory sound selection */}
               <div>
                 <label className="block text-xs font-black text-slate-700 uppercase tracking-wider mb-1.5 font-Outfit">
-                  Estilo de Efeito Sonoro 🔊
+                  {locale === 'en' ? 'Sound Effect Style 🔊' : locale === 'es' ? 'Estilo de Efecto de Sonido 🔊' : 'Estilo de Efeito Sonoro 🔊'}
                 </label>
                 <select
                   value={sensorySound}
                   onChange={e => setSensorySound(e.target.value as any)}
                   className="w-full px-4 py-2.5 bg-white border-2 border-slate-300 focus:border-indigo-600 focus:bg-white rounded-xl text-slate-900 outline-none text-sm transition-all shadow-xxs font-bold cursor-pointer focus:ring-4 focus:ring-indigo-100"
                 >
-                  <option value="marimba">Instrumento de Madeira (Marimba) 🪵</option>
-                  <option value="bubble">Bolhas Fluidas (Suave) 🫧</option>
-                  <option value="silent">Modo Silencioso (Sem som) 🔕</option>
+                  <option value="marimba">{locale === 'en' ? 'Wooden Instrument (Marimba) 🪵' : locale === 'es' ? 'Instrumento de Madera (Marimba) 🪵' : 'Instrumento de Madeira (Marimba) 🪵'}</option>
+                  <option value="bubble">{locale === 'en' ? 'Fluid Bubbles (Soft) 🫧' : locale === 'es' ? 'Burbujas Fluidas (Suave) 🫧' : 'Bolhas Fluidas (Suave) 🫧'}</option>
+                  <option value="silent">{locale === 'en' ? 'Silent Mode (No sound) 🔕' : locale === 'es' ? 'Modo Silencioso (Sin sonido) 🔕' : 'Modo Silencioso (Sem som) 🔕'}</option>
                 </select>
               </div>
 
               {/* Sensory visuals selection */}
               <div>
                 <label className="block text-xs font-black text-slate-700 uppercase tracking-wider mb-1.5 font-Outfit">
-                  Nível de Estímulos Visuais 🎨
+                  {locale === 'en' ? 'Visual Stimulation Level 🎨' : locale === 'es' ? 'Nivel de Estímulos Visuales 🎨' : 'Nível de Estímulos Visuais 🎨'}
                 </label>
                 <select
                   value={sensoryVisuals}
                   onChange={e => setSensoryVisuals(e.target.value as any)}
                   className="w-full px-4 py-2.5 bg-white border-2 border-slate-350 focus:border-indigo-600 focus:bg-white rounded-xl text-slate-900 outline-none text-sm transition-all shadow-xxs font-bold cursor-pointer focus:ring-4 focus:ring-indigo-100"
                 >
-                  <option value="rich">Interativo e Animado (Padrão) ✨</option>
-                  <option value="minimal">Filtro Sensorial Reduzido (Quadro Primeiro-Depois) 🧘</option>
+                  <option value="rich">{locale === 'en' ? 'Interactive & Animated (Default) ✨' : locale === 'es' ? 'Interactivo y Animado (Por defecto) ✨' : 'Interativo e Animado (Padrão) ✨'}</option>
+                  <option value="minimal">{locale === 'en' ? 'Reduced Sensory Filter (First-Then Board) 🧘' : locale === 'es' ? 'Filtro Sensorial Reducido (Tablero Primero-Después) 🧘' : 'Filtro Sensorial Reduzido (Quadro Primeiro-Depois) 🧘'}</option>
                 </select>
               </div>
 
               {/* Sensory Profile selection */}
               <div>
                 <label className="block text-xs font-black text-slate-700 uppercase tracking-wider mb-1.5 font-Outfit">
-                  Limiar de Sensibilidade Sensorial (Perfil) 🧠
+                  {locale === 'en' ? 'Sensory Sensitivity Threshold (Profile) 🧠' : locale === 'es' ? 'Umbral de Sensibilidad Sensorial (Perfil) 🧠' : 'Limiar de Sensibilidade Sensorial (Perfil) 🧠'}
                 </label>
                 <select
                   value={sensoryProfile}
@@ -2992,26 +3010,26 @@ function ParentDashboardContent() {
                   }}
                   className="w-full px-4 py-2.5 bg-white border-2 border-slate-350 focus:border-indigo-600 focus:bg-white rounded-xl text-slate-900 outline-none text-sm transition-all shadow-xxs font-bold cursor-pointer focus:ring-4 focus:ring-indigo-100"
                 >
-                  <option value="balanced">Perfil Equilibrado (Padrão) 🧘</option>
-                  <option value="hypersensitive">Perfil Hipersensível (Baixa Estimulação) 🔇</option>
-                  <option value="hyposensitive">Perfil Hipossensível (Estímulo Adicional) ⚡</option>
+                  <option value="balanced">{locale === 'en' ? 'Balanced Profile (Default) 🧘' : locale === 'es' ? 'Perfil Equilibrado (Por defecto) 🧘' : 'Perfil Equilibrado (Padrão) 🧘'}</option>
+                  <option value="hypersensitive">{locale === 'en' ? 'Hypersensitive Profile (Low Stimulation) 🔇' : locale === 'es' ? 'Perfil Hipersensible (Baja Estimulación) 🔇' : 'Perfil Hipersensível (Baixa Estimulação) 🔇'}</option>
+                  <option value="hyposensitive">{locale === 'en' ? 'Hyposensitive Profile (Additional Stimulus) ⚡' : locale === 'es' ? 'Perfil Hiposensible (Estímulo Adicional) ⚡' : 'Perfil Hipossensível (Estímulo Adicional) ⚡'}</option>
                 </select>
               </div>
 
               {/* Timer Style selection */}
               <div>
                 <label className="block text-xs font-black text-slate-700 uppercase tracking-wider mb-1.5 font-Outfit">
-                  Estilo de Temporizador Visual ⏱️
+                  {locale === 'en' ? 'Visual Timer Style ⏱️' : locale === 'es' ? 'Estilo de Temporizador Visual ⏱️' : 'Estilo de Temporizador Visual ⏱️'}
                 </label>
                 <select
                   value={timerStyle}
                   onChange={e => setTimerStyle(e.target.value as any)}
                   className="w-full px-4 py-2.5 bg-white border-2 border-slate-350 focus:border-indigo-600 focus:bg-white rounded-xl text-slate-900 outline-none text-sm transition-all shadow-xxs font-bold cursor-pointer focus:ring-4 focus:ring-indigo-100"
                 >
-                  <option value="circle">Time Timer Tradicional (Círculo Vermelho) ⏱️</option>
-                  <option value="hourglass">Ampulheta Lúdica (Areia caindo) ⏳</option>
-                  <option value="droplets">Gotas de Água (Gotas enchendo vaso) 💧</option>
-                  <option value="hyperfocus">Temporizador Temático do Hiperfoco 🚀</option>
+                  <option value="circle">{locale === 'en' ? 'Traditional Time Timer (Red Circle) ⏱️' : locale === 'es' ? 'Time Timer Tradicional (Círculo Rojo) ⏱️' : 'Time Timer Tradicional (Círculo Vermelho) ⏱️'}</option>
+                  <option value="hourglass">{locale === 'en' ? 'Playful Hourglass (Sand falling) ⏳' : locale === 'es' ? 'Reloj de Arena Lúdico (Arena cayendo) ⏳' : 'Ampulheta Lúdica (Areia caindo) ⏳'}</option>
+                  <option value="droplets">{locale === 'en' ? 'Water Droplets (Droplets filling vessel) 💧' : locale === 'es' ? 'Gotas de Agua (Gotas llenando vaso) 💧' : 'Gotas de Água (Gotas enchendo vaso) 💧'}</option>
+                  <option value="hyperfocus">{locale === 'en' ? 'Hyperfocus Themed Timer 🚀' : locale === 'es' ? 'Temporizador Temático del Hiperenfoque 🚀' : 'Temporizador Temático do Hiperfoco 🚀'}</option>
                 </select>
               </div>
 
@@ -4196,7 +4214,7 @@ function ParentDashboardContent() {
                                   onChange={e => setRecurrenceMode(e.target.value as any)}
                                   className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-705 outline-none text-sm font-bold cursor-pointer"
                                 >
-                                  <option value="single">{locale === 'en' ? `Only on this day (${getDayLabel(activeDayFilter).replace(/ 📅| ☀️/, '')})` : locale === 'es' ? `Solo en este día (${getDayLabel(activeDayFilter).replace(/ 📅| ☀️/, '')})` : `Apenas neste dia (${getDayLabel(activeDayFilter).replace(/ 📅| ☀️/, '')})`}</option>
+                                  <option value="single">{locale === 'en' ? `Only on this day (${getDayLabel(activeDayFilter, locale).replace(/ 📅| ☀️/, '')})` : locale === 'es' ? `Solo en este día (${getDayLabel(activeDayFilter, locale).replace(/ 📅| ☀️/, '')})` : `Apenas neste dia (${getDayLabel(activeDayFilter, locale).replace(/ 📅| ☀️/, '')})`}</option>
                                   <option value="weekday">{locale === 'en' ? `Repeat on weekday (${getRecurrenceWeekdayLabel(activeDayFilter, locale)})` : locale === 'es' ? `Repetir en el día de la semana (${getRecurrenceWeekdayLabel(activeDayFilter, locale)})` : `Repetir no dia da semana (${getRecurrenceWeekdayLabel(activeDayFilter, locale).replace('Todas as ', '')})`}</option>
                                   <option value="monthly">{locale === 'en' ? 'Repeat all days of the month (Daily)' : locale === 'es' ? 'Repeat todos los días del mes (Diario)' : 'Repetir em todos os dias do mês (Diária)'}</option>
                                 </select>
@@ -6516,15 +6534,15 @@ function ParentDashboardContent() {
       {/* PECS Printable Grid */}
       <div className="print-only">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-black text-[#0f172a] font-Outfit">Cartões de Rotina PECS</h1>
-          <p className="text-sm text-slate-500 font-bold mt-1">Rotina de {activeChild?.name || 'seu filho'}</p>
+          <h1 className="text-3xl font-black text-[#0f172a] font-Outfit">{locale === 'en' ? 'PECS Routine Cards' : locale === 'es' ? 'Tarjetas de Rutina PECS' : 'Cartões de Rotina PECS'}</h1>
+          <p className="text-sm text-slate-500 font-bold mt-1">{locale === 'en' ? `Routine of \${activeChild?.name || \'your child\'}` : locale === 'es' ? `Rutina de \${activeChild?.name || \'tu hijo\'}` : `Rotina de \${activeChild?.name || \'seu filho\'}`}</p>
         </div>
         <div className="pecs-print-grid">
           {tasks.map(task => (
             <div key={task.id} className="pecs-card">
               <span className="pecs-card-icon">{task.icon || '📅'}</span>
               <h3 className="pecs-card-title">{task.title}</h3>
-              <p className="text-xs text-slate-500 font-bold mt-1.5">Horário: {task.time}</p>
+              <p className="text-xs text-slate-500 font-bold mt-1.5">{locale === 'en' ? 'Time:' : locale === 'es' ? 'Horario:' : 'Horário:'} {task.time}</p>
             </div>
           ))}
         </div>
@@ -6535,11 +6553,12 @@ function ParentDashboardContent() {
 }
 
 export default function ParentDashboard() {
+  const { locale } = useLanguage();
   return (
     <Suspense fallback={
       <div className="flex flex-col items-center justify-center min-h-screen bg-[#0f172a] text-white gap-3">
         <div className="w-10 h-10 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
-        <span className="text-xs font-bold text-slate-300 animate-pulse">Carregando painel...</span>
+        <span className="text-xs font-bold text-slate-300 animate-pulse">{locale === 'en' ? 'Loading panel...' : locale === 'es' ? 'Cargando panel...' : 'Carregando painel...'}</span>
       </div>
     }>
       <ParentDashboardContent />
