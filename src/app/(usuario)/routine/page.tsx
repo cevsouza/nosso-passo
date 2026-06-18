@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { firebaseBridge, Task, getOfflineQueue } from '../../../lib/firebase-bridge';
 import { CollieState } from '../../../components/ludic/BorderCollie';
 import { HyperfocusMascot } from '../../../components/ludic/HyperfocusMascot';
-import { playBubble, playMarimba, playCelebration, speakText, startAmbientSound, stopAmbientSound } from '../../../lib/audio-synth';
+import { playBubble, playMarimba, playCelebration, playSoftAlert, speakText, startAmbientSound, stopAmbientSound } from '../../../lib/audio-synth';
 import { useLanguage } from '../../../lib/LanguageContext';
 import { LanguageSelector } from '../../../components/LanguageSelector';
 import { getTaskCategory, TaskCategory } from '../../../lib/sensory-standards';
@@ -789,6 +789,8 @@ export default function ChildRoutine() {
   const [breathStep, setBreathStep] = useState<'inspire' | 'segure' | 'expire'>('inspire');
   const [exitHoldProgress, setExitHoldProgress] = useState(0);
   const [transitionMinutesWarned, setTransitionMinutesWarned] = useState<string[]>([]);
+  const [expiredTasksWarned, setExpiredTasksWarned] = useState<string[]>([]);
+  const prevMinutesLeft = React.useRef<number | undefined>(undefined);
   const exitTimeout = React.useRef<any>(null);
   const exitInterval = React.useRef<any>(null);
 
@@ -1274,6 +1276,36 @@ export default function ChildRoutine() {
       }
     }
   }, [timerMinutesLeft, activeTask?.id, nextTasks, transitionMinutesWarned]);
+
+  // Keep track of the previous timerMinutesLeft to detect transitions
+  useEffect(() => {
+    prevMinutesLeft.current = timerMinutesLeft;
+  }, [timerMinutesLeft]);
+
+  // Reset the previous value when the active task changes
+  useEffect(() => {
+    prevMinutesLeft.current = undefined;
+  }, [activeTask?.id]);
+
+  // Alerta sonoro suave quando o prazo da atividade expira
+  useEffect(() => {
+    if (!activeTask || timerMinutesLeft === undefined) return;
+    
+    if (timerMinutesLeft === 0) {
+      const warnKey = `${activeTask.id}-expired`;
+      if (!expiredTasksWarned.includes(warnKey)) {
+        setExpiredTasksWarned(prev => [...prev, warnKey]);
+        
+        // Só toca o som se foi uma transição de um valor positivo para zero
+        // (previne tocar imediatamente ao abrir uma tarefa que já está atrasada)
+        const wasPositive = prevMinutesLeft.current !== undefined && prevMinutesLeft.current > 0;
+        if (wasPositive) {
+          playSoftAlert();
+          speakText(t.routine.taskExpired.replace('{title}', activeTask.title));
+        }
+      }
+    }
+  }, [timerMinutesLeft, activeTask?.id, expiredTasksWarned, t]);
 
   // SOS Sensorial effects (Audio loop & Haptic vibration)
   useEffect(() => {

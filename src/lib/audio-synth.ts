@@ -141,6 +141,31 @@ export const playCelebration = () => {
 };
 
 /**
+ * Plays a soft, calming alert sound when a task deadline expires.
+ * Uses two warm marimba notes spaced apart to create a gentle alert.
+ */
+export const playSoftAlert = () => {
+  const child = firebaseBridge.auth.getActiveChild();
+  const user = firebaseBridge.auth.getCurrentUser();
+  let soundPref = child?.sensorySound ?? user?.sensorySound ?? 'marimba';
+  if (typeof window !== 'undefined' && localStorage.getItem('localCalmMode') === 'true') {
+    soundPref = 'silent';
+  }
+  if (soundPref === 'silent') return;
+
+  if (soundPref === 'bubble') {
+    playBubble();
+    setTimeout(() => playBubble(), 180);
+  } else {
+    // A soft two-tone gentle alert: E-flat 4 (311.13 Hz) -> G4 (392.00 Hz), warm and low frequency
+    playMarimba(311.13, 0.45);
+    setTimeout(() => {
+      playMarimba(392.00, 0.55);
+    }, 220);
+  }
+};
+
+/**
  * Synthesizes a friendly, calm speech read-aloud in Portuguese (pt-BR).
  * Automatically cancels any active speech to avoid queues overlapping.
  */
