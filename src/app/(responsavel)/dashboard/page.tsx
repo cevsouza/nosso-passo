@@ -40,6 +40,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { SensoryHeatmap } from '../../../components/SensoryHeatmap';
+import { GlobalNav } from '../../../components/GlobalNav';
 
 const getDaysOfCurrentMonth = () => {
   const now = new Date();
@@ -2255,7 +2256,8 @@ function ParentDashboardContent() {
   const weekDays = Array.from({ length: weekEnd - weekStart + 1 }, (_, i) => weekStart + i);
 
   return (
-    <main className="min-h-screen bg-[#f8fafc] text-slate-900 pb-16 relative">
+    <main className="min-h-screen bg-[#f8fafc] text-slate-900 pb-16 relative lg:pl-64">
+      <GlobalNav />
       {offline && (
         <div className="bg-amber-500 text-white py-2 px-4 text-center text-xs font-black select-none z-50 flex items-center justify-center gap-2 font-Outfit shadow-md">
           <span>📶 Modo Offline Ativado</span>

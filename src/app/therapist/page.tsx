@@ -28,6 +28,7 @@ import { playBubble, playMarimba } from '../../lib/audio-synth';
 import { useLanguage } from '../../lib/LanguageContext';
 import { LanguageSelector } from '../../components/LanguageSelector';
 import { SensoryHeatmap } from '../../components/SensoryHeatmap';
+import { GlobalNav } from '../../components/GlobalNav';
 
 export default function TherapistPortal() {
   const { t, locale } = useLanguage();
@@ -442,7 +443,8 @@ export default function TherapistPortal() {
     : 'Nenhum identificado';
 
   return (
-    <main className="min-h-screen bg-gradient-to-tr from-[#f8fafc] via-[#eff6ff] to-[#f0fdf4] p-4 md:p-8 text-slate-800">
+    <main className="min-h-screen bg-gradient-to-tr from-[#f8fafc] via-[#eff6ff] to-[#f0fdf4] p-4 md:p-8 text-slate-800 lg:pl-64">
+      <GlobalNav />
       
       {/* Clinician Entry Verification */}
       {!childData ? (
