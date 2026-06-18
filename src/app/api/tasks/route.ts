@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '../../../lib/prisma';
+import { logToDebugFile } from '../../../lib/debug-logger';
+
 
 const DEFAULT_SEED_TASKS = [
   { title: 'Escovar os dentes 🪥', time: '08:00', period: 'manhã', day: 'segunda', order: 1 },
@@ -107,6 +109,7 @@ export async function PUT(req: Request) {
     const body = await req.json();
 
     if (body.resetCompletions) {
+      logToDebugFile(`[PUT /api/tasks] resetCompletions recebido. childId=${childId || 'null'}, userUid=${userUid}`);
       if (childId) {
         await prisma.task.updateMany({
           where: { childId },
@@ -131,6 +134,7 @@ export async function PUT(req: Request) {
     }
 
     if (body.overwrite && Array.isArray(body.tasks)) {
+      logToDebugFile(`[PUT /api/tasks] overwrite recebido. total de tarefas: ${body.tasks.length}, childId=${childId || 'null'}, userUid=${userUid}`);
       // Bulk overwrite tasks (loadTemplate, resetToDefaults, etc.)
       if (childId) {
         await prisma.task.deleteMany({
@@ -195,10 +199,19 @@ export async function PUT(req: Request) {
     // Single task update
     const { id, updates } = body;
     if (!id) {
+      logToDebugFile(`[PUT /api/tasks] Erro: ID da tarefa ausente no body`);
       return NextResponse.json({ error: 'ID da tarefa é obrigatório' }, { status: 400 });
     }
 
-    console.log('[API] PUT /api/tasks updates payload:', JSON.stringify(updates));
+    logToDebugFile(`[PUT /api/tasks] Tentando atualizar tarefa. ID: ${id}, headers: UserUID=${userUid}, ChildID=${childId || 'null'}, updates: ${JSON.stringify(updates)}`);
+
+    // Verificar se existe no banco de dados primeiro
+    const existingTask = await prisma.task.findUnique({ where: { id } });
+    if (!existingTask) {
+      logToDebugFile(`[PUT /api/tasks] AVISO: Tarefa ${id} NÃO existe no banco de dados!`);
+    } else {
+      logToDebugFile(`[PUT /api/tasks] Tarefa ${id} encontrada no banco de dados. childId atual: ${existingTask.childId}, userUid atual: ${existingTask.userUid}`);
+    }
 
     const updateData: any = {};
     if (updates.title !== undefined && updates.title !== null) updateData.title = updates.title;
@@ -215,17 +228,19 @@ export async function PUT(req: Request) {
     }
     if (updates.description !== undefined && updates.description !== null) updateData.description = updates.description;
 
-    console.log('[API] PUT /api/tasks updates data to write:', JSON.stringify(updateData));
+    logToDebugFile(`[PUT /api/tasks] Dados da atualização construídos: ${JSON.stringify(updateData)}`);
 
     const updated = await prisma.task.update({
       where: { id },
       data: updateData,
     });
 
+    logToDebugFile(`[PUT /api/tasks] Sucesso ao atualizar tarefa ${id}`);
     console.log('[API] PUT /api/tasks task updated successfully:', updated.id);
 
     return NextResponse.json(updated);
   } catch (error: any) {
+    logToDebugFile(`[PUT /api/tasks] FALHA ao atualizar tarefa. Erro: ${error.message}`);
     console.error('[API] PUT /api/tasks failed with error:', error.message);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
