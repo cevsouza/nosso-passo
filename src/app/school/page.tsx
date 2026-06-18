@@ -71,16 +71,16 @@ function SchoolPortalContent() {
           mood,
           crisisOccurred,
           loggedBy: 'school',
-          location: 'Escola',
+          location: locale === 'en' ? 'School' : locale === 'es' ? 'Escuela' : 'Escola',
           schoolNoise,
           foodIntake,
-          notes: notes.trim() || 'Daily school checkpoint logged by mediator.'
+          notes: notes.trim() || (locale === 'en' ? 'Daily school checkpoint logged by mediator.' : locale === 'es' ? 'Punto de control escolar diario registrado por el mediador.' : 'Checkpoint escolar diário registrado pelo mediador.')
         })
       });
 
       const data = await res.json();
       if (!res.ok || data.error) {
-        alert(data.error || 'Error saving checkpoint.');
+        alert(data.error || (locale === 'en' ? 'Error saving checkpoint.' : locale === 'es' ? 'Error al guardar el checkpoint.' : 'Erro ao salvar o checkpoint.'));
       } else {
         setSubmitSuccess(true);
         // Clear fields
@@ -88,7 +88,7 @@ function SchoolPortalContent() {
         setCrisisOccurred(false);
       }
     } catch (err) {
-      alert('Network error saving report.');
+      alert(locale === 'en' ? 'Network error saving report.' : locale === 'es' ? 'Error de red al guardar el informe.' : 'Erro de rede ao salvar o relatório.');
     } finally {
       setIsSubmitting(false);
     }

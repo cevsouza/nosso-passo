@@ -1777,7 +1777,7 @@ export default function ChildRoutine() {
             <span>📶 Modo Offline Ativado</span>
             {offlineQueueSize > 0 && (
               <span className="bg-amber-700/60 px-2 py-0.5 rounded text-[10px]">
-                {offlineQueueSize} {offlineQueueSize === 1 ? 'alteração pendente' : 'alterações pendentes'}
+                {offlineQueueSize} {offlineQueueSize === 1 ? (locale === 'en' ? 'pending change' : locale === 'es' ? 'cambio pendiente' : 'alteração pendente') : (locale === 'en' ? 'pending changes' : locale === 'es' ? 'cambios pendientes' : 'alterações pendentes')}
               </span>
             )}
           </div>
@@ -2228,81 +2228,81 @@ export default function ChildRoutine() {
   const renderSimulatorModal = () => {
     if (!showSimulatorModal) return null;
     
-    const scenarios = [
+        const scenarios = [
       {
         id: 'dentist',
-        title: 'Ir ao Dentista 🦷',
-        desc: 'Aprenda como é a cadeira do dentista e como ele cuida dos seus dentes!',
+        title: locale === 'en' ? 'Going to the Dentist 🦷' : locale === 'es' ? 'Ir al Dentista 🦷' : 'Ir ao Dentista 🦷',
+        desc: locale === 'en' ? 'Learn about the dentist\'s chair and how they take care of your teeth!' : locale === 'es' ? '¡Aprende cómo es la silla del dentista y cómo cuida tus dientes!' : 'Aprenda como é a cadeira do dentista e como ele cuida dos seus dentes!',
         icon: '🦷',
         color: 'border-blue-400 bg-blue-50/20 hover:bg-blue-50 text-blue-955',
         steps: [
           {
-            title: 'Sala do Dentista 🚪',
-            desc: 'Você chegou na clínica! A sala tem brinquedos e o dentista tem uma cadeira de astronauta gigante. Vamos dar um tchau bem alegre!',
-            action: 'Dar tchau para o dentista 👋',
+            title: locale === 'en' ? 'Dentist\'s Office 🚪' : locale === 'es' ? 'Consultorio del Dentista 🚪' : 'Sala do Dentista 🚪',
+            desc: locale === 'en' ? 'You arrived at the clinic! The room has toys and the dentist has a giant astronaut chair. Let\'s wave happily!' : locale === 'es' ? '¡Llegaste a la clínica! La sala tiene juguetes y el dentista tiene una silla de astronauta gigante. ¡Saludemos alegremente!' : 'Você chegou na clínica! A sala tem brinquedos e o dentista tem uma cadeira de astronauta gigante. Vamos dar um tchau bem alegre!',
+            action: locale === 'en' ? 'Wave to the dentist 👋' : locale === 'es' ? 'Saludar al dentista 👋' : 'Dar tchau para o dentista 👋',
             img: '👋🦷'
           },
           {
-            title: 'A Cadeira Mágica 🚀',
-            desc: 'Você senta na cadeira macia. Ela sobe e desce, parece um foguete espacial! Vamos subir a cadeira!',
-            action: 'Subir a cadeira de astronauta 🚀',
+            title: locale === 'en' ? 'The Magic Chair 🚀' : locale === 'es' ? 'La Silla Mágica 🚀' : 'A Cadeira Mágica 🚀',
+            desc: locale === 'en' ? 'You sit in the soft chair. It goes up and down, like a space rocket! Let\'s raise the chair!' : locale === 'es' ? 'Te sientas en la silla suave. ¡Sube y baja, parece un cohete espacial! ¡Subamos la silla!' : 'Você senta na cadeira macia. Ela sobe e desce, parece um foguete espacial! Vamos subir a cadeira!',
+            action: locale === 'en' ? 'Raise the astronaut chair 🚀' : locale === 'es' ? 'Subir la silla de astronauta 🚀' : 'Subir a cadeira de astronauta 🚀',
             img: '💺'
           },
           {
-            title: 'O Espelhinho do Dentista 🔍',
-            desc: 'O dentista usa um espelhinho bem pequeno para contar quantos dentes você tem. Vamos abrir a boca bem grande e falar Aaaah!',
-            action: 'Abrir a boca bem grande 😮',
+            title: locale === 'en' ? 'The Dentist\'s Mirror 🔍' : locale === 'es' ? 'El Espejo del Dentista 🔍' : 'O Espelhinho do Dentista 🔍',
+            desc: locale === 'en' ? 'The dentist uses a very small mirror to count how many teeth you have. Let\'s open our mouth wide and say Aaaah!' : locale === 'es' ? 'El dentista usa un espejo muy pequeño para contar cuántos dientes tienes. ¡Abramos la boca bien grande y digamos Aaaah!' : 'O espelhinho do dentista serve para contar quantos dentes você tem. Vamos abrir a boca bem grande e falar Aaaah!',
+            action: locale === 'en' ? 'Open mouth wide 😮' : locale === 'es' ? 'Abrir la boca bien grande 😮' : 'Abrir a boca bem grande 😮',
             img: '😮'
           },
           {
-            title: 'A Escovinha Cócegas 🫧',
-            desc: 'O dentista passa uma escova elétrica super rápida. Ela faz um barulhinho suave e muitas cócegas nos dentes!',
-            action: 'Receber cócegas nos dentes 🫧',
-            img: '🪥✨'
+            title: locale === 'en' ? 'The Tickling Brush 🫧' : locale === 'es' ? 'El Cepillo de Cosquillas 🫧' : 'A Escovinha Cócegas 🫧',
+            desc: locale === 'en' ? 'The dentist uses a super fast electric brush. It makes a gentle noise and tickles your teeth a lot!' : locale === 'es' ? 'El dentista pasa un cepillo eléctrico súper rápido. ¡Hace un sonido suave y muchas cosquillas en los dientes!' : 'O dentista passa uma escova elétrica super rápida. Ela faz um barulhinho suave e muitas cócegas nos dentes!',
+            action: locale === 'en' ? 'Get teeth tickled 🫧' : locale === 'es' ? 'Recibir cosquillas en los dientes 🫧' : 'Receber cócegas nos dentes 🫧',
+            img: '🪥\u2728'
           },
           {
-            title: 'Sorriso de Estrela! ⭐',
-            desc: 'Pronto! A consulta acabou super rápido e seus dentes estão brilhando como estrelas. Você foi muito corajoso!',
-            action: 'Ganhar minhas estrelas! 🏆',
-            img: '✨😎✨'
+            title: locale === 'en' ? 'Star Smile! ⭐' : locale === 'es' ? '¡Sonrisa de Estrella! ⭐' : 'Sorriso de Estrela! ⭐',
+            desc: locale === 'en' ? 'All done! The visit ended super fast and your teeth are shining like stars. You were very brave!' : locale === 'es' ? '¡Listo! La consulta terminó súper rápido y tus dientes brillan como estrellas. ¡Fuiste muy valiente!' : 'Pronto! A consulta acabou super rápido e seus dentes estão brilhando como estrelas. Você foi muito corajoso!',
+            action: locale === 'en' ? 'Earn my stars! 🏆' : locale === 'es' ? '¡Ganar mis estrellas! 🏆' : 'Ganar minhas estrelas! 🏆',
+            img: '\u2728😎\u2728'
           }
         ]
       },
       {
         id: 'school',
-        title: 'Ir para a Escola 🏫',
-        desc: 'Simule o primeiro dia de aula, conhecendo a professora e fazendo novos amigos!',
+        title: locale === 'en' ? 'Going to School 🏫' : locale === 'es' ? 'Ir a la Escuela 🏫' : 'Ir para a Escola 🏫',
+        desc: locale === 'en' ? 'Simulate the first day of school, meeting the teacher and making new friends!' : locale === 'es' ? '¡Simula el primer día de clases, conociendo a la maestra y haciendo nuevos amigos!' : 'Simule o primeiro dia de aula, conhecendo a professora e fazendo novos amigos!',
         icon: '🏫',
         color: 'border-purple-400 bg-purple-50/20 hover:bg-purple-50 text-purple-955',
         steps: [
           {
-            title: 'Entrada da Escola 🎒',
-            desc: 'Você chegou na escola com sua mochila colorida! Vamos dar um abraço bem gostoso no papai e na mamãe antes de entrar na sala.',
-            action: 'Dar um abraço e entrar na escola 🤗',
+            title: locale === 'en' ? 'School Entrance 🎒' : locale === 'es' ? 'Entrada de la Escuela 🎒' : 'Entrada da Escola 🎒',
+            desc: locale === 'en' ? 'You arrived at school with your colorful backpack! Let\'s give daddy and mommy a big hug before entering the classroom.' : locale === 'es' ? '¡Llegaste a la escuela con tu mochila colorida! Demos un abrazo muy fuerte a papá y mamá antes de entrar al salón.' : 'Você chegou na escola com sua mochila colorida! Vamos dar um abraço bem gostoso no papai e na mamãe antes de entrar na sala.',
+            action: locale === 'en' ? 'Give a hug and enter school 🤗' : locale === 'es' ? 'Dar un abrazo y entrar a la escuela 🤗' : 'Dar um abraço e entrar na escola 🤗',
             img: '🏫🎒'
           },
           {
-            title: 'A Minha Mesa 🪑',
-            desc: 'A sala de aula é cheia de cores! A professora te mostra a sua mesa com brinquedos e folhas para desenhar. Vamos escolher nosso lugar.',
-            action: 'Escolher minha mesa 🪑',
+            title: locale === 'en' ? 'My Desk 🪑' : locale === 'es' ? 'Mi Mesa 🪑' : 'A Minha Mesa 🪑',
+            desc: locale === 'en' ? 'The classroom is full of colors! The teacher shows you your desk with toys and paper for drawing. Let\'s choose our place.' : locale === 'es' ? '¡El salón de clases está lleno de colores! La maestra te muestra tu mesa con juguetes y hojas para dibujar. Vamos a elegir nuestro lugar.' : 'A sala de aula é cheia de cores! A professora te mostra a sua mesa com brinquedos e folhas para desenhar. Vamos escolher nosso lugar.',
+            action: locale === 'en' ? 'Choose my desk 🪑' : locale === 'es' ? 'Elegir mi mesa 🪑' : 'Escolher minha mesa 🪑',
             img: '🎨🪑'
           },
           {
-            title: 'Hora do Lanche 🍎',
-            desc: 'Que delícia! É hora de comer o lanchinho com os novos amigos. Cada um senta na sua cadeirinha e come devagar.',
-            action: 'Comer meu lanche gostoso 🍇',
+            title: locale === 'en' ? 'Snack Time 🍎' : locale === 'es' ? 'Hora de la Merienda 🍎' : 'Hora do Lanche 🍎',
+            desc: locale === 'en' ? 'Yummy! It\'s time to eat snack with new friends. Everyone sits in their small chair and eats slowly.' : locale === 'es' ? '¡Qué delicia! Es hora de comer la merienda con los nuevos amigos. Cada uno se sienta en su silla y come despacio.' : 'Que delícia! É hora de comer o lanchinho com os novos amigos. Cada um senta na sua cadeirinha e come devagar.',
+            action: locale === 'en' ? 'Eat my yummy snack 🍇' : locale === 'es' ? 'Comer mi merienda deliciosa 🍇' : 'Comer meu lanche gostoso 🍇',
             img: '🥪🍎'
           },
           {
-            title: 'Brincando Juntos 🧱',
-            desc: 'Na hora de brincar, um amigo quer usar os mesmos blocos que você. Vamos emprestar um bloco e construir uma torre gigante juntos!',
-            action: 'Construir a torre gigante 🧱',
+            title: locale === 'en' ? 'Playing Together 🧱' : locale === 'es' ? 'Jugando Juntos 🧱' : 'Brincando Juntos 🧱',
+            desc: locale === 'en' ? 'At playtime, a friend wants to use the same blocks as you. Let\'s share a block and build a giant tower together!' : locale === 'es' ? 'A la hora de jugar, un amigo quiere usar los mismos bloques que tú. ¡Compartamos un bloque y construyamos una torre gigante juntos!' : 'Na hora de brincar, um amigo quer usar os mesmos blocos que você. Vamos emprestar um bloco e construir uma torre gigante juntos!',
+            action: locale === 'en' ? 'Build the giant tower 🧱' : locale === 'es' ? 'Construir la torre gigante 🧱' : 'Construir a torre gigante 🧱',
             img: '🧩🧱'
           },
           {
-            title: 'Hora de Voltar! 🚗',
-            desc: 'O sinal da escola toca! Você arruma sua mochila e vê o papai e a mamãe te esperando na porta com um grande sorriso. Missão concluída!',
-            action: 'Pegar mochila e correr pro abraço! 🚀',
+            title: locale === 'en' ? 'Time to Go Back! 🚗' : locale === 'es' ? '¡Hora de Volver! 🚗' : 'Hora de Voltar! 🚗',
+            desc: locale === 'en' ? 'The school bell rings! You pack your backpack and see daddy and mommy waiting for you at the door with a big smile. Mission completed!' : locale === 'es' ? '¡Suena el timbre de la escuela! Prepara tu mochila y ve a papá y mamá esperándote en la puerta con una gran sonrisa. ¡Misión cumplida!' : 'O sinal da escola toca! Você arruma sua mochila e vê o papai e a mamãe te esperando na porta com um grande sorriso. Missão concluída!',
+            action: locale === 'en' ? 'Grab backpack and run for a hug! 🚀' : locale === 'es' ? '¡Tomar la mochila y correr al abrazo! 🚀' : 'Pegar mochila e correr pro abraço! 🚀',
             img: '🥳🚗'
           }
         ]
@@ -2338,7 +2338,7 @@ export default function ChildRoutine() {
                   <span className="text-3xl">🎮</span>
                   <h3 className="text-xl font-black mt-1.5 font-Outfit text-purple-805">Simulador de Rotinas</h3>
                   <p className="text-xs text-slate-400 font-semibold mt-1">
-                    Escolha uma simulação interativa para aprender como agir e se preparar para novos lugares!
+                    {locale === 'en' ? 'Choose an interactive simulation to learn how to act and prepare for new places!' : locale === 'es' ? '¡Elige una simulación interactiva para aprender cómo actuar y prepararte para nuevos lugares!' : 'Escolha uma simulação interativa para aprender como agir e se preparar para novos lugares!'}
                   </p>
                 </div>
 
@@ -2475,7 +2475,7 @@ export default function ChildRoutine() {
             <div>
               <h3 className="text-xl font-black text-amber-950 font-Outfit">Ambiente Muito Barulhento!</h3>
               <p className="text-xs text-slate-500 font-bold mt-1">
-                Detectamos ruídos de <strong className="text-red-500">{sensoryAlertDb} dB</strong>. Que tal se acalmar ou colocar abafadores?
+                {locale === 'en' ? <>We detected noise of <strong className="text-red-500">{sensoryAlertDb} dB</strong>. How about calming down or putting on ear muffs?</> : locale === 'es' ? <>Detectamos ruidos de <strong className="text-red-500">{sensoryAlertDb} dB</strong>. ¿Qué tal calmarse o ponerse auriculares?</> : <>Detectamos ruídos de <strong className="text-red-500">{sensoryAlertDb} dB</strong>. Que tal se acalmar ou colocar abafadores?</>}
               </p>
             </div>
             
@@ -2661,7 +2661,7 @@ export default function ChildRoutine() {
             <span>📶 Modo Offline Ativado</span>
             {offlineQueueSize > 0 && (
               <span className="bg-amber-700/60 px-2 py-0.5 rounded text-[10px]">
-                {offlineQueueSize} {offlineQueueSize === 1 ? 'alteração pendente' : 'alterações pendentes'}
+                {offlineQueueSize} {offlineQueueSize === 1 ? (locale === 'en' ? 'pending change' : locale === 'es' ? 'cambio pendiente' : 'alteração pendente') : (locale === 'en' ? 'pending changes' : locale === 'es' ? 'cambios pendientes' : 'alterações pendentes')}
               </span>
             )}
           </div>
@@ -2702,7 +2702,7 @@ export default function ChildRoutine() {
               onMouseEnter={playBubble}
               className="flex items-center gap-1.5 px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-xs font-black rounded-full border-2 border-slate-700 shadow-premium transition-all active:scale-95 cursor-pointer text-slate-200"
             >
-              🏠 Início
+              🏠 {locale === 'en' ? 'Home' : locale === 'es' ? 'Inicio' : 'Início'}
             </button>
             
             <button
@@ -2710,7 +2710,7 @@ export default function ChildRoutine() {
               onMouseEnter={playBubble}
               className="flex items-center gap-1.5 px-5 py-2.5 bg-indigo-950 hover:bg-indigo-900 border-2 border-indigo-800 text-indigo-200 text-xs font-black rounded-full shadow-premium transition-all active:scale-95 cursor-pointer"
             >
-              📖 Histórias
+              📖 {locale === 'en' ? 'Stories' : locale === 'es' ? 'Historias' : 'Histórias'}
             </button>
             <button
               onClick={() => { playBubble(); setShowHyperfocusModal(true); }}
@@ -2775,10 +2775,10 @@ export default function ChildRoutine() {
           </span>
 
           <h1 className="text-4xl md:text-5xl font-black tracking-tight mb-1 text-yellow-100">
-            Missões Cumpridas!
+            {locale === 'en' ? 'Missions Completed!' : locale === 'es' ? '¡Misiones Cumplidas!' : 'Missões Cumpridas!'}
           </h1>
           <p className="text-slate-350 text-sm max-w-xs leading-relaxed font-semibold">
-            Você completou todas as atividades de hoje. Hora de descansar!
+            {locale === 'en' ? 'You completed all of today\'s activities. Time to rest!' : locale === 'es' ? 'Completaste todas las actividades de hoy. ¡Hora de descansar!' : 'Você completou todas as atividades de hoje. Hora de descansar!'}
           </p>
 
           {/* Sleeping Border Collie Cozy SVG Mascot */}
@@ -2812,7 +2812,7 @@ export default function ChildRoutine() {
             {/* TEACCH Choice Board (Painel de Escolhas Lúdicas) */}
             <div className="w-full bg-slate-800/50 border border-slate-700/40 p-5 rounded-3xl flex flex-col gap-4 text-left shadow-2xl">
               <h4 className="font-extrabold text-slate-200 text-xs uppercase tracking-widest flex items-center gap-1.5 select-none font-Outfit">
-                🪁 Painel de Escolhas Lúdicas (O que quer fazer agora?):
+                {locale === 'en' ? '🪁 Playful Choices Board (What do you want to do now?):' : locale === 'es' ? '🪁 Panel de Elecciones Lúdicas (¿Qué quieres hacer ahora?):' : '🪁 Painel de Escolhas Lúdicas (O que quer fazer agora?):'}
               </h4>
               <div className="grid grid-cols-2 gap-3">
                 {[
@@ -2875,7 +2875,7 @@ export default function ChildRoutine() {
             onMouseEnter={playBubble}
             className="mt-2 text-sm text-indigo-300 hover:text-indigo-200 font-bold underline cursor-pointer bg-transparent border-none outline-none transition-all active:scale-95"
           >
-            {t.common.back} {locale === 'en' ? 'to Home' : 'ao Início'} 🏠
+            {t.common.back} {locale === 'en' ? 'to Home' : locale === 'es' ? 'al Inicio' : 'ao Início'} 🏠
           </button>
         </motion.div>
 
@@ -3072,7 +3072,7 @@ export default function ChildRoutine() {
                           }}
                           className="flex-1 py-3 bg-indigo-650 hover:bg-indigo-750 text-white text-xs font-black rounded-2xl active:scale-95 transition-all cursor-pointer font-Outfit flex items-center justify-center gap-1"
                         >
-                          Próximo ➡️
+                          {locale === 'en' ? 'Next ➡️' : locale === 'es' ? 'Siguiente ➡️' : 'Próximo ➡️'}
                         </button>
                       ) : (
                         <button
@@ -3173,7 +3173,7 @@ export default function ChildRoutine() {
             ) : (
               <div className="my-auto flex flex-col items-center gap-3">
                 <span className="text-6xl">🎉</span>
-                <h2 className="text-xl font-black text-white">Todas as missões cumpridas!</h2>
+                <h2 className="text-xl font-black text-white">{locale === 'en' ? 'All missions completed!' : locale === 'es' ? '¡Todas las misiones cumplidas!' : 'Todas as missões cumpridas!'}</h2>
               </div>
             )}
           </div>
@@ -3204,7 +3204,7 @@ export default function ChildRoutine() {
                 <div className="text-7xl mt-8">🏆</div>
                 <div className="mt-4 flex flex-col gap-1 my-auto">
                   <h2 className="text-xl font-black text-yellow-300">{activeChild.rewardName}</h2>
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Seu prêmio / reforçador</span>
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{locale === 'en' ? 'Your reward / reinforcer' : locale === 'es' ? 'Tu premio / reforzador' : 'Seu prêmio / reforçador'}</span>
                 </div>
                 <div className="w-12 h-12 bg-yellow-500/10 border-2 border-yellow-500 text-yellow-500 rounded-full flex items-center justify-center font-black mb-4 animate-pulse">
                   🪙
@@ -3229,7 +3229,7 @@ export default function ChildRoutine() {
             <p className="text-[10.5px] text-slate-300 font-semibold leading-normal mt-0.5">
               {firstTask 
                 ? `Vamos fazer primeiro "${firstTask.title}". Concentre-se em concluir apenas esta tarefa!` 
-                : "Todas as tarefas foram concluídas. Muito bem! Você foi excelente!"}
+                : "locale === 'en' ? 'All tasks were completed. Well done! You were excellent!' : locale === 'es' ? 'Todas las tareas fueron completadas. ¡Muy bien! ¡Fuiste excelente!' : 'Todas as tarefas foram concluídas. Muito bem! Você foi excelente!'"}
             </p>
           </div>
         </div>
@@ -3254,7 +3254,7 @@ export default function ChildRoutine() {
           <span>📶 Modo Offline Ativado</span>
           {offlineQueueSize > 0 && (
             <span className="bg-amber-700/60 px-2 py-0.5 rounded text-[10px]">
-              {offlineQueueSize} {offlineQueueSize === 1 ? 'alteração pendente' : 'alterações pendentes'}
+              {offlineQueueSize} {offlineQueueSize === 1 ? (locale === 'en' ? 'pending change' : locale === 'es' ? 'cambio pendiente' : 'alteração pendente') : (locale === 'en' ? 'pending changes' : locale === 'es' ? 'cambios pendientes' : 'alterações pendentes')}
             </span>
           )}
         </div>
@@ -3279,12 +3279,12 @@ export default function ChildRoutine() {
             </>
           ) : (
             <>
-              <span>⚡ Sentindo cansaço? Tudo bem, o {activeChild.name.split(' ')[0]} pode ver uma historinha com você! 📖</span>
+              <span>{locale === 'en' ? `Feeling tired? It's okay, ${activeChild.name.split(' ')[0]} can watch a story with you! 📖` : locale === 'es' ? `¿Te sientes cansado? ¡No pasa nada, ${activeChild.name.split(' ')[0]} puede ver una historia contigo! 📖` : `⚡ Sentindo cansaço? Tudo bem, o ${activeChild.name.split(' ')[0]} pode ver uma historinha com você! 📖`}</span>
               <button 
                 onClick={() => { playBubble(); setShowStoriesModal(true); }} 
                 className="bg-slate-950 text-yellow-400 px-2.5 py-1 rounded-full text-[10px] uppercase font-black tracking-wide ml-2 hover:bg-slate-900 active:scale-95 cursor-pointer transition-all shadow-sm border-none font-Outfit"
               >
-                Ver Histórias 📖
+                {locale === 'en' ? 'Watch Stories 📖' : locale === 'es' ? 'Ver Historias 📖' : 'Ver Histórias 📖'}
               </button>
             </>
           )}
@@ -3333,7 +3333,7 @@ export default function ChildRoutine() {
                   : 'bg-white hover:bg-slate-50 border-slate-350 text-slate-805'
               }`}
             >
-              🏠 <span className="hidden sm:inline">Início</span>
+              🏠 <span className="hidden sm:inline">{locale === 'en' ? 'Home' : locale === 'es' ? 'Inicio' : 'Início'}</span>
             </button>
 
             <button 
@@ -3345,7 +3345,7 @@ export default function ChildRoutine() {
                   : 'bg-white hover:bg-slate-50 border-slate-350 text-slate-850'
               }`}
             >
-              🔒 <span className="hidden sm:inline">Painel do Responsável</span><span className="sm:hidden">Painel</span>
+              🔒 <span className="hidden sm:inline">{locale === 'en' ? 'Guardian Panel' : locale === 'es' ? 'Panel del Tutor' : 'Painel do Responsável'}</span><span className="sm:hidden">{locale === 'en' ? 'Panel' : locale === 'es' ? 'Panel' : 'Painel'}</span>
             </button>
             
             {/* Consolidated Supports Dropdown */}
@@ -3380,7 +3380,7 @@ export default function ChildRoutine() {
                       sleepMode ? 'hover:bg-slate-850 text-amber-205' : 'hover:bg-slate-50 text-slate-705'
                     }`}
                   >
-                    📖 Histórias
+                    📖 {locale === 'en' ? 'Stories' : locale === 'es' ? 'Historias' : 'Histórias'}
                   </button>
                   
                   {!sleepMode && (
@@ -3427,7 +3427,7 @@ export default function ChildRoutine() {
                           sleepMode ? 'hover:bg-slate-850 text-amber-205' : 'hover:bg-slate-50 text-slate-705'
                         }`}
                       >
-                        🎤 {bgNoiseMonitor ? 'Desativar Monitor' : 'Monitor de Ruídos'}
+                        🎤 {bgNoiseMonitor ? (locale === 'en' ? 'Disable Monitor' : locale === 'es' ? 'Desactivar Monitor' : 'Desativar Monitor') : (locale === 'en' ? 'Noise Monitor' : locale === 'es' ? 'Monitor de Ruidos' : 'Monitor de Ruídos')}
                       </button>
                       <button
                         onClick={() => { 
@@ -3631,9 +3631,9 @@ export default function ChildRoutine() {
             <div className="flex items-center gap-2">
               <span className="text-xl">🪙</span>
               <div>
-                <h4 className="font-extrabold text-xs text-slate-900 leading-tight text-left font-Outfit">Estrelas do Reforço Positivo</h4>
+                <h4 className="font-extrabold text-xs text-slate-900 leading-tight text-left font-Outfit">{locale === 'en' ? 'Positive Reinforcement Stars' : locale === 'es' ? 'Estrellas del Refuerzo Positivo' : 'Estrelas do Reforço Positivo'}</h4>
                 <p className="text-[10px] text-slate-705 font-semibold mt-0.5 text-left">
-                  Ganhe {activeChild.rewardCost || 10} estrelas para: <strong className="text-indigo-700 font-black">{activeChild.rewardName || 'Prêmio'}</strong>
+                  {locale === 'en' ? 'Earn ' : locale === 'es' ? 'Gana ' : 'Ganhe '}{activeChild.rewardCost || 10}{locale === 'en' ? ' stars for: ' : locale === 'es' ? ' estrellas para: ' : ' estrelas para: '}<strong className="text-indigo-700 font-black">{activeChild.rewardName || (locale === 'en' ? 'Reward' : locale === 'es' ? 'Premio' : 'Prêmio')}</strong>
                 </p>
               </div>
             </div>
@@ -3691,21 +3691,21 @@ export default function ChildRoutine() {
                   }}
                   className="px-5 py-2.5 bg-amber-950/80 hover:bg-amber-900 border border-amber-700/60 text-amber-200 text-xs font-black rounded-2xl active:scale-95 transition-all cursor-pointer flex items-center gap-1.5"
                 >
-                  📖 Ler História de Ninar
+                  📖 {locale === 'en' ? 'Read Bedtime Story' : locale === 'es' ? 'Leer Historia de Cuna' : 'Ler História de Ninar'}
                 </button>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="bg-[#121827] border border-amber-950/50 p-5 rounded-2xl flex flex-col gap-4">
-                  <span className="text-[10px] font-black uppercase tracking-wider text-amber-500 font-Outfit font-extrabold">📻 Reprodutor de Ruídos Relaxantes</span>
+                  <span className="text-[10px] font-black uppercase tracking-wider text-amber-500 font-Outfit font-extrabold">📻 {locale === 'en' ? 'Relaxing Noise Player' : locale === 'es' ? 'Reproductor de Ruidos Relajantes' : 'Reprodutor de Ruídos Relaxantes'}</span>
                   
                   <div className="grid grid-cols-2 gap-3">
                     {[
-                      { type: 'none', label: 'Silencioso 🔈', activeColor: 'bg-slate-800 text-slate-100 border-slate-700' },
-                      { type: 'rain', label: 'Chuva 🌧️', activeColor: 'bg-blue-950 text-blue-300 border-blue-800' },
-                      { type: 'white', label: 'Ruído Branco 🤍', activeColor: 'bg-slate-800 text-slate-100 border-slate-650' },
-                      { type: 'pink', label: 'Ruído Rosa 💗', activeColor: 'bg-pink-950 text-pink-305 border-pink-900' },
-                      { type: 'binaural', label: 'Foco Binaural 🧠', activeColor: 'bg-indigo-950 text-indigo-305 border-indigo-900' }
+                      { type: 'none', label: locale === 'en' ? 'Silent 🔈' : locale === 'es' ? 'Silencioso 🔈' : 'Silencioso 🔈', activeColor: 'bg-slate-800 text-slate-100 border-slate-700' },
+                      { type: 'rain', label: locale === 'en' ? 'Rain 🌧️' : locale === 'es' ? 'Lluvia 🌧️' : 'Chuva 🌧️', activeColor: 'bg-blue-950 text-blue-300 border-blue-800' },
+                      { type: 'white', label: locale === 'en' ? 'White Noise 🤍' : locale === 'es' ? 'Ruido Blanco 🤍' : 'Ruído Branco 🤍', activeColor: 'bg-slate-800 text-slate-100 border-slate-650' },
+                      { type: 'pink', label: locale === 'en' ? 'Pink Noise 💗' : locale === 'es' ? 'Ruido Rosa 💗' : 'Ruído Rosa 💗', activeColor: 'bg-pink-950 text-pink-305 border-pink-900' },
+                      { type: 'binaural', label: locale === 'en' ? 'Binaural Focus 🧠' : locale === 'es' ? 'Enfoque Binaural 🧠' : 'Foco Binaural 🧠', activeColor: 'bg-indigo-950 text-indigo-305 border-indigo-900' }
                     ].map(snd => (
                       <button
                         key={snd.type}
@@ -3722,7 +3722,7 @@ export default function ChildRoutine() {
                   </div>
 
                   <p className="text-[10px] text-amber-450/70 font-semibold leading-relaxed">
-                    💡 Os ruídos branco e rosa ajudam a mascarar barulhos externos repentinos que podem assustar a criança.
+                    💡 {locale === 'en' ? 'White and pink noise help mask sudden external noises that could startle the child.' : locale === 'es' ? 'Los ruidos blanco y rosa ayudan a enmascarar ruidos externos repentinos que pueden asustar al niño.' : 'Os ruídos branco e rosa ajudam a mascarar barulhos externos repentinos que podem assustar a criança.'}
                   </p>
                 </div>
 
@@ -3763,7 +3763,7 @@ export default function ChildRoutine() {
             <HyperfocusMascot hyperfocus={childHyperfocus} state="idle" size={170} />
             <h3 className="text-xl font-extrabold text-slate-700 mt-2">Nenhuma atividade hoje!</h3>
             <p className="text-sm text-slate-400 max-w-xs leading-relaxed font-semibold">
-              O responsável ainda não adicionou tarefas na sua agenda de hoje. Peça para ele adicionar no Painel!
+              {t.routine.emptyRoutine}
             </p>
           </motion.div>
         ) : (
@@ -3807,14 +3807,14 @@ export default function ChildRoutine() {
                       
                       <div className="flex gap-2 items-center flex-wrap justify-center mt-2">
                         <span className="text-[10px] font-black uppercase tracking-widest text-slate-800 bg-slate-100 border border-slate-200/60 px-3.5 py-1.5 rounded-full shadow-xxs flex items-center gap-1">
-                          🚀 Missão Atual
+                          🚀 {locale === 'en' ? 'Current Mission' : locale === 'es' ? 'Misión Actual' : 'Missão Atual'}
                         </span>
                         <span className={`text-[10px] font-black uppercase tracking-widest px-3.5 py-1.5 rounded-full border shadow-xxs ${category.tagClass}`}>
                           {category.label}
                         </span>
                       </div>
                       <span className="text-xs font-extrabold text-slate-400 mt-1.5 flex items-center gap-1.5 justify-center">
-                        <Clock className="w-4 h-4 text-slate-400" /> Previsão: {activeTask.time} ({activeTask.period})
+                        <Clock className="w-4 h-4 text-slate-400" /> {locale === 'en' ? 'Est. Time:' : locale === 'es' ? 'Previsto:' : 'Previsão:'} {activeTask.time} ({activeTask.period})
                       </span>
                     </div>
 
@@ -3839,7 +3839,7 @@ export default function ChildRoutine() {
                         <div 
                           onClick={() => { playBubble(); speakText(activeTask.description || ''); }}
                           className="mt-1 px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl max-w-md select-none hover:bg-slate-100/50 transition-all cursor-pointer shadow-xxs"
-                          title="Clique para ouvir as instruções"
+                          title={locale === 'en' ? 'Click to hear the instructions' : locale === 'es' ? 'Haga clic para escuchar las instrucciones' : 'Clique para ouvir as instruções'}
                         >
                           <p className="text-xs font-bold text-slate-550 leading-relaxed font-Outfit">
                             💡 {activeTask.description}
@@ -3889,7 +3889,7 @@ export default function ChildRoutine() {
                       {/* Transition Warning / Next Task Banner */}
                       {nextTasks.length > 0 && (
                         <div className="flex-1 flex flex-col gap-1.5 text-left bg-slate-100 border-2 border-slate-300 p-3 rounded-2xl shadow-xxs">
-                          <span className="text-[9px] font-black uppercase tracking-widest text-slate-500 font-Outfit">Próxima Atividade:</span>
+                          <span className="text-[9px] font-black uppercase tracking-widest text-slate-500 font-Outfit">{locale === 'en' ? 'Next Activity:' : locale === 'es' ? 'Siguiente Actividad:' : 'Próxima Atividade:'}</span>
                           <span className="text-sm font-black text-slate-800 flex items-center gap-1.5">
                             {nextTasks[0].customIcon ? (
                               <img src={nextTasks[0].customIcon} alt="" className="w-6 h-6 object-cover rounded-md inline-block mr-1.5 align-middle" />
@@ -3900,10 +3900,10 @@ export default function ChildRoutine() {
                           </span>
                           {timerMinutesLeft <= (activeChild?.transitionMinutes || 5) ? (
                             <span className="text-[10px] text-amber-950 font-black flex items-center gap-1 bg-amber-100 border-2 border-amber-400 px-2.5 py-1 rounded-lg animate-pulse">
-                              ⚠️ Prepare-se para a transição!
+                              ⚠️ {locale === 'en' ? 'Prepare for the transition!' : locale === 'es' ? '¡Prepárate para la transición!' : 'Prepare-se para a transição!'}
                             </span>
                           ) : (
-                            <span className="text-[9px] text-slate-500 font-semibold">Em seguida, após terminar a missão atual.</span>
+                            <span className="text-[9px] text-slate-500 font-semibold">{locale === 'en' ? 'Next, after finishing the current mission.' : locale === 'es' ? 'A continuación, después de terminar la misión actual.' : 'Em seguida, após terminar a missão atual.'}</span>
                           )}
                         </div>
                       )}
@@ -4048,13 +4048,13 @@ export default function ChildRoutine() {
                           💡 {activeTask.description}
                         </p>
                       )}
-                      <span className="text-[9px] font-black text-slate-400 uppercase tracking-wide">⏱️ Previsão: {activeTask.time}</span>
+                      <span className="text-[9px] font-black text-slate-400 uppercase tracking-wide">⏱️ {locale === 'en' ? 'Est. Time:' : locale === 'es' ? 'Previsto:' : 'Previsão:'} {activeTask.time}</span>
                     </div>
                   );
                 })() : (
                   <div className="bg-white border-4 border-dashed border-slate-300 rounded-[32px] p-6 shadow-premium flex flex-col items-center text-center justify-center gap-3 relative min-h-[200px]">
                     <span className="text-3xl">🎉</span>
-                    <h4 className="text-lg font-black text-slate-800 font-Outfit">Primeira Missão</h4>
+                    <h4 className="text-lg font-black text-slate-800 font-Outfit">{locale === 'en' ? 'First Mission' : locale === 'es' ? 'Primera Misión' : 'Primeira Missão'}</h4>
                     <p className="text-xs text-slate-400 font-semibold max-w-[200px]">Tudo pronto por hoje!</p>
                   </div>
                 )}
@@ -4083,7 +4083,7 @@ export default function ChildRoutine() {
                       >
                         {nextTask.title}
                       </h4>
-                      <span className="text-[9px] font-black text-slate-400 uppercase tracking-wide">Aguardando a missão atual</span>
+                      <span className="text-[9px] font-black text-slate-400 uppercase tracking-wide">{locale === 'en' ? 'Waiting for the current mission' : locale === 'es' ? 'Esperando la misión actual' : 'Aguardando a missão atual'}</span>
                     </div>
                   );
                 })() : (
@@ -4101,7 +4101,7 @@ export default function ChildRoutine() {
               /* THE ROUTINE TRAIL - GAMIFIED PROGRESS TRACKER (RICH VISUALS) */
               <div className="bg-white border-2 border-slate-300 p-6.5 rounded-[32px] shadow-premium flex flex-col gap-4 text-left w-full md:col-span-5 md:mt-0">
                 <h3 className="font-black text-xs text-slate-655 uppercase tracking-widest flex items-center gap-1.5 select-none font-Outfit">
-                  🚂 Trilha das Minhas Missões:
+                  🚂 {locale === 'en' ? 'My Missions Trail:' : locale === 'es' ? 'Sendero de Mis Misiones:' : 'Trilha das Minhas Missões:'}
                 </h3>
                 
                 <div className="relative flex items-center justify-between px-4 py-6 overflow-x-auto min-h-[100px] gap-6">
@@ -4228,9 +4228,9 @@ export default function ChildRoutine() {
               </div>
 
               <div>
-                <h3 className="text-2xl font-black text-slate-800 tracking-tight">Parabéns, você conseguiu! 🎉</h3>
+                <h3 className="text-2xl font-black text-slate-800 tracking-tight">{locale === 'en' ? 'Congratulations, you did it! 🎉' : locale === 'es' ? '¡Felicitaciones, lo lograste! 🎉' : 'Parabéns, você conseguiu! 🎉'}</h3>
                 <p className="text-xs text-slate-400 font-semibold mt-1">
-                  Você completou suas missões e desbloqueou seu prêmio:
+                  {locale === 'en' ? 'You completed your missions and unlocked your reward:' : locale === 'es' ? 'Completaste tus misiones y desbloqueaste tu premio:' : 'Você completou suas missões e desbloqueou seu prêmio:'}
                 </p>
                 <div className="mt-3.5 px-6 py-3 bg-indigo-100 border-2 border-indigo-300 text-indigo-950 font-black text-sm rounded-2xl shadow-xxs font-Outfit">
                   {activeChild.rewardName || 'Prêmio'}
@@ -4242,7 +4242,7 @@ export default function ChildRoutine() {
                   onClick={handleClaimReward}
                   className="w-full py-4 bg-gradient-to-r from-yellow-500 via-amber-500 to-amber-600 text-slate-950 font-black text-sm rounded-2xl shadow-md cursor-pointer transition-all active:scale-95 border-b-4 border-amber-800 font-Outfit"
                 >
-                  RESGATAR PRÊMIO! 🐾
+                  {locale === 'en' ? 'CLAIM REWARD! 🐾' : locale === 'es' ? '¡RECLAMAR PREMIO! 🐾' : 'RESGATAR PRÊMIO! 🐾'}
                 </button>
                 <button
                   onClick={() => setShowRewardModal(false)}
@@ -4282,9 +4282,9 @@ export default function ChildRoutine() {
               </div>
 
               <div>
-                <h3 className={`text-xl font-black ${sleepMode ? 'text-amber-200' : 'text-slate-800'}`}>Como você está se sentindo agora?</h3>
+                <h3 className={`text-xl font-black ${sleepMode ? 'text-amber-200' : 'text-slate-800'}`}>{locale === 'en' ? 'How are you feeling right now?' : locale === 'es' ? '¿Cómo te sientes ahora?' : 'Como você está se sentindo agora?'}</h3>
                 <p className={`text-xs font-semibold mt-1 ${sleepMode ? 'text-amber-450' : 'text-slate-400'}`}>
-                  Marque sua emoção para ajudar a acompanhar seu dia!
+                  {locale === 'en' ? 'Mark your emotion to help track your day!' : locale === 'es' ? '¡Marca tu emoción para ayudar a seguir tu día!' : 'Marque sua emoção para ajudar a acompanhar seu dia!'}
                 </p>
               </div>
 
@@ -4691,7 +4691,7 @@ export default function ChildRoutine() {
                             : 'bg-indigo-650 hover:bg-indigo-750 text-white'
                         }`}
                       >
-                        Próximo ➡️
+                        {locale === 'en' ? 'Next ➡️' : locale === 'es' ? 'Siguiente ➡️' : 'Próximo ➡️'}
                       </button>
                     ) : (
                       <button
@@ -4752,10 +4752,10 @@ export default function ChildRoutine() {
               </div>
 
               <h1 className="text-3xl font-black text-teal-350 tracking-tight font-Outfit animate-pulse mt-2">
-                Espaço da Calma 🧘‍♂️
+                {locale === 'en' ? 'Calm Space 🧘‍♂️' : locale === 'es' ? 'Espacio de Calma 🧘‍♂️' : 'Espaço da Calma 🧘‍♂️'}
               </h1>
               <p className="text-slate-400 text-xs font-semibold px-6 leading-relaxed">
-                Feche os olhos, escute o som suave e acompanhe o balão de respiração com o seu corpinho.
+                {locale === 'en' ? 'Close your eyes, listen to the soft sound, and follow the breathing balloon with your body.' : locale === 'es' ? 'Cierra los ojos, escucha el sonido suave y sigue el globo de respiración con tu cuerpo.' : 'Feche os olhos, escute o som suave e acompanhe o balão de respiração com o seu corpinho.'}
               </p>
 
               {/* Glowing breathing animation */}
@@ -4795,7 +4795,7 @@ export default function ChildRoutine() {
                   <span className="relative z-10 font-Outfit">{t.routine.exitLongPress} 🔒</span>
                 </button>
                 <span className="text-[9px] text-slate-500 font-extrabold">
-                  Segure por 2 segundos para liberar o cadeado clínico
+                  {locale === 'en' ? 'Hold for 2 seconds to release clinical lock' : locale === 'es' ? 'Mantén presionado por 2 segundos para liberar el bloqueo clínico' : 'Segure por 2 segundos para liberar o cadeado clínico'}
                 </span>
               </div>
             </div>
@@ -4823,6 +4823,7 @@ const ParentalLockOverlay: React.FC<ParentalLockOverlayProps> = ({
   onClose,
   generateMathProblem
 }) => {
+  const { t, locale } = useLanguage();
   const [typedPin, setTypedPin] = React.useState('');
   const [typedMath, setTypedMath] = React.useState('');
   const [errorWiggle, setErrorWiggle] = React.useState(false);
@@ -4893,11 +4894,11 @@ const ParentalLockOverlay: React.FC<ParentalLockOverlayProps> = ({
       </div>
 
       <div>
-        <h3 className="text-xl font-black text-slate-800">Área dos Pais</h3>
+        <h3 className="text-xl font-black text-slate-800">{locale === 'en' ? 'Parents Area' : locale === 'es' ? 'Área de Padres' : 'Área dos Pais'}</h3>
         <p className="text-xs text-slate-400 font-semibold mt-1">
           {lockType === 'pin' 
-            ? 't.routine.exitPinPrompt' 
-            : 'Resolva a conta matemática para provar que é um adulto'}
+            ? t.routine.exitPinPrompt 
+            : (locale === 'en' ? 'Solve the math problem to prove you are an adult' : locale === 'es' ? 'Resuelve el problema matemático para demostrar que eres un adulto' : 'Resolva a conta matemática para provar que é um adulto')}
         </p>
       </div>
 

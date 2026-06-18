@@ -13,11 +13,13 @@ import {
 } from 'lucide-react';
 import { playBubble, playMarimba } from '../lib/audio-synth';
 import { firebaseBridge } from '../lib/firebase-bridge';
+import { useLanguage } from '../lib/LanguageContext';
 
 export function GlobalNav() {
   const pathname = usePathname();
   const router = useRouter();
   const [activeChildId, setActiveChildId] = useState<string | null>(null);
+  const { t } = useLanguage();
 
   // Sync active child on change/load
   useEffect(() => {
@@ -34,28 +36,28 @@ export function GlobalNav() {
 
   const navItems = [
     { 
-      label: 'Início', 
+      label: t.common.navHome || 'Início', 
       href: '/', 
       icon: Home, 
       color: 'hover:text-slate-900',
       activeColor: 'text-slate-900 bg-slate-100 border-slate-300'
     },
     { 
-      label: 'Responsável', 
+      label: t.common.navResponsible || 'Responsável', 
       href: '/dashboard', 
       icon: LayoutDashboard, 
       color: 'hover:text-indigo-650',
       activeColor: 'text-indigo-805 bg-indigo-50 border-indigo-200'
     },
     { 
-      label: 'Escola', 
+      label: t.common.navSchool || 'Escola', 
       href: '/school', 
       icon: School, 
       color: 'hover:text-teal-650',
       activeColor: 'text-teal-805 bg-teal-50 border-teal-200'
     },
     { 
-      label: 'Terapeuta', 
+      label: t.common.navTherapist || 'Terapeuta', 
       href: '/therapist', 
       icon: Activity, 
       color: 'hover:text-emerald-650',
@@ -130,8 +132,8 @@ export function GlobalNav() {
             <div className="flex items-center gap-2.5">
               <span className="text-2xl animate-pulse">🧒</span>
               <div>
-                <span className="block text-[10px] font-black text-indigo-900 uppercase tracking-wider leading-none">Atalho Rápido</span>
-                <span className="text-[8px] font-bold text-indigo-500 block mt-0.5">Painel Infantil</span>
+                <span className="block text-[10px] font-black text-indigo-900 uppercase tracking-wider leading-none">{t.common.navQuickShortcut || 'Atalho Rápido'}</span>
+                <span className="text-[8px] font-bold text-indigo-500 block mt-0.5">{t.common.navKidPanel || 'Painel Infantil'}</span>
               </div>
             </div>
 
@@ -143,7 +145,7 @@ export function GlobalNav() {
               }}
               className="mt-1 w-full py-2.5 bg-indigo-600 hover:bg-indigo-755 text-white font-black text-[10px] rounded-xl text-center shadow-md flex items-center justify-center gap-1 font-Outfit uppercase tracking-wider border-b-4 border-indigo-900 hover:translate-y-0.5 active:translate-y-1 transition-all"
             >
-              <Baby className="w-3.5 h-3.5" /> Ir para Rotina <ChevronRight className="w-3 h-3" />
+              <Baby className="w-3.5 h-3.5" /> {t.common.navGoToRoutine || 'Ir para Rotina'} <ChevronRight className="w-3 h-3" />
             </Link>
           </div>
         )}
@@ -181,7 +183,7 @@ export function GlobalNav() {
           >
             <div className="absolute top-0 right-3 w-2 h-2 bg-indigo-600 rounded-full animate-ping"></div>
             <Baby className="w-5 h-5 stroke-[2px]" />
-            <span className="text-[9px] font-black font-Outfit leading-none tracking-tight">Rotina</span>
+            <span className="text-[9px] font-black font-Outfit leading-none tracking-tight">{t.common.navRoutine || 'Rotina'}</span>
           </Link>
         )}
       </nav>

@@ -71,11 +71,11 @@ const getDayLabel = (dayKey: string) => {
   return day ? day.label : `Dia ${dayKey}`;
 };
 
-const getRecurrenceWeekdayLabel = (dayKey: string) => {
+const getRecurrenceWeekdayLabel = (dayKey: string, locale: string = 'pt') => {
   const dayObj = DAYS_OF_MONTH.find(d => d.key === dayKey);
-  if (!dayObj) return 'no mesmo dia da semana';
+  if (!dayObj) return locale === 'en' ? 'on the same day of the week' : locale === 'es' ? 'en el mismo día de la semana' : 'no mesmo dia da semana';
   
-  const mapping: Record<string, string> = {
+  const mappingPt: Record<string, string> = {
     domingo: 'Domingos',
     segunda: 'Segundas-feiras',
     terca: 'Terças-feiras',
@@ -84,8 +84,34 @@ const getRecurrenceWeekdayLabel = (dayKey: string) => {
     sexta: 'Sextas-feiras',
     sabado: 'Sábados'
   };
+
+  const mappingEn: Record<string, string> = {
+    domingo: 'Sundays',
+    segunda: 'Mondays',
+    terca: 'Tuesdays',
+    quarta: 'Wednesdays',
+    quinta: 'Thursdays',
+    sexta: 'Fridays',
+    sabado: 'Saturdays'
+  };
+
+  const mappingEs: Record<string, string> = {
+    domingo: 'Domingos',
+    segunda: 'Lunes',
+    terca: 'Martes',
+    quarta: 'Miércoles',
+    quinta: 'Jueves',
+    sexta: 'Viernes',
+    sabado: 'Sábados'
+  };
   
-  return `Todas as ${mapping[dayObj.weekdayKey] || dayObj.weekdayKey} do mês`;
+  const mapping = locale === 'en' ? mappingEn : locale === 'es' ? mappingEs : mappingPt;
+  
+  return locale === 'en' 
+    ? `All ${mapping[dayObj.weekdayKey] || dayObj.weekdayKey} of the month`
+    : locale === 'es'
+    ? `Todos los ${mapping[dayObj.weekdayKey] || dayObj.weekdayKey} del mes`
+    : `Todas as ${mapping[dayObj.weekdayKey] || dayObj.weekdayKey} do mês`;
 };
 
 const PERIODS = [
@@ -236,6 +262,67 @@ const CLINICAL_TEMPLATES = {
   }
 };
 
+
+const translateLogDetails = (details: string, locale: string) => {
+  if (locale === 'pt') return details;
+  let tDetails = details;
+  if (locale === 'en') {
+    tDetails = tDetails
+      .replace(/Adicionou a tarefa rápida "(.*?)" na agenda de (.*?)\./g, 'Added quick task "$1" to the schedule of $2.')
+      .replace(/Adicionou a tarefa "(.*?)" \(Duração: (.*?)min, Ícone: (.*?), Categoria: (.*?)\) às (.*?) \((.*?)\) na agenda de (.*?)\./g, 'Added task "$1" (Duration: $2min, Icon: $3, Category: $4) at $5 ($6) in the schedule for $7.')
+      .replace(/Adicionou a tarefa "(.*?)" \(Duração: (.*?)min, Ícone: (.*?), Categoria: (.*?)\) às (.*?) \((.*?)\) em (.*?)\./g, 'Added task "$1" (Duration: $2min, Icon: $3, Category: $4) at $5 ($6) on $7.')
+      .replace(/Adicionou a tarefa "(.*?)" \(Duração: (.*?)min, Ícone: (.*?), Categoria: (.*?)\) às (.*?) \((.*?)\) em todos os dias do mês\./g, 'Added task "$1" (Duration: $2min, Icon: $3, Category: $4) at $5 ($6) on all days of the month.')
+      .replace(/Carregou o modelo "(.*?)" na agenda de (.*?)\./g, 'Loaded model "$1" in the schedule of $2.')
+      .replace(/Carregou o modelo "(.*?)" para todo o mês\./g, 'Loaded model "$1" for the entire month.')
+      .replace(/Gravou áudio personalizado de transição \((.*?)\) para (.*?)\./g, 'Recorded custom transition audio ($1) for $2.')
+      .replace(/Removeu o áudio personalizado de transição \((.*?)\) de (.*?)\./g, 'Removed custom transition audio ($1) of $2.')
+      .replace(/Simulou crise sensorial no local "(.*?)" com latitude: (.*?), longitude: (.*?)\./g, 'Simulated sensory crisis at "$1" with latitude: $2, longitude: $3.')
+      .replace(/Atualizou o checkpoint clínico da Semana (.*?) \((.*?) - (.*?)\)\./g, 'Updated clinical checkpoint for Week $1 ($2 - $3).')
+      .replace(/Copiou em bloco a rotina de (.*?) para (.*?)\./g, 'Copied in block the routine from $1 to $2.')
+      .replace(/Adicionou checkpoint clínico para a data (.*?) \((.*?) - (.*?)\)\./g, 'Added clinical checkpoint for date $1 ($2 - $3).')
+      .replace(/Cadastrou uma nova criança: (.*?) \(Gênero: (.*?), Diagnóstico: (.*?), Data de Nasc\.: (.*?)\)\./g, 'Registered a new child: $1 (Gender: $2, Diagnosis: $3, Birth Date: $4).')
+      .replace(/Excluiu o perfil de criança: (.*?)\./g, 'Deleted child profile: $1.')
+      .replace(/Removeu a tarefa "(.*?)" de (.*?) \((.*?)\)\./g, 'Removed task "$1" from $2 ($3).')
+      .replace(/Editou a tarefa "(.*?)" \(Duração: (.*?)min, Ícone: (.*?), Categoria: (.*?)\) às (.*?) \((.*?)\) na (.*?)\./g, 'Edited task "$1" (Duration: $2min, Icon: $3, Category: $4) at $5 ($6) on $7.')
+      .replace(/Atualizou o perfil de (.*?): Hiperfoco: "(.*?)", Bloqueio Infantil: "(.*?)" \(PIN: (.*?)\), Velocidade Fala: (.*?)x, Efeito Sonoro: "(.*?)", Visual: "(.*?)", Perfil Sensorial: "(.*?)", Estilo Timer: "(.*?)", Reforçador: "(.*?)" \((.*?) estrelas\), Alerta de Transição: (.*?)min\./g, 'Updated profile of $1: Hyperfocus: "$2", Child Lock: "$3" (PIN: $4), Speech Speed: $5x, Sound Effect: "$6", Visual: "$7", Sensory Profile: "$8", Timer Style: "$9", Reinforcer: "$10" ($11 stars), Transition Alert: $12min.')
+      .replace(/Restaurou toda a rotina semanal para o modelo padrão da clínica\./g, 'Restored the entire weekly routine to the clinic standard model.')
+      .replace(/Limpou toda a grade de tarefas semanais\./g, 'Cleared the entire weekly task grid.')
+      .replace(/Registrou desregulação sensorial para (.*?): "(.*?)"/g, 'Registró desregulación sensorial para $1: "$2"')
+      .replace(/Manhã/g, 'Morning').replace(/Tarde/g, 'Afternoon').replace(/Noite/g, 'Night')
+      .replace(/segunda/g, 'monday').replace(/terca/g, 'tuesday').replace(/quarta/g, 'wednesday')
+      .replace(/quinta/g, 'thursday').replace(/sexta/g, 'friday').replace(/sabado/g, 'saturday').replace(/domingo/g, 'sunday')
+      .replace(/Masculino/g, 'Male').replace(/Feminino/g, 'Female')
+      .replace(/Não Informado/g, 'Not Informed');
+  } else if (locale === 'es') {
+    tDetails = tDetails
+      .replace(/Adicionou a tarefa rápida "(.*?)" na agenda de (.*?)\./g, 'Agregó la tarea rápida "$1" a la agenda de $2.')
+      .replace(/Adicionou a tarefa "(.*?)" \(Duração: (.*?)min, Ícone: (.*?), Categoria: (.*?)\) às (.*?) \((.*?)\) na agenda de (.*?)\./g, 'Agregó la tarea "$1" (Duración: $2min, Icono: $3, Categoría: $4) a las $5 ($6) en la agenda de $7.')
+      .replace(/Adicionou a tarefa "(.*?)" \(Duração: (.*?)min, Ícone: (.*?), Categoria: (.*?)\) às (.*?) \((.*?)\) em (.*?)\./g, 'Agregó la tarea "$1" (Duración: $2min, Icono: $3, Categoría: $4) a las $5 ($6) en $7.')
+      .replace(/Adicionou a tarefa "(.*?)" \(Duração: (.*?)min, Ícone: (.*?), Categoria: (.*?)\) às (.*?) \((.*?)\) em todos os dias do mês\./g, 'Agregó la tarea "$1" (Duración: $2min, Icono: $3, Categoría: $4) a las $5 ($6) en todos los días del mes.')
+      .replace(/Carregou o modelo "(.*?)" na agenda de (.*?)\./g, 'Cargó el modelo "$1" en la agenda de $2.')
+      .replace(/Carregou o modelo "(.*?)" para todo o mês\./g, 'Cargó el modelo "$1" para todo el mes.')
+      .replace(/Gravou áudio personalizado de transição \((.*?)\) para (.*?)\./g, 'Grabó audio de transición personalizado ($1) para $2.')
+      .replace(/Removeu o áudio personalizado de transição \((.*?)\) de (.*?)\./g, 'Eliminó el audio de transición personalizado ($1) de $2.')
+      .replace(/Simulou crise sensorial no local "(.*?)" com latitude: (.*?), longitude: (.*?)\./g, 'Simuló crisis sensorial en el lugar "$1" con latitud: $2, longitud: $3.')
+      .replace(/Atualizou o checkpoint clínico da Semana (.*?) \((.*?) - (.*?)\)\./g, 'Actualizó el punto de control clínico de la Semana $1 ($2 - $3).')
+      .replace(/Copiou em bloco a rotina de (.*?) para (.*?)\./g, 'Copió en bloque la rutina de $1 a $2.')
+      .replace(/Adicionou checkpoint clínico para a data (.*?) \((.*?) - (.*?)\)\./g, 'Agregó punto de control clínico para la fecha $1 ($2 - $3).')
+      .replace(/Cadastrou uma nova criança: (.*?) \(Gênero: (.*?), Diagnóstico: (.*?), Data de Nasc\.: (.*?)\)\./g, 'Registró un nuevo niño: $1 (Género: $2, Diagnóstico: $3, Fecha de Nac.: $4).')
+      .replace(/Excluiu o perfil de criança: (.*?)\./g, 'Eliminó el perfil del niño: $1.')
+      .replace(/Removeu a tarefa "(.*?)" de (.*?) \((.*?)\)\./g, 'Eliminó la tarefa "$1" de $2 ($3).')
+      .replace(/Editou a tarefa "(.*?)" \(Duração: (.*?)min, Ícone: (.*?), Categoria: (.*?)\) às (.*?) \((.*?)\) na (.*?)\./g, 'Editó la tarea "$1" (Duración: $2min, Icono: $3, Categoría: $4) a las $5 ($6) en $7.')
+      .replace(/Atualizou o perfil de (.*?): Hiperfoco: "(.*?)", Bloqueio Infantil: "(.*?)" \(PIN: (.*?)\), Velocidade Fala: (.*?)x, Efeito Sonoro: "(.*?)", Visual: "(.*?)", Perfil Sensorial: "(.*?)", Estilo Timer: "(.*?)", Reforçador: "(.*?)" \((.*?) estrelas\), Alerta de Transição: (.*?)min\./g, 'Actualizó el perfil de $1: Hiperenfoque: "$2", Bloqueio Infantil: "$3" (PIN: $4), Velocidad de Habla: $5x, Efecto de Sonido: "$6", Visual: "$7", Perfil Sensorial: "$8", Estilo de Temporizador: "$9", Reforzador: "$10" ($11 estrellas), Alerta de Transición: $12min.')
+      .replace(/Restaurou toda a rotina semanal para o modelo padrão da clínica\./g, 'Restauró toda la rutina semanal al modelo estándar de la clínica.')
+      .replace(/Limpou toda a grade de tarefas semanais\./g, 'Limpió toda la cuadrícula de tareas semanales.')
+      .replace(/Registrou desregulação sensorial para (.*?): "(.*?)"/g, 'Registró desregulación sensorial para $1: "$2"')
+      .replace(/Manhã/g, 'Mañana').replace(/Tarde/g, 'Tarde').replace(/Noite/g, 'Noche')
+      .replace(/segunda/g, 'lunes').replace(/terca/g, 'martes').replace(/quarta/g, 'miércoles')
+      .replace(/quinta/g, 'jueves').replace(/sexta/g, 'viernes').replace(/sabado/g, 'sábado').replace(/domingo/g, 'domingo')
+      .replace(/Masculino/g, 'Masculino').replace(/Feminino/g, 'Femenino')
+      .replace(/Não Informado/g, 'No Informado');
+  }
+  return tDetails;
+};
 
 function ParentDashboardContent() {
   const { t, locale } = useLanguage();
@@ -1460,12 +1547,24 @@ function ParentDashboardContent() {
       let logMessage = '';
       if (recurrenceMode === 'single') {
         const dayLabel = getDayLabel(activeDayFilter).replace(/ 📅| ☀️/, '');
-        logMessage = `Adicionou a tarefa "${title.trim()}" (Duração: ${taskDuration}min, Ícone: ${taskIcon}, Categoria: ${taskCategory}) às ${time} (${period}) na agenda de ${dayLabel}.`;
+        logMessage = locale === 'en'
+          ? `Added task "${title.trim()}" (Duration: ${taskDuration}min, Icon: ${taskIcon}, Category: ${taskCategory}) at ${time} (${period}) in the schedule for ${dayLabel}.`
+          : locale === 'es'
+          ? `Agregó la tarea "${title.trim()}" (Duración: ${taskDuration}min, Icono: ${taskIcon}, Categoría: ${taskCategory}) a las ${time} (${period}) en la agenda de ${dayLabel}.`
+          : `Adicionou a tarefa "${title.trim()}" (Duração: ${taskDuration}min, Ícone: ${taskIcon}, Categoria: ${taskCategory}) às ${time} (${period}) na agenda de ${dayLabel}.`;
       } else if (recurrenceMode === 'weekday') {
-        const dayLabel = getRecurrenceWeekdayLabel(activeDayFilter);
-        logMessage = `Adicionou a tarefa "${title.trim()}" (Duração: ${taskDuration}min, Ícone: ${taskIcon}, Categoria: ${taskCategory}) às ${time} (${period}) em ${dayLabel}.`;
+        const dayLabel = getRecurrenceWeekdayLabel(activeDayFilter, locale);
+        logMessage = locale === 'en'
+          ? `Added task "${title.trim()}" (Duration: ${taskDuration}min, Icon: ${taskIcon}, Category: ${taskCategory}) at ${time} (${period}) on ${dayLabel}.`
+          : locale === 'es'
+          ? `Agregó la tarea "${title.trim()}" (Duración: ${taskDuration}min, Icono: ${taskIcon}, Categoría: ${taskCategory}) a las ${time} (${period}) en ${dayLabel}.`
+          : `Adicionou a tarefa "${title.trim()}" (Duração: ${taskDuration}min, Ícone: ${taskIcon}, Categoria: ${taskCategory}) às ${time} (${period}) em ${dayLabel}.`;
       } else {
-        logMessage = `Adicionou a tarefa "${title.trim()}" (Duração: ${taskDuration}min, Ícone: ${taskIcon}, Categoria: ${taskCategory}) às ${time} (${period}) em todos os dias do mês.`;
+        logMessage = locale === 'en'
+          ? `Added task "${title.trim()}" (Duration: ${taskDuration}min, Icon: ${taskIcon}, Category: ${taskCategory}) at ${time} (${period}) on all days of the month.`
+          : locale === 'es'
+          ? `Agregó la tarea "${title.trim()}" (Duración: ${taskDuration}min, Icono: ${taskIcon}, Categoría: ${taskCategory}) a las ${time} (${period}) en todos los días del mes.`
+          : `Adicionou a tarefa "${title.trim()}" (Duração: ${taskDuration}min, Ícone: ${taskIcon}, Categoria: ${taskCategory}) às ${time} (${period}) em todos os dias do mês.`;
       }
 
       await immutableLogger.logChange(
@@ -2015,7 +2114,12 @@ function ParentDashboardContent() {
   };
 
   const getSensoryOverloadRisk = () => {
-    if (!activeChild) return { level: 'Baixo 🟢', percentage: 15, class: 'text-emerald-600 bg-emerald-50 border-emerald-200', desc: 'Agenda fluindo bem. Sem indicativos de fadiga ou resistência.' };
+    if (!activeChild) return { 
+      level: locale === 'en' ? 'Low 🟢' : locale === 'es' ? 'Bajo 🟢' : 'Baixo 🟢', 
+      percentage: 15, 
+      class: 'text-emerald-600 bg-emerald-50 border-emerald-200', 
+      desc: locale === 'en' ? 'Schedule flowing well. No indicators of fatigue or resistance.' : locale === 'es' ? 'Agenda fluyendo bien. Sin indicativos de fatiga o resistencia.' : 'Agenda fluindo bem. Sem indicativos de fadiga ou resistência.' 
+    };
     
     let score = 0;
     
@@ -2048,24 +2152,24 @@ function ParentDashboardContent() {
 
     if (finalScore >= 70) {
       return {
-        level: 'ALTO 🚨',
+        level: locale === 'en' ? 'HIGH 🚨' : locale === 'es' ? 'ALTO 🚨' : 'ALTO 🚨',
         percentage: finalScore,
         class: 'text-red-705 bg-red-50 border-red-200',
-        desc: 'Alta probabilidade de esgotamento nervoso ou meltdown. Recomendado: reduzir cobrança, ativar o modelo de Regulação Sensorial e oferecer pausas no refúgio.'
+        desc: locale === 'en' ? 'High probability of nervous exhaustion or meltdown. Recommended: reduce demands, activate Sensory Regulation template, and offer sensory refuge breaks.' : locale === 'es' ? 'Alta probabilidad de agotamiento nervioso o meltdown. Recomendado: reducir exigencias, activar la plantilla de Regulación Sensorial y ofrecer descansos en el refugio.' : 'Alta probabilidade de esgotamento nervoso ou meltdown. Recomendado: reduzir cobrança, ativar o modelo de Regulação Sensorial e oferecer pausas no refúgio.'
       };
     } else if (finalScore >= 35) {
       return {
-        level: 'Moderado ⚠️',
+        level: locale === 'en' ? 'Moderate ⚠️' : locale === 'es' ? 'Moderado ⚠️' : 'Moderado ⚠️',
         percentage: finalScore,
         class: 'text-amber-705 bg-amber-50 border-amber-250',
-        desc: 'Sinais sutis de resistência ou oscilação de humor. Fique atento a sinais físicos de agitação. Evite transições sem o aviso visual de 5 minutos.'
+        desc: locale === 'en' ? 'Subtle signs of resistance or mood swing. Watch for physical signs of agitation. Avoid transitions without the 5-minute visual warning.' : locale === 'es' ? 'Señales sutiles de resistencia o fluctuación de humor. Fíjese en señales físicas de agitación. Evite transiciones sin el aviso visual de 5 minutos.' : 'Sinais sutis de resistência ou oscilação de humor. Fique atento a sinais físicos de agitação. Evite transições sem o aviso visual de 5 minutos.'
       };
     } else {
       return {
-        level: 'Baixo 🟢',
+        level: locale === 'en' ? 'Low 🟢' : locale === 'es' ? 'Bajo 🟢' : 'Baixo 🟢',
         percentage: finalScore,
         class: 'text-emerald-705 bg-emerald-50 border-emerald-200',
-        desc: 'Comportamento regulado e conformidade estável. Continue com o reforço positivo!'
+        desc: locale === 'en' ? 'Regulated behavior and stable compliance. Continue with positive reinforcement!' : locale === 'es' ? 'Comportamiento regulado y conformidad estable. ¡Continúe con el refuerzo positivo!' : 'Comportamento regulado e conformidade estável. Continue com o reforço positivo!'
       };
     }
   };
@@ -2085,7 +2189,11 @@ function ParentDashboardContent() {
     if (highNoiseCrises >= 2) {
       insights.push({
         type: 'danger',
-        text: `Risco de crise elevado quando ruído ultrapassa 70dB (${highNoiseCrises} eventos registrados em ambientes com som alto).`
+        text: locale === 'en' 
+          ? `High risk of crisis when noise exceeds 70dB (${highNoiseCrises} events recorded in loud environments).`
+          : locale === 'es'
+          ? `Alto riesgo de crisis cuando el ruido supera los 70dB (${highNoiseCrises} eventos registrados en ambientes ruidosos).`
+          : `Risco de crise elevado quando ruído ultrapassa 70dB (${highNoiseCrises} eventos registrados em ambientes com som alto).`
       });
     }
 
@@ -2093,7 +2201,11 @@ function ParentDashboardContent() {
     if (brightLightCrises >= 2) {
       insights.push({
         type: 'danger',
-        text: `Alta probabilidade de sobrecarga sensorial associada a ambientes com luminosidade alta / luzes fortes.`
+        text: locale === 'en'
+          ? 'High probability of sensory overload associated with bright light environments / strong lights.'
+          : locale === 'es'
+          ? 'Alta probabilidad de sobrecarga sensorial asociada a ambientes con mucha luz / luces fuertes.'
+          : 'Alta probabilidade de sobrecarga sensorial associada a ambientes com luminosidade alta / luzes fortes.'
       });
     }
 
@@ -2108,7 +2220,11 @@ function ParentDashboardContent() {
       if (count >= 2) {
         insights.push({
           type: 'warning',
-          text: `Gatilho recorrente detectado: "${trigger}" desencadeou desregulação comportamental em pelo menos ${count} ocasiões.`
+          text: locale === 'en'
+            ? `Recurrent trigger detected: "${trigger}" triggered behavioral dysregulation on at least ${count} occasions.`
+            : locale === 'es'
+            ? `Desencadenante recurrente detectado: "${trigger}" causó desregulación conductual en al menos ${count} ocasiones.`
+            : `Gatilho recorrente detectado: "${trigger}" desencadeou desregulação comportamental em pelo menos ${count} ocasiões.`
         });
       }
     });
@@ -2122,9 +2238,16 @@ function ParentDashboardContent() {
 
     Object.entries(locationCounts).forEach(([loc, count]) => {
       if (count >= 2) {
+        const locTrans = loc === 'Escola' 
+          ? (locale === 'en' ? 'school' : locale === 'es' ? 'escuela' : 'Escola')
+          : (loc === 'Casa' ? (locale === 'en' ? 'home' : locale === 'es' ? 'casa' : 'Casa') : loc);
         insights.push({
           type: 'warning',
-          text: `Ambiente de alta vulnerabilidade: o local "${loc}" está correlacionado a crises repetidas (${count} registros).`
+          text: locale === 'en'
+            ? `High vulnerability environment: the location "${locTrans}" is correlated to repeated crises (${count} records).`
+            : locale === 'es'
+            ? `Ambiente de alta vulnerabilidad: el lugar "${locTrans}" está correlacionado con crisis repetidas (${count} registros).`
+            : `Ambiente de alta vulnerabilidade: o local "${loc}" está correlacionado a crises repetidas (${count} registros).`
         });
       }
     });
@@ -2132,7 +2255,11 @@ function ParentDashboardContent() {
     if (insights.length === 0) {
       insights.push({
         type: 'info',
-        text: 'Não foram encontradas correlações fortes de gatilhos nas últimas crises. Continue registrando os dados de antecedente, ruído e luz.'
+        text: locale === 'en'
+          ? 'No strong trigger correlations found in the last crises. Continue logging antecedent, noise, and light data.'
+          : locale === 'es'
+          ? 'No se encontraron correlaciones fuertes de desencadenantes en las últimas crisis. Continúe registrando datos de antecedente, ruido y luz.'
+          : 'Não foram encontradas correlações fortes de gatilhos nas últimas crises. Continue registrando os dados de antecedente, ruído e luz.'
       });
     }
 
@@ -2142,9 +2269,9 @@ function ParentDashboardContent() {
   const getAIPatternAlerts = () => {
     const alerts: { title: string; trigger: string; recommendation: string; percentage: number; type: 'danger' | 'warning' | 'info' }[] = [];
     
-    const activeChildName = activeChild?.name || 'a criança';
-    const childDiagnosis = activeChild?.diagnosis || 'Autismo';
-    const childHyperfocus = activeChild?.childHyperfocus || 'Dinossauros';
+    const activeChildName = activeChild?.name || (locale === 'en' ? 'the child' : locale === 'es' ? 'el niño' : 'a criança');
+    const childDiagnosis = activeChild?.diagnosis || (locale === 'en' ? 'Autism' : locale === 'es' ? 'Autismo' : 'Autismo');
+    const childHyperfocus = activeChild?.childHyperfocus || (locale === 'en' ? 'Dinosaurs' : locale === 'es' ? 'Dinosaurios' : 'Dinossauros');
 
     const crises = sensoryLogs.filter(log => log.crisisOccurred);
 
@@ -2156,16 +2283,23 @@ function ParentDashboardContent() {
       
       if (noisePercentage >= 30) {
         alerts.push({
-          title: 'Sensibilidade Auditiva Aguda',
-          trigger: `Gatilho detectado: ${noisePercentage}% das crises de ${activeChildName} ocorreram em ambientes com ruído superior a 70dB.`,
-          recommendation: `Utilize abafadores de som durante atividades barulhentas. Recomendamos configurar um aviso visual de transição e direcionar ${activeChildName} ao refúgio sensorial com som de marimba suave.`,
+          title: locale === 'en' ? 'Acute Auditory Sensitivity' : locale === 'es' ? 'Sensibilidad Auditiva Aguda' : 'Sensibilidade Auditiva Aguda',
+          trigger: locale === 'en' 
+            ? `Trigger detected: ${noisePercentage}% of ${activeChildName}'s crises occurred in environments with noise higher than 70dB.`
+            : locale === 'es'
+            ? `Desencadenante detectado: el ${noisePercentage}% de las crisis de ${activeChildName} ocurrieron en ambientes con ruido superior a 70dB.`
+            : `Gatilho detectado: ${noisePercentage}% das crises de ${activeChildName} ocorreram em ambientes com ruído superior a 70dB.`,
+          recommendation: locale === 'en'
+            ? `Use ear muffs during noisy activities. We recommend setting up a visual transition warning and directing ${activeChildName} to the sensory refuge with a soft marimba sound.`
+            : locale === 'es'
+            ? `Use orejeras protectoras durante actividades ruidosas. Recomendamos configurar un aviso visual de transición y dirigir a ${activeChildName} al refugio sensorial con sonido de marimba suave.`
+            : `Utilize abafadores de som durante atividades barulhentas. Recomendamos configurar um aviso visual de transição e direcionar ${activeChildName} ao refúgio sensorial com som de marimba suave.`,
           percentage: noisePercentage,
           type: 'danger'
         });
       }
 
       // Analyze task correlation
-      // Let's check which task categories preceded crises
       const categoryCrisisCounts: Record<string, number> = { AVD: 0, Aprendizado: 0, Lazer: 0 };
       let matchedPrecedingCount = 0;
 
@@ -2197,9 +2331,17 @@ function ParentDashboardContent() {
         if (categoryCrisisCounts['Aprendizado'] > 0) {
           const learnPercentage = Math.round((categoryCrisisCounts['Aprendizado'] / crises.length) * 100);
           alerts.push({
-            title: 'Sobrecarga Cognitiva (Estudo)',
-            trigger: `Correlação identificada: tarefas de 'Aprendizado' / 'Estudo' precedem ${learnPercentage}% dos episódios de desregulação.`,
-            recommendation: `Evite sessões de estudo superiores a 30-40 minutos seguidos. Intercale com pausas ativas e lúdicas de 10 minutos usando o hiperfoco em "${childHyperfocus}".`,
+            title: locale === 'en' ? 'Cognitive Overload (Study)' : locale === 'es' ? 'Sobrecarga Cognitiva (Estudio)' : 'Sobrecarga Cognitiva (Estudo)',
+            trigger: locale === 'en'
+              ? `Correlation identified: 'Learning' / 'Study' tasks precede ${learnPercentage}% of dysregulation episodes.`
+              : locale === 'es'
+              ? `Correlación identificada: tareas de 'Aprendizaje' / 'Estudio' preceden el ${learnPercentage}% de los episodios de desregulación.`
+              : `Correlação identificada: tarefas de 'Aprendizado' / 'Estudo' precedem ${learnPercentage}% dos episódios de desregulação.`,
+            recommendation: locale === 'en'
+              ? `Avoid study sessions longer than 30-40 consecutive minutes. Alternate with active and playful breaks of 10 minutes using the hyperfocus on "${childHyperfocus}".`
+              : locale === 'es'
+              ? `Evite sesiones de estudio superiores a 30-40 minutos seguidos. Intercale con pausas activas y lúdicas de 10 minutos usando el hiperenfoque en "${childHyperfocus}".`
+              : `Evite sessões de estudo superiores a 30-40 minutos seguidos. Intercale com pausas ativas e lúdicas de 10 minutos usando o hiperfoco em "${childHyperfocus}".`,
             percentage: learnPercentage,
             type: 'danger'
           });
@@ -2207,10 +2349,23 @@ function ParentDashboardContent() {
         
         if (categoryCrisisCounts['AVD'] > 0) {
           const avdPercentage = Math.round((categoryCrisisCounts['AVD'] / crises.length) * 100);
+          const locName = locale === 'en' 
+            ? (crises[0].location === 'Escola' ? 'school' : 'home') 
+            : locale === 'es' 
+            ? (crises[0].location === 'Escola' ? 'la escuela' : 'casa') 
+            : (crises[0].location || 'casa');
           alerts.push({
-            title: 'Resistência de Transição em AVDs',
-            trigger: `Associação identificada: tarefas de 'Vida Diária' (higiene, vestir-se) antecedem ${avdPercentage}% das crises em ${crises[0].location || 'casa'}.`,
-            recommendation: `Fortaleça a previsibilidade com avisos visuais. Utilize a gravação de áudio familiar personalizada de 5 ou 10 minutos para suavizar a transição.`,
+            title: locale === 'en' ? 'Transition Resistance in ADLs' : locale === 'es' ? 'Resistencia de Transición en AVD' : 'Resistência de Transição em AVDs',
+            trigger: locale === 'en'
+              ? `Association identified: 'Daily Life' tasks (hygiene, dressing) precede ${avdPercentage}% of crises at ${locName}.`
+              : locale === 'es'
+              ? `Asociación identificada: tareas de 'Vida Diaria' (higiene, vestirse) anteceden el ${avdPercentage}% de las crisis en ${locName}.`
+              : `Associação identificada: tarefas de 'Vida Diária' (higiene, vestir-se) antecedem ${avdPercentage}% das crises em ${crises[0].location || 'casa'}.`,
+            recommendation: locale === 'en'
+              ? `Strengthen predictability with visual warnings. Use the custom familiar audio recording of 5 or 10 minutes to ease the transition.`
+              : locale === 'es'
+              ? `Fortalezca la previsibilidad con avisos visuales. Utilice la grabación de audio familiar personalizada de 5 o 10 minutos para suavizar la transición.`
+              : `Fortaleça a previsibilidade com avisos visuais. Utilize a gravação de áudio familiar personalizada de 5 ou 10 minutos para suavizar a transição.`,
             percentage: avdPercentage,
             type: 'warning'
           });
@@ -2221,26 +2376,50 @@ function ParentDashboardContent() {
     // Always generate premium clinical insights based on child diagnosis & hyperfocus if alerts count is low
     if (alerts.length < 3) {
       alerts.push({
-        title: `Estratégia de Hiperfoco baseada em ${childHyperfocus}`,
-        trigger: `Análise de Engajamento: O interesse intrínseco por "${childHyperfocus}" é um forte regulador de comportamento.`,
-        recommendation: `Insira elementos visuais de "${childHyperfocus}" (desenhos, adesivos ou recompensas personalizadas) antes de tarefas de baixa aderência (como higiene ou banho) para reduzir a ansiedade de transição.`,
+        title: locale === 'en' ? `Hyperfocus Strategy based on ${childHyperfocus}` : locale === 'es' ? `Estrategia de Hiperenfoque basada en ${childHyperfocus}` : `Estratégia de Hiperfoco baseada em ${childHyperfocus}`,
+        trigger: locale === 'en'
+          ? `Engagement Analysis: The intrinsic interest in "${childHyperfocus}" is a strong behavior regulator.`
+          : locale === 'es'
+          ? `Análisis de Compromiso: El interés intrínseco por "${childHyperfocus}" es un fuerte regulador del comportamiento.`
+          : `Análise de Engajamento: O interesse intrínseco por "${childHyperfocus}" é um forte regulador de comportamento.`,
+        recommendation: locale === 'en'
+          ? `Insert visual elements of "${childHyperfocus}" (drawings, stickers, or custom rewards) before low-adherence tasks (like hygiene or bathing) to reduce transition anxiety.`
+          : locale === 'es'
+          ? `Inserte elementos visuales de "${childHyperfocus}" (dibujos, pegatinas o recompensas personalizadas) antes de tareas de baja adherencia (como higiene o baño) para reducir la ansiedad de transición.`
+          : `Insira elementos visuais de "${childHyperfocus}" (desenhos, adesivos ou recompensas personalizadas) antes de tarefas de baixa aderência (como higiene ou banho) para reduzir a ansiedade de transição.`,
         percentage: 85,
         type: 'info'
       });
 
       alerts.push({
-        title: 'Mapeamento de Rotina e Rigidez',
-        trigger: 'Padrão Clínico: Transições não programadas geram sobrecarga imediata.',
-        recommendation: `Mantenha a rotina com alto índice de previsibilidade. Caso haja uma alteração inevitável, registre no painel de "Mudança Inesperada" para que a IA ajuste os tempos de pausa sensorial do mascote.`,
+        title: locale === 'en' ? 'Routine and Rigidity Mapping' : locale === 'es' ? 'Mapeo de Rutina y Rigidez' : 'Mapeamento de Rotina e Rigidez',
+        trigger: locale === 'en'
+          ? 'Clinical Pattern: Unscheduled transitions generate immediate overload.'
+          : locale === 'es'
+          ? 'Patrón Clínico: Las transiciones no programadas generan sobrecarga inmediata.'
+          : 'Padrão Clínico: Transições não programadas geram sobrecarga imediata.',
+        recommendation: locale === 'en'
+          ? `Maintain the routine with a high level of predictability. If there is an unavoidable change, register it in the "Unexpected Change" panel so the AI can adjust the mascot's sensory pause times.`
+          : locale === 'es'
+          ? `Mantenga la rutina con un alto nivel de previsibilidad. Si hay un cambio inevitable, regístrelo en el panel de "Cambio Inesperado" para que la AI ajuste los tiempos de pausa sensorial de la mascota.`
+          : `Mantenha a rotina com alto índice de previsibilidade. Caso haja uma alteração inevitável, registre no painel de "Mudança Inesperada" para que a IA ajuste os tempos de pausa sensorial do mascote.`,
         percentage: 75,
         type: 'info'
       });
 
       if (alerts.length < 3) {
         alerts.push({
-          title: 'Prevenção de Crise Noturna',
-          trigger: 'Análise de Ritmo Circadiano: Acúmulo de estímulos no final da tarde.',
-          recommendation: `Diminua o volume de ruídos e luzes a partir das 18:30. Ative o "Modo Calmo" do mascote com abafador de ruídos simulado na tela da rotina da criança.`,
+          title: locale === 'en' ? 'Night Crisis Prevention' : locale === 'es' ? 'Prevención de Crisis Nocturna' : 'Prevenção de Crise Noturna',
+          trigger: locale === 'en'
+            ? 'Circadian Rhythm Analysis: Accumulation of stimuli in the late afternoon.'
+            : locale === 'es'
+            ? 'Análisis del Ritmo Circadiano: Acumulación de estímulos al final de la tarde.'
+            : 'Análise de Ritmo Circadiano: Acúmulo de estímulos no final da tarde.',
+          recommendation: locale === 'en'
+            ? `Decrease the volume of noises and lights starting at 6:30 PM. Activate the mascot's "Calm Mode" with a simulated noise canceler on the child's routine screen.`
+            : locale === 'es'
+            ? `Disminuya el volumen de ruidos y luces a partir de las 18:30. Active el "Modo Calma" de la mascota con un abofador de ruidos simulado en la pantalla de la rutina del niño.`
+            : `Diminua o volume de ruídos e luzes a partir das 18:30. Ative o "Modo Calmo" do mascote com abafador de ruídos simulado na tela da rotina da criança.`,
           percentage: 60,
           type: 'warning'
         });
@@ -3998,28 +4177,28 @@ function ParentDashboardContent() {
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-slate-200/60 pt-3">
                               <div>
-                                <label className="block text-xxs font-bold text-slate-500 uppercase mb-1">Domínio da Atividade (Categoria)</label>
+                                <label className="block text-xxs font-bold text-slate-500 uppercase mb-1">{locale === 'en' ? 'Activity Domain (Category)' : locale === 'es' ? 'Dominio de la Actividad (Categoría)' : 'Domínio da Atividade (Categoria)'}</label>
                                 <select
                                   value={taskCategory}
                                   onChange={e => setTaskCategory(e.target.value as any)}
                                   className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-705 outline-none text-sm font-bold cursor-pointer"
                                 >
-                                  <option value="AVD">AVD (Vida Diária) 🧼</option>
-                                  <option value="Aprendizado">Aprendizado 📚</option>
-                                  <option value="Lazer">Lazer 🧸</option>
+                                  <option value="AVD">{locale === 'en' ? 'ADL (Daily Life) 🧼' : locale === 'es' ? 'AVD (Vida Diaria) 🧼' : 'AVD (Vida Diária) 🧼'}</option>
+                                  <option value="Aprendizado">{locale === 'en' ? 'Learning 📚' : locale === 'es' ? 'Aprendizaje 📚' : 'Aprendizado 📚'}</option>
+                                  <option value="Lazer">{locale === 'en' ? 'Leisure 🧸' : locale === 'es' ? 'Ocio 🧸' : 'Lazer 🧸'}</option>
                                 </select>
                               </div>
 
                               <div>
-                                <label className="block text-xxs font-bold text-slate-500 uppercase mb-1">Recorrência / Inclusão</label>
+                                <label className="block text-xxs font-bold text-slate-500 uppercase mb-1">{locale === 'en' ? 'Recurrence / Inclusion' : locale === 'es' ? 'Recurrencia / Inclusión' : 'Recorrência / Inclusão'}</label>
                                 <select
                                   value={recurrenceMode}
                                   onChange={e => setRecurrenceMode(e.target.value as any)}
                                   className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-705 outline-none text-sm font-bold cursor-pointer"
                                 >
-                                  <option value="single">Apenas neste dia ({getDayLabel(activeDayFilter).replace(/ 📅| ☀️/, '')})</option>
-                                  <option value="weekday">Repetir no dia da semana ({getRecurrenceWeekdayLabel(activeDayFilter).replace('Todas as ', '')})</option>
-                                  <option value="monthly">Repetir em todos os dias do mês (Diária)</option>
+                                  <option value="single">{locale === 'en' ? `Only on this day (${getDayLabel(activeDayFilter).replace(/ 📅| ☀️/, '')})` : locale === 'es' ? `Solo en este día (${getDayLabel(activeDayFilter).replace(/ 📅| ☀️/, '')})` : `Apenas neste dia (${getDayLabel(activeDayFilter).replace(/ 📅| ☀️/, '')})`}</option>
+                                  <option value="weekday">{locale === 'en' ? `Repeat on weekday (${getRecurrenceWeekdayLabel(activeDayFilter, locale)})` : locale === 'es' ? `Repetir en el día de la semana (${getRecurrenceWeekdayLabel(activeDayFilter, locale)})` : `Repetir no dia da semana (${getRecurrenceWeekdayLabel(activeDayFilter, locale).replace('Todas as ', '')})`}</option>
+                                  <option value="monthly">{locale === 'en' ? 'Repeat all days of the month (Daily)' : locale === 'es' ? 'Repeat todos los días del mes (Diario)' : 'Repetir em todos os dias do mês (Diária)'}</option>
                                 </select>
                               </div>
                             </div>
@@ -5187,7 +5366,7 @@ function ParentDashboardContent() {
                     const prev7Rate = prev7Total > 0 ? Math.round((prev7Completed / prev7Total) * 100) : 0;
 
                     const trend = last7Rate - prev7Rate;
-                    const trendText = trend > 0 ? `▲ +${trend}%` : trend < 0 ? `▼ ${trend}%` : 'Estável';
+                    const trendText = trend > 0 ? `▲ +${trend}%` : trend < 0 ? `▼ ${trend}%` : (locale === 'en' ? 'Stable' : locale === 'es' ? 'Estable' : 'Estável');
                     const trendColor = trend > 0 ? 'text-emerald-700 bg-emerald-50 border-emerald-100' : trend < 0 ? 'text-amber-700 bg-amber-50 border-amber-100' : 'text-slate-600 bg-slate-50 border-slate-100';
 
                     // 4. Emotional Stability Indicator
@@ -5197,15 +5376,15 @@ function ParentDashboardContent() {
                     
                     let stabilityLevel = 'Regular ⚖️';
                     let stabilityClass = 'text-amber-700 bg-amber-50 border-amber-250';
-                    let stabilityDesc = 'Oscilações moderadas de humor observadas.';
+                    let stabilityDesc = locale === 'en' ? 'Moderate mood swings observed.' : locale === 'es' ? 'Oscilaciones moderadas de humor observadas.' : 'Oscilações moderadas de humor observadas.';
                     if (stabilityRate >= 80) {
-                      stabilityLevel = 'Excelente 🌟';
+                      stabilityLevel = locale === 'en' ? 'Excellent 🌟' : locale === 'es' ? 'Excelente 🌟' : 'Excelente 🌟';
                       stabilityClass = 'text-emerald-700 bg-emerald-50 border-emerald-250';
-                      stabilityDesc = 'Humor predominantemente calmo ou feliz.';
+                      stabilityDesc = locale === 'en' ? 'Predominantly calm or happy mood.' : locale === 'es' ? 'Humor predominantemente tranquilo o feliz.' : 'Humor predominantemente calmo ou feliz.';
                     } else if (stabilityRate < 50) {
-                      stabilityLevel = 'Atenção ⚠️';
+                      stabilityLevel = locale === 'en' ? 'Attention ⚠️' : locale === 'es' ? 'Atención ⚠️' : 'Atenção ⚠️';
                       stabilityClass = 'text-red-700 bg-red-50 border-red-250';
-                      stabilityDesc = 'Frequentes episódios de agitação ou desregulação.';
+                      stabilityDesc = locale === 'en' ? 'Frequent episodes of agitation or dysregulation.' : locale === 'es' ? 'Frecuentes episodios de agitación o desregulación.' : 'Frequentes episódios de agitação ou desregulação.';
                     }
                     const stabilityBadgeColor = stabilityRate >= 80 ? 'text-emerald-700 bg-emerald-50 border-emerald-100' : stabilityRate >= 50 ? 'text-amber-700 bg-amber-50 border-amber-100' : 'text-rose-700 bg-rose-50 border-rose-100';
 
@@ -5216,7 +5395,7 @@ function ParentDashboardContent() {
                     const priorCrises = sensoryLogs.filter(log => log.crisisOccurred && (nowTime - new Date(log.timestamp).getTime()) > 7 * oneDayMs && (nowTime - new Date(log.timestamp).getTime()) <= 14 * oneDayMs).length;
                     const crisisDiff = recentCrises - priorCrises;
                     
-                    const crisisTrendText = crisisDiff < 0 ? `▼ ${Math.abs(crisisDiff)}` : crisisDiff > 0 ? `▲ +${crisisDiff}` : 'Estável';
+                    const crisisTrendText = crisisDiff < 0 ? `▼ ${Math.abs(crisisDiff)}` : crisisDiff > 0 ? `▲ +${crisisDiff}` : (locale === 'en' ? 'Stable' : locale === 'es' ? 'Estable' : 'Estável');
                     const crisisTrendColor = crisisDiff < 0 ? 'text-emerald-700 bg-emerald-50 border-emerald-100' : crisisDiff > 0 ? 'text-rose-700 bg-rose-50 border-rose-100' : 'text-slate-600 bg-slate-50 border-slate-100';
 
                     // 6. Period Adherence using elapsedTasks
@@ -5235,9 +5414,9 @@ function ParentDashboardContent() {
 
                     // Helper to get status rating
                     const getRatingText = (val: number) => {
-                      if (val >= 80) return 'Estável 🟢';
-                      if (val >= 50) return 'Moderado ⚠️';
-                      return 'Crítico 🚨';
+                      if (val >= 80) return locale === 'en' ? 'Stable 🟢' : locale === 'es' ? 'Estable 🟢' : 'Estável 🟢';
+                      if (val >= 50) return locale === 'en' ? 'Moderate ⚠️' : locale === 'es' ? 'Moderado ⚠️' : 'Moderado ⚠️';
+                      return locale === 'en' ? 'Critical 🚨' : locale === 'es' ? 'Crítico 🚨' : 'Crítico 🚨';
                     };
 
                     // Generate Dynamic Clinical Insights
@@ -5246,22 +5425,34 @@ function ParentDashboardContent() {
                       if (rate < 80 && rate > 0) {
                         list.push({
                           type: 'warning',
-                          title: 'Aderência Geral sob Atenção',
-                          text: 'A taxa de conclusão da rotina está abaixo de 80%. Para consolidar hábitos e previsibilidade em crianças com TEA, sugerimos simplificar a rotina, reduzir a duração de tarefas difíceis ou aumentar o valor dos tokens.'
+                          title: locale === 'en' ? 'General Adherence Under Attention' : locale === 'es' ? 'Adherencia General bajo Atención' : 'Aderência Geral sob Atenção',
+                          text: locale === 'en' 
+                            ? 'The routine completion rate is below 80%. To consolidate habits and predictability in children with ASD, we suggest simplifying the routine, reducing the duration of difficult tasks, or increasing the value of tokens.'
+                            : locale === 'es'
+                            ? 'La tasa de finalización de la rutina está por debajo del 80%. Para consolidar hábitos y previsibilidad en niños con TEA, sugerimos simplificar la rutina, reducir la duración de las tareas difíciles o aumentar el valor de los tokens.'
+                            : 'A taxa de conclusão da rotina está abaixo de 80%. Para consolidar hábitos e previsibilidade em crianças com TEA, sugerimos simplificar a rotina, reduzir a duração de tarefas difíceis ou aumentar o valor dos tokens.'
                         });
                       } else if (rate >= 80) {
                         list.push({
                           type: 'success',
-                          title: 'Aderência Clínica Excelente',
-                          text: 'A criança demonstra alta estabilidade e previsibilidade nas rotinas. Continue utilizando reforço positivo imediato e aproveite para manter a rigidez cognitiva baixa.'
+                          title: locale === 'en' ? 'Excellent Clinical Adherence' : locale === 'es' ? 'Excelente Adherencia Clínica' : 'Aderência Clínica Excelente',
+                          text: locale === 'en'
+                            ? 'The child demonstrates high stability and predictability in routines. Continue using immediate positive reinforcement and take the opportunity to keep cognitive rigidity low.'
+                            : locale === 'es'
+                            ? 'El niño demuestra una alta estabilidad y previsibilidad en las rutinas. Continúe utilizando el refuerzo positivo inmediato y aproveche para mantener baja la rigidez cognitiva.'
+                            : 'A criança demonstra alta estabilidade e previsibilidade nas rotinas. Continue utilizando reforço positivo imediato e aproveite para manter a rigidez cognitiva baixa.'
                         });
                       }
                       
                       if (stabilityRate < 60) {
                         list.push({
                           type: 'danger',
-                          title: 'Alerta de Regulação Emocional',
-                          text: 'Flutuações de humor frequentes ou crises recentes detectadas. Recomendamos ativar o modelo de "Regulação Sensorial" no calendário, reduzir exigências acadêmicas e dar pausas no refúgio sensorial.'
+                          title: locale === 'en' ? 'Emotional Regulation Alert' : locale === 'es' ? 'Alerta de Regulación Emocional' : 'Alerta de Regulação Emocional',
+                          text: locale === 'en'
+                            ? 'Frequent mood fluctuations or recent crises detected. We recommend activating the "Sensory Regulation" template in the calendar, reducing academic demands, and taking breaks in the sensory refuge.'
+                            : locale === 'es'
+                            ? 'Se detectan fluctuaciones de humor frecuentes o crisis recientes. Recomendamos activar la plantilla de "Regulación Sensorial" en el calendario, reducir las demandas académicas y tomar descansos en el refugio sensorial.'
+                            : 'Flutuações de humor frequentes ou crises recentes detectadas. Recomendamos ativar o modelo de "Regulação Sensorial" no calendário, reduzir exigências acadêmicas e dar pausas no refúgio sensorial.'
                         });
                       }
                       
@@ -5269,14 +5460,22 @@ function ParentDashboardContent() {
                       if (minPeriod === morningComp && morningTasks.length > 0 && morningComp < 70) {
                         list.push({
                           type: 'info',
-                          title: 'Foco na Transição Matinal',
-                          text: 'O período da manhã apresenta menor aderência. Tente introduzir 10 minutos de previsibilidade com aviso visual antes de iniciar as tarefas matinais.'
+                          title: locale === 'en' ? 'Focus on Morning Transition' : locale === 'es' ? 'Enfoque en la Transición Matutina' : 'Foco na Transição Matinal',
+                          text: locale === 'en'
+                            ? 'The morning period shows lower adherence. Try introducing 10 minutes of predictability with a visual warning before starting morning tasks.'
+                            : locale === 'es'
+                            ? 'El período de la mañana presenta menor adherencia. Intente introducir 10 minutos de previsibilidad con un aviso visual antes de comenzar las tareas matutinas.'
+                            : 'O período da manhã apresenta menor aderência. Tente introduzir 10 minutos de previsibilidade com aviso visual antes de iniciar as tarefas matinais.'
                         });
                       } else if (minPeriod === eveningComp && eveningTasks.length > 0 && eveningComp < 70) {
                         list.push({
                           type: 'info',
-                          title: 'Ajuste de Rotina Noturna',
-                          text: 'Menor aderência identificada à noite. Tente restringir telas e atividades de alta excitação após as 19:30, facilitando o relaxamento natural para o sono.'
+                          title: locale === 'en' ? 'Night Routine Adjustment' : locale === 'es' ? 'Ajuste de Rutina Nocturna' : 'Ajuste de Rotina Noturna',
+                          text: locale === 'en'
+                            ? 'Lower adherence identified at night. Try restricting screens and high-arousal activities after 7:30 PM, facilitating natural relaxation for sleep.'
+                            : locale === 'es'
+                            ? 'Menor adherencia identificada por la noche. Intente restringir las pantallas y las actividades de alta excitación después de las 19:30, facilitando la relajación natural para el sueño.'
+                            : 'Menor aderência identificada à noite. Tente restringir telas e atividades de alta excitação após as 19:30, facilitando o relaxamento natural para o sono.'
                         });
                       }
 
@@ -5288,16 +5487,24 @@ function ParentDashboardContent() {
                       if (studyRate > 80 && studyTotal > 0) {
                         list.push({
                           type: 'success',
-                          title: 'Excelente Foco Acadêmico',
-                          text: 'Engajamento muito alto em tarefas cognitivas/aprendizado. Ótimo período para introduzir novos conceitos terapêuticos.'
+                          title: locale === 'en' ? 'Excellent Academic Focus' : locale === 'es' ? 'Excelente Enfoque Académico' : 'Excelente Foco Acadêmica',
+                          text: locale === 'en'
+                            ? 'Very high engagement in cognitive/learning tasks. Great period to introduce new therapeutic concepts.'
+                            : locale === 'es'
+                            ? 'Compromiso muy alto en tareas cognitivas/de aprendizaje. Excelente período para introducir nuevos conceptos terapéuticos.'
+                            : 'Engajamento muito alto em tarefas cognitivas/aprendizado. Ótimo período para introduzir novos conceitos terapêuticos.'
                         });
                       }
 
                       if (list.length === 0) {
                         list.push({
                           type: 'info',
-                          title: 'Análise Clínica em Andamento',
-                          text: 'Continue registrando o cumprimento das atividades e o humor no diário comportamental. Isso permitirá ao nosso preditor fornecer sugestões terapêuticas mais direcionadas.'
+                          title: locale === 'en' ? 'Clinical Analysis in Progress' : locale === 'es' ? 'Análisis Clínico en Progreso' : 'Análise Clínica em Andamento',
+                          text: locale === 'en'
+                            ? 'Continue registering activity completion and mood in the behavioral diary. This will allow our predictor to provide more targeted therapeutic suggestions.'
+                            : locale === 'es'
+                            ? 'Continúe registrando el cumplimiento de las actividades y el estado de ánimo en el diario de comportamiento. Esto permitirá a nuestro predictor proporcionar sugerencias terapéuticas más dirigidas.'
+                            : 'Continue registrando o cumprimento das atividades e o humor no diário comportamental. Isso permitirá ao nosso preditor fornecer sugestões terapêuticas mais direcionadas.'
                         });
                       }
 
@@ -5310,29 +5517,29 @@ function ParentDashboardContent() {
                       <>
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                           <div className="bg-indigo-50/50 border border-indigo-100/50 p-4.5 rounded-2xl flex flex-col gap-1.5 shadow-xxs hover:shadow-xs transition-all hover:scale-[1.01]">
-                            <span className="text-xxs font-black text-indigo-500 uppercase tracking-widest">Aderência Acumulada</span>
+                            <span className="text-xxs font-black text-indigo-500 uppercase tracking-widest">{locale === 'en' ? 'Accumulated Adherence' : locale === 'es' ? 'Adherencia Acumulada' : 'Aderência Acumulada'}</span>
                             <div className="flex items-baseline gap-2">
                               <span className="text-3xl font-black text-indigo-750">{rate}%</span>
                               <span className={`text-[9px] font-black px-1.5 py-0.5 rounded-md border ${trendColor} whitespace-nowrap`}>
-                                {trendText} vs sem. ant.
+                                {trendText} {locale === 'en' ? 'vs prev. wk.' : locale === 'es' ? 'vs sem. ant.' : 'vs sem. ant.'}
                               </span>
                             </div>
-                            <p className="text-xxs text-slate-400 font-semibold leading-relaxed">Conclusão de tarefas nos dias decorridos do mês.</p>
+                            <p className="text-xxs text-slate-400 font-semibold leading-relaxed">{locale === 'en' ? 'Completion of tasks in the elapsed days of the month.' : locale === 'es' ? 'Finalización de tarefas en los días transcurridos del mes.' : 'Conclusão de tarefas nos dias decorridos do mês.'}</p>
                           </div>
 
                           <div className="bg-amber-55/60 border border-amber-100/50 p-4.5 rounded-2xl flex flex-col gap-1.5 shadow-xxs hover:shadow-xs transition-all hover:scale-[1.01]">
-                            <span className="text-xxs font-black text-amber-600 uppercase tracking-widest">Conformidade Diária</span>
+                            <span className="text-xxs font-black text-amber-600 uppercase tracking-widest">{locale === 'en' ? 'Daily Compliance' : locale === 'es' ? 'Conformidad Diaria' : 'Conformidade Diária'}</span>
                             <div className="flex items-baseline gap-2">
-                              <span className="text-3xl font-black text-amber-700">{avgDailyCompleted.toFixed(1)} <span className="text-sm font-semibold text-slate-400">/ dia</span></span>
+                              <span className="text-3xl font-black text-amber-700">{avgDailyCompleted.toFixed(1)} <span className="text-sm font-semibold text-slate-400"> {locale === 'en' ? '/ day' : locale === 'es' ? '/ día' : '/ dia'}</span></span>
                               <span className={`text-[9px] font-black px-1.5 py-0.5 rounded-md border ${complianceBadgeColor} whitespace-nowrap`}>
                                 {avgDailyCompliance}%
                               </span>
                             </div>
-                            <p className="text-xxs text-slate-400 font-semibold leading-relaxed">Média de {avgDailyCompleted.toFixed(1)} de {avgDailyScheduled.toFixed(1)} atividades por dia decorrido.</p>
+                            <p className="text-xxs text-slate-400 font-semibold leading-relaxed">{locale === 'en' ? `Average of ${avgDailyCompleted.toFixed(1)} of ${avgDailyScheduled.toFixed(1)} activities per elapsed day.` : locale === 'es' ? `Promedio de ${avgDailyCompleted.toFixed(1)} de ${avgDailyScheduled.toFixed(1)} actividades por día transcurrido.` : `Média de ${avgDailyCompleted.toFixed(1)} de ${avgDailyScheduled.toFixed(1)} atividades por dia decorrido.`}</p>
                           </div>
 
                           <div className="bg-teal-50/50 border border-teal-100/50 p-4.5 rounded-2xl flex flex-col gap-1.5 shadow-xxs hover:shadow-xs transition-all hover:scale-[1.01]">
-                            <span className="text-xxs font-black text-teal-600 uppercase tracking-widest">Estabilidade Emocional</span>
+                            <span className="text-xxs font-black text-teal-600 uppercase tracking-widest">{locale === 'en' ? 'Emotional Stability' : locale === 'es' ? 'Estabilidad Emocional' : 'Estabilidade Emocional'}</span>
                             <div className="flex items-baseline gap-2">
                               <span className="text-3xl font-black text-teal-700">{stabilityRate}%</span>
                               <span className={`text-[9px] font-black px-1.5 py-0.5 rounded-md border ${stabilityBadgeColor} whitespace-nowrap`}>
@@ -5343,21 +5550,21 @@ function ParentDashboardContent() {
                           </div>
 
                           <div className="bg-rose-50/50 border border-rose-100/50 p-4.5 rounded-2xl flex flex-col gap-1.5 shadow-xxs hover:shadow-xs transition-all hover:scale-[1.01]">
-                            <span className="text-xxs font-black text-rose-600 uppercase tracking-widest">Frequência de Crises</span>
+                            <span className="text-xxs font-black text-rose-600 uppercase tracking-widest">{locale === 'en' ? 'Crisis Frequency' : locale === 'es' ? 'Frecuencia de Crisis' : 'Frequência de Crises'}</span>
                             <div className="flex items-baseline gap-2">
-                              <span className="text-3xl font-black text-rose-700">{recentCrises} <span className="text-sm font-semibold text-slate-400">crise{recentCrises !== 1 ? 's' : ''}</span></span>
+                              <span className="text-3xl font-black text-rose-700">{recentCrises} <span className="text-sm font-semibold text-slate-400">crise{locale === 'en' ? (recentCrises !== 1 ? 'crises' : 'crisis') : locale === 'es' ? 'crisis' : recentCrises !== 1 ? 'crises' : 'crise'}</span></span>
                               <span className={`text-[9px] font-black px-1.5 py-0.5 rounded-md border ${crisisTrendColor} whitespace-nowrap`}>
-                                {crisisTrendText} vs sem. ant.
+                                {crisisTrendText} {locale === 'en' ? 'vs prev. wk.' : locale === 'es' ? 'vs sem. ant.' : 'vs sem. ant.'}
                               </span>
                             </div>
-                            <p className="text-xxs text-slate-400 font-semibold leading-relaxed">Ocorrências nos últimos 7 dias comparadas à semana anterior.</p>
+                            <p className="text-xxs text-slate-400 font-semibold leading-relaxed">{locale === 'en' ? 'Occurrences in the last 7 days compared to the previous week.' : locale === 'es' ? 'Ocurrencias en los últimos 7 días comparadas con la semana anterior.' : 'Ocorrências nos últimos 7 dias comparadas à semana anterior.'}</p>
                           </div>
                         </div>
 
                         {/* Dynamic Clinical Insights Panel */}
                         <div className="bg-white border border-slate-200 p-5 rounded-2xl flex flex-col gap-4 shadow-xxs hover:shadow-xs transition-all">
                           <h4 className="font-extrabold text-xs text-slate-500 uppercase tracking-wider flex items-center gap-1.5 font-Outfit">
-                            💡 Recomendações e Insights Clínicos Customizados (ABA / T.O.)
+                            {locale === 'en' ? '💡 Custom Clinical Recommendations & Insights (ABA / O.T.)' : locale === 'es' ? '💡 Recomendaciones e Insights Clínicos Personalizados (ABA / T.O.)' : '💡 Recomendações e Insights Clínicos Customizados (ABA / T.O.)'}
                           </h4>
                           <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
                             {clinicalInsights.map((insight, idx) => {
@@ -5383,11 +5590,11 @@ function ParentDashboardContent() {
                         {/* Visual Category Compliance Graph */}
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                           <div className="bg-slate-50 border border-slate-200/50 p-5 rounded-2xl flex flex-col gap-4 shadow-xxs">
-                            <h4 className="font-extrabold text-xs text-slate-500 uppercase tracking-wider">Aderência por Período de Dia</h4>
+                            <h4 className="font-extrabold text-xs text-slate-500 uppercase tracking-wider">{locale === 'en' ? 'Adherence by Period of Day' : locale === 'es' ? 'Adherencia por Período de Día' : 'Aderência por Período de Dia'}</h4>
                             <div className="flex flex-col gap-3">
                               <div>
                                 <div className="flex justify-between text-xs font-bold text-slate-700 mb-1">
-                                  <span>Manhã ☀️</span>
+                                  <span>{locale === 'en' ? 'Morning ☀️' : locale === 'es' ? 'Mañana ☀️' : 'Manhã ☀️'}</span>
                                   <span>{morningComp}% <span className="text-slate-400 font-semibold">({getRatingText(morningComp).replace(/[^a-zA-Záéíóúâêôãõç\s]/g, '')})</span></span>
                                 </div>
                                 <div className="w-full bg-slate-200 rounded-full h-2.5 overflow-hidden">
@@ -5396,7 +5603,7 @@ function ParentDashboardContent() {
                               </div>
                               <div>
                                 <div className="flex justify-between text-xs font-bold text-slate-700 mb-1">
-                                  <span>Tarde ⛅</span>
+                                  <span>{locale === 'en' ? 'Afternoon ⛅' : locale === 'es' ? 'Tarde ⛅' : 'Tarde ⛅'}</span>
                                   <span>{afternoonComp}% <span className="text-slate-400 font-semibold">({getRatingText(afternoonComp).replace(/[^a-zA-Záéíóúâêôãõç\s]/g, '')})</span></span>
                                 </div>
                                 <div className="w-full bg-slate-200 rounded-full h-2.5 overflow-hidden">
@@ -5405,7 +5612,7 @@ function ParentDashboardContent() {
                               </div>
                               <div>
                                 <div className="flex justify-between text-xs font-bold text-slate-700 mb-1">
-                                  <span>Noite 🌙</span>
+                                  <span>{locale === 'en' ? 'Night 🌙' : locale === 'es' ? 'Noche 🌙' : 'Noite 🌙'}</span>
                                   <span>{eveningComp}% <span className="text-slate-400 font-semibold">({getRatingText(eveningComp).replace(/[^a-zA-Záéíóúâêôãõç\s]/g, '')})</span></span>
                                 </div>
                                 <div className="w-full bg-slate-200 rounded-full h-2.5 overflow-hidden">
@@ -5416,7 +5623,7 @@ function ParentDashboardContent() {
                           </div>
 
                           <div className="bg-slate-50 border border-slate-200/50 p-5 rounded-2xl flex flex-col gap-4 shadow-xxs">
-                            <h4 className="font-extrabold text-xs text-slate-500 uppercase tracking-wider">Aderência por Domínio de Atividade (ABA)</h4>
+                            <h4 className="font-extrabold text-xs text-slate-500 uppercase tracking-wider">{locale === 'en' ? 'Adherence by Activity Domain (ABA)' : locale === 'es' ? 'Adherencia por Dominio de Actividad (ABA)' : 'Aderência por Domínio de Atividade (ABA)'}</h4>
                             <div className="flex flex-col gap-3">
                               {(() => {
                                 const getCat = (t: Task) => t.category || 'AVD';
@@ -5436,7 +5643,7 @@ function ParentDashboardContent() {
                                   <>
                                     <div>
                                       <div className="flex justify-between text-xs font-bold text-slate-700 mb-1">
-                                        <span>AVD (Vida Diária) 🧼</span>
+                                        <span>{locale === 'en' ? 'ADL (Daily Life) 🧼' : locale === 'es' ? 'AVD (Vida Diaria) 🧼' : 'AVD (Vida Diária) 🧼'}</span>
                                         <span>{avdRate}% ({avdDone}/{avdTotal}) <span className="text-slate-400 font-semibold">({getRatingText(avdRate).replace(/[^a-zA-Záéíóúâêôãõç\s]/g, '')})</span></span>
                                       </div>
                                       <div className="w-full bg-slate-200 rounded-full h-2.5 overflow-hidden">
@@ -5445,7 +5652,7 @@ function ParentDashboardContent() {
                                     </div>
                                     <div>
                                       <div className="flex justify-between text-xs font-bold text-slate-700 mb-1">
-                                        <span>Aprendizado 📚</span>
+                                        <span>{locale === 'en' ? 'Learning 📚' : locale === 'es' ? 'Aprendizaje 📚' : 'Aprendizado 📚'}</span>
                                         <span>{studyRate}% ({studyDone}/{studyTotal}) <span className="text-slate-400 font-semibold">({getRatingText(studyRate).replace(/[^a-zA-Záéíóúâêôãõç\s]/g, '')})</span></span>
                                       </div>
                                       <div className="w-full bg-slate-200 rounded-full h-2.5 overflow-hidden">
@@ -5454,7 +5661,7 @@ function ParentDashboardContent() {
                                     </div>
                                     <div>
                                       <div className="flex justify-between text-xs font-bold text-slate-700 mb-1">
-                                        <span>Lazer 🧸</span>
+                                        <span>{locale === 'en' ? 'Leisure 🧸' : locale === 'es' ? 'Ocio 🧸' : 'Lazer 🧸'}</span>
                                         <span>{playRate}% ({playDone}/{playTotal}) <span className="text-slate-400 font-semibold">({getRatingText(playRate).replace(/[^a-zA-Záéíóúâêôãõç\s]/g, '')})</span></span>
                                       </div>
                                       <div className="w-full bg-slate-200 rounded-full h-2.5 overflow-hidden">
@@ -5471,10 +5678,10 @@ function ParentDashboardContent() {
                         {/* AI Pattern Analysis and Alerts Panel */}
                         <div className="bg-white border border-slate-200 p-5 rounded-2xl flex flex-col gap-4 shadow-xxs hover:shadow-xs transition-all">
                           <h4 className="font-extrabold text-xs text-indigo-950 uppercase tracking-wider flex items-center gap-1.5 select-none font-Outfit">
-                            🧠 Relatório de Padrões e Alertas da IA
+                            {locale === 'en' ? '🧠 AI Pattern Report & Alerts' : locale === 'es' ? '🧠 Informe de Patrones y Alertas de IA' : '🧠 Relatório de Padrões e Alertas da IA'}
                           </h4>
                           <p className="text-[10px] text-slate-500 font-semibold leading-relaxed">
-                            A IA analisa cruzamentos entre rotinas cumpridas e episódios sensoriais para prever gatilhos ocultos e sugerir intervenções personalizadas de ABA/T.O.
+                            {locale === 'en' ? 'AI analyzes intersections between completed routines and sensory episodes to predict hidden triggers and suggest customized ABA/O.T. interventions.' : locale === 'es' ? 'La IA analiza cruces entre rutinas cumplidas y episodios sensoriales para predecir desencadenantes ocultos y sugerir sugerencias personalizadas de ABA/T.O.' : 'A IA analisa cruzamentos entre rotinas cumpridas e episódios sensoriais para prever gatilhos ocultos e sugerir intervenções personalizadas de ABA/T.O.'}
                           </p>
 
                           <div className="flex flex-col gap-3">
@@ -5501,7 +5708,7 @@ function ParentDashboardContent() {
                                       <span>{alert.title}</span>
                                     </div>
                                     <span className={`text-[9px] font-black px-2 py-0.5 rounded-full ${badgeClass}`}>
-                                      {alert.percentage}% de Correlação
+                                      {alert.percentage}% {locale === 'en' ? 'Correlation' : locale === 'es' ? 'de Correlación' : 'de Correlação'}
                                     </span>
                                   </div>
                                   <div className="flex flex-col gap-1.5 pl-5">
@@ -5509,7 +5716,7 @@ function ParentDashboardContent() {
                                       <span className="font-extrabold text-slate-850">Padrão:</span> {alert.trigger}
                                     </p>
                                     <p className="text-xs font-medium leading-relaxed text-indigo-900 bg-white/60 p-2.5 rounded-lg border border-indigo-100/50">
-                                      <span className="font-extrabold text-indigo-950 block mb-0.5 font-Outfit">Recomendação Clínica (ABA/T.O.):</span>
+                                      <span className="font-extrabold text-indigo-950 block mb-0.5 font-Outfit">{locale === 'en' ? 'Clinical Recommendation (ABA/O.T.):' : locale === 'es' ? 'Recomendación Clínica (ABA/T.O.):' : 'Recomendação Clínica (ABA/T.O.):'}</span>
                                       {alert.recommendation}
                                     </p>
                                   </div>
@@ -5522,12 +5729,12 @@ function ParentDashboardContent() {
                         {/* AI Sensory Overload Predictor Panel */}
                         <div className="bg-slate-50 border border-slate-200/50 p-5 rounded-2xl flex flex-col gap-4 shadow-xxs">
                           <h4 className="font-extrabold text-xs text-slate-500 uppercase tracking-wider flex items-center gap-1.5 select-none font-Outfit">
-                            🤖 IA Preditora de Sobrecarga (Risco de Meltdown)
+                            {locale === 'en' ? '🤖 AI Overload Predictor (Meltdown Risk)' : locale === 'es' ? '🤖 IA Predictora de Sobrecarga (Riesgo de Meltdown)' : '🤖 IA Preditora de Sobrecarga (Risco de Meltdown)'}
                           </h4>
                           
                           <div className={`p-4 rounded-xl border flex flex-col gap-2 ${riskInfo.class}`}>
                             <div className="flex justify-between items-center">
-                              <span className="text-xs font-black uppercase text-slate-800">Termômetro de Risco:</span>
+                              <span className="text-xs font-black uppercase text-slate-800">{locale === 'en' ? 'Risk Thermometer:' : locale === 'es' ? 'Termómetro de Riesgo:' : 'Termômetro de Risco:'}</span>
                               <span className="text-sm font-black uppercase tracking-wider">{riskInfo.level}</span>
                             </div>
                             
@@ -5540,19 +5747,19 @@ function ParentDashboardContent() {
                                 style={{ width: `${riskInfo.percentage}%` }}
                               />
                             </div>
-                            <span className="text-[10px] text-slate-400 font-semibold text-right block mt-0.5">Probabilidade: {riskInfo.percentage}%</span>
+                            <span className="text-[10px] text-slate-400 font-semibold text-right block mt-0.5">{locale === 'en' ? 'Probability' : locale === 'es' ? 'Probabilidad' : 'Probabilidade'}: {riskInfo.percentage}%</span>
 
                             <p className="text-xs font-bold leading-relaxed mt-1 text-slate-700">
                               {riskInfo.desc}
                             </p>
                           </div>
                           <span className="text-[9px] text-slate-450 italic font-semibold">
-                            *Nota: Este cálculo utiliza dados comportamentais de latência de rotina e diários emocionais. Não substitui consulta médica.
+                            {locale === 'en' ? '*Note: This calculation uses behavioral routine latency data and emotional logs. It does not replace medical consultation.' : locale === 'es' ? '*Note: Este cálculo utiliza datos de latencia de comportamiento y diarios emocionales. No reemplaza una consulta médica.' : '*Nota: Este cálculo utiliza dados comportamentais de latência de rotina e diários emocionais. Não substitui consulta médica.'}
                           </span>
 
                           {/* Correlation Insights Section */}
                           <div className="border-t border-slate-200/60 pt-4 flex flex-col gap-2">
-                            <span className="text-[9px] font-black text-slate-500 uppercase tracking-wider font-Outfit">🔍 Análise de Gatilhos & Correlações (ABA):</span>
+                            <span className="text-[9px] font-black text-slate-500 uppercase tracking-wider font-Outfit">{locale === 'en' ? '🔍 Trigger Analysis & Correlations (ABA):' : locale === 'es' ? '🔍 Análisis de Desencadenantes y Correlaciones (ABA):' : '🔍 Análise de Gatilhos & Correlações (ABA):'}</span>
                             <div className="flex flex-col gap-2">
                               {getCorrelationInsights().map((insight, idx) => (
                                 <div 
@@ -5855,48 +6062,48 @@ function ParentDashboardContent() {
                           <div className="p-12 bg-white max-w-4xl mx-auto rounded-3xl flex flex-col gap-6 text-slate-800 text-left">
                             <div className="border-b-4 border-indigo-650 pb-4 flex justify-between items-center">
                               <div>
-                                <h1 className="text-3xl font-black text-indigo-650 tracking-tight">Rotina Animada - Laudo Clínico</h1>
+                                <h1 className="text-3xl font-black text-indigo-650 tracking-tight">{locale === 'en' ? 'Rotina Animada - Clinical Report' : locale === 'es' ? 'Rotina Animada - Informe Clínico' : 'Rotina Animada - Laudo Clínico'}</h1>
                                 <p className="text-sm text-slate-500 font-semibold mt-1">SaaS de Predictabilidade de Rotinas no Espectro Autista</p>
                               </div>
                               <div className="text-right">
-                                <p className="text-xs font-bold text-slate-450">Data de Geração:</p>
+                                <p className="text-xs font-bold text-slate-450">{locale === 'en' ? 'Generation Date:' : locale === 'es' ? 'Fecha de Generación:' : 'Data de Geração:'}</p>
                                 <p className="text-sm font-black text-slate-655">{new Date().toLocaleDateString()}</p>
                               </div>
                             </div>
 
                             <div className="grid grid-cols-3 gap-8 border-b border-slate-200 pb-6">
                               <div>
-                                <h3 className="text-xs font-black uppercase text-slate-400 tracking-widest border-b border-slate-100 pb-1.5">Informações Gerais</h3>
-                                <p className="text-xs font-bold text-slate-700 mt-2">Responsável: <span className="font-extrabold">{currentUser?.email}</span></p>
-                                <p className="text-xs font-bold text-slate-700 mt-1.5">Criança: <span className="font-extrabold">{activeChild?.name || 'Não cadastrado'}</span></p>
-                                <p className="text-xs font-bold text-slate-700 mt-1.5">Hiperfoco Ativo: <span className="font-extrabold">{activeChild?.childHyperfocus || 'Não cadastrado'}</span></p>
-                                <p className="text-xs font-bold text-slate-700 mt-1.5">Diagnóstico: <span className="font-extrabold">{activeChild?.diagnosis || 'Não informado'}</span></p>
+                                <h3 className="text-xs font-black uppercase text-slate-400 tracking-widest border-b border-slate-100 pb-1.5">{locale === 'en' ? 'General Information' : locale === 'es' ? 'Información General' : 'Informações Gerais'}</h3>
+                                <p className="text-xs font-bold text-slate-700 mt-2">{locale === 'en' ? 'Guardian:' : locale === 'es' ? 'Tutor:' : 'Responsável:'} <span className="font-extrabold">{currentUser?.email}</span></p>
+                                <p className="text-xs font-bold text-slate-700 mt-1.5">{locale === 'en' ? 'Child:' : locale === 'es' ? 'Niño:' : 'Criança:'} <span className="font-extrabold">{activeChild?.name || (locale === 'en' ? 'Not registered' : locale === 'es' ? 'No registrado' : 'Não cadastrado')}</span></p>
+                                <p className="text-xs font-bold text-slate-700 mt-1.5">{locale === 'en' ? 'Active Hyperfocus:' : locale === 'es' ? 'Hiperenfoque Activo:' : 'Hiperfoco Ativo:'} <span className="font-extrabold">{activeChild?.childHyperfocus || (locale === 'en' ? 'Not registered' : locale === 'es' ? 'No registrado' : 'Não cadastrado')}</span></p>
+                                <p className="text-xs font-bold text-slate-700 mt-1.5">{locale === 'en' ? 'Diagnosis:' : locale === 'es' ? 'Diagnóstico:' : 'Diagnóstico:'} <span className="font-extrabold">{activeChild?.diagnosis || (locale === 'en' ? 'Not informed' : locale === 'es' ? 'No informado' : 'Não informado')}</span></p>
                               </div>
                               <div>
                                 <h3 className="text-xs font-black uppercase text-slate-400 tracking-widest border-b border-slate-100 pb-1.5">Resumo Comportamental</h3>
-                                <p className="text-xs font-bold text-slate-700 mt-2">Aderência Acumulada: <span className="font-extrabold text-indigo-750">{rate}% ({getRatingText(rate).replace(/[^a-zA-Záéíóúâêôãõç\s]/g, '').trim()})</span></p>
-                                <p className="text-xs font-bold text-slate-700 mt-1.5">Média Diária: <span className="font-extrabold text-amber-700">{avgDailyCompleted.toFixed(1)} de {avgDailyScheduled.toFixed(1)} ativ. ({avgDailyCompliance}%)</span></p>
-                                <p className="text-xs font-bold text-slate-700 mt-1.5">Risco de Sobrecarga (Meltdown): <span className="font-extrabold text-red-700">{riskInfo.level.replace(/[^a-zA-Záéíóúâêôãõç\s]/g, '').trim()} ({riskInfo.percentage}%)</span></p>
+                                <p className="text-xs font-bold text-slate-700 mt-2">{locale === 'en' ? 'Accumulated Adherence:' : locale === 'es' ? 'Adherencia Acumulada:' : 'Aderência Acumulada:'} <span className="font-extrabold text-indigo-750">{rate}% ({getRatingText(rate).replace(/[^a-zA-Záéíóúâêôãõç\s]/g, '').trim()})</span></p>
+                                <p className="text-xs font-bold text-slate-700 mt-1.5">{locale === 'en' ? 'Daily Average:' : locale === 'es' ? 'Promedio Diario:' : 'Média Diária:'} <span className="font-extrabold text-amber-700">{avgDailyCompleted.toFixed(1)} de {avgDailyScheduled.toFixed(1)} ativ. ({avgDailyCompliance}%)</span></p>
+                                <p className="text-xs font-bold text-slate-700 mt-1.5">{locale === 'en' ? 'Overload Risk (Meltdown):' : locale === 'es' ? 'Riesgo de Sobrecarga (Meltdown):' : 'Risco de Sobrecarga (Meltdown):'} <span className="font-extrabold text-red-700">{riskInfo.level.replace(/[^a-zA-Záéíóúâêôãõç\s]/g, '').trim()} ({riskInfo.percentage}%)</span></p>
                               </div>
                               <div>
-                                <h3 className="text-xs font-black uppercase text-slate-400 tracking-widest border-b border-slate-100 pb-1.5">Regulação & Humor</h3>
-                                <p className="text-xs font-bold text-slate-700 mt-2">Estabilidade Emocional: <span className="font-extrabold text-teal-700">{stabilityRate}% ({stabilityLevel.replace(/[^a-zA-Záéíóúâêôãõç\s]/g, '').trim()})</span></p>
+                                <h3 className="text-xs font-black uppercase text-slate-400 tracking-widest border-b border-slate-100 pb-1.5">{locale === 'en' ? 'Regulation & Mood' : locale === 'es' ? 'Regulación y Humor' : 'Regulação & Humor'}</h3>
+                                <p className="text-xs font-bold text-slate-700 mt-2">{locale === 'en' ? 'Emotional Stability:' : locale === 'es' ? 'Estabilidad Emocional:' : 'Estabilidade Emocional:'} <span className="font-extrabold text-teal-700">{stabilityRate}% ({stabilityLevel.replace(/[^a-zA-Záéíóúâêôãõç\s]/g, '').trim()})</span></p>
                                 <p className="text-xs font-bold text-slate-700 mt-1.5">Crises Sensoriais (7d): <span className="font-extrabold text-rose-700">{recentCrises} crises ({crisisTrendText.replace(/[^a-zA-Z0-9\+\-\s]/g, '').trim()})</span></p>
-                                <p className="text-xs font-bold text-slate-700 mt-1.5">Barreira Infantil: <span className="font-extrabold">{lockType === 'pin' ? 'PIN' : lockType === 'math' ? 'Matemática' : 'Nenhuma'}</span></p>
+                                <p className="text-xs font-bold text-slate-700 mt-1.5">{locale === 'en' ? 'Child Lock:' : locale === 'es' ? 'Bloqueo Infantil:' : 'Barreira Infantil:'} <span className="font-extrabold">{lockType === 'pin' ? 'PIN' : lockType === 'math' ? 'Matemática' : 'Nenhuma'}</span></p>
                               </div>
                             </div>
 
                             <div className="grid grid-cols-2 gap-8 border-b border-slate-200 pb-4">
                               <div>
-                                <h3 className="text-xs font-black uppercase text-slate-400 tracking-widest mb-3">Aderência por Período de Dia</h3>
+                                <h3 className="text-xs font-black uppercase text-slate-400 tracking-widest mb-3">{locale === 'en' ? 'Adherence by Period of Day' : locale === 'es' ? 'Adherencia por Período de Día' : 'Aderência por Período de Dia'}</h3>
                                 <div className="flex flex-col gap-2">
-                                  <p className="text-xs text-slate-700 font-bold">☀️ Período da Manhã: <span className="font-extrabold text-indigo-650">{morningComp}% de conclusão ({getRatingText(morningComp).replace(/[^a-zA-Záéíóúâêôãõç\s]/g, '').trim()})</span></p>
-                                  <p className="text-xs text-slate-700 font-bold">⛅ Período da Tarde: <span className="font-extrabold text-indigo-650">{afternoonComp}% de conclusão ({getRatingText(afternoonComp).replace(/[^a-zA-Záéíóúâêôãõç\s]/g, '').trim()})</span></p>
-                                  <p className="text-xs text-slate-700 font-bold">🌙 Período da Noite: <span className="font-extrabold text-indigo-650">{eveningComp}% de conclusão ({getRatingText(eveningComp).replace(/[^a-zA-Záéíóúâêôãõç\s]/g, '').trim()})</span></p>
+                                  <p className="text-xs text-slate-700 font-bold">☀️ {locale === 'en' ? 'Morning Period:' : locale === 'es' ? 'Período de la Mañana:' : 'Período da Manhã:'} <span className="font-extrabold text-indigo-650">{morningComp}% de conclusão ({getRatingText(morningComp).replace(/[^a-zA-Záéíóúâêôãõç\s]/g, '').trim()})</span></p>
+                                  <p className="text-xs text-slate-700 font-bold">⛅ {locale === 'en' ? 'Afternoon Period:' : locale === 'es' ? 'Período de la Tarde:' : 'Período da Tarde:'} <span className="font-extrabold text-indigo-650">{afternoonComp}% de conclusão ({getRatingText(afternoonComp).replace(/[^a-zA-Záéíóúâêôãõç\s]/g, '').trim()})</span></p>
+                                  <p className="text-xs text-slate-700 font-bold">🌙 {locale === 'en' ? 'Evening Period:' : locale === 'es' ? 'Período de la Noche:' : 'Período da Noite:'} <span className="font-extrabold text-indigo-650">{eveningComp}% de conclusão ({getRatingText(eveningComp).replace(/[^a-zA-Záéíóúâêôãõç\s]/g, '').trim()})</span></p>
                                 </div>
                               </div>
                               <div>
-                                <h3 className="text-xs font-black uppercase text-slate-400 tracking-widest mb-3">Aderência por Domínio (ABA)</h3>
+                                <h3 className="text-xs font-black uppercase text-slate-400 tracking-widest mb-3">{locale === 'en' ? 'Adherence by Domain (ABA)' : locale === 'es' ? 'Adherencia por Dominio (ABA)' : 'Aderência por Domínio (ABA)'}</h3>
                                 <div className="flex flex-col gap-2">
                                   {(() => {
                                     const getCat = (t: Task) => t.category || 'AVD';
@@ -5914,9 +6121,9 @@ function ParentDashboardContent() {
 
                                     return (
                                       <>
-                                        <p className="text-xs text-slate-700 font-bold">🧼 Vida Diária (AVD): <span className="font-extrabold text-indigo-650">{avdRate}% ({avdDone}/{avdTotal}) - {getRatingText(avdRate).replace(/[^a-zA-Záéíóúâêôãõç\s]/g, '').trim()}</span></p>
-                                        <p className="text-xs text-slate-700 font-bold">📚 Aprendizado: <span className="font-extrabold text-indigo-650">{studyRate}% ({studyDone}/{studyTotal}) - {getRatingText(studyRate).replace(/[^a-zA-Záéíóúâêôãõç\s]/g, '').trim()}</span></p>
-                                        <p className="text-xs text-slate-700 font-bold">🧸 Lazer e Recreação: <span className="font-extrabold text-indigo-650">{playRate}% ({playDone}/{playTotal}) - {getRatingText(playRate).replace(/[^a-zA-Záéíóúâêôãõç\s]/g, '').trim()}</span></p>
+                                        <p className="text-xs text-slate-700 font-bold">🧼 {locale === 'en' ? 'Daily Life (ADL):' : locale === 'es' ? 'Vida Diaria (AVD):' : 'Vida Diária (AVD):'} <span className="font-extrabold text-indigo-650">{avdRate}% ({avdDone}/{avdTotal}) - {getRatingText(avdRate).replace(/[^a-zA-Záéíóúâêôãõç\s]/g, '').trim()}</span></p>
+                                        <p className="text-xs text-slate-700 font-bold">📚 {locale === 'en' ? 'Learning:' : locale === 'es' ? 'Aprendizaje:' : 'Aprendizado:'} <span className="font-extrabold text-indigo-650">{studyRate}% ({studyDone}/{studyTotal}) - {getRatingText(studyRate).replace(/[^a-zA-Záéíóúâêôãõç\s]/g, '').trim()}</span></p>
+                                        <p className="text-xs text-slate-700 font-bold">🧸 {locale === 'en' ? 'Leisure and Recreation:' : locale === 'es' ? 'Ocio y Recreación:' : 'Lazer e Recreação:'} <span className="font-extrabold text-indigo-650">{playRate}% ({playDone}/{playTotal}) - {getRatingText(playRate).replace(/[^a-zA-Záéíóúâêôãõç\s]/g, '').trim()}</span></p>
                                       </>
                                     );
                                   })()}
@@ -5932,10 +6139,10 @@ function ParentDashboardContent() {
                             )}
 
                             <div className="mt-8 border-t border-slate-100 pt-6">
-                              <h3 className="text-xs font-black uppercase text-slate-400 tracking-widest">Diário Emocional e Registros de Desregulação</h3>
+                              <h3 className="text-xs font-black uppercase text-slate-400 tracking-widest">{locale === 'en' ? 'Emotional Diary & Dysregulation Logs' : locale === 'es' ? 'Diario Emocional y Registros de Desregulación' : 'Diário Emocional e Registros de Desregulação'}</h3>
                               <div className="flex flex-col gap-2 mt-3">
                                 {sensoryLogs.length === 0 ? (
-                                  <p className="text-xs text-slate-400 italic">Sem registros clínicos neste período.</p>
+                                  <p className="text-xs text-slate-400 italic">{locale === 'en' ? 'No clinical logs in this period.' : locale === 'es' ? 'Sin registros clínicos en este período.' : 'Sem registros clínicos neste período.'}</p>
                                 ) : (
                                   sensoryLogs.map(log => (
                                     <div key={log.id} className="border-b border-slate-100 pb-2 text-xs">
@@ -5953,7 +6160,7 @@ function ParentDashboardContent() {
                             </div>
 
                             <div className="mt-8 border-t border-slate-100 pt-6">
-                              <h3 className="text-xs font-black uppercase text-slate-400 tracking-widest">Histórico de Atividades Realizadas</h3>
+                              <h3 className="text-xs font-black uppercase text-slate-400 tracking-widest">{locale === 'en' ? 'History of Completed Activities' : locale === 'es' ? 'Historial de Actividades Realizadas' : 'Histórico de Atividades Realizadas'}</h3>
                               <div className="flex flex-col gap-1.5 mt-3">
                                 {tasks.map(task => (
                                   <div key={task.id} className="flex justify-between border-b border-slate-100 pb-1 text-xs">
@@ -5992,15 +6199,15 @@ function ParentDashboardContent() {
                 className="bg-white border border-slate-200 rounded-3xl p-6 shadow-md shadow-slate-100"
               >
                 <div className="border-b border-slate-100 pb-4 mb-4">
-                  <h3 className="font-extrabold text-slate-800 text-lg">Trilha de Logs Imutáveis</h3>
+                  <h3 className="font-extrabold text-slate-800 text-lg">{locale === 'en' ? 'Immutable Logs Trail' : locale === 'es' ? 'Sendero de Registros Inmutables' : 'Trilha de Logs Imutáveis'}</h3>
                   <p className="text-xs text-slate-400">
-                    Histórico imutável de todas as modificações estruturais da agenda (CFR-compliant).
+                    {locale === 'en' ? 'Immutable history of all structural schedule modifications (CFR-compliant).' : locale === 'es' ? 'Historial inmutable de todas las modificaciones estructurales de la agenda (conforme a CFR).' : 'Histórico imutável de todas as modificações estruturais da agenda (CFR-compliant).'}
                   </p>
                 </div>
 
                 <div className="flex flex-col gap-3 max-h-[500px] overflow-y-auto pr-2 divide-y divide-slate-100">
                   {logs.length === 0 ? (
-                    <p className="text-slate-400 text-xs text-center py-6">Nenhum log registrado ainda.</p>
+                    <p className="text-slate-400 text-xs text-center py-6">{locale === 'en' ? 'No logs recorded yet.' : locale === 'es' ? 'Ningún registro guardado aún.' : 'Nenhum log registrado ainda.'}</p>
                   ) : (
                     logs.map((log, idx) => (
                       <div key={log.id} className={`pt-3 ${idx === 0 ? '' : 'mt-2'} flex gap-3 text-xs leading-relaxed`}>
@@ -6012,10 +6219,10 @@ function ParentDashboardContent() {
                             <span className={`px-2 py-0.5 rounded-full border text-[9px] font-black tracking-wider uppercase ${getLogActionStyle(log.action)} shadow-xxs`}>
                               {log.action}
                             </span>
-                            <span>{log.details}</span>
+                            <span>{translateLogDetails(log.details, locale)}</span>
                           </div>
                           <span className="text-[9px] text-slate-400 font-semibold block mt-1">
-                            Autor: {log.responsibleEmail}
+                            {locale === 'en' ? 'Author:' : locale === 'es' ? 'Autor:' : 'Autor:'} {log.responsibleEmail}
                           </span>
                         </div>
                       </div>
@@ -6107,11 +6314,11 @@ function ParentDashboardContent() {
 
               <form onSubmit={handleRegisterChild} className="flex flex-col gap-4">
                 <div className="flex flex-col gap-1.5 text-left">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Nome da Criança</label>
+                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">{locale === 'en' ? 'Child\'s Name' : locale === 'es' ? 'Nombre del Niño' : 'Nome da Criança'}</label>
                   <input
                     type="text"
                     required
-                    placeholder="Ex: Joãozinho"
+                    placeholder={locale === 'en' ? 'e.g. Johnnie' : locale === 'es' ? 'Ej: Juanito' : 'Ex: Joãozinho'}
                     value={newChildName}
                     onChange={e => setNewChildName(e.target.value)}
                     className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl font-semibold text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-850"
@@ -6129,13 +6336,13 @@ function ParentDashboardContent() {
                 </div>
 
                 <div className="flex flex-col gap-1.5 text-left">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Gênero</label>
+                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">{locale === 'en' ? 'Gender' : locale === 'es' ? 'Género' : 'Gênero'}</label>
                   <select
                     value={newChildGender}
                     onChange={e => setNewChildGender(e.target.value)}
                     className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl font-semibold text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-850"
                   >
-                    <option value="Não Informado">Não Informado</option>
+                    <option value="Não Informado">{locale === 'en' ? 'Not Informed' : locale === 'es' ? 'No Informado' : 'Não Informado'}</option>
                     <option value="Masculino">Masculino</option>
                     <option value="Feminino">Feminino</option>
                     <option value="Outro">Outro</option>
@@ -6143,16 +6350,16 @@ function ParentDashboardContent() {
                 </div>
 
                 <div className="flex flex-col gap-1.5 text-left">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Diagnóstico Clínico (opcional)</label>
+                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">{locale === 'en' ? 'Clinical Diagnosis (optional)' : locale === 'es' ? 'Diagnóstico Clínico (opcional)' : 'Diagnóstico Clínico (opcional)'}</label>
                   <select
                     value={newChildDiagnosis}
                     onChange={e => setNewChildDiagnosis(e.target.value)}
                     className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl font-semibold text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-850"
                   >
                     <option value="Não Informado">Não Informado</option>
-                    <option value="TEA Nível 1">TEA Nível 1</option>
-                    <option value="TEA Nível 2">TEA Nível 2</option>
-                    <option value="TEA Nível 3">TEA Nível 3</option>
+                    <option value="TEA Nível 1">{locale === 'en' ? 'ASD Level 1' : locale === 'es' ? 'TEA Nivel 1' : 'TEA Nível 1'}</option>
+                    <option value="TEA Nível 2">{locale === 'en' ? 'ASD Level 2' : locale === 'es' ? 'TEA Nivel 2' : 'TEA Nível 2'}</option>
+                    <option value="TEA Nível 3">{locale === 'en' ? 'ASD Level 3' : locale === 'es' ? 'TEA Nivel 3' : 'TEA Nível 3'}</option>
                     <option value="TDAH">TDAH</option>
                     <option value="TEA + TDAH">TEA + TDAH</option>
                     <option value="Outro">Outro</option>
@@ -6200,7 +6407,7 @@ function ParentDashboardContent() {
               <div>
                 <h3 className="text-2xl font-black text-amber-200 tracking-tight">Evolua para o Plano Premium</h3>
                 <p className="text-xs text-indigo-200 font-semibold mt-1">
-                  Desbloqueie o potencial máximo da Rotina Animada
+                  {locale === 'en' ? 'Unlock the full potential of Rotina Animada' : locale === 'es' ? 'Desbloquea el potencial máximo de Rotina Animada' : 'Desbloqueie o potencial máximo da Rotina Animada'}
                 </p>
               </div>
 
@@ -6208,23 +6415,23 @@ function ParentDashboardContent() {
               <div className="flex flex-col gap-3 text-left w-full bg-slate-900/40 border border-slate-700/30 p-5 rounded-2xl shadow-inner">
                 <div className="flex gap-2.5 items-start text-xs font-bold text-indigo-100">
                   <span className="text-amber-400 text-sm">✓</span>
-                  <span><strong>Tarefas Diárias Ilimitadas:</strong> Crie quantas rotinas precisar na agenda do seu filho.</span>
+                  <span><strong>{locale === 'en' ? 'Unlimited Daily Tasks:' : locale === 'es' ? 'Tareas Diarias Ilimitadas:' : 'Tarefas Diárias Ilimitadas:'}</strong> {locale === 'en' ? 'Create as many routines as you need in your child\'s schedule.' : locale === 'es' ? 'Crea tantas rutinas como necesites en la agenda de tu hijo.' : 'Crie quantas rotinas precisar na agenda do seu filho.'}</span>
                 </div>
                 <div className="flex gap-2.5 items-start text-xs font-bold text-indigo-100">
                   <span className="text-amber-400 text-sm">✓</span>
-                  <span><strong>Relatório de Aderência Clínica:</strong> Métricas em tempo real e exportação profissional em PDF para médicos/terapeutas.</span>
+                  <span><strong>{locale === 'en' ? 'Clinical Adherence Report:' : locale === 'es' ? 'Informe de Adherencia Clínica:' : 'Relatório de Aderência Clínica:'}</strong> {locale === 'en' ? 'Real-time metrics and professional PDF export for doctors/therapists.' : locale === 'es' ? 'Métricas en tiempo real y exportación profesional en PDF para médicos/terapeutas.' : 'Métricas em tempo real e exportação profissional em PDF para médicos/terapeutas.'}</span>
                 </div>
                 <div className="flex gap-2.5 items-start text-xs font-bold text-indigo-100">
                   <span className="text-amber-400 text-sm">✓</span>
-                  <span><strong>Feed de Notificações em Tempo Real:</strong> Alertas imediatos em seu painel quando o filho cumpre uma missão.</span>
+                  <span><strong>{locale === 'en' ? 'Real-Time Notification Feed:' : locale === 'es' ? 'Feed de Notificaciones en Tiempo Real:' : 'Feed de Notificações em Tempo Real:'}</strong> {locale === 'en' ? 'Immediate alerts on your dashboard when the child completes a mission.' : locale === 'es' ? 'Alertas inmediatas en tu panel cuando el hijo cumple una misión.' : 'Alertas imediatas em seu painel quando o filho cumpre uma missão.'}</span>
                 </div>
               </div>
 
               {/* Price Tag */}
               <div className="text-center">
                 <span className="text-xxs uppercase tracking-widest text-indigo-300 font-black">Assinatura Mensal</span>
-                <div className="text-4xl font-black text-white mt-0.5">R$ 29,90<span className="text-sm font-medium text-indigo-300">/mês</span></div>
-                <span className="text-[10px] text-slate-400 block mt-1 font-semibold">* Cancelamento gratuito a qualquer momento com um único clique.</span>
+                <div className="text-4xl font-black text-white mt-0.5">{locale === 'en' ? '$5.90' : locale === 'es' ? '$5.90' : 'R$ 29,90'}<span className="text-sm font-medium text-indigo-300">{locale === 'en' ? '/month' : locale === 'es' ? '/mes' : '/mês'}</span></div>
+                <span className="text-[10px] text-slate-400 block mt-1 font-semibold">{locale === 'en' ? '* Free cancellation at any time with a single click.' : locale === 'es' ? '* Cancelación gratuita en cualquier momento con un solo clic.' : '* Cancelamento gratuito a qualquer momento com um único clique.'}</span>
               </div>
 
               {checkingOut ? (
@@ -6297,7 +6504,7 @@ function ParentDashboardContent() {
                     }}
                     className="text-xs font-bold text-slate-450 hover:text-white cursor-pointer bg-transparent border-none"
                   >
-                    Voltar ao Plano Grátis
+                    {locale === 'en' ? 'Back to Free Plan' : locale === 'es' ? 'Volver al Plan Gratis' : 'Voltar ao Plano Grátis'}
                   </button>
                 </div>
               )}
