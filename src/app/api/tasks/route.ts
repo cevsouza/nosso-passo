@@ -198,21 +198,24 @@ export async function PUT(req: Request) {
       return NextResponse.json({ error: 'ID da tarefa é obrigatório' }, { status: 400 });
     }
 
+    const updateData: any = {};
+    if (updates.title !== undefined && updates.title !== null) updateData.title = updates.title;
+    if (updates.time !== undefined && updates.time !== null) updateData.time = updates.time;
+    if (updates.period !== undefined && updates.period !== null) updateData.period = updates.period;
+    if (updates.day !== undefined && updates.day !== null) updateData.day = updates.day;
+    if (updates.isCompleted !== undefined && updates.isCompleted !== null) updateData.isCompleted = updates.isCompleted;
+    if (updates.order !== undefined && updates.order !== null) updateData.order = updates.order;
+    if (updates.icon !== undefined && updates.icon !== null) updateData.icon = updates.icon;
+    if (updates.customIcon !== undefined) updateData.customIcon = updates.customIcon;
+    if (updates.category !== undefined && updates.category !== null) updateData.category = updates.category;
+    if (updates.duration !== undefined && updates.duration !== null) {
+      updateData.duration = Number(updates.duration);
+    }
+    if (updates.description !== undefined && updates.description !== null) updateData.description = updates.description;
+
     const updated = await prisma.task.update({
       where: { id },
-      data: {
-        title: updates.title,
-        time: updates.time,
-        period: updates.period,
-        day: updates.day,
-        isCompleted: updates.isCompleted,
-        order: updates.order,
-        icon: updates.icon,
-        customIcon: updates.customIcon,
-        category: updates.category,
-        duration: updates.duration !== undefined ? Number(updates.duration) : undefined,
-        description: updates.description,
-      },
+      data: updateData,
     });
 
     return NextResponse.json(updated);
