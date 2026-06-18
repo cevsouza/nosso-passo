@@ -83,7 +83,7 @@ export function GlobalNav() {
   return (
     <>
       {/* Desktop Left Sidebar Navigation */}
-      <aside className="fixed top-0 left-0 bottom-0 w-64 bg-white border-r-2 border-slate-200 hidden lg:flex flex-col justify-between py-6 px-4 z-45 shadow-sm">
+      <aside className="sticky top-0 h-screen w-64 bg-white border-r-2 border-slate-200 hidden lg:flex flex-col justify-between py-6 px-4 z-45 shadow-sm shrink-0">
         <div className="flex flex-col gap-8">
           {/* Logo Brand Header */}
           <div className="flex items-center gap-2.5 px-2 select-none">

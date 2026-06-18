@@ -2256,8 +2256,9 @@ function ParentDashboardContent() {
   const weekDays = Array.from({ length: weekEnd - weekStart + 1 }, (_, i) => weekStart + i);
 
   return (
-    <main className="min-h-screen bg-[#f8fafc] text-slate-900 pb-16 relative lg:pl-64">
+    <div className="min-h-screen flex flex-col lg:flex-row bg-[#f8fafc]">
       <GlobalNav />
+      <main className="flex-1 min-h-screen text-slate-900 pb-16 relative">
       {offline && (
         <div className="bg-amber-500 text-white py-2 px-4 text-center text-xs font-black select-none z-50 flex items-center justify-center gap-2 font-Outfit shadow-md">
           <span>📶 Modo Offline Ativado</span>
@@ -6318,6 +6319,7 @@ function ParentDashboardContent() {
         </div>
       </div>
     </main>
+  </div>
   );
 }
 

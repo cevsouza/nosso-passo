@@ -95,8 +95,9 @@ function SchoolPortalContent() {
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-tr from-[#f8fafc] via-[#eff6ff] to-[#f0fdf4] text-slate-800 flex flex-col items-center justify-center p-6 relative overflow-hidden font-Outfit lg:pl-64">
+    <div className="min-h-screen flex flex-col lg:flex-row bg-gradient-to-tr from-[#f8fafc] via-[#eff6ff] to-[#f0fdf4]">
       <GlobalNav />
+      <main className="flex-1 min-h-screen text-slate-800 flex flex-col items-center justify-center p-6 relative overflow-hidden font-Outfit">
       {/* Background elements */}
       <div className="absolute top-[-150px] right-[-150px] w-96 h-96 bg-yellow-100/50 rounded-full filter blur-3xl -z-10 animate-pulse"></div>
       <div className="absolute bottom-[-150px] left-[-150px] w-96 h-96 bg-indigo-100/50 rounded-full filter blur-3xl -z-10 animate-pulse" style={{ animationDelay: '2s' }}></div>
@@ -368,6 +369,7 @@ function SchoolPortalContent() {
         )}
       </div>
     </main>
+  </div>
   );
 }
 

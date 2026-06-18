@@ -443,8 +443,9 @@ export default function TherapistPortal() {
     : 'Nenhum identificado';
 
   return (
-    <main className="min-h-screen bg-gradient-to-tr from-[#f8fafc] via-[#eff6ff] to-[#f0fdf4] p-4 md:p-8 text-slate-800 lg:pl-64">
+    <div className="min-h-screen flex flex-col lg:flex-row bg-gradient-to-tr from-[#f8fafc] via-[#eff6ff] to-[#f0fdf4]">
       <GlobalNav />
+      <main className="flex-1 min-h-screen p-4 md:p-8 text-slate-800">
       
       {/* Clinician Entry Verification */}
       {!childData ? (
@@ -1668,5 +1669,6 @@ export default function TherapistPortal() {
         </div>
       )}
     </main>
+  </div>
   );
 }
