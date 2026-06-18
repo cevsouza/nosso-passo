@@ -2271,27 +2271,31 @@ function ParentDashboardContent() {
       )}
       {/* Header bar */}
       <header className="bg-white border-b-2 border-slate-250 sticky top-0 z-30 shadow-premium">
-        <div className="max-w-6xl mx-auto px-4 md:px-6 py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-indigo-100 text-indigo-850 rounded-xl flex items-center justify-center font-bold text-lg shadow-sm border-2 border-indigo-200">
+        <div className="max-w-6xl mx-auto px-4 py-3 md:py-4 flex flex-row items-center justify-between gap-2">
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 md:w-10 md:h-10 bg-indigo-100 text-indigo-850 rounded-xl flex items-center justify-center font-bold text-base md:text-lg shadow-sm border-2 border-indigo-200 shrink-0">
               PA
             </div>
             <div>
-              <h1 className="text-xl font-black text-slate-955 font-Outfit">{locale === 'es' ? 'Portal del Responsable' : locale === 'en' ? 'Guardian Portal' : 'Painel do Responsável'}</h1>
-              <p className="text-xs text-slate-655 font-semibold">{locale === 'es' ? 'Control de Rutina y Seguridad Sensorial' : locale === 'en' ? 'Routine Control & Sensory Safety' : 'Controle de Rotina & Segurança Sensorial'}</p>
+              <h1 className="text-sm md:text-xl font-black text-slate-955 font-Outfit leading-tight">
+                {locale === 'es' ? 'Portal del Responsable' : locale === 'en' ? 'Guardian Portal' : 'Painel do Responsável'}
+              </h1>
+              <p className="hidden md:block text-xs text-slate-655 font-semibold mt-0.5">
+                {locale === 'es' ? 'Control de Rutina y Seguridad Sensorial' : locale === 'en' ? 'Routine Control & Sensory Safety' : 'Controle de Rotina & Segurança Sensorial'}
+              </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-3 self-end md:self-auto">
+          <div className="flex items-center gap-2 md:gap-3 shrink-0">
             <LanguageSelector />
-            <span className="text-xs font-bold bg-indigo-50 border-2 border-indigo-200 text-indigo-800 px-3 py-1.5 rounded-full shadow-sm">
+            <span className="hidden sm:inline-block text-xs font-bold bg-indigo-50 border-2 border-indigo-200 text-indigo-800 px-3 py-1.5 rounded-full shadow-sm">
               🧑‍💻 {currentUser?.email}
             </span>
             <button 
               onClick={handleLogout}
-              className="flex items-center gap-1.5 px-4 py-2 bg-red-50 border-2 border-red-200 hover:bg-red-100 hover:text-red-800 text-red-700 text-xs font-black rounded-full transition-all active:scale-95 font-Outfit cursor-pointer"
+              className="flex items-center gap-1.5 px-3 py-1.5 md:px-4 md:py-2 bg-red-50 border-2 border-red-200 hover:bg-red-100 hover:text-red-800 text-red-700 text-xxs md:text-xs font-black rounded-full transition-all active:scale-95 font-Outfit cursor-pointer"
             >
-              <LogOut className="w-3.5 h-3.5" /> {t.common.exit}
+              <LogOut className="w-3.5 h-3.5" /> <span className="hidden xs:inline">{t.common.exit}</span>
             </button>
           </div>
         </div>

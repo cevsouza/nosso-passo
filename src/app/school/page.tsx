@@ -102,18 +102,18 @@ function SchoolPortalContent() {
       <div className="absolute top-[-150px] right-[-150px] w-96 h-96 bg-yellow-100/50 rounded-full filter blur-3xl -z-10 animate-pulse"></div>
       <div className="absolute bottom-[-150px] left-[-150px] w-96 h-96 bg-indigo-100/50 rounded-full filter blur-3xl -z-10 animate-pulse" style={{ animationDelay: '2s' }}></div>
 
-      {/* Floating Language Selector */}
-      <div className="absolute top-6 right-6 z-30">
-        <LanguageSelector />
-      </div>
-
       <div className="w-full max-w-md bg-white border-2 border-slate-200 rounded-[32px] p-6 shadow-premium z-10 flex flex-col gap-6">
-        <div className="text-center">
-          <span className="text-4xl">🏫</span>
-          <h1 className="text-2xl font-black text-slate-900 tracking-tight mt-2 font-Outfit">{t.school.portalTitle}</h1>
-          <p className="text-xs text-slate-400 font-semibold mt-1">
-            {t.school.portalDesc}
-          </p>
+        <div className="flex justify-between items-start gap-4">
+          <div className="text-left">
+            <span className="text-3xl">🏫</span>
+            <h1 className="text-xl font-black text-slate-900 tracking-tight mt-1.5 font-Outfit">{t.school.portalTitle}</h1>
+            <p className="text-[10px] text-slate-400 font-semibold mt-1 leading-normal max-w-[240px]">
+              {t.school.portalDesc}
+            </p>
+          </div>
+          <div className="shrink-0">
+            <LanguageSelector />
+          </div>
         </div>
 
         {!childData ? (

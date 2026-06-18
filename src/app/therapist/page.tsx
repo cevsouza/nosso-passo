@@ -452,15 +452,18 @@ export default function TherapistPortal() {
         <div className="max-w-md mx-auto my-16 bg-white border-2 border-slate-200 rounded-[32px] p-8 shadow-xl flex flex-col gap-6 relative overflow-hidden">
           <div className="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-teal-500 via-cyan-500 to-indigo-600"></div>
           
-          <div className="flex flex-col items-center gap-4 text-center">
-            <div className="w-16 h-16 bg-teal-50 text-teal-650 rounded-2xl flex items-center justify-center text-3xl shadow-sm border border-teal-100">
-              🩺
-            </div>
-            <div>
-              <h1 className="text-2xl font-black text-slate-900 font-Outfit">{t.therapist.portalTitle}</h1>
-              <p className="text-xs font-semibold text-slate-400 mt-1">
+          <div className="flex justify-between items-start gap-4">
+            <div className="text-left">
+              <div className="w-12 h-12 bg-teal-50 text-teal-655 rounded-2xl flex items-center justify-center text-2xl shadow-sm border border-teal-100">
+                🩺
+              </div>
+              <h1 className="text-xl font-black text-slate-900 tracking-tight mt-3 font-Outfit">{t.therapist.portalTitle}</h1>
+              <p className="text-[10px] text-slate-400 font-semibold mt-1 leading-normal max-w-[220px]">
                 {t.therapist.portalDesc}
               </p>
+            </div>
+            <div className="shrink-0">
+              <LanguageSelector />
             </div>
           </div>
 
