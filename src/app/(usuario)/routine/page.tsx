@@ -4104,7 +4104,7 @@ export default function ChildRoutine() {
                   🚂 Trilha das Minhas Missões:
                 </h3>
                 
-                <div className="relative flex items-center justify-between px-4 py-6 overflow-x-auto min-h-[100px] scrollbar-none gap-6">
+                <div className="relative flex items-center justify-between px-4 py-6 overflow-x-auto min-h-[100px] gap-6">
                   
                   {/* Visual Connector Line */}
                   <div className="absolute top-[48px] left-[40px] right-[40px] h-2 bg-slate-300 -z-10 rounded-full" />
