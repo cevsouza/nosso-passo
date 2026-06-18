@@ -22,13 +22,6 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         setLocaleState(saved);
       }
       setMounted(true);
-
-      // Register PWA Service Worker
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/sw.js')
-          .then((reg) => console.log('SW registered:', reg.scope))
-          .catch((err) => console.error('SW registration failed:', err));
-      }
     }
   }, []);
 

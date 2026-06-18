@@ -809,17 +809,6 @@ function ParentDashboardContent() {
   // Tab/Filter states
   const [activeDayFilter, setActiveDayFilter] = useState(new Date().getDate().toString());
   const [activePanelTab, setActivePanelTab] = useState<'tasks' | 'reports' | 'logs' | 'checkpoints'>('tasks');
-  const [activePrintLayout, setActivePrintLayout] = useState<'none' | 'report' | 'pecs'>('none');
-
-  useEffect(() => {
-    if (activePrintLayout !== 'none') {
-      const timer = setTimeout(() => {
-        window.print();
-        setActivePrintLayout('none');
-      }, 200);
-      return () => clearTimeout(timer);
-    }
-  }, [activePrintLayout]);
   const [checkpoints, setCheckpoints] = useState<any[]>([]);
   const [loadingCheckpoints, setLoadingCheckpoints] = useState(false);
   const [savingCheckpointId, setSavingCheckpointId] = useState<string | null>(null);
@@ -2139,54 +2128,6 @@ function ParentDashboardContent() {
       }
     });
 
-    // Correlação Escolar Crítica (Crises vs. Barulho na Sala)
-    const schoolLogs = sensoryLogs.filter(log => log.loggedBy === 'school');
-    const schoolCrises = schoolLogs.filter(log => log.crisisOccurred);
-    if (schoolLogs.length > 0 && schoolCrises.length > 0) {
-      const noisyDaysWithCrises = schoolCrises.filter(log => log.schoolNoise === 'Alto').length;
-      const totalNoisyDays = schoolLogs.filter(log => log.schoolNoise === 'Alto').length;
-      if (totalNoisyDays > 0) {
-        const noiseCorrelation = Math.round((noisyDaysWithCrises / totalNoisyDays) * 100);
-        if (noiseCorrelation >= 50) {
-          insights.push({
-            type: 'danger',
-            text: `Correlação Escolar Crítica: ${noiseCorrelation}% dos dias barulhentos na escola resultaram em crises. Recomendamos o uso de abafadores de ruído.`
-          });
-        }
-      }
-    }
-
-    // Fadiga Terapêutica (Crises vs. Atividades Clínicas)
-    const therapistKeywords = ['aba', 'treino', 'sensorial', 't.o.', 'pecs', 'terapia', 'exercício', 'exercicio'];
-    const crisesWithPrecedingClinicalTask = crises.filter(log => {
-      const crisisDate = new Date(log.timestamp);
-      const dayStr = String(crisisDate.getDate());
-      
-      const clinicalTasksOnDay = tasks.filter(t => {
-        if (t.day !== dayStr) return false;
-        const isClinical = therapistKeywords.some(kw => t.title.toLowerCase().includes(kw));
-        if (!isClinical) return false;
-        
-        try {
-          const [tHour, tMin] = t.time.split(':').map(Number);
-          const tDate = new Date(crisisDate.getFullYear(), crisisDate.getMonth(), crisisDate.getDate(), tHour, tMin);
-          const diffMin = (crisisDate.getTime() - tDate.getTime()) / (1000 * 60);
-          return diffMin >= 0 && diffMin <= 180; // até 3 horas antes
-        } catch (e) {
-          return false;
-        }
-      });
-      return clinicalTasksOnDay.length > 0;
-    });
-
-    if (crises.length > 0 && crisesWithPrecedingClinicalTask.length >= 2) {
-      const pct = Math.round((crisesWithPrecedingClinicalTask.length / crises.length) * 100);
-      insights.push({
-        type: 'warning',
-        text: `Fadiga Terapêutica Detectada: ${pct}% das crises ocorreram até 3h após sessões de terapia ou treinos clínicos. Recomenda-se espaçar sessões ou introduzir pausas de regulação.`
-      });
-    }
-
     if (insights.length === 0) {
       insights.push({
         type: 'info',
@@ -2312,222 +2253,6 @@ function ParentDashboardContent() {
   const weekStart = Math.floor((parseInt(activeDayFilter || '1', 10) - 1) / 7) * 7 + 1;
   const weekEnd = Math.min(weekStart + 6, DAYS_OF_MONTH.length);
   const weekDays = Array.from({ length: weekEnd - weekStart + 1 }, (_, i) => weekStart + i);
-
-  const renderPrintablePecs = () => {
-    const uniqueTitles = new Set<string>();
-    const uniqueTasks: Task[] = [];
-    tasks.forEach(t => {
-      if (!uniqueTitles.has(t.title)) {
-        uniqueTitles.add(t.title);
-        uniqueTasks.push(t);
-      }
-    });
-
-    return (
-      <div className="p-8 bg-white min-h-screen text-slate-900 text-center flex flex-col gap-6">
-        <div className="border-b-4 border-indigo-650 pb-3 mb-6">
-          <h1 className="text-2xl font-black text-indigo-700 font-Outfit">Rotina Animada - Cartões PECS</h1>
-          <p className="text-[10px] text-slate-400 font-bold">Imprima em papel cartão, recorte e utilize no painel físico da criança.</p>
-        </div>
-        <div className="grid grid-cols-4 gap-6 justify-center">
-          {uniqueTasks.map(t => {
-            return (
-              <div key={t.id} className="w-40 h-40 border-4 border-indigo-650 rounded-[24px] bg-white flex flex-col items-center justify-between p-3.5 shadow-sm text-center">
-                <div className="text-5xl my-auto select-none">
-                  {t.customIcon ? (
-                    <img src={t.customIcon} alt="" className="w-16 h-16 object-cover rounded-lg" />
-                  ) : (
-                    t.icon || '📅'
-                  )}
-                </div>
-                <div className="w-full bg-slate-100 border-t border-slate-200 py-1 rounded-lg">
-                  <span className="text-[9px] font-black uppercase text-slate-700 leading-tight block truncate px-1">
-                    {t.title}
-                  </span>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-    );
-  };
-
-  const renderPrintableReport = () => {
-    const currentDayNum = new Date().getDate();
-    const elapsedDaysList = Array.from({ length: currentDayNum }, (_, i) => String(i + 1));
-    const elapsedTasks = tasks.filter(t => elapsedDaysList.includes(t.day));
-    
-    const totalTasksElapsed = elapsedTasks.length;
-    const completedTasksElapsed = elapsedTasks.filter(t => t.isCompleted).length;
-    const rate = totalTasksElapsed > 0 ? Math.round((completedTasksElapsed / totalTasksElapsed) * 100) : 0;
-    
-    const getRatingText = (val: number) => {
-      if (val >= 90) return "🌟 Excelente Aderência";
-      if (val >= 75) return "✅ Boa Aderência";
-      if (val >= 50) return "⚠️ Aderência Regular";
-      return "🚨 Baixa Aderência";
-    };
-
-    const avgDailyScheduled = totalTasksElapsed / currentDayNum;
-    const avgDailyCompleted = completedTasksElapsed / currentDayNum;
-    const avgDailyCompliance = avgDailyScheduled > 0 ? Math.round((avgDailyCompleted / avgDailyScheduled) * 100) : 0;
-
-    const totalLogs = sensoryLogs.length;
-    const regulatedLogs = sensoryLogs.filter(log => log.mood === 'feliz' || log.mood === 'calmo').length;
-    const stabilityRate = totalLogs > 0 ? Math.round((regulatedLogs / totalLogs) * 100) : 100;
-    
-    const getStabilityLevel = (val: number) => {
-      if (val >= 85) return "Estabilidade Excelente 🧘";
-      if (val >= 60) return "Estabilidade Regular ⚖️";
-      return "Frequentes Altos e Baixos 🎢";
-    };
-    const stabilityLevel = getStabilityLevel(stabilityRate);
-
-    const oneDayMs = 24 * 60 * 60 * 1000;
-    const nowTime = Date.now();
-    const recentCrises = sensoryLogs.filter(log => log.crisisOccurred && (nowTime - new Date(log.timestamp).getTime()) <= 7 * oneDayMs).length;
-    const priorCrises = sensoryLogs.filter(log => log.crisisOccurred && (nowTime - new Date(log.timestamp).getTime()) > 7 * oneDayMs && (nowTime - new Date(log.timestamp).getTime()) <= 14 * oneDayMs).length;
-    const crisisTrend = recentCrises - priorCrises;
-    const crisisTrendText = crisisTrend > 0 ? `+${crisisTrend} em relação à semana anterior` : crisisTrend < 0 ? `${crisisTrend} em relação à semana anterior` : 'Estável em relação à semana anterior';
-
-    const getSensoryOverloadRisk = () => {
-      if (recentCrises >= 3) return { level: '🚨 Risco Crítico', percentage: 90 };
-      if (recentCrises >= 1) return { level: '⚠️ Risco Moderado', percentage: 55 };
-      return { level: '✅ Risco Baixo', percentage: 15 };
-    };
-    const riskInfo = getSensoryOverloadRisk();
-
-    const getPeriodCompliance = (periodName: 'manhã' | 'tarde' | 'noite') => {
-      const pTasks = elapsedTasks.filter(t => t.period === periodName);
-      const done = pTasks.filter(t => t.isCompleted).length;
-      return pTasks.length > 0 ? Math.round((done / pTasks.length) * 100) : 0;
-    };
-    const morningComp = getPeriodCompliance('manhã');
-    const afternoonComp = getPeriodCompliance('tarde');
-    const eveningComp = getPeriodCompliance('noite');
-
-    return (
-      <div className="p-12 bg-white max-w-4xl mx-auto rounded-3xl flex flex-col gap-6 text-slate-800 text-left">
-        <div className="border-b-4 border-indigo-650 pb-4 flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-black text-indigo-650 tracking-tight font-Outfit">Rotina Animada - Laudo Clínico</h1>
-            <p className="text-sm text-slate-500 font-semibold mt-1">SaaS de Predictabilidade de Rotinas no Espectro Autista</p>
-          </div>
-          <div className="text-right">
-            <p className="text-xs font-bold text-slate-450">Data de Geração:</p>
-            <p className="text-sm font-black text-slate-655">{new Date().toLocaleDateString()}</p>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-3 gap-8 border-b border-slate-200 pb-6">
-          <div>
-            <h3 className="text-xs font-black uppercase text-slate-400 tracking-widest border-b border-slate-100 pb-1.5 font-Outfit">Informações Gerais</h3>
-            <p className="text-xs font-bold text-slate-700 mt-2">Responsável: <span className="font-extrabold">{currentUser?.email}</span></p>
-            <p className="text-xs font-bold text-slate-700 mt-1.5">Criança: <span className="font-extrabold">{activeChild?.name || 'Não cadastrado'}</span></p>
-            <p className="text-xs font-bold text-slate-700 mt-1.5">Hiperfoco Ativo: <span className="font-extrabold">{activeChild?.childHyperfocus || 'Não cadastrado'}</span></p>
-            <p className="text-xs font-bold text-slate-700 mt-1.5">Diagnóstico: <span className="font-extrabold">{activeChild?.diagnosis || 'Não informado'}</span></p>
-          </div>
-          <div>
-            <h3 className="text-xs font-black uppercase text-slate-400 tracking-widest border-b border-slate-100 pb-1.5 font-Outfit">Resumo Comportamental</h3>
-            <p className="text-xs font-bold text-slate-700 mt-2">Aderência Acumulada: <span className="font-extrabold text-indigo-750">{rate}% ({getRatingText(rate).replace(/[^a-zA-Záéíóúâêôãõç\s]/g, '').trim()})</span></p>
-            <p className="text-xs font-bold text-slate-700 mt-1.5">Média Diária: <span className="font-extrabold text-amber-700">{avgDailyCompleted.toFixed(1)} de {avgDailyScheduled.toFixed(1)} ativ. ({avgDailyCompliance}%)</span></p>
-            <p className="text-xs font-bold text-slate-700 mt-1.5">Risco de Sobrecarga (Meltdown): <span className="font-extrabold text-red-700">{riskInfo.level.replace(/[^a-zA-Záéíóúâêôãõç\s]/g, '').trim()} ({riskInfo.percentage}%)</span></p>
-          </div>
-          <div>
-            <h3 className="text-xs font-black uppercase text-slate-400 tracking-widest border-b border-slate-100 pb-1.5 font-Outfit">Regulação & Humor</h3>
-            <p className="text-xs font-bold text-slate-700 mt-2">Estabilidade Emocional: <span className="font-extrabold text-teal-700">{stabilityRate}% ({stabilityLevel.replace(/[^a-zA-Záéíóúâêôãõç\s]/g, '').trim()})</span></p>
-            <p className="text-xs font-bold text-slate-700 mt-1.5">Crises Sensoriais (7d): <span className="font-extrabold text-rose-700">{recentCrises} crises ({crisisTrendText.replace(/[^a-zA-Z0-9\+\-\s]/g, '').trim()})</span></p>
-            <p className="text-xs font-bold text-slate-700 mt-1.5">Barreira Infantil: <span className="font-extrabold">{lockType === 'pin' ? 'PIN' : lockType === 'math' ? 'Matemática' : 'Nenhuma'}</span></p>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-8 border-b border-slate-200 pb-4">
-          <div>
-            <h3 className="text-xs font-black uppercase text-slate-400 tracking-widest mb-3 font-Outfit">Aderência por Período de Dia</h3>
-            <div className="flex flex-col gap-2">
-              <p className="text-xs text-slate-700 font-bold">☀️ Período da Manhã: <span className="font-extrabold text-indigo-650">{morningComp}% de conclusão ({getRatingText(morningComp).replace(/[^a-zA-Záéíóúâêôãõç\s]/g, '').trim()})</span></p>
-              <p className="text-xs text-slate-700 font-bold">⛅ Período da Tarde: <span className="font-extrabold text-indigo-650">{afternoonComp}% de conclusão ({getRatingText(afternoonComp).replace(/[^a-zA-Záéíóúâêôãõç\s]/g, '').trim()})</span></p>
-              <p className="text-xs text-slate-700 font-bold">🌙 Período da Noite: <span className="font-extrabold text-indigo-650">{eveningComp}% de conclusão ({getRatingText(eveningComp).replace(/[^a-zA-Záéíóúâêôãõç\s]/g, '').trim()})</span></p>
-            </div>
-          </div>
-          <div>
-            <h3 className="text-xs font-black uppercase text-slate-400 tracking-widest mb-3 font-Outfit">Aderência por Domínio (ABA)</h3>
-            <div className="flex flex-col gap-2">
-              {(() => {
-                const getCat = (t: Task) => t.category || 'AVD';
-                const avdTotal = elapsedTasks.filter(t => getCat(t) === 'AVD').length;
-                const avdDone = elapsedTasks.filter(t => getCat(t) === 'AVD' && t.isCompleted).length;
-                const avdRate = avdTotal > 0 ? Math.round((avdDone / avdTotal) * 100) : 0;
-
-                const studyTotal = elapsedTasks.filter(t => getCat(t) === 'Aprendizado').length;
-                const studyDone = elapsedTasks.filter(t => getCat(t) === 'Aprendizado' && t.isCompleted).length;
-                const studyRate = studyTotal > 0 ? Math.round((studyDone / studyTotal) * 100) : 0;
-
-                const playTotal = elapsedTasks.filter(t => getCat(t) === 'Lazer').length;
-                const playDone = elapsedTasks.filter(t => getCat(t) === 'Lazer' && t.isCompleted).length;
-                const playRate = playTotal > 0 ? Math.round((playDone / playTotal) * 100) : 0;
-
-                return (
-                  <>
-                    <p className="text-xs text-slate-700 font-bold">🧼 Vida Diária (AVD): <span className="font-extrabold text-indigo-650">{avdRate}% ({avdDone}/{avdTotal}) - {getRatingText(avdRate).replace(/[^a-zA-Záéíóúâêôãõç\s]/g, '').trim()}</span></p>
-                    <p className="text-xs text-slate-700 font-bold">📚 Aprendizado: <span className="font-extrabold text-indigo-650">{studyRate}% ({studyDone}/{studyTotal}) - {getRatingText(studyRate).replace(/[^a-zA-Záéíóúâêôãõç\s]/g, '').trim()}</span></p>
-                    <p className="text-xs text-slate-700 font-bold">🧸 Lazer e Recreação: <span className="font-extrabold text-indigo-650">{playRate}% ({playDone}/{playTotal}) - {getRatingText(playRate).replace(/[^a-zA-Záéíóúâêôãõç\s]/g, '').trim()}</span></p>
-                  </>
-                );
-              })()}
-            </div>
-          </div>
-        </div>
-
-        {/* New Printable Clinical Correlation Insights Section */}
-        <div className="border-b border-slate-200 pb-6 mt-4">
-          <h3 className="text-xs font-black uppercase text-slate-400 tracking-widest mb-3 font-Outfit">Correlações Clínicas e Padrões de Alerta (IA)</h3>
-          <div className="flex flex-col gap-2 mt-3">
-            {getCorrelationInsights().map((insight, idx) => (
-              <div key={idx} className={`p-3 border rounded-xl text-xs font-bold ${
-                insight.type === 'danger' ? 'bg-red-50 border-red-200 text-red-950' : 
-                insight.type === 'warning' ? 'bg-amber-50 border-amber-200 text-amber-955' : 
-                'bg-indigo-50 border-indigo-200 text-indigo-950'
-              }`}>
-                {insight.type === 'danger' ? '🚨' : insight.type === 'warning' ? '⚠️' : '💡'} {insight.text}
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="mt-8">
-          <h3 className="text-xs font-black uppercase text-slate-400 tracking-widest font-Outfit">Diário Emocional e Registros de Desregulação</h3>
-          <div className="flex flex-col gap-2 mt-3">
-            {sensoryLogs.length === 0 ? (
-              <p className="text-xs text-slate-400 italic">Sem registros clínicos neste período.</p>
-            ) : (
-              sensoryLogs.slice(0, 15).map(log => (
-                <div key={log.id} className="border-b border-slate-100 pb-2 text-xs">
-                  <span className="font-extrabold text-slate-500">{new Date(log.timestamp).toLocaleString()}</span>
-                  <p className="font-bold text-slate-700 mt-1">
-                    {log.crisisOccurred 
-                      ? `🚨 CRISE SENSORIAL REGISTRADA: ${log.notes || 'Sem observações'}`
-                      : `🧠 REGISTRO DE HUMOR DO USUÁRIO: ${log.mood?.toUpperCase()}`
-                    }
-                  </p>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
-
-        <div className="mt-16 flex justify-between items-end border-t border-slate-200 pt-12">
-          <div className="text-center w-56 border-t border-slate-400 pt-2 text-xs font-bold text-slate-400">
-            Responsável
-          </div>
-          <div className="text-center w-56 border-t border-slate-400 pt-2 text-xs font-bold text-slate-400">
-            Assinatura do Profissional / Terapeuta
-          </div>
-        </div>
-      </div>
-    );
-  };
 
   return (
     <main className="min-h-screen bg-[#f8fafc] text-slate-900 pb-16 relative">
@@ -5361,7 +5086,23 @@ function ParentDashboardContent() {
                   exit={{ opacity: 0, y: -10 }}
                   className="bg-white border border-slate-200 rounded-[32px] p-6 shadow-md shadow-slate-100 flex flex-col gap-6"
                 >
-
+                  <style dangerouslySetInnerHTML={{__html: `
+                    @media print {
+                      body * {
+                        visibility: hidden !important;
+                      }
+                      #clinical-print-report, #clinical-print-report * {
+                        visibility: visible !important;
+                      }
+                      #clinical-print-report {
+                        position: absolute !important;
+                        left: 0 !important;
+                        top: 0 !important;
+                        width: 100% !important;
+                        background: white !important;
+                      }
+                    }
+                  `}} />
                   
                   <div className="flex flex-col md:flex-row md:items-center justify-between border-b border-slate-100 pb-4 gap-4">
                     <div>
@@ -5393,16 +5134,10 @@ function ParentDashboardContent() {
                         📊 Exportar Planilha ABA (CSV)
                       </button>
                       <button
-                        onClick={() => { playBubble(); setActivePrintLayout('report'); }}
-                        className="flex items-center gap-1.5 px-4.5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-black rounded-full shadow-md transition-all cursor-pointer font-Outfit active:scale-95"
+                        onClick={() => { playBubble(); window.print(); }}
+                        className="flex items-center gap-1.5 px-4.5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-black rounded-full shadow-md transition-all cursor-pointer"
                       >
-                        🖨️ Exportar Laudo Clínico PDF
-                      </button>
-                      <button
-                        onClick={() => { playBubble(); setActivePrintLayout('pecs'); }}
-                        className="flex items-center gap-1.5 px-4.5 py-2.5 bg-sky-600 hover:bg-sky-700 text-white text-xs font-black rounded-full shadow-md transition-all cursor-pointer font-Outfit active:scale-95"
-                      >
-                        🖨️ Imprimir Cartões PECS
+                        🖨️ Imprimir / Exportar PDF
                       </button>
                     </div>
                   </div>
@@ -6106,7 +5841,132 @@ function ParentDashboardContent() {
                           </p>
                         </div>
 
+                        {/* Clean print template hidden on screen */}
+                        <div id="clinical-print-report" className="hidden">
+                          <div className="p-12 bg-white max-w-4xl mx-auto rounded-3xl flex flex-col gap-6 text-slate-800 text-left">
+                            <div className="border-b-4 border-indigo-650 pb-4 flex justify-between items-center">
+                              <div>
+                                <h1 className="text-3xl font-black text-indigo-650 tracking-tight">Rotina Animada - Laudo Clínico</h1>
+                                <p className="text-sm text-slate-500 font-semibold mt-1">SaaS de Predictabilidade de Rotinas no Espectro Autista</p>
+                              </div>
+                              <div className="text-right">
+                                <p className="text-xs font-bold text-slate-450">Data de Geração:</p>
+                                <p className="text-sm font-black text-slate-655">{new Date().toLocaleDateString()}</p>
+                              </div>
+                            </div>
 
+                            <div className="grid grid-cols-3 gap-8 border-b border-slate-200 pb-6">
+                              <div>
+                                <h3 className="text-xs font-black uppercase text-slate-400 tracking-widest border-b border-slate-100 pb-1.5">Informações Gerais</h3>
+                                <p className="text-xs font-bold text-slate-700 mt-2">Responsável: <span className="font-extrabold">{currentUser?.email}</span></p>
+                                <p className="text-xs font-bold text-slate-700 mt-1.5">Criança: <span className="font-extrabold">{activeChild?.name || 'Não cadastrado'}</span></p>
+                                <p className="text-xs font-bold text-slate-700 mt-1.5">Hiperfoco Ativo: <span className="font-extrabold">{activeChild?.childHyperfocus || 'Não cadastrado'}</span></p>
+                                <p className="text-xs font-bold text-slate-700 mt-1.5">Diagnóstico: <span className="font-extrabold">{activeChild?.diagnosis || 'Não informado'}</span></p>
+                              </div>
+                              <div>
+                                <h3 className="text-xs font-black uppercase text-slate-400 tracking-widest border-b border-slate-100 pb-1.5">Resumo Comportamental</h3>
+                                <p className="text-xs font-bold text-slate-700 mt-2">Aderência Acumulada: <span className="font-extrabold text-indigo-750">{rate}% ({getRatingText(rate).replace(/[^a-zA-Záéíóúâêôãõç\s]/g, '').trim()})</span></p>
+                                <p className="text-xs font-bold text-slate-700 mt-1.5">Média Diária: <span className="font-extrabold text-amber-700">{avgDailyCompleted.toFixed(1)} de {avgDailyScheduled.toFixed(1)} ativ. ({avgDailyCompliance}%)</span></p>
+                                <p className="text-xs font-bold text-slate-700 mt-1.5">Risco de Sobrecarga (Meltdown): <span className="font-extrabold text-red-700">{riskInfo.level.replace(/[^a-zA-Záéíóúâêôãõç\s]/g, '').trim()} ({riskInfo.percentage}%)</span></p>
+                              </div>
+                              <div>
+                                <h3 className="text-xs font-black uppercase text-slate-400 tracking-widest border-b border-slate-100 pb-1.5">Regulação & Humor</h3>
+                                <p className="text-xs font-bold text-slate-700 mt-2">Estabilidade Emocional: <span className="font-extrabold text-teal-700">{stabilityRate}% ({stabilityLevel.replace(/[^a-zA-Záéíóúâêôãõç\s]/g, '').trim()})</span></p>
+                                <p className="text-xs font-bold text-slate-700 mt-1.5">Crises Sensoriais (7d): <span className="font-extrabold text-rose-700">{recentCrises} crises ({crisisTrendText.replace(/[^a-zA-Z0-9\+\-\s]/g, '').trim()})</span></p>
+                                <p className="text-xs font-bold text-slate-700 mt-1.5">Barreira Infantil: <span className="font-extrabold">{lockType === 'pin' ? 'PIN' : lockType === 'math' ? 'Matemática' : 'Nenhuma'}</span></p>
+                              </div>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-8 border-b border-slate-200 pb-4">
+                              <div>
+                                <h3 className="text-xs font-black uppercase text-slate-400 tracking-widest mb-3">Aderência por Período de Dia</h3>
+                                <div className="flex flex-col gap-2">
+                                  <p className="text-xs text-slate-700 font-bold">☀️ Período da Manhã: <span className="font-extrabold text-indigo-650">{morningComp}% de conclusão ({getRatingText(morningComp).replace(/[^a-zA-Záéíóúâêôãõç\s]/g, '').trim()})</span></p>
+                                  <p className="text-xs text-slate-700 font-bold">⛅ Período da Tarde: <span className="font-extrabold text-indigo-650">{afternoonComp}% de conclusão ({getRatingText(afternoonComp).replace(/[^a-zA-Záéíóúâêôãõç\s]/g, '').trim()})</span></p>
+                                  <p className="text-xs text-slate-700 font-bold">🌙 Período da Noite: <span className="font-extrabold text-indigo-650">{eveningComp}% de conclusão ({getRatingText(eveningComp).replace(/[^a-zA-Záéíóúâêôãõç\s]/g, '').trim()})</span></p>
+                                </div>
+                              </div>
+                              <div>
+                                <h3 className="text-xs font-black uppercase text-slate-400 tracking-widest mb-3">Aderência por Domínio (ABA)</h3>
+                                <div className="flex flex-col gap-2">
+                                  {(() => {
+                                    const getCat = (t: Task) => t.category || 'AVD';
+                                    const avdTotal = elapsedTasks.filter(t => getCat(t) === 'AVD').length;
+                                    const avdDone = elapsedTasks.filter(t => getCat(t) === 'AVD' && t.isCompleted).length;
+                                    const avdRate = avdTotal > 0 ? Math.round((avdDone / avdTotal) * 100) : 0;
+
+                                    const studyTotal = elapsedTasks.filter(t => getCat(t) === 'Aprendizado').length;
+                                    const studyDone = elapsedTasks.filter(t => getCat(t) === 'Aprendizado' && t.isCompleted).length;
+                                    const studyRate = studyTotal > 0 ? Math.round((studyDone / studyTotal) * 100) : 0;
+
+                                    const playTotal = elapsedTasks.filter(t => getCat(t) === 'Lazer').length;
+                                    const playDone = elapsedTasks.filter(t => getCat(t) === 'Lazer' && t.isCompleted).length;
+                                    const playRate = playTotal > 0 ? Math.round((playDone / playTotal) * 100) : 0;
+
+                                    return (
+                                      <>
+                                        <p className="text-xs text-slate-700 font-bold">🧼 Vida Diária (AVD): <span className="font-extrabold text-indigo-650">{avdRate}% ({avdDone}/{avdTotal}) - {getRatingText(avdRate).replace(/[^a-zA-Záéíóúâêôãõç\s]/g, '').trim()}</span></p>
+                                        <p className="text-xs text-slate-700 font-bold">📚 Aprendizado: <span className="font-extrabold text-indigo-650">{studyRate}% ({studyDone}/{studyTotal}) - {getRatingText(studyRate).replace(/[^a-zA-Záéíóúâêôãõç\s]/g, '').trim()}</span></p>
+                                        <p className="text-xs text-slate-700 font-bold">🧸 Lazer e Recreação: <span className="font-extrabold text-indigo-650">{playRate}% ({playDone}/{playTotal}) - {getRatingText(playRate).replace(/[^a-zA-Záéíóúâêôãõç\s]/g, '').trim()}</span></p>
+                                      </>
+                                    );
+                                  })()}
+                                </div>
+                              </div>
+                            </div>
+
+                            {sensoryLogs.filter(log => log.latitude !== undefined && log.longitude !== undefined).length > 0 && (
+                              <div className="mt-8 border-t border-slate-100 pt-6">
+                                <h3 className="text-xs font-black uppercase text-slate-400 tracking-widest mb-3">Mapa de Calor Sensorial (GPS)</h3>
+                                <SensoryHeatmap logs={sensoryLogs} />
+                              </div>
+                            )}
+
+                            <div className="mt-8 border-t border-slate-100 pt-6">
+                              <h3 className="text-xs font-black uppercase text-slate-400 tracking-widest">Diário Emocional e Registros de Desregulação</h3>
+                              <div className="flex flex-col gap-2 mt-3">
+                                {sensoryLogs.length === 0 ? (
+                                  <p className="text-xs text-slate-400 italic">Sem registros clínicos neste período.</p>
+                                ) : (
+                                  sensoryLogs.map(log => (
+                                    <div key={log.id} className="border-b border-slate-100 pb-2 text-xs">
+                                      <span className="font-extrabold text-slate-500">{new Date(log.timestamp).toLocaleString()}</span>
+                                      <p className="font-bold text-slate-700 mt-1">
+                                        {log.crisisOccurred 
+                                          ? `🚨 CRISE SENSORIAL REGISTRADA: ${log.notes || 'Sem observações'}`
+                                          : `🧠 REGISTRO DE HUMOR DO USUÁRIO: ${log.mood?.toUpperCase()}`
+                                        }
+                                      </p>
+                                    </div>
+                                  ))
+                                )}
+                              </div>
+                            </div>
+
+                            <div className="mt-8 border-t border-slate-100 pt-6">
+                              <h3 className="text-xs font-black uppercase text-slate-400 tracking-widest">Histórico de Atividades Realizadas</h3>
+                              <div className="flex flex-col gap-1.5 mt-3">
+                                {tasks.map(task => (
+                                  <div key={task.id} className="flex justify-between border-b border-slate-100 pb-1 text-xs">
+                                    <span className="font-bold text-slate-700">{task.day.toUpperCase()} ({task.period}) - {task.time} - {task.title}</span>
+                                    <span className={`font-black uppercase tracking-wider ${task.isCompleted ? 'text-emerald-600' : 'text-amber-600'}`}>
+                                      {task.isCompleted ? 'CONCLUÍDO ✓' : 'PENDENTE'}
+                                    </span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+
+                            <div className="mt-16 flex justify-between items-end border-t border-slate-200 pt-12">
+                              <div className="text-center w-56 border-t border-slate-400 pt-2 text-xs font-bold text-slate-400">
+                                Responsável
+                              </div>
+                              <div className="text-center w-56 border-t border-slate-400 pt-2 text-xs font-bold text-slate-400">
+                                Assinatura do Profissional / Terapeuta
+                              </div>
+                            </div>
+                          </div>
+                        </div>
                       </>
                     );
                   })()}
@@ -6182,7 +6042,7 @@ function ParentDashboardContent() {
           <button
             onClick={() => {
               playBubble();
-              setActivePrintLayout('pecs');
+              window.print();
             }}
             className="flex items-center gap-1.5 px-4.5 py-2.5 bg-emerald-600 hover:bg-emerald-755 border-b-2 border-emerald-900 text-white text-xs font-black rounded-2xl active:scale-95 transition-all cursor-pointer font-Outfit uppercase tracking-wider"
             title="Imprimir cartões PECS"
@@ -6437,29 +6297,22 @@ function ParentDashboardContent() {
         )}
       </AnimatePresence>
 
-      {/* Printable Area Container (rendered conditionally) */}
-      <div id="printable-area" className="hidden">
-        {activePrintLayout === 'report' && renderPrintableReport()}
-        {activePrintLayout === 'pecs' && renderPrintablePecs()}
+      {/* PECS Printable Grid */}
+      <div className="print-only">
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-black text-[#0f172a] font-Outfit">Cartões de Rotina PECS</h1>
+          <p className="text-sm text-slate-500 font-bold mt-1">Rotina de {activeChild?.name || 'seu filho'}</p>
+        </div>
+        <div className="pecs-print-grid">
+          {tasks.map(task => (
+            <div key={task.id} className="pecs-card">
+              <span className="pecs-card-icon">{task.icon || '📅'}</span>
+              <h3 className="pecs-card-title">{task.title}</h3>
+              <p className="text-xs text-slate-500 font-bold mt-1.5">Horário: {task.time}</p>
+            </div>
+          ))}
+        </div>
       </div>
-
-      <style dangerouslySetInnerHTML={{__html: `
-        @media print {
-          body * {
-            visibility: hidden !important;
-          }
-          #printable-area, #printable-area * {
-            visibility: visible !important;
-          }
-          #printable-area {
-            position: absolute !important;
-            left: 0 !important;
-            top: 0 !important;
-            width: 100% !important;
-            background: white !important;
-          }
-        }
-      `}} />
     </main>
   );
 }

@@ -190,12 +190,7 @@ const safeFetch = async (url: string, options: RequestInit = {}): Promise<Respon
             const data = JSON.parse(body || '{}');
             return data.updates || data;
           }
-          const cached = localStorage.getItem('tea_cached_tasks');
-          return cached ? JSON.parse(cached) : [];
-        }
-        if (url.includes('/api/children')) {
-          const cached = localStorage.getItem('tea_cached_children');
-          return cached ? JSON.parse(cached) : [];
+          return [];
         }
         if (url.includes('/api/sensory-logs')) {
           const data = JSON.parse(body || '{}');
@@ -208,30 +203,10 @@ const safeFetch = async (url: string, options: RequestInit = {}): Promise<Respon
 
   try {
     const res = await fetch(url, options);
-    
-    // Cache GET responses
-    if (typeof window !== 'undefined' && res.ok && method === 'GET') {
-      if (url.includes('/api/tasks')) {
-        const clone = res.clone();
-        clone.json().then(tasks => {
-          if (Array.isArray(tasks)) {
-            localStorage.setItem('tea_cached_tasks', JSON.stringify(tasks));
-          }
-        }).catch(() => {});
-      } else if (url.includes('/api/children')) {
-        const clone = res.clone();
-        clone.json().then(children => {
-          localStorage.setItem('tea_cached_children', JSON.stringify(children));
-        }).catch(() => {});
-      }
-    }
-
     return res;
   } catch (err) {
-    if (typeof window !== 'undefined') {
-      if (method !== 'GET') {
-        enqueueOfflineAction(url, method, headers, body);
-      }
+    if (typeof window !== 'undefined' && method !== 'GET') {
+      enqueueOfflineAction(url, method, headers, body);
       return {
         ok: true,
         status: 200,
@@ -245,12 +220,7 @@ const safeFetch = async (url: string, options: RequestInit = {}): Promise<Respon
               const data = JSON.parse(body || '{}');
               return data.updates || data;
             }
-            const cached = localStorage.getItem('tea_cached_tasks');
-            return cached ? JSON.parse(cached) : [];
-          }
-          if (url.includes('/api/children')) {
-            const cached = localStorage.getItem('tea_cached_children');
-            return cached ? JSON.parse(cached) : [];
+            return [];
           }
           if (url.includes('/api/sensory-logs')) {
             const data = JSON.parse(body || '{}');
