@@ -3323,11 +3323,11 @@ export default function ChildRoutine() {
           : 'bg-white/85 border-slate-200/50 text-slate-800 shadow-slate-105/45'
       }`}>
         <div className="w-full max-w-2xl md:max-w-5xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4 px-4 md:px-6">
-          <div className="flex flex-wrap gap-2 items-center">
+          <div className="flex flex-row flex-nowrap items-center gap-2 overflow-x-auto w-full md:w-auto pb-1.5 md:pb-0 scrollbar-none shrink-0">
             <button 
               onClick={() => handleAttemptExit('/')}
               onMouseEnter={playBubble}
-              className={`flex items-center gap-1.5 px-3.5 py-2 sm:px-5 sm:py-2.5 text-[10px] sm:text-xs font-black rounded-full border-2 shadow-premium transition-all active:scale-95 cursor-pointer ${
+              className={`flex items-center gap-1.5 px-3.5 py-2 sm:px-5 sm:py-2.5 text-[10px] sm:text-xs font-black rounded-full border-2 shadow-premium transition-all active:scale-95 cursor-pointer shrink-0 whitespace-nowrap ${
                 sleepMode 
                   ? 'bg-slate-905 border-slate-700 text-amber-200 hover:bg-slate-805' 
                   : 'bg-white hover:bg-slate-50 border-slate-350 text-slate-805'
@@ -3339,7 +3339,7 @@ export default function ChildRoutine() {
             <button 
               onClick={() => handleAttemptExit('/dashboard')}
               onMouseEnter={playBubble}
-              className={`flex items-center gap-1.5 px-3.5 py-2 sm:px-5 sm:py-2.5 text-[10px] sm:text-xs font-black rounded-full border-2 shadow-premium transition-all active:scale-95 cursor-pointer ${
+              className={`flex items-center gap-1.5 px-3.5 py-2 sm:px-5 sm:py-2.5 text-[10px] sm:text-xs font-black rounded-full border-2 shadow-premium transition-all active:scale-95 cursor-pointer shrink-0 whitespace-nowrap ${
                 sleepMode 
                   ? 'bg-slate-905 border-slate-700 text-amber-200 hover:bg-slate-805' 
                   : 'bg-white hover:bg-slate-50 border-slate-350 text-slate-850'
@@ -3353,7 +3353,7 @@ export default function ChildRoutine() {
               <button
                 onClick={() => { playBubble(); setShowSupportMenu(!showSupportMenu); }}
                 onMouseEnter={playBubble}
-                className={`flex items-center gap-1.5 px-3.5 py-2 sm:px-5 sm:py-2.5 border-2 text-[10px] sm:text-xs font-black rounded-full shadow-premium transition-all active:scale-95 cursor-pointer ${
+                className={`flex items-center gap-1.5 px-3.5 py-2 sm:px-5 sm:py-2.5 border-2 text-[10px] sm:text-xs font-black rounded-full shadow-premium transition-all active:scale-95 cursor-pointer shrink-0 whitespace-nowrap ${
                   sleepMode 
                     ? 'bg-amber-950/20 border-amber-900/50 text-amber-300 hover:bg-amber-950/55' 
                     : 'bg-white hover:bg-indigo-50 border-indigo-250 text-indigo-700'
@@ -3473,7 +3473,7 @@ export default function ChildRoutine() {
                 }
               }}
               onMouseEnter={playBubble}
-              className={`flex items-center gap-1.5 px-3.5 py-2 sm:px-5 sm:py-2.5 text-[10px] sm:text-xs font-black rounded-full shadow-premium transition-all active:scale-95 cursor-pointer border-2 ${
+              className={`flex items-center gap-1.5 px-3.5 py-2 sm:px-5 sm:py-2.5 text-[10px] sm:text-xs font-black rounded-full shadow-premium transition-all active:scale-95 cursor-pointer border-2 shrink-0 whitespace-nowrap ${
                 sleepMode 
                   ? 'bg-amber-950/80 border-amber-600 text-amber-200' 
                   : 'bg-white hover:bg-amber-50 border-amber-200 text-amber-700'
@@ -3495,7 +3495,7 @@ export default function ChildRoutine() {
                 }
               }}
               onMouseEnter={playBubble}
-              className={`flex items-center gap-1.5 px-3.5 py-2 sm:px-5 sm:py-2.5 border-2 text-[10px] sm:text-xs font-black rounded-full shadow-premium transition-all active:scale-95 cursor-pointer font-Outfit ${
+              className={`flex items-center gap-1.5 px-3.5 py-2 sm:px-5 sm:py-2.5 border-2 text-[10px] sm:text-xs font-black rounded-full shadow-premium transition-all active:scale-95 cursor-pointer font-Outfit shrink-0 whitespace-nowrap ${
                 localCalmMode
                   ? 'bg-teal-500 border-teal-605 text-white animate-pulse'
                   : sleepMode
@@ -3509,7 +3509,7 @@ export default function ChildRoutine() {
             <button
               onClick={handleTriggerSos}
               onMouseEnter={playBubble}
-              className={`flex items-center gap-1.5 px-3.5 py-2 sm:px-5 sm:py-2.5 border-2 text-[10px] sm:text-xs font-black rounded-full shadow-premium transition-all active:scale-95 cursor-pointer ${
+              className={`flex items-center gap-1.5 px-3.5 py-2 sm:px-5 sm:py-2.5 border-2 text-[10px] sm:text-xs font-black rounded-full shadow-premium transition-all active:scale-95 cursor-pointer shrink-0 whitespace-nowrap ${
                 sleepMode 
                   ? 'bg-red-950/20 border-red-900/50 text-red-300 hover:bg-red-950/50' 
                   : 'bg-red-50 hover:bg-red-100 border-red-250 text-red-650 animate-pulse font-Outfit'
