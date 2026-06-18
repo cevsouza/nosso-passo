@@ -7,9 +7,12 @@ import { playBubble, playMarimba } from '../../../lib/audio-synth';
 import { BorderCollie } from '../../../components/ludic/BorderCollie';
 import { Lock, Mail, ArrowLeft, ShieldAlert } from 'lucide-react';
 import Link from 'next/link';
+import { useLanguage } from '../../../lib/LanguageContext';
+import { LanguageSelector } from '../../../components/LanguageSelector';
 
 export default function ParentAuth() {
   const router = useRouter();
+  const { locale, t } = useLanguage();
   const [isRegister, setIsRegister] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -24,10 +27,10 @@ export default function ParentAuth() {
 
     try {
       if (!email.includes('@')) {
-        throw new Error('Por favor, insira um e-mail válido.');
+        throw new Error(t.login.errorEmail);
       }
       if (password.length < 6) {
-        throw new Error('A senha deve conter no mínimo 6 caracteres.');
+        throw new Error(t.login.errorPassword);
       }
 
       if (isRegister) {
@@ -40,7 +43,7 @@ export default function ParentAuth() {
         router.push('/dashboard');
       }
     } catch (err: any) {
-      setError(err.message || 'Falha ao autenticar.');
+      setError(err.message || t.login.errorGeneric);
     } finally {
       setLoading(false);
     }
@@ -62,15 +65,16 @@ export default function ParentAuth() {
         <div className="absolute bottom-[-5%] right-[-5%] w-96 h-96 bg-indigo-200/30 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-pulse" style={{ animationDelay: '2s' }}></div>
       </div>
 
-      {/* Back button */}
-      <div className="absolute top-6 left-6 z-10">
+      {/* Back button and language selector */}
+      <div className="absolute top-6 left-6 right-6 z-10 flex justify-between items-center pointer-events-auto">
         <Link 
           href="/" 
           onMouseEnter={playBubble}
           className="flex items-center gap-2 px-5 py-2.5 bg-white hover:bg-slate-50 text-slate-800 rounded-full border-2 border-slate-300 shadow-premium transition-all text-xs font-black active:scale-95 cursor-pointer"
         >
-          <ArrowLeft className="w-4 h-4 text-slate-600" /> Voltar
+          <ArrowLeft className="w-4 h-4 text-slate-600" /> {t.common.back}
         </Link>
+        <LanguageSelector />
       </div>
 
       <motion.div
@@ -86,12 +90,10 @@ export default function ParentAuth() {
 
         <div className="text-center mb-6">
           <h1 className="text-2.5xl font-black text-slate-905 tracking-tight font-Outfit">
-            {isRegister ? 'Criar Conta de Responsável' : 'Portal do Responsável'}
+            {isRegister ? t.login.titleRegister : t.login.titleLogin}
           </h1>
           <p className="text-slate-600 text-xs mt-2.5 leading-relaxed font-semibold max-w-xs mx-auto">
-            {isRegister 
-              ? 'Cadastre-se para gerenciar a rotina semanal, configurar filtros sensoriais e acompanhar laudos clínicos.'
-              : 'Acesse as ferramentas de agendamento semanal e acompanhe o registro imutável de rotinas do seu filho.'}
+            {isRegister ? t.login.descRegister : t.login.descLogin}
           </p>
         </div>
 
@@ -109,7 +111,7 @@ export default function ParentAuth() {
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div>
             <label className="block text-[11px] font-black text-slate-700 uppercase tracking-widest mb-2 pl-1 font-Outfit">
-              E-mail do Responsável
+              {t.login.labelEmail}
             </label>
             <div className="relative">
               <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-slate-500" />
@@ -126,7 +128,7 @@ export default function ParentAuth() {
 
           <div>
             <label className="block text-[11px] font-black text-slate-700 uppercase tracking-widest mb-2 pl-1 font-Outfit">
-              Senha de Acesso
+              {t.login.labelPassword}
             </label>
             <div className="relative">
               <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-slate-500" />
@@ -135,7 +137,7 @@ export default function ParentAuth() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Mínimo 6 caracteres"
+                placeholder={t.login.placeholderPassword}
                 className="w-full pl-11 pr-4 py-3.5 bg-white border-2 border-slate-300 focus:border-indigo-600 focus:bg-white rounded-xl text-slate-900 placeholder-slate-400 outline-none transition-all text-xs font-bold shadow-xxs focus:ring-4 focus:ring-indigo-100"
               />
             </div>
@@ -147,10 +149,10 @@ export default function ParentAuth() {
             className="w-full mt-3 py-4 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white font-black rounded-xl text-xs shadow-glow-indigo transition-all flex items-center justify-center gap-2 cursor-pointer uppercase tracking-widest border-b-4 border-indigo-900 font-Outfit"
           >
             {loading 
-              ? 'Processando...' 
+              ? t.login.btnProcessing 
               : isRegister 
-              ? 'Concluir Cadastro ✓' 
-              : 'Acessar Painel'}
+              ? t.login.btnSignUp + ' ✓' 
+              : t.login.btnSignIn}
           </button>
         </form>
 
@@ -160,8 +162,8 @@ export default function ParentAuth() {
             className="text-xs font-black text-indigo-700 hover:text-indigo-900 hover:underline cursor-pointer bg-transparent border-none outline-none font-Outfit"
           >
             {isRegister 
-              ? 'Já possui uma conta? Entrar no Painel' 
-              : 'Novo por aqui? Criar conta de responsável'}
+              ? t.login.toggleToLogin 
+              : t.login.toggleToRegister}
           </button>
 
           <Link
@@ -169,13 +171,21 @@ export default function ParentAuth() {
             onMouseEnter={playBubble}
             className="text-xs font-black text-teal-700 hover:text-teal-950 flex items-center justify-center gap-1 cursor-pointer font-Outfit border-t border-slate-100 pt-3 transition-all"
           >
-            🩺 É terapeuta? Acesse com o Código do Paciente
+            {locale === 'en' 
+              ? '🩺 Are you a therapist? Access with Patient Code' 
+              : locale === 'es' 
+              ? '🩺 ¿Es terapeuta? Acceda con el Código del Paciente' 
+              : '🩺 É terapeuta? Acesse com o Código do Paciente'}
           </Link>
         </div>
 
         <div className="mt-6 text-center text-[10px] text-slate-500 border-t border-slate-200 pt-4 font-bold">
           <p>
-            * A senha deve conter pelo menos 6 caracteres.
+            {locale === 'en' 
+              ? '* The password must be at least 6 characters long.' 
+              : locale === 'es' 
+              ? '* La contraseña debe tener al menos 6 caracteres.' 
+              : '* A senha deve conter pelo menos 6 caracteres.'}
           </p>
         </div>
       </motion.div>

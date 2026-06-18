@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Nunito } from "next/font/google";
+import { LanguageProvider } from "@/lib/LanguageContext";
 import "./globals.css";
 
 const nunito = Nunito({
@@ -26,7 +27,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR">
-      <body className={`${nunito.variable}`}>{children}</body>
+      <body className={`${nunito.variable}`}>
+        <LanguageProvider>
+          {children}
+        </LanguageProvider>
+      </body>
     </html>
   );
 }
+

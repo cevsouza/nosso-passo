@@ -2,10 +2,14 @@
 import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useLanguage } from '../../lib/LanguageContext';
+import { LanguageSelector } from '../../components/LanguageSelector';
+import { playBubble, playMarimba } from '../../lib/audio-synth';
 
 function SchoolPortalContent() {
   const searchParams = useSearchParams();
   const initialCode = searchParams.get('code') || '';
+  const { locale, t } = useLanguage();
 
   const [sharingCode, setSharingCode] = useState(initialCode);
   const [isVerifying, setIsVerifying] = useState(false);
@@ -41,12 +45,12 @@ function SchoolPortalContent() {
       const data = await res.json();
 
       if (!res.ok || data.error) {
-        setVerifyError(data.error || 'Código inválido ou inativo.');
+        setVerifyError(t.school.errorCode);
       } else {
         setChildData(data);
       }
     } catch (err) {
-      setVerifyError('Erro de conexão ao validar o código.');
+      setVerifyError(t.school.errorConnection);
     } finally {
       setIsVerifying(false);
     }
@@ -69,13 +73,13 @@ function SchoolPortalContent() {
           location: 'Escola',
           schoolNoise,
           foodIntake,
-          notes: notes.trim() || 'Check-in diário escolar preenchido pelo mediador/professor.'
+          notes: notes.trim() || 'Daily school checkpoint logged by mediator.'
         })
       });
 
       const data = await res.json();
       if (!res.ok || data.error) {
-        alert(data.error || 'Erro ao enviar o checkpoint.');
+        alert(data.error || 'Error saving checkpoint.');
       } else {
         setSubmitSuccess(true);
         // Clear fields
@@ -83,7 +87,7 @@ function SchoolPortalContent() {
         setCrisisOccurred(false);
       }
     } catch (err) {
-      alert('Erro de rede ao salvar o relatório.');
+      alert('Network error saving report.');
     } finally {
       setIsSubmitting(false);
     }
@@ -95,12 +99,17 @@ function SchoolPortalContent() {
       <div className="absolute top-[-150px] right-[-150px] w-96 h-96 bg-yellow-100/50 rounded-full filter blur-3xl -z-10 animate-pulse"></div>
       <div className="absolute bottom-[-150px] left-[-150px] w-96 h-96 bg-indigo-100/50 rounded-full filter blur-3xl -z-10 animate-pulse" style={{ animationDelay: '2s' }}></div>
 
+      {/* Floating Language Selector */}
+      <div className="absolute top-6 right-6 z-30">
+        <LanguageSelector />
+      </div>
+
       <div className="w-full max-w-md bg-white border-2 border-slate-200 rounded-[32px] p-6 shadow-premium z-10 flex flex-col gap-6">
         <div className="text-center">
           <span className="text-4xl">🏫</span>
-          <h1 className="text-2xl font-black text-slate-900 tracking-tight mt-2 font-Outfit">Portal do Mediador Escolar</h1>
+          <h1 className="text-2xl font-black text-slate-900 tracking-tight mt-2 font-Outfit">{t.school.portalTitle}</h1>
           <p className="text-xs text-slate-400 font-semibold mt-1">
-            Diário de regulação sensorial e checkpoints comportamentais escolares.
+            {t.school.portalDesc}
           </p>
         </div>
 
@@ -108,7 +117,7 @@ function SchoolPortalContent() {
           // Verification Screen
           <div className="flex flex-col gap-4">
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-black text-slate-700 uppercase tracking-wider font-Outfit">Código de Compartilhamento Clínico</label>
+              <label className="text-xs font-black text-slate-700 uppercase tracking-wider font-Outfit">{t.school.sharingCodeLabel}</label>
               <div className="flex gap-2">
                 <input
                   type="text"
@@ -122,7 +131,7 @@ function SchoolPortalContent() {
                   disabled={isVerifying || !sharingCode.trim()}
                   className="px-5 py-3 bg-indigo-600 hover:bg-indigo-750 disabled:bg-slate-200 disabled:text-slate-400 disabled:border-slate-200 disabled:shadow-none border-b-4 border-indigo-900 text-white text-xs font-black rounded-xl active:scale-95 transition-all cursor-pointer font-Outfit uppercase tracking-wider"
                 >
-                  {isVerifying ? 'Validando...' : 'Acessar'}
+                  {isVerifying ? t.school.btnValidating : t.school.btnAccess}
                 </button>
               </div>
             </div>
@@ -136,7 +145,7 @@ function SchoolPortalContent() {
             <div className="bg-slate-50 border border-slate-150 p-4 rounded-2xl flex gap-2.5 mt-2">
               <span className="text-sm shrink-0">💡</span>
               <p className="text-[10px] text-slate-500 leading-normal font-medium">
-                Insira o código de compartilhamento de 6 caracteres fornecido pelos responsáveis da criança para abrir o painel de registro.
+                {t.school.tipLabel}
               </p>
             </div>
           </div>
@@ -152,7 +161,7 @@ function SchoolPortalContent() {
                 <div>
                   <h3 className="text-sm font-black text-slate-900 font-Outfit">{childData.name}</h3>
                   <span className="text-[9px] font-black text-slate-450 uppercase tracking-widest">
-                    Paciente • {childData.diagnosis || 'TEA'}
+                    {t.school.childHeaderSubtitle} {childData.diagnosis || 'TEA'}
                   </span>
                 </div>
               </div>
@@ -161,7 +170,7 @@ function SchoolPortalContent() {
                 onClick={() => { setChildData(null); setSharingCode(''); }}
                 className="text-[10px] font-black text-slate-400 hover:text-slate-600 font-Outfit uppercase bg-transparent border-none cursor-pointer"
               >
-                Sair
+                {t.common.exit}
               </button>
             </div>
 
@@ -170,10 +179,13 @@ function SchoolPortalContent() {
               <div className="flex items-start gap-2.5">
                 <span className="text-xl">📊</span>
                 <div>
-                  <h4 className="text-xs font-black text-indigo-950 font-Outfit">Integração Clínica Ativa</h4>
+                  <h4 className="text-xs font-black text-indigo-950 font-Outfit">{t.school.clinicalBannerTitle}</h4>
                   <p className="text-[10px] text-indigo-900 leading-normal font-semibold mt-0.5">
-                    Este diário sincroniza os comportamentos observados na escola com os relatórios analíticos dos terapeutas e pais. 
-                    Sempre consulte a aba <strong>Guia de Sinais</strong> para seguir as condutas regulatórias recomendadas para o(a) {childData.name.split(' ')[0]}.
+                    {locale === 'en' 
+                      ? `This diary synchronizes school behavior with therapist and parent reports. Always consult the Sign Guide to follow recommended strategies for ${childData.name.split(' ')[0]}.`
+                      : locale === 'es' 
+                      ? `Este diario sincroniza los comportamientos escolares con los informes de terapeutas y padres. Consulte siempre la Guía de Señales para seguir las conductas recomendadas para ${childData.name.split(' ')[0]}.`
+                      : `Este diário sincroniza os comportamentos observados na escola com os relatórios analíticos dos terapeutas e pais. Sempre consulte a aba Guia de Sinais para seguir as condutas recomendadas para o(a) ${childData.name.split(' ')[0]}.`}
                   </p>
                 </div>
               </div>
@@ -188,7 +200,7 @@ function SchoolPortalContent() {
                   activeTab === 'log' ? 'bg-white text-indigo-950 shadow-xxs' : 'text-slate-500 hover:text-slate-700 bg-transparent'
                 }`}
               >
-                🏫 Registrar Dia
+                {t.school.tabLog}
               </button>
               <button
                 type="button"
@@ -197,7 +209,7 @@ function SchoolPortalContent() {
                   activeTab === 'dictionary' ? 'bg-white text-indigo-950 shadow-xxs' : 'text-slate-500 hover:text-slate-700 bg-transparent'
                 }`}
               >
-                📖 Guia de Sinais
+                {t.school.tabDictionary}
               </button>
             </div>
 
@@ -211,21 +223,21 @@ function SchoolPortalContent() {
                       exit={{ opacity: 0, scale: 0.95 }}
                       className="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl text-emerald-805 text-xs font-semibold text-center flex flex-col gap-1"
                     >
-                      <span>✅ Checkpoint escolar salvo com sucesso!</span>
-                      <span className="text-[10px] text-emerald-600 font-medium">Os pais e terapeutas já receberam os dados no dashboard.</span>
+                      <span>{t.school.successTitle}</span>
+                      <span className="text-[10px] text-emerald-600 font-medium">{t.school.successDesc}</span>
                     </motion.div>
                   )}
                 </AnimatePresence>
 
                 {/* Mood Selector */}
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-black text-slate-700 uppercase tracking-wider font-Outfit">Humor Predominante</label>
+                  <label className="text-xs font-black text-slate-700 uppercase tracking-wider font-Outfit">{t.school.moodLabel}</label>
                   <div className="grid grid-cols-4 gap-2">
                     {[
-                      { key: 'feliz', emoji: '😊', label: 'Feliz' },
-                      { key: 'calmo', emoji: '😐', label: 'Calmo' },
-                      { key: 'triste', emoji: '😢', label: 'Triste' },
-                      { key: 'agitado', emoji: '😫', label: 'Agitado' }
+                      { key: 'feliz', emoji: '😊', label: t.school.moodFeliz },
+                      { key: 'calmo', emoji: '😐', label: t.school.moodCalmo },
+                      { key: 'triste', emoji: '😢', label: t.school.moodTriste },
+                      { key: 'agitado', emoji: '😫', label: t.school.moodAgitado }
                     ].map(item => (
                       <button
                         key={item.key}
@@ -247,8 +259,8 @@ function SchoolPortalContent() {
                 {/* Crisis Toggle */}
                 <div className="flex items-center justify-between p-3 border border-slate-200 rounded-2xl bg-slate-50/50">
                   <div>
-                    <label className="block text-xs font-black text-slate-800 font-Outfit">Crise de Desregulação?</label>
-                    <span className="text-[9px] text-slate-450 font-bold">Ocorreu algum meltdown ou desregulação hoje?</span>
+                    <label className="block text-xs font-black text-slate-800 font-Outfit">{t.school.crisisLabel}</label>
+                    <span className="text-[9px] text-slate-450 font-bold">{t.school.crisisDesc}</span>
                   </div>
                   <button
                     type="button"
@@ -259,46 +271,46 @@ function SchoolPortalContent() {
                         : 'bg-slate-200 border-slate-350 text-slate-700'
                     }`}
                   >
-                    {crisisOccurred ? '🚨 Sim, ocorreu' : 'Não'}
+                    {crisisOccurred ? t.school.crisisYes : t.school.crisisNo}
                   </button>
                 </div>
 
                 {/* School support dropdown selectors */}
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-[10px] font-black text-slate-700 uppercase tracking-wider mb-1 font-Outfit">Nível de Barulho na Sala</label>
+                    <label className="block text-[10px] font-black text-slate-700 uppercase tracking-wider mb-1 font-Outfit">{t.school.noiseLabel}</label>
                     <select
                       value={schoolNoise}
                       onChange={e => setSchoolNoise(e.target.value)}
                       className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold outline-none cursor-pointer"
                     >
-                      <option value="baixo">Baixo (Ideal) 🔇</option>
-                      <option value="medio">Médio 🔉</option>
-                      <option value="alto">Alto (Barulhento) 🔊</option>
+                      <option value="baixo">{t.school.noiseBaixo}</option>
+                      <option value="medio">{t.school.noiseMedio}</option>
+                      <option value="alto">{t.school.noiseAlto}</option>
                     </select>
                   </div>
 
                   <div>
-                    <label className="block text-[10px] font-black text-slate-700 uppercase tracking-wider mb-1 font-Outfit">Alimentação na Escola</label>
+                    <label className="block text-[10px] font-black text-slate-700 uppercase tracking-wider mb-1 font-Outfit">{t.school.foodLabel}</label>
                     <select
                       value={foodIntake}
                       onChange={e => setFoodIntake(e.target.value)}
                       className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold outline-none cursor-pointer"
                     >
-                      <option value="boa">Boa (Comeu tudo) 🍲</option>
-                      <option value="regular">Regular (Parcial) 🥣</option>
-                      <option value="recusou">Recusou Lanche 🚫</option>
+                      <option value="boa">{t.school.foodBoa}</option>
+                      <option value="regular">{t.school.foodRegular}</option>
+                      <option value="recusou">{t.school.foodRecusou}</option>
                     </select>
                   </div>
                 </div>
 
                 {/* School notes */}
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-black text-slate-700 uppercase tracking-wider font-Outfit">Anotações do Dia (Texto Livre)</label>
+                  <label className="text-xs font-black text-slate-700 uppercase tracking-wider font-Outfit">{t.school.notesLabel}</label>
                   <textarea
                     value={notes}
                     onChange={e => setNotes(e.target.value)}
-                    placeholder="Ex: Teve foco nas atividades, interagiu bem no recreio, demonstrou desconforto no final da tarde..."
+                    placeholder={t.school.notesPlaceholder}
                     className="w-full p-3 bg-white border-2 border-slate-200 rounded-2xl text-xs font-semibold outline-none focus:border-indigo-600 min-h-[90px] resize-none focus:ring-4 focus:ring-indigo-50"
                   />
                 </div>
@@ -309,14 +321,14 @@ function SchoolPortalContent() {
                   disabled={isSubmitting}
                   className="w-full py-3.5 bg-yellow-500 hover:bg-yellow-600 disabled:bg-slate-200 disabled:text-slate-400 border-none text-slate-950 text-xs font-black rounded-2xl shadow-md uppercase tracking-wider transition-all active:scale-98 cursor-pointer font-Outfit"
                 >
-                  {isSubmitting ? 'Salvando Relatório...' : 'Enviar Checkpoint Escolar 🏫'}
+                  {isSubmitting ? t.school.btnSubmitting : t.school.btnSubmit}
                 </button>
               </form>
             ) : (
               // Dictionary View Screen
               <div className="flex flex-col gap-3.5 max-h-[480px] overflow-y-auto pr-1">
                 <div className="bg-slate-50 border border-slate-150 p-3 rounded-2xl text-xxs font-bold text-slate-500 leading-relaxed">
-                  💡 Este guia orienta sobre os sinais de autorregulação (stimming) e condutas recomendadas pelos responsáveis.
+                  {t.school.dictionaryTip}
                 </div>
                 {(() => {
                   let behaviorList = [];
@@ -329,7 +341,7 @@ function SchoolPortalContent() {
                   if (behaviorList.length === 0) {
                     return (
                       <p className="text-center text-xs text-slate-400 font-semibold italic py-8 font-Outfit">
-                        Nenhum sinal comportamental cadastrado pelos pais no dicionário da criança.
+                        {t.school.dictionaryEmpty}
                       </p>
                     );
                   }
@@ -337,13 +349,13 @@ function SchoolPortalContent() {
                   return behaviorList.map((item: any) => (
                     <div key={item.id} className="p-3.5 bg-indigo-50/20 border border-indigo-150 rounded-2xl flex flex-col gap-2 text-xxs text-left">
                       <div className="font-Outfit font-extrabold text-xs text-indigo-950 border-b border-indigo-100/50 pb-1 flex justify-between">
-                        <span>📢 Sinal: {item.signal}</span>
+                        <span>{locale === 'en' ? '📢 Sign:' : locale === 'es' ? '📢 Señal:' : '📢 Sinal:'} {item.signal}</span>
                       </div>
                       <div className="text-slate-700 leading-normal font-semibold">
-                        <strong>🧠 Significado:</strong> {item.meaning}
+                        <strong>{locale === 'en' ? '🧠 Meaning:' : locale === 'es' ? '🧠 Significado:' : '🧠 Significado:'}</strong> {item.meaning}
                       </div>
                       <div className="text-emerald-800 leading-normal bg-emerald-50/50 border border-emerald-150 p-2.5 rounded-xl mt-1 font-semibold">
-                        <strong>👩‍🏫 Conduta recomendada:</strong> {item.intervention}
+                        <strong>{locale === 'en' ? '👩‍🏫 Recommended action:' : locale === 'es' ? '👩‍🏫 Conducta recomendada:' : '👩‍🏫 Conduta recomendada:'}</strong> {item.intervention}
                       </div>
                     </div>
                   ));
@@ -358,11 +370,12 @@ function SchoolPortalContent() {
 }
 
 export default function SchoolPortal() {
+  const { t } = useLanguage();
   return (
     <Suspense fallback={
       <div className="min-h-screen bg-slate-50 flex items-center justify-center flex-col gap-3 font-Outfit">
         <div className="w-12 h-12 border-4 border-indigo-650 border-t-transparent rounded-full animate-spin"></div>
-        <span className="text-sm font-black text-slate-700 animate-pulse">Carregando portal escolar...</span>
+        <span className="text-sm font-black text-slate-700 animate-pulse">{t.common.loading}</span>
       </div>
     }>
       <SchoolPortalContent />

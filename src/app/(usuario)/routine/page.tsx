@@ -6,6 +6,8 @@ import { firebaseBridge, Task, getOfflineQueue } from '../../../lib/firebase-bri
 import { CollieState } from '../../../components/ludic/BorderCollie';
 import { HyperfocusMascot } from '../../../components/ludic/HyperfocusMascot';
 import { playBubble, playMarimba, playCelebration, speakText, startAmbientSound, stopAmbientSound } from '../../../lib/audio-synth';
+import { useLanguage } from '../../../lib/LanguageContext';
+import { LanguageSelector } from '../../../components/LanguageSelector';
 import { getTaskCategory, TaskCategory } from '../../../lib/sensory-standards';
 import { RoutineIllustration } from '../../../components/ludic/RoutineIllustration';
 import { 
@@ -191,7 +193,7 @@ const SOCIAL_STORIES = [
   }
 ];
 
-const GENERATOR_STATUSES = [
+const localizedGeneratorStatuses = [
   "🤖 IA Rotina Animada iniciando...",
   "🦖 Analisando seu hiperfoco ativo...",
   "📚 Estruturando parágrafos de previsibilidade...",
@@ -595,6 +597,115 @@ const HyperfocusThemeTimer: React.FC<TimerProps & { theme: string }> = ({ progre
 };
 
 export default function ChildRoutine() {
+  const { t, locale } = useLanguage();
+  const localizedBadges = [
+    { id: 'hygiene', label: t.routine.badgeHygieneTitle, desc: t.routine.badgeHygieneDesc, icon: '🏆' },
+    { id: 'nutrition', label: t.routine.badgeNutritionTitle, desc: t.routine.badgeNutritionDesc, icon: '🏅' },
+    { id: 'study', label: t.routine.badgeStudyTitle, desc: t.routine.badgeStudyDesc, icon: '🎓' }
+  ];
+
+  const localizedSocialStories = [
+    {
+      id: 'haircut',
+      title: t.routine.storyHaircutTitle,
+      desc: t.routine.storyHaircutDesc,
+      steps: [
+        { text: t.routine.storyHaircutStep1, img: '💇' },
+        { text: t.routine.storyHaircutStep2, img: '💺' },
+        { text: t.routine.storyHaircutStep3, img: '🎧' },
+        { text: t.routine.storyHaircutStep4, img: '✨' },
+      ]
+    },
+    {
+      id: 'doctor',
+      title: t.routine.storyDoctorTitle,
+      desc: t.routine.storyDoctorDesc,
+      steps: [
+        { text: t.routine.storyDoctorStep1, img: '🦸' },
+        { text: t.routine.storyDoctorStep2, img: '💓' },
+        { text: t.routine.storyDoctorStep3, img: '🎂' },
+        { text: t.routine.storyDoctorStep4, img: '⭐' },
+      ]
+    },
+    {
+      id: 'vaccine',
+      title: t.routine.storyVaccineTitle,
+      desc: t.routine.storyVaccineDesc,
+      steps: [
+        { text: t.routine.storyVaccineStep1, img: '🛡️' },
+        { text: t.routine.storyVaccineStep2, img: '❄️' },
+        { text: t.routine.storyVaccineStep3, img: '🐜' },
+        { text: t.routine.storyVaccineStep4, img: '🏅' },
+      ]
+    },
+    {
+      id: 'making_friends',
+      title: t.routine.storyFriendsTitle,
+      desc: t.routine.storyFriendsDesc,
+      steps: [
+        { text: t.routine.storyFriendsStep1, img: '🏫' },
+        { text: t.routine.storyFriendsStep2, img: '👋' },
+        { text: t.routine.storyFriendsStep3, img: '🧩' },
+        { text: t.routine.storyFriendsStep4, img: '❤️' },
+      ]
+    },
+    {
+      id: 'sharing_toys',
+      title: t.routine.storySharingTitle,
+      desc: t.routine.storySharingDesc,
+      steps: [
+        { text: t.routine.storySharingStep1, img: '🚗' },
+        { text: t.routine.storySharingStep2, img: '⏳' },
+        { text: t.routine.storySharingStep3, img: '🙌' },
+        { text: t.routine.storySharingStep4, img: '🧸' },
+      ]
+    },
+    {
+      id: 'dealing_with_frustration',
+      title: t.routine.storyFrustrationTitle,
+      desc: t.routine.storyFrustrationDesc,
+      steps: [
+        { text: t.routine.storyFrustrationStep1, img: '🌧️' },
+        { text: t.routine.storyFrustrationStep2, img: '🧘' },
+        { text: t.routine.storyFrustrationStep3, img: '🎨' },
+        { text: t.routine.storyFrustrationStep4, img: '☀️' },
+      ]
+    }
+  ];
+
+  const localizedBedtimeStories = [
+    {
+      id: 'sleepy-dino',
+      title: t.routine.storySleepyDinoTitle,
+      desc: t.routine.storySleepyDinoDesc,
+      steps: [
+        { text: t.routine.storySleepyDinoStep1, img: '🦕' },
+        { text: t.routine.storySleepyDinoStep2, img: '🍃' },
+        { text: t.routine.storySleepyDinoStep3, img: '✨' },
+        { text: t.routine.storySleepyDinoStep4, img: '🌙' },
+      ]
+    },
+    {
+      id: 'space-journey',
+      title: t.routine.storySpaceJourneyTitle,
+      desc: t.routine.storySpaceJourneyDesc,
+      steps: [
+        { text: t.routine.storySpaceJourneyStep1, img: '🚀' },
+        { text: t.routine.storySpaceJourneyStep2, img: '⭐' },
+        { text: t.routine.storySpaceJourneyStep3, img: '🌌' },
+        { text: t.routine.storySpaceJourneyStep4, img: '💤' },
+      ]
+    }
+  ];
+
+  const localizedGeneratorStatuses = [
+    locale === 'es' ? "🤖 IA Rutina Animada iniciando..." : locale === 'en' ? "🤖 IA Animated Routine starting..." : "🤖 IA Rotina Animada iniciando...",
+    locale === 'es' ? "🦖 Analizando tu hiperfoco activo..." : locale === 'en' ? "🦖 Analyzing your active hyperfocus..." : "🦖 Analizando seu hiperfoco ativo...",
+    locale === 'es' ? "📚 Estructurando párrafos de previsibilidad..." : locale === 'en' ? "📚 Structuring predictability paragraphs..." : "📚 Estruturando parágrafos de previsibilidade...",
+    locale === 'es' ? "🎨 Creando ilustraciones divertidas y emojis..." : locale === 'en' ? "🎨 Creating fun illustrations and emojis..." : "🎨 Criando ilustrações lúdicas e emojis...",
+    locale === 'es' ? "✨ ¡Finalizando tu libro social personalizado!" : locale === 'en' ? "✨ Finalizing your personalized social book!" : "✨ Finalizando seu livro social personalizado!"
+  ];
+
   const [tasks, setTasks] = useState<Task[]>([]);
   const [offline, setOffline] = useState(false);
   const [offlineQueueSize, setOfflineQueueSize] = useState(0);
@@ -1032,7 +1143,7 @@ export default function ChildRoutine() {
       });
       setActiveChild(updated);
       firebaseBridge.auth.setActiveChild(updated);
-      speakText("Muito bem! Vamos continuar a nossa rotina!");
+      speakText(t.routine.ttsUnexpected);
     } catch (err) {
       console.error(err);
     }
@@ -1060,7 +1171,7 @@ export default function ChildRoutine() {
   useEffect(() => {
     if (activeTask && !celebratingTaskId) {
       const timer = setTimeout(() => {
-        speakText(`Sua missão agora é: ${activeTask.title}`);
+        speakText(`${t.routine.missionNow}${activeTask.title}`);
       }, 700);
       return () => clearTimeout(timer);
     }
@@ -1070,7 +1181,7 @@ export default function ChildRoutine() {
   useEffect(() => {
     if (isDayFinished) {
       const timer = setTimeout(() => {
-        speakText("Parabéns! Todas as missões de hoje foram cumpridas! Hora de descansar.");
+        speakText(t.routine.routineCompleted);
       }, 800);
       return () => clearTimeout(timer);
     }
@@ -1145,13 +1256,13 @@ export default function ChildRoutine() {
           try {
             const audio = new Audio(customAudio);
             audio.play().catch(() => {
-              speakText(`Atenção! Em ${currentMinute} minutos, vamos terminar de ${activeTask.title} e começar a ${nextTaskName} com o seu mascote!`);
+              speakText(t.routine.ttsTransition.replace('{minutes}', String(currentMinute)).replace('{active}', activeTask.title).replace('{next}', nextTaskName));
             });
           } catch (e) {
-            speakText(`Atenção! Em ${currentMinute} minutos, vamos terminar de ${activeTask.title} e começar a ${nextTaskName} com o seu mascote!`);
+            speakText(t.routine.ttsTransition.replace('{minutes}', String(currentMinute)).replace('{active}', activeTask.title).replace('{next}', nextTaskName));
           }
         } else {
-          speakText(`Atenção! Em ${currentMinute} minutos, vamos terminar de ${activeTask.title} e começar a ${nextTaskName} com o seu mascote!`);
+          speakText(t.routine.ttsTransition.replace('{minutes}', String(currentMinute)).replace('{active}', activeTask.title).replace('{next}', nextTaskName));
         }
         
 
@@ -1254,9 +1365,9 @@ export default function ChildRoutine() {
       if (level === 'red') {
         speakText("Bateria baixa! Que tal usar o SOS Sensorial para respirar e se acalmar?");
       } else if (level === 'yellow') {
-        speakText("Energia média. Tudo bem se sentir um pouco cansado. Que tal ver uma história calma?");
+        speakText(t.routine.batteryMedium);
       } else {
-        speakText("Você está com bastante energia! Muito bem!");
+        speakText(t.routine.batteryHigh);
       }
     } catch (e) {
       console.error('Failed to update emotional battery:', e);
@@ -1320,7 +1431,7 @@ export default function ChildRoutine() {
         loggedBy: 'child',
         crisisOccurred: false
       });
-      speakText("Parabéns! Você completou a simulação e ganhou 3 estrelas!");
+      speakText(t.routine.simCongrats);
     } catch (err) {
       console.error("Error adding simulator reward tokens", err);
     }
@@ -1337,7 +1448,7 @@ export default function ChildRoutine() {
     let currentIdx = 0;
     const interval = setInterval(() => {
       currentIdx++;
-      if (currentIdx < GENERATOR_STATUSES.length) {
+      if (currentIdx < localizedGeneratorStatuses.length) {
         setAiStatusIdx(currentIdx);
         playMarimba(261.63 + currentIdx * 50, 0.1);
       } else {
@@ -1447,7 +1558,7 @@ export default function ChildRoutine() {
 
     if (isDayFinished) {
       playMarimba(261.63, 0.4);
-      speakText("Parabéns! Todas as missões de hoje foram cumpridas! Hora de descansar.");
+      speakText(t.routine.routineCompleted);
       return;
     }
     
@@ -1500,7 +1611,7 @@ export default function ChildRoutine() {
     if (!activeChild) return;
     const currentTokens = activeChild.tokens || 0;
     if (currentTokens < cost) {
-      speakText("Você precisa de mais estrelas para conseguir esta peça!");
+      speakText(t.routine.toyBuyMoreStars);
       return;
     }
 
@@ -1512,7 +1623,7 @@ export default function ChildRoutine() {
     } catch (e) {}
 
     if (inventory.includes(partId)) {
-      speakText("Você já tem essa peça!");
+      speakText(t.routine.toyAlreadyHavePart);
       return;
     }
 
@@ -1521,7 +1632,7 @@ export default function ChildRoutine() {
     const newCollectedParts = (activeChild.collectedParts || 0) + 1;
 
     playCelebration();
-    speakText("Parabéns! Você conseguiu uma nova peça para o seu brinquedo!");
+    speakText(t.routine.toyCongratsNewPart);
 
     if (typeof window !== 'undefined' && 'vibrate' in navigator) {
       navigator.vibrate([100, 50, 100, 50, 150]);
@@ -1896,10 +2007,10 @@ export default function ChildRoutine() {
                       playCelebration();
                       setIsToyLaunched(true);
                       setShowHyperfocusModal(false);
-                      if (focus.includes("space")) speakText("Decolagem em 3, 2, 1... Foguete ao espaço!");
-                      else if (focus.includes("dino")) speakText("O T-Rex rugiu bem alto! Rrrroaaar!");
-                      else if (focus.includes("trem")) speakText("Todos a bordo! O trem está partindo, piuiiii!");
-                      else speakText("Viva! Conseguimos todas as peças!");
+                      if (focus.includes("space")) speakText(t.routine.spaceLaunch);
+                      else if (focus.includes("dino")) speakText(t.routine.dinoLaunch);
+                      else if (focus.includes("trem")) speakText(t.routine.tremLaunch);
+                      else speakText(t.routine.congratsAllParts);
                     }}
                     className="w-full py-3 bg-gradient-to-r from-yellow-450 to-amber-500 hover:from-yellow-500 hover:to-amber-600 text-slate-950 text-xs font-black rounded-2xl shadow-md uppercase tracking-wider select-none animate-bounce font-Outfit border-none cursor-pointer mt-1"
                   >
@@ -2341,7 +2452,7 @@ export default function ChildRoutine() {
                 playBubble();
                 setLocalCalmMode(true);
                 localStorage.setItem('localCalmMode', 'true');
-                speakText("Modo calmo ativado automaticamente para regulação.");
+                speakText(t.routine.calmModeAuto);
                 setShowSensoryAlert(false);
               }}
               className="w-full py-3 bg-teal-500 hover:bg-teal-600 text-white font-black text-xs rounded-xl shadow-md transition-all active:scale-95 border-none font-Outfit"
@@ -2579,7 +2690,7 @@ export default function ChildRoutine() {
           </div>
 
           <h2 className="text-xs font-black bg-slate-800 border-2 border-slate-700 text-slate-200 px-5 py-2.5 rounded-full shadow-premium uppercase tracking-widest font-Outfit">
-            {DAY_LABELS[currentDay] || `Dia ${currentDay} 📅`}
+            {(t.common.dayLabels as any)[currentDay] || (locale === 'es' ? `Día ${currentDay} 📅` : locale === 'en' ? `Day ${currentDay} 📅` : `Dia ${currentDay} 📅`)}
           </h2>
           
           {/* Ambient Sound Selector */}
@@ -2652,7 +2763,7 @@ export default function ChildRoutine() {
                 🏅 Medalhas conquistadas hoje:
               </h4>
               <div className="grid grid-cols-3 gap-3">
-                {BADGES.map(badge => (
+                {localizedBadges.map(badge => (
                   <motion.div 
                     key={badge.id}
                     whileHover={{ scale: 1.05 }}
@@ -2711,7 +2822,7 @@ export default function ChildRoutine() {
 
           <div className="w-full bg-slate-800/40 backdrop-blur-md border border-slate-700/40 p-5 rounded-3xl shadow-xl flex flex-col gap-4 text-left">
             <h3 className="font-extrabold text-slate-200 text-xs flex items-center gap-2">
-              ⭐ Suas Conquistas de Hoje ({completedTasks.length}/{todayTasks.length})
+              ⭐ {t.routine.badgesTitle} ({completedTasks.length}/{todayTasks.length})
             </h3>
             <div className="flex flex-wrap gap-2 max-h-32 overflow-y-auto pr-1">
               {completedTasks.map(task => (
@@ -2732,7 +2843,7 @@ export default function ChildRoutine() {
             onMouseEnter={playBubble}
             className="mt-2 text-sm text-indigo-300 hover:text-indigo-200 font-bold underline cursor-pointer bg-transparent border-none outline-none transition-all active:scale-95"
           >
-            Voltar ao Início 🏠
+            {t.common.back} {locale === 'en' ? 'to Home' : 'ao Início'} 🏠
           </button>
         </motion.div>
 
@@ -2791,14 +2902,14 @@ export default function ChildRoutine() {
                   <div className="flex flex-col gap-5">
                     <div className="text-center mt-2">
                       <span className="text-3xl">📖</span>
-                      <h3 className="text-xl font-black text-slate-850 mt-2 font-Outfit">Histórias Sociais do Mascote</h3>
+                      <h3 className="text-xl font-black text-slate-850 mt-2 font-Outfit">{t.routine.socialStoriesTitle} do Mascote</h3>
                       <p className="text-xs text-slate-400 font-semibold mt-1">
-                        Escolha uma história para ver com o seu mascote!
+                        {t.routine.storySelectionPrompt}
                       </p>
                     </div>
 
                     <div className="flex flex-col gap-3 max-h-[350px] overflow-y-auto pr-1 scrollbar-thin">
-                      {SOCIAL_STORIES.map(story => (
+                      {localizedSocialStories.map(story => (
                         <button
                           key={story.id}
                           onClick={() => {
@@ -2827,7 +2938,7 @@ export default function ChildRoutine() {
                               return (
                                 <>
                                   <div className="text-[10px] font-black uppercase tracking-wider text-rose-500 font-Outfit mt-4 mb-1">
-                                    Criadas pelos Pais 💖
+                                    {t.routine.storyCreatedByParents} 💖
                                   </div>
                                   {parsed.map(story => (
                                     <button
@@ -3273,9 +3384,9 @@ export default function ChildRoutine() {
                           setBgNoiseMonitor(nextVal); 
                           setShowSupportMenu(false); 
                           if (nextVal) {
-                            speakText("Monitor de ruído ativado.");
+                            speakText(t.routine.noiseMonitorActivated);
                           } else {
-                            speakText("Monitor de ruído desativado.");
+                            speakText(t.routine.noiseMonitorDeactivated);
                           }
                         }}
                         className={`flex items-center gap-2 w-full px-4 py-2 text-left text-xs font-bold rounded-xl transition-colors border-none bg-transparent cursor-pointer ${
@@ -3324,9 +3435,9 @@ export default function ChildRoutine() {
                 playBubble();
                 setSleepMode(!sleepMode);
                 if (!sleepMode) {
-                  speakText("Modo sono ativado. Hora de relaxar.");
+                  speakText(t.routine.sleepModeActivated);
                 } else {
-                  speakText("Modo sono desativado.");
+                  speakText(t.routine.sleepModeDeactivated);
                 }
               }}
               onMouseEnter={playBubble}
@@ -3346,9 +3457,9 @@ export default function ChildRoutine() {
                 setLocalCalmMode(nextVal);
                 localStorage.setItem('localCalmMode', nextVal ? 'true' : 'false');
                 if (nextVal) {
-                  speakText("Modo calmo ativado.");
+                  speakText(t.routine.calmModeActivated);
                 } else {
-                  speakText("Modo calmo desativado.");
+                  speakText(t.routine.calmModeDeactivated);
                 }
               }}
               onMouseEnter={playBubble}
@@ -3377,13 +3488,13 @@ export default function ChildRoutine() {
             
             {!sleepMode && (
               <div className="flex items-center gap-1 bg-white border-2 border-slate-200 rounded-full px-1.5 py-0.5 sm:px-2.5 sm:py-1 shadow-sm shrink-0">
-                <span className="text-[9px] font-black text-slate-500 uppercase font-Outfit mr-0.5 hidden md:inline">Bateria:</span>
+                <span className="text-[9px] font-black text-slate-500 uppercase font-Outfit mr-0.5 hidden md:inline">{t.routine.batteryTitle}:</span>
                 <button
                   onClick={() => handleUpdateBattery('green')}
                   className={`w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center text-xs transition-all active:scale-90 cursor-pointer border-none ${
                     activeChild?.emotionalBattery === 'green' ? 'bg-emerald-500 text-white shadow-sm' : 'bg-slate-100 grayscale opacity-40 hover:opacity-100 hover:grayscale-0'
                   }`}
-                  title="Ótimo"
+                  title={locale === "es" ? "Excelente" : locale === "en" ? "Great" : "Ótimo"}
                 >
                   🔋
                 </button>
@@ -3392,7 +3503,7 @@ export default function ChildRoutine() {
                   className={`w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center text-xs transition-all active:scale-90 cursor-pointer border-none ${
                     activeChild?.emotionalBattery === 'yellow' ? 'bg-yellow-450 text-slate-950 shadow-sm' : 'bg-slate-100 grayscale opacity-40 hover:opacity-100 hover:grayscale-0'
                   }`}
-                  title="Cansado"
+                  title={locale === "es" ? "Cansado" : locale === "en" ? "Tired" : "Cansado"}
                 >
                   ⚡
                 </button>
@@ -3401,7 +3512,7 @@ export default function ChildRoutine() {
                   className={`w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center text-xs transition-all active:scale-90 cursor-pointer border-none ${
                     activeChild?.emotionalBattery === 'red' ? 'bg-red-500 text-white shadow-sm' : 'bg-slate-100 grayscale opacity-40 hover:opacity-100 hover:grayscale-0'
                   }`}
-                  title="Sobrecarregado"
+                  title={locale === "es" ? "Sobrecargado" : locale === "en" ? "Overloaded" : "Sobrecarregado"}
                 >
                   🪫
                 </button>
@@ -3413,7 +3524,7 @@ export default function ChildRoutine() {
             <h2 className={`text-[10px] sm:text-xs font-black border-2 px-3.5 py-2 sm:px-5 sm:py-2.5 rounded-full shadow-premium uppercase tracking-widest font-Outfit leading-none ${
               sleepMode ? 'bg-[#090d1a] border-amber-900/50 text-amber-200' : 'bg-white border-slate-350 text-slate-805'
             }`}>
-              {DAY_LABELS[currentDay] || `Dia ${currentDay} 📅`}
+              {(t.common.dayLabels as any)[currentDay] || (locale === 'es' ? `Día ${currentDay} 📅` : locale === 'en' ? `Day ${currentDay} 📅` : `Dia ${currentDay} 📅`)}
             </h2>
             
             {/* Ambient Sound Selector Dropdown */}
@@ -3435,8 +3546,8 @@ export default function ChildRoutine() {
                 {activeAmbientType === 'white' && '🤍 '}
                 {activeAmbientType === 'pink' && '💗 '}
                 {activeAmbientType === 'binaural' && '🧠 '}
-                <span className="hidden sm:inline">Som Ambiente</span>
-                <span className="sm:hidden">Som</span>{" "}
+                <span className="hidden sm:inline">{t.routine.ambientSoundTitle.split(' ')[0]} {t.routine.ambientSoundTitle.split(' ')[1]}</span>
+                <span className="sm:hidden">{t.routine.ambientSoundTitle.split(' ')[0]}</span>{" "}
                 {showAmbientMenu ? '▲' : '▼'}
               </button>
 
@@ -3449,11 +3560,11 @@ export default function ChildRoutine() {
                   }`}
                 >
                   {[
-                    { type: 'none', label: '🔈 Silencioso', title: 'Silencioso', activeClass: sleepMode ? 'bg-slate-800 text-slate-100' : 'bg-slate-100 text-slate-805', inactiveClass: sleepMode ? 'hover:bg-slate-850 text-amber-200' : 'hover:bg-slate-50 text-slate-705' },
-                    { type: 'rain', label: '🌧️ Chuva', title: 'Som de Chuva', activeClass: sleepMode ? 'bg-blue-950 text-blue-300' : 'bg-blue-50 text-blue-805 border border-blue-200', inactiveClass: sleepMode ? 'hover:bg-slate-850 text-amber-200 hover:text-blue-300' : 'hover:bg-slate-50 text-slate-705 hover:text-blue-500' },
-                    { type: 'white', label: '🤍 Ruído Branco', title: 'Ruído Branco', activeClass: sleepMode ? 'bg-slate-800 text-slate-100' : 'bg-slate-100 text-slate-805 border border-slate-200', inactiveClass: sleepMode ? 'hover:bg-slate-850 text-amber-200' : 'hover:bg-slate-50 text-slate-705' },
-                    { type: 'pink', label: '💗 Ruído Rosa', title: 'Ruído Rosa', activeClass: sleepMode ? 'bg-pink-950 text-pink-305' : 'bg-pink-50 text-pink-850 border border-pink-200', inactiveClass: sleepMode ? 'hover:bg-slate-850 text-amber-200 hover:text-pink-300' : 'hover:bg-slate-50 text-slate-705 hover:text-pink-505' },
-                    { type: 'binaural', label: '🧠 Foco Binaural', title: 'Foco Binaural', activeClass: sleepMode ? 'bg-indigo-950 text-indigo-305' : 'bg-indigo-50 text-indigo-805 border border-indigo-200', inactiveClass: sleepMode ? 'hover:bg-slate-850 text-amber-200 hover:text-indigo-300' : 'hover:bg-slate-50 text-slate-705 hover:text-indigo-550' }
+                    { type: 'none', label: locale === 'es' ? '🔈 Silencioso' : locale === 'en' ? '🔈 Silent' : '🔈 Silencioso', title: locale === 'es' ? 'Silencioso' : locale === 'en' ? 'Silent' : 'Silencioso', activeClass: sleepMode ? 'bg-slate-800 text-slate-100' : 'bg-slate-100 text-slate-805', inactiveClass: sleepMode ? 'hover:bg-slate-850 text-amber-200' : 'hover:bg-slate-50 text-slate-705' },
+                    { type: 'rain', label: locale === 'es' ? '🌧️ Lluvia' : locale === 'en' ? '🌧️ Rain' : '🌧️ Chuva', title: locale === 'es' ? 'Sonido de Lluvia' : locale === 'en' ? 'Rain Sound' : 'Som de Chuva', activeClass: sleepMode ? 'bg-blue-950 text-blue-300' : 'bg-blue-50 text-blue-805 border border-blue-200', inactiveClass: sleepMode ? 'hover:bg-slate-850 text-amber-200 hover:text-blue-300' : 'hover:bg-slate-50 text-slate-705 hover:text-blue-500' },
+                    { type: 'white', label: locale === 'es' ? '🤍 Ruido Blanco' : locale === 'en' ? '🤍 White Noise' : '🤍 Ruído Branco', title: locale === 'es' ? 'Ruido Blanco' : locale === 'en' ? 'White Noise' : 'Ruído Branco', activeClass: sleepMode ? 'bg-slate-800 text-slate-100' : 'bg-slate-100 text-slate-805 border border-slate-200', inactiveClass: sleepMode ? 'hover:bg-slate-850 text-amber-200' : 'hover:bg-slate-50 text-slate-705' },
+                    { type: 'pink', label: locale === 'es' ? '💗 Ruido Rosa' : locale === 'en' ? '💗 Pink Noise' : '💗 Ruído Rosa', title: locale === 'es' ? 'Ruido Rosa' : locale === 'en' ? 'Pink Noise' : 'Ruído Rosa', activeClass: sleepMode ? 'bg-pink-950 text-pink-305' : 'bg-pink-50 text-pink-850 border border-pink-200', inactiveClass: sleepMode ? 'hover:bg-slate-850 text-amber-200 hover:text-pink-300' : 'hover:bg-slate-50 text-slate-705 hover:text-pink-505' },
+                    { type: 'binaural', label: locale === 'es' ? '🧠 Foco Binaural' : locale === 'en' ? '🧠 Binaural Focus' : '🧠 Foco Binaural', title: locale === 'es' ? 'Foco Binaural' : locale === 'en' ? 'Binaural Focus' : 'Foco Binaural', activeClass: sleepMode ? 'bg-indigo-950 text-indigo-305' : 'bg-indigo-50 text-indigo-805 border border-indigo-200', inactiveClass: sleepMode ? 'hover:bg-slate-850 text-amber-200 hover:text-indigo-300' : 'hover:bg-slate-50 text-slate-705 hover:text-indigo-550' }
                   ].map(btn => (
                     <button
                       key={btn.type}
@@ -3472,6 +3583,9 @@ export default function ChildRoutine() {
                   ))}
                 </div>
               )}
+            </div>
+            <div className="shrink-0">
+              <LanguageSelector />
             </div>
           </div>
         </div>
@@ -3531,16 +3645,16 @@ export default function ChildRoutine() {
                   <span className="text-3xl animate-pulse">🌙</span>
                   <div>
                     <h3 className="text-xl font-black text-amber-200 font-Outfit">Ambiente do Sono Sensorial</h3>
-                    <p className="text-xs text-amber-400 font-semibold mt-0.5">Sons calmos e histórias acolhedoras para ninar.</p>
+                    <p className="text-xs text-amber-400 font-semibold mt-0.5">{t.routine.bedtimeStoriesDesc}</p>
                   </div>
                 </div>
                 
                 <button
                   onClick={() => {
                     playBubble();
-                    setSelectedStory(BEDTIME_STORIES[0]);
+                    setSelectedStory(localizedBedtimeStories[0]);
                     setCurrentStoryStep(0);
-                    speakText(BEDTIME_STORIES[0].steps[0].text.replace('[Mascote]', childHyperfocus.split(' ')[0]));
+                    speakText(localizedBedtimeStories[0].steps[0].text.replace('[Mascote]', childHyperfocus.split(' ')[0]));
                     setShowStoriesModal(true);
                   }}
                   className="px-5 py-2.5 bg-amber-950/80 hover:bg-amber-900 border border-amber-700/60 text-amber-200 text-xs font-black rounded-2xl active:scale-95 transition-all cursor-pointer flex items-center gap-1.5"
@@ -3581,10 +3695,10 @@ export default function ChildRoutine() {
                 </div>
 
                 <div className="bg-[#121827] border border-amber-950/50 p-5 rounded-2xl flex flex-col gap-4">
-                  <span className="text-[10px] font-black uppercase tracking-wider text-amber-500 font-Outfit font-extrabold">🛌 Histórias para Adormecer</span>
+                  <span className="text-[10px] font-black uppercase tracking-wider text-amber-500 font-Outfit font-extrabold">🛌 {t.routine.bedtimeStoriesTitle}</span>
                   
                   <div className="flex flex-col gap-2.5 max-h-[180px] overflow-y-auto pr-1">
-                    {BEDTIME_STORIES.map(story => (
+                    {localizedBedtimeStories.map(story => (
                       <button
                         key={story.id}
                         onClick={() => {
@@ -3867,7 +3981,7 @@ export default function ChildRoutine() {
                   return (
                     <div className={`bg-white border-4 border-indigo-600 rounded-[32px] p-6 shadow-premium flex flex-col items-center text-center gap-4 relative overflow-hidden transition-all duration-300 ${category.shadow}`}>
                       <div className="absolute top-3 left-3 bg-indigo-600 text-white text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full select-none font-Outfit">
-                        1º Primeiro
+                        {t.routine.first}
                       </div>
                       <div className="mt-4 relative">
                         <RoutineIllustration category={activeTask.title} size={110} hyperfocus={childHyperfocus} />
@@ -3913,7 +4027,7 @@ export default function ChildRoutine() {
                   return (
                     <div className="bg-slate-50 border-4 border-dashed border-slate-350 rounded-[32px] p-6 shadow-premium flex flex-col items-center text-center justify-center gap-4 relative overflow-hidden opacity-85">
                       <div className="absolute top-3 left-3 bg-slate-500 text-white text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full select-none font-Outfit">
-                        2º Depois
+                        {t.routine.then}
                       </div>
                       <div 
                         onClick={() => { playBubble(); speakText(nextTask.title); }}
@@ -3937,7 +4051,7 @@ export default function ChildRoutine() {
                 })() : (
                   <div className="bg-slate-50 border-4 border-dashed border-slate-300 rounded-[32px] p-6 shadow-premium flex flex-col items-center text-center justify-center gap-3 relative min-h-[200px] opacity-60">
                     <div className="absolute top-3 left-3 bg-slate-450 text-white text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full select-none font-Outfit">
-                      2º Depois
+                      {t.routine.then}
                     </div>
                     <span className="text-3xl select-none">🌙</span>
                     <h4 className="text-lg font-black text-slate-650 font-Outfit">Fim da Trilha</h4>
@@ -4285,9 +4399,9 @@ export default function ChildRoutine() {
                 <div className="flex flex-col gap-4">
                   <div className="text-center mt-2">
                     <span className="text-3xl">📖</span>
-                    <h3 className={`text-xl font-black mt-2 font-Outfit ${sleepMode ? 'text-amber-200' : 'text-slate-855'}`}>Histórias do Mascote</h3>
+                    <h3 className={`text-xl font-black mt-2 font-Outfit ${sleepMode ? 'text-amber-200' : 'text-slate-855'}`}>{t.routine.socialStoriesTitle}</h3>
                     <p className={`text-xs font-semibold mt-1 ${sleepMode ? 'text-amber-450' : 'text-slate-400'}`}>
-                      Escolha uma história para ver com o seu mascote!
+                      {t.routine.storySelectionPrompt}
                     </p>
                   </div>
 
@@ -4300,7 +4414,7 @@ export default function ChildRoutine() {
                           storiesTab === 'preset' ? 'bg-indigo-650 text-white shadow-sm' : 'text-slate-650 hover:bg-white/50 border-none bg-transparent'
                         }`}
                       >
-                        Histórias Prontas 📚
+                        {t.routine.readyStories} 📚
                       </button>
                       <button
                         type="button"
@@ -4309,15 +4423,15 @@ export default function ChildRoutine() {
                           storiesTab === 'ai' ? 'bg-indigo-650 text-white shadow-sm' : 'text-slate-655 hover:bg-white/50 border-none bg-transparent'
                         }`}
                       >
-                        Criar com IA 🤖✨
+                        {t.routine.createWithAi} 🤖✨
                       </button>
                     </div>
                   )}
 
                   {storiesTab === 'preset' || sleepMode ? (
                     <div className="flex flex-col gap-3 max-h-[320px] overflow-y-auto pr-1 scrollbar-thin">
-                    <span className={`text-[10px] font-black uppercase tracking-wider font-Outfit ${sleepMode ? 'text-amber-500' : 'text-indigo-500'}`}>Histórias Sociais 📖</span>
-                    {SOCIAL_STORIES.map(story => (
+                    <span className={`text-[10px] font-black uppercase tracking-wider font-Outfit ${sleepMode ? 'text-amber-500' : 'text-indigo-500'}`}>{t.routine.socialStoriesTitle} 📖</span>
+                    {localizedSocialStories.map(story => (
                       <button
                         key={story.id}
                         onClick={() => {
@@ -4352,7 +4466,7 @@ export default function ChildRoutine() {
                             return (
                               <>
                                 <span className={`text-[10px] font-black uppercase tracking-wider font-Outfit mt-3 ${sleepMode ? 'text-rose-400' : 'text-rose-500'}`}>
-                                  Criadas pelos Pais 💖
+                                  {t.routine.storyCreatedByParents} 💖
                                 </span>
                                 {parsed.map(story => (
                                   <button
@@ -4388,8 +4502,8 @@ export default function ChildRoutine() {
                       return null;
                     })()}
 
-                    <span className="text-[10px] font-black uppercase tracking-wider text-amber-500 font-Outfit mt-3">Histórias do Sono 🌙💤</span>
-                    {BEDTIME_STORIES.map(story => (
+                    <span className="text-[10px] font-black uppercase tracking-wider text-amber-500 font-Outfit mt-3">{t.routine.bedtimeStoriesTitle} 🌙💤</span>
+                    {localizedBedtimeStories.map(story => (
                       <button
                         key={story.id}
                         onClick={() => {
@@ -4445,7 +4559,7 @@ export default function ChildRoutine() {
                         {generatingAi ? (
                           <>
                             <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                            <span>{GENERATOR_STATUSES[aiStatusIdx]}</span>
+                            <span>{localizedGeneratorStatuses[aiStatusIdx]}</span>
                           </>
                         ) : (
                           <>🤖 Gerar Aventura Social</>
@@ -4640,7 +4754,7 @@ export default function ChildRoutine() {
                     className="absolute left-0 top-0 bottom-0 bg-teal-600/40 transition-all duration-100 pointer-events-none"
                     style={{ width: `${exitHoldProgress}%` }}
                   />
-                  <span className="relative z-10 font-Outfit">Pressione e segure para sair 🔒</span>
+                  <span className="relative z-10 font-Outfit">{t.routine.exitLongPress} 🔒</span>
                 </button>
                 <span className="text-[9px] text-slate-500 font-extrabold">
                   Segure por 2 segundos para liberar o cadeado clínico
@@ -4744,7 +4858,7 @@ const ParentalLockOverlay: React.FC<ParentalLockOverlayProps> = ({
         <h3 className="text-xl font-black text-slate-800">Área dos Pais</h3>
         <p className="text-xs text-slate-400 font-semibold mt-1">
           {lockType === 'pin' 
-            ? 'Digite o PIN de 4 dígitos para sair' 
+            ? 't.routine.exitPinPrompt' 
             : 'Resolva a conta matemática para provar que é um adulto'}
         </p>
       </div>

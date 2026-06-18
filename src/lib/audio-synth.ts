@@ -170,11 +170,21 @@ export const speakText = (text: string) => {
     .trim();
 
   const utterance = new SpeechSynthesisUtterance(cleanText);
-  utterance.lang = 'pt-BR';
+  
+  // Resolve language code based on user language preference
+  let lang = 'pt-BR';
+  if (typeof window !== 'undefined') {
+    const saved = localStorage.getItem('language');
+    if (saved === 'es') lang = 'es-ES';
+    else if (saved === 'en') lang = 'en-US';
+  }
+  utterance.lang = lang;
+  
   utterance.rate = speedRate; // Configured speed rate for TEA children
   utterance.pitch = 1.15; // Warm, friendly, slightly higher pitch for engagement
 
   window.speechSynthesis.speak(utterance);
+
 };
 
 // Global ambient sound state variables

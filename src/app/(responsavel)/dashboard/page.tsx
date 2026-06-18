@@ -5,6 +5,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { firebaseBridge, Task, UserProfile, getOfflineQueue } from '../../../lib/firebase-bridge';
 import { immutableLogger, AuditLog } from '../../../lib/immutable-logger';
 import { playBubble, playMarimba } from '../../../lib/audio-synth';
+import { useLanguage } from '../../../lib/LanguageContext';
+import { LanguageSelector } from '../../../components/LanguageSelector';
 import { getTaskCategory, TaskCategory } from '../../../lib/sensory-standards';
 import { CollieState } from '../../../components/ludic/BorderCollie';
 import { HyperfocusMascot } from '../../../components/ludic/HyperfocusMascot';
@@ -235,6 +237,66 @@ const CLINICAL_TEMPLATES = {
 
 
 function ParentDashboardContent() {
+  const { t, locale } = useLanguage();
+
+  const PRESETS = [
+    { title: t.dashboard.presets[0], time: '08:00', period: 'manhã' as const },
+    { title: t.dashboard.presets[1], time: '08:30', period: 'manhã' as const },
+    { title: t.dashboard.presets[2], time: '09:00', period: 'manhã' as const },
+    { title: t.dashboard.presets[3], time: '13:00', period: 'tarde' as const },
+    { title: t.dashboard.presets[4], time: '17:30', period: 'tarde' as const },
+    { title: t.dashboard.presets[5], time: '19:30', period: 'noite' as const },
+    { title: t.dashboard.presets[6], time: '21:30', period: 'noite' as const },
+    { title: t.dashboard.presets[7], time: '09:00', period: 'manhã' as const },
+    { title: t.dashboard.presets[8], time: '14:00', period: 'tarde' as const },
+    { title: t.dashboard.presets[9], time: '10:30', period: 'manhã' as const },
+    { title: t.dashboard.presets[10], time: '15:30', period: 'tarde' as const },
+    { title: t.dashboard.presets[11], time: '16:00', period: 'tarde' as const },
+    { title: t.dashboard.presets[12], time: '11:00', period: 'manhã' as const }
+  ];
+
+  const CLINICAL_TEMPLATES = {
+    standard: {
+      name: locale === 'es' ? "Rutina Clínica Estándar 🧭" : locale === 'en' ? "Standard Clinical Routine 🧭" : "Rotina Clínica Padrão 🧭",
+      description: locale === 'es' ? "Equilibrada con higiene, estudio y ocio durante toda la semana." : locale === 'en' ? "Balanced with hygiene, study, and leisure throughout the week." : "Equilibrada com higiene, estudo e lazer ao longo de toda a semana.",
+      tasks: [
+        { title: locale === 'es' ? 'Cepillarse los dientes' : locale === 'en' ? 'Brush teeth' : 'Escovar os dentes', time: '08:00', period: 'manhã' as const },
+        { title: locale === 'es' ? 'Tomar el desayuno' : locale === 'en' ? 'Have breakfast' : 'Tomar café da manhã', time: '08:30', period: 'manhã' as const },
+        { title: locale === 'es' ? 'Clases y estudio' : locale === 'en' ? 'Classes and study' : 'Aulas e Estudo', time: '09:00', period: 'manhã' as const },
+        { title: locale === 'es' ? 'Almuerzo saludable' : locale === 'en' ? 'Healthy lunch' : 'Almoço Saudável', time: '12:30', period: 'tarde' as const },
+        { title: locale === 'es' ? 'Jugar con el Collie' : locale === 'en' ? 'Play with the Collie' : 'Brincar com o Collie', time: '15:00', period: 'tarde' as const },
+        { title: locale === 'es' ? 'Cena familiar' : locale === 'en' ? 'Family dinner' : 'Jantar em Família', time: '19:00', period: 'noite' as const },
+        { title: locale === 'es' ? 'Bañarse y dormir' : locale === 'en' ? 'Take a bath and sleep' : 'Tomar Banho e Dormir', time: '21:00', period: 'noite' as const }
+      ]
+    },
+    sensory_focus: {
+      name: locale === 'es' ? "Enfoque en Regulación Sensorial 🧘" : locale === 'en' ? "Sensory Regulation Focus 🧘" : "Foco em Regulação Sensorial 🧘",
+      description: locale === 'es' ? "Ideal para días de sobrecarga o desregulación sensorial. Menos exigencia académica." : locale === 'en' ? "Ideal for days of overload or sensory dysregulation. Less academic demand." : "Ideal para dias de sobrecarga ou desregulação sensorial. Menos cobrança acadêmica.",
+      tasks: [
+        { title: locale === 'es' ? 'Estiramiento suave' : locale === 'en' ? 'Gentle stretching' : 'Alongamento Suave', time: '08:00', period: 'manhã' as const },
+        { title: locale === 'es' ? 'Higiene y cepillado' : locale === 'en' ? 'Hygiene and brushing' : 'Higiene e Escovação', time: '08:30', period: 'manhã' as const },
+        { title: locale === 'es' ? 'Pausa de descompresión' : locale === 'en' ? 'Decompression break' : 'Pausa de Descompressão', time: '10:30', period: 'manhã' as const },
+        { title: locale === 'es' ? 'Almuerzo tranquilo' : locale === 'en' ? 'Calm lunch' : 'Almoço Calmo', time: '12:30', period: 'tarde' as const },
+        { title: locale === 'es' ? 'Actividad motora libre' : locale === 'en' ? 'Free motor activity' : 'Atividade Motora Livre', time: '14:30', period: 'tarde' as const },
+        { title: locale === 'es' ? 'Refugio sensorial' : locale === 'en' ? 'Sensory refuge' : 'Refúgio Sensorial', time: '16:30', period: 'tarde' as const },
+        { title: locale === 'es' ? 'Baño tibio relajante' : locale === 'en' ? 'Relaxing warm bath' : 'Banho Morno Relaxante', time: '19:00', period: 'noite' as const },
+        { title: locale === 'es' ? 'Lectura y calmaria' : locale === 'en' ? 'Reading and calm' : 'Leitura e Calmaria', time: '20:30', period: 'noite' as const }
+      ]
+    },
+    weekend_play: {
+      name: locale === 'es' ? "Fin de Semana Lúdico 🎈" : locale === 'en' ? "Playful Weekend 🎈" : "Fim de Semana Lúdico 🎈",
+      description: locale === 'es' ? "Foco en autonomía, socialización y actividades al aire libre con flexibilidad." : locale === 'en' ? "Focus on autonomy, socialization, and outdoor activities with flexibility." : "Foco em autonomia, socialização e atividades ao ar livre com flexibilidade.",
+      tasks: [
+        { title: locale === 'es' ? 'Desayuno especial' : locale === 'en' ? 'Special breakfast' : 'Café Especial', time: '09:00', period: 'manhã' as const },
+        { title: locale === 'es' ? 'Organizar juguetes' : locale === 'en' ? 'Organize toys' : 'Organizar Brinquedos', time: '10:00', period: 'manhã' as const },
+        { title: locale === 'es' ? 'Parque y naturaleza' : locale === 'en' ? 'Park and nature' : 'Parque e Natureza', time: '10:30', period: 'manhã' as const }
+      ]
+    }
+  };
+
+  const GENERATOR_STATUSES = t.dashboard.statusGenerator;
+  const CLINICAL_TIPS = t.dashboard.clinicalTips;
+
   const router = useRouter();
   const searchParams = useSearchParams();
   const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);
@@ -2212,12 +2274,13 @@ function ParentDashboardContent() {
               PA
             </div>
             <div>
-              <h1 className="text-xl font-black text-slate-955 font-Outfit">Painel do Responsável</h1>
-              <p className="text-xs text-slate-655 font-semibold">Controle de Rotina & Segurança Sensorial</p>
+              <h1 className="text-xl font-black text-slate-955 font-Outfit">{locale === 'es' ? 'Portal del Responsable' : locale === 'en' ? 'Guardian Portal' : 'Painel do Responsável'}</h1>
+              <p className="text-xs text-slate-655 font-semibold">{locale === 'es' ? 'Control de Rutina y Seguridad Sensorial' : locale === 'en' ? 'Routine Control & Sensory Safety' : 'Controle de Rotina & Segurança Sensorial'}</p>
             </div>
           </div>
 
           <div className="flex items-center gap-3 self-end md:self-auto">
+            <LanguageSelector />
             <span className="text-xs font-bold bg-indigo-50 border-2 border-indigo-200 text-indigo-800 px-3 py-1.5 rounded-full shadow-sm">
               🧑‍💻 {currentUser?.email}
             </span>
@@ -2225,7 +2288,7 @@ function ParentDashboardContent() {
               onClick={handleLogout}
               className="flex items-center gap-1.5 px-4 py-2 bg-red-50 border-2 border-red-200 hover:bg-red-100 hover:text-red-800 text-red-700 text-xs font-black rounded-full transition-all active:scale-95 font-Outfit cursor-pointer"
             >
-              <LogOut className="w-3.5 h-3.5" /> Sair
+              <LogOut className="w-3.5 h-3.5" /> {t.common.exit}
             </button>
           </div>
         </div>
@@ -3526,7 +3589,7 @@ function ParentDashboardContent() {
                   : 'text-slate-600 hover:text-slate-900 hover:bg-white/40 border-2 border-transparent'
               }`}
             >
-              <ListTodo className="w-4.5 h-4.5" /> Agenda
+              <ListTodo className="w-4.5 h-4.5" /> {locale === 'es' ? 'Agenda 📅' : locale === 'en' ? 'Schedule 📅' : 'Agenda'}
             </button>
             <button
               onClick={() => { playBubble(); setActivePanelTab('checkpoints'); }}
@@ -3536,7 +3599,7 @@ function ParentDashboardContent() {
                   : 'text-slate-600 hover:text-slate-900 hover:bg-white/40 border-2 border-transparent'
               }`}
             >
-              <span className="text-sm">🤝</span> Checkpoints Clínicos
+              <span className="text-sm">🤝</span> {locale === 'es' ? 'Puntos de Control' : locale === 'en' ? 'Clinical Checkpoints' : 'Checkpoints Clínicos'}
             </button>
             <button
               onClick={() => { playBubble(); setActivePanelTab('reports'); }}
@@ -3546,7 +3609,7 @@ function ParentDashboardContent() {
                   : 'text-slate-600 hover:text-slate-900 hover:bg-white/40 border-2 border-transparent'
               }`}
             >
-              <span className="text-sm">📊</span> Relatório Clínico
+              <span className="text-sm">📊</span> {locale === 'es' ? 'Informe Clínico' : locale === 'en' ? 'Clinical Report' : 'Relatório Clínico'}
             </button>
             <button
               onClick={() => { playBubble(); setActivePanelTab('logs'); }}
@@ -3556,7 +3619,7 @@ function ParentDashboardContent() {
                   : 'text-slate-600 hover:text-slate-900 hover:bg-white/40 border-2 border-transparent'
               }`}
             >
-              <History className="w-4.5 h-4.5" /> Logs de Segurança
+              <History className="w-4.5 h-4.5" /> {locale === 'es' ? 'Registros de Seguridad' : locale === 'en' ? 'Security Logs' : 'Logs de Segurança'}
               <span className="text-[10px] bg-indigo-50 border border-indigo-150 text-indigo-755 px-2 py-0.5 rounded-full font-extrabold shadow-xxs">
                 {logs.length}
               </span>
@@ -4697,7 +4760,7 @@ function ParentDashboardContent() {
                 <div className="flex items-center justify-between border-b border-slate-100 pb-4">
                   <div>
                     <h3 className="font-black text-slate-850 text-xl leading-tight font-Outfit">
-                      Checkpoints Clínicos & Evolução 🤝
+                      {locale === 'es' ? 'Puntos de Control' : locale === 'en' ? 'Clinical Checkpoints' : 'Checkpoints Clínicos'} & Evolução 🤝
                     </h3>
                     <p className="text-xs text-slate-400 font-semibold mt-0.5">
                       Acompanhamento por dia ou por semana das orientações e sessões dos especialistas.

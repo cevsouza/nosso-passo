@@ -25,9 +25,12 @@ import {
   Map
 } from 'lucide-react';
 import { playBubble, playMarimba } from '../../lib/audio-synth';
+import { useLanguage } from '../../lib/LanguageContext';
+import { LanguageSelector } from '../../components/LanguageSelector';
 import { SensoryHeatmap } from '../../components/SensoryHeatmap';
 
 export default function TherapistPortal() {
+  const { t, locale } = useLanguage();
   const [sharingCode, setSharingCode] = useState('');
   const [verifying, setVerifying] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
@@ -451,9 +454,9 @@ export default function TherapistPortal() {
               🩺
             </div>
             <div>
-              <h1 className="text-2xl font-black text-slate-900 font-Outfit">Portal do Terapeuta</h1>
+              <h1 className="text-2xl font-black text-slate-900 font-Outfit">{t.therapist.portalTitle}</h1>
               <p className="text-xs font-semibold text-slate-400 mt-1">
-                Acesse o progresso terapêutico, verifique a aderência diária e registre laudos clínicos.
+                {t.therapist.portalDesc}
               </p>
             </div>
           </div>
@@ -461,7 +464,7 @@ export default function TherapistPortal() {
           <form onSubmit={handleVerify} className="flex flex-col gap-4">
             <div>
               <label className="block text-xxs font-black text-slate-500 uppercase tracking-widest mb-1.5 font-Outfit">
-                Código de Compartilhamento Clínico
+                {t.therapist.sharingCodeLabel}
               </label>
               <input
                 type="text"
@@ -484,7 +487,7 @@ export default function TherapistPortal() {
               disabled={verifying || !sharingCode.trim()}
               className="w-full py-3.5 bg-teal-600 hover:bg-teal-700 text-white font-black rounded-xl text-sm flex items-center justify-center gap-2 cursor-pointer shadow-md active:scale-98 transition-all disabled:opacity-50 font-Outfit"
             >
-              {verifying ? 'Verificando...' : 'Acessar Prontuário Clínico'}
+              {verifying ? t.therapist.btnValidating : (t.therapist.btnAccess + (locale === 'en' ? ' Clinical Chart' : locale === 'es' ? ' Historial Clínico' : ' Prontuário Clínico'))}
               <ArrowRight className="w-4 h-4" />
             </button>
           </form>
@@ -530,7 +533,8 @@ export default function TherapistPortal() {
               </div>
             </div>
 
-            <div className="flex gap-2 self-start md:self-center">
+            <div className="flex gap-2 items-center self-start md:self-center">
+              <LanguageSelector />
               <button
                 onClick={() => { playBubble(); window.print(); }}
                 className="px-4 py-2.5 bg-teal-50 hover:bg-teal-100 border border-teal-200 text-teal-700 text-xs font-black rounded-xl cursor-pointer active:scale-95 transition-all font-Outfit"
@@ -1463,12 +1467,12 @@ export default function TherapistPortal() {
                           {isSchool && (log.foodIntake || log.schoolNoise) && (
                             <div className="flex gap-2.5 my-1 text-[9px] text-slate-550 font-extrabold bg-white/70 px-2 py-1 rounded border border-slate-200">
                               {log.foodIntake && (
-                                <span>🍲 Alimentação: {
+                                <span>🍲 {locale === 'en' ? 'Meals:' : locale === 'es' ? 'Alimentación:' : 'Alimentação:'} {
                                   log.foodIntake === 'boa' ? 'Boa 🟢' : log.foodIntake === 'regular' ? 'Regular 🟡' : 'Recusou 🔴'
                                 }</span>
                               )}
                               {log.schoolNoise && (
-                                <span>🔊 Barulho: {
+                                <span>🔊 {locale === 'en' ? 'Noise:' : locale === 'es' ? 'Ruido:' : 'Barulho:'} {
                                   log.schoolNoise === 'baixo' ? 'Baixo 🟢' : log.schoolNoise === 'medio' ? 'Médio 🟡' : 'Alto 🔴'
                                 }</span>
                               )}
@@ -1484,7 +1488,7 @@ export default function TherapistPortal() {
                           {(log.location || log.lightLevel || (log.decibels !== undefined && log.decibels !== null) || log.trigger) && (
                             <div className="flex flex-wrap gap-1.5 pt-1.5 border-t border-slate-100 text-[9px] text-slate-500 font-bold">
                               {log.location && <span className="flex items-center gap-0.5 bg-white border border-slate-200 px-1.5 py-0.5 rounded-md"><MapPin className="w-2.5 h-2.5" /> {log.location}</span>}
-                              {log.lightLevel && <span className="flex items-center gap-0.5 bg-white border border-slate-200 px-1.5 py-0.5 rounded-md"><Sun className="w-2.5 h-2.5" /> Luz: {log.lightLevel}</span>}
+                              {log.lightLevel && <span className="flex items-center gap-0.5 bg-white border border-slate-200 px-1.5 py-0.5 rounded-md"><Sun className="w-2.5 h-2.5" /> {locale === 'en' ? 'Light:' : locale === 'es' ? 'Luz:' : 'Luz:'} {log.lightLevel}</span>}
                               {log.decibels !== undefined && log.decibels !== null && <span className="flex items-center gap-0.5 bg-white border border-slate-200 px-1.5 py-0.5 rounded-md"><Volume2 className="w-2.5 h-2.5" /> {log.decibels}dB</span>}
                               {log.trigger && <span className="flex items-center gap-0.5 bg-white border border-slate-200 px-1.5 py-0.5 rounded-md">🎯 {log.trigger}</span>}
                             </div>
@@ -1628,8 +1632,8 @@ export default function TherapistPortal() {
                           <td className="py-2 text-slate-500 font-bold">
                             {log.loggedBy === 'school' ? (
                               <div className="flex flex-col gap-0.5 text-[8px] font-Outfit">
-                                {log.foodIntake && <span>🍲 Alimentação: {log.foodIntake}</span>}
-                                {log.schoolNoise && <span>🔊 Barulho: {log.schoolNoise}</span>}
+                                {log.foodIntake && <span>🍲 {locale === 'en' ? 'Meals:' : locale === 'es' ? 'Alimentación:' : 'Alimentação:'} {log.foodIntake}</span>}
+                                {log.schoolNoise && <span>🔊 {locale === 'en' ? 'Noise:' : locale === 'es' ? 'Ruido:' : 'Barulho:'} {log.schoolNoise}</span>}
                               </div>
                             ) : (
                               <>

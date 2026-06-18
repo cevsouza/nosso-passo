@@ -6,10 +6,13 @@ import { HyperfocusMascot } from '../components/ludic/HyperfocusMascot';
 import { playBubble, playMarimba } from '../lib/audio-synth';
 import { BookOpen, ShieldAlert, Sparkles, User2, ArrowRight } from 'lucide-react';
 import { firebaseBridge } from '../lib/firebase-bridge';
+import { useLanguage } from '../lib/LanguageContext';
+import { LanguageSelector } from '../components/LanguageSelector';
 
 const MotionLink = motion(Link);
 
 export default function Home() {
+  const { locale, t } = useLanguage();
   const [collieState, setCollieState] = useState<'idle' | 'guiding' | 'celebrating'>('idle');
   const [childHyperfocus, setChildHyperfocus] = useState('Border Collies 🐕');
 
@@ -52,10 +55,10 @@ export default function Home() {
 
   const getMascotCelebrationText = (hyperfocusStr: string) => {
     const focus = (hyperfocusStr || "").toLowerCase().trim();
-    if (focus.includes("dino") || focus.includes("dinossauro") || focus.includes("dinosaur")) {
+    if (focus.includes("dino") || focus.includes("dinossauro") || focus.includes("dinosaur") || focus.includes("dinosaurio")) {
       return 'Roar! 🦖';
     }
-    if (focus.includes("espaço") || focus.includes("astronauta") || focus.includes("space") || focus.includes("estrela") || focus.includes("star") || focus.includes("foguete") || focus.includes("rocket")) {
+    if (focus.includes("espaço") || focus.includes("astronauta") || focus.includes("space") || focus.includes("estrela") || focus.includes("star") || focus.includes("foguete") || focus.includes("rocket") || focus.includes("espacio")) {
       return 'Bip bip! 🚀';
     }
     if (focus.includes("minecraft") || focus.includes("bloco") || focus.includes("block")) {
@@ -64,16 +67,16 @@ export default function Home() {
     if (focus.includes("gato") || focus.includes("cat")) {
       return 'Miau! 🐾';
     }
-    if (focus.includes("carro") || focus.includes("car")) {
+    if (focus.includes("carro") || focus.includes("car") || focus.includes("coche")) {
       return 'Vrum! 🏁';
     }
-    if (focus.includes("trem") || focus.includes("train") || focus.includes("locomotiva")) {
+    if (focus.includes("trem") || focus.includes("train") || focus.includes("locomotiva") || focus.includes("tren")) {
       return 'Tchutchu! 🚂';
     }
-    if (focus.includes("herói") || focus.includes("heroi") || focus.includes("hero") || focus.includes("super")) {
+    if (focus.includes("herói") || focus.includes("heroi") || focus.includes("hero") || focus.includes("super") || focus.includes("héroe")) {
       return 'Super! 🌟';
     }
-    if (focus.includes("tubarão") || focus.includes("tubarao") || focus.includes("shark") || focus.includes("mar")) {
+    if (focus.includes("tubarão") || focus.includes("tubarao") || focus.includes("shark") || focus.includes("mar") || focus.includes("tiburón")) {
       return 'Splash! 🌊';
     }
     if (focus.includes("unicórnio") || focus.includes("unicornio") || focus.includes("unicorn")) {
@@ -147,9 +150,13 @@ export default function Home() {
           <span className="text-3xl animate-bounce">🐶</span>
           <span className="text-xl font-black tracking-tight text-slate-900 font-Outfit">Rotina Animada</span>
         </div>
-        <span className="text-xs font-black uppercase tracking-widest text-indigo-750 bg-indigo-100 border-2 border-indigo-255 px-4 py-2 rounded-full shadow-sm">
-          ✨ Neurodiversidade
-        </span>
+        
+        <div className="flex items-center gap-4">
+          <span className="hidden sm:inline-block text-xs font-black uppercase tracking-widest text-indigo-750 bg-indigo-100 border-2 border-indigo-255 px-4 py-2 rounded-full shadow-sm">
+            {t.landing.badgeNeuro}
+          </span>
+          <LanguageSelector />
+        </div>
       </header>
 
       {/* Main content grid */}
@@ -164,14 +171,19 @@ export default function Home() {
             className="flex flex-col items-center lg:items-start"
           >
             <span className="text-[11px] font-black uppercase tracking-widest text-emerald-950 bg-emerald-100 border-2 border-emerald-300 px-4 py-2 rounded-full mb-4 flex items-center gap-1.5 shadow-sm select-none">
-              <Sparkles className="w-4 h-4 text-emerald-600 animate-pulse" /> 100% Sensorialmente Seguro
+              <Sparkles className="w-4 h-4 text-emerald-600 animate-pulse" /> {t.landing.badgeSensory}
             </span>
             <h1 className="text-4xl md:text-5.5xl font-black tracking-tight text-slate-900 leading-tight font-Outfit">
-              Previsibilidade <br />
-              <span className="bg-gradient-to-r from-emerald-600 via-teal-600 to-indigo-700 bg-clip-text text-transparent">que Diverte!</span>
+              {locale === 'en' ? (
+                <>Predictability <br /><span className="bg-gradient-to-r from-emerald-600 via-teal-600 to-indigo-700 bg-clip-text text-transparent">Made Fun!</span></>
+              ) : locale === 'es' ? (
+                <>¡Previsibilidad <br /><span className="bg-gradient-to-r from-emerald-600 via-teal-600 to-indigo-700 bg-clip-text text-transparent">Divertida!</span></>
+              ) : (
+                <>Previsibilidade <br /><span className="bg-gradient-to-r from-emerald-600 via-teal-600 to-indigo-700 bg-clip-text text-transparent">que Diverte!</span></>
+              )}
             </h1>
             <p className="text-slate-700 text-sm md:text-base mt-4 leading-relaxed font-semibold max-w-md">
-              Uma agenda semanal e diária estruturada de forma lúdica com reforço positivo do Border Collie para reduzir a sobrecarga cognitiva e a ansiedade.
+              {t.landing.subheadline}
             </p>
           </motion.div>
 
@@ -199,7 +211,7 @@ export default function Home() {
               <HyperfocusMascot hyperfocus={childHyperfocus} state={collieState} size={170} />
               
               <span className="absolute bottom-2 text-[10px] font-black bg-slate-950 text-white px-3 py-1.5 rounded-full shadow-md select-none border border-slate-750 uppercase tracking-widest font-Outfit">
-                {collieState === 'celebrating' ? getMascotCelebrationText(childHyperfocus) : collieState === 'guiding' ? 'Olha lá! 👉' : 'Toca em mim! 👋'}
+                {collieState === 'celebrating' ? getMascotCelebrationText(childHyperfocus) : collieState === 'guiding' ? t.landing.mascotLook : t.landing.mascotTapMe}
               </span>
             </motion.div>
           </div>
@@ -220,9 +232,9 @@ export default function Home() {
                 🐾
               </div>
               <div>
-                <h3 className="text-2.5xl font-black tracking-tight leading-tight font-Outfit text-white">Área da Criança</h3>
+                <h3 className="text-2.5xl font-black tracking-tight leading-tight font-Outfit text-white">{t.landing.cardKidsTitle}</h3>
                 <p className="text-emerald-100 text-xs font-semibold leading-relaxed mt-3">
-                  Painel de missões diárias com visual super divertido, voz nativa automática e estrelas de conquista para reforço positivo.
+                  {t.landing.cardKidsDesc}
                 </p>
               </div>
             </div>
@@ -233,7 +245,7 @@ export default function Home() {
               onClick={() => playMarimba(261.63, 0.5)}
               className="mt-6 flex items-center justify-center gap-2 py-4 bg-white text-emerald-900 hover:bg-emerald-50 rounded-2xl font-black text-sm shadow-md cursor-pointer transition-all active:scale-95 border-b-4 border-emerald-200 font-Outfit"
             >
-              Iniciar Rotina <ArrowRight className="w-4 h-4 text-emerald-800" />
+              {t.landing.cardKidsBtn} <ArrowRight className="w-4 h-4 text-emerald-800" />
             </MotionLink>
           </motion.div>
 
@@ -249,9 +261,9 @@ export default function Home() {
                 <User2 className="w-7 h-7" />
               </div>
               <div>
-                <h3 className="text-2.5xl font-black tracking-tight leading-tight text-slate-900 font-Outfit">Cuidadores</h3>
+                <h3 className="text-2.5xl font-black tracking-tight leading-tight text-slate-900 font-Outfit">{t.landing.cardParentsTitle}</h3>
                 <p className="text-slate-600 text-xs font-semibold leading-relaxed mt-3">
-                  Painel completo para configurar tarefas com presets recomendados, gerenciar múltiplos perfis e acompanhar relatórios comportamentais.
+                  {t.landing.cardParentsDesc}
                 </p>
               </div>
             </div>
@@ -262,7 +274,7 @@ export default function Home() {
               onClick={() => playMarimba(329.63, 0.4)}
               className="mt-6 flex items-center justify-center gap-2 py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-black text-sm shadow-glow-indigo cursor-pointer transition-all active:scale-95 border-b-4 border-indigo-900 font-Outfit"
             >
-              Acessar Painel <ArrowRight className="w-4 h-4 text-indigo-200" />
+              {t.landing.cardParentsBtn} <ArrowRight className="w-4 h-4 text-indigo-200" />
             </MotionLink>
           </motion.div>
 
@@ -272,17 +284,17 @@ export default function Home() {
       {/* Footer Info */}
       <footer className="z-10 w-full text-center flex flex-col md:flex-row items-center justify-between gap-2 border-t border-slate-300/60 pt-6 pointer-events-auto mt-10">
         <span className="text-[10px] text-slate-500 font-extrabold uppercase tracking-widest">
-          neurodiversidade amigável • sem arquivos externos
+          {t.landing.footerFriendly}
         </span>
         <Link
           href="/therapist"
           onMouseEnter={playBubble}
           className="text-xs font-black text-teal-700 hover:text-teal-950 flex items-center gap-1 cursor-pointer font-Outfit transition-all"
         >
-          🩺 Portal do Terapeuta
+          {t.landing.footerTherapist}
         </Link>
         <span className="text-[10px] text-slate-500 font-extrabold uppercase tracking-widest">
-          © 2026 Rotina Animada
+          {t.landing.footerCopyright}
         </span>
       </footer>
 
