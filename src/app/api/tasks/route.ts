@@ -198,6 +198,8 @@ export async function PUT(req: Request) {
       return NextResponse.json({ error: 'ID da tarefa é obrigatório' }, { status: 400 });
     }
 
+    console.log('[API] PUT /api/tasks updates payload:', JSON.stringify(updates));
+
     const updateData: any = {};
     if (updates.title !== undefined && updates.title !== null) updateData.title = updates.title;
     if (updates.time !== undefined && updates.time !== null) updateData.time = updates.time;
@@ -213,13 +215,18 @@ export async function PUT(req: Request) {
     }
     if (updates.description !== undefined && updates.description !== null) updateData.description = updates.description;
 
+    console.log('[API] PUT /api/tasks updates data to write:', JSON.stringify(updateData));
+
     const updated = await prisma.task.update({
       where: { id },
       data: updateData,
     });
 
+    console.log('[API] PUT /api/tasks task updated successfully:', updated.id);
+
     return NextResponse.json(updated);
   } catch (error: any) {
+    console.error('[API] PUT /api/tasks failed with error:', error.message);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
