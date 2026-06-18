@@ -3553,7 +3553,7 @@ export default function ChildRoutine() {
           </div>
 
           <div className="flex items-center gap-3 justify-between md:justify-end">
-            <h2 className={`text-[10px] sm:text-xs font-black border-2 px-3.5 py-2 sm:px-5 sm:py-2.5 rounded-full shadow-premium uppercase tracking-widest font-Outfit leading-none ${
+            <h2 className={`text-[10px] sm:text-xs font-black border-2 px-3.5 py-2 sm:px-5 sm:py-2.5 rounded-full shadow-premium uppercase tracking-wider font-Outfit leading-none whitespace-nowrap shrink-0 ${
               sleepMode ? 'bg-[#090d1a] border-amber-900/50 text-amber-200' : 'bg-white border-slate-350 text-slate-805'
             }`}>
               {(t.common.dayLabels as any)[currentDay] || (locale === 'es' ? `Día ${currentDay} 📅` : locale === 'en' ? `Day ${currentDay} 📅` : `Dia ${currentDay} 📅`)}
