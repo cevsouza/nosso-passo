@@ -1130,14 +1130,19 @@ export default function ChildRoutine() {
         const parsed = JSON.parse(activeChild.unexpectedChange);
         if (parsed && parsed.cancelledTaskTitle) {
           const speakTimer = setTimeout(() => {
-            const speechText = `Oi! Tivemos uma mudança de planos hoje. A atividade ${parsed.cancelledTaskTitle} foi cancelada porque ${parsed.reason}. Mas não se preocupe! Em vez disso, nós vamos ${parsed.replacement}. Tudo bem?`;
+            const speechText =
+              locale === 'es'
+                ? `¡Hola! Tuvimos un cambio de planes hoy. La actividad ${parsed.cancelledTaskTitle} fue cancelada porque ${parsed.reason}. ¡Pero no te preocupes! En su lugar, vamos a ${parsed.replacement}. ¿Está bien?`
+                : locale === 'en'
+                ? `Hi! We had a change of plans today. The activity ${parsed.cancelledTaskTitle} was cancelled because ${parsed.reason}. But don't worry! Instead, we are going to ${parsed.replacement}. Okay?`
+                : `Oi! Tivemos uma mudança de planos hoje. A atividade ${parsed.cancelledTaskTitle} foi cancelada porque ${parsed.reason}. Mas não se preocupe! Em vez disso, nós vamos ${parsed.replacement}. Tudo bem?`;
             speakText(speechText);
           }, 1200);
           return () => clearTimeout(speakTimer);
         }
       } catch (e) {}
     }
-  }, [activeChild?.unexpectedChange]);
+  }, [activeChild?.unexpectedChange, locale]);
 
   const handleAcknowledgeUnexpectedChange = async () => {
     if (!activeChild) return;

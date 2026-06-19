@@ -2000,7 +2000,13 @@ function ParentDashboardContent() {
     e.preventDefault();
     if (!activeChild) return;
     if (!selectedCancelTaskTitle || !changeReason.trim() || !changeReplacement.trim()) {
-      triggerStatus('Preencha todos os campos da mudança inesperada.');
+      triggerStatus(
+        locale === 'es'
+          ? 'Complete todos los campos del cambio inesperado.'
+          : locale === 'en'
+          ? 'Fill in all fields of the unexpected change.'
+          : 'Preencha todos os campos da mudança inesperada.'
+      );
       return;
     }
 
@@ -2019,9 +2025,21 @@ function ParentDashboardContent() {
       setUnexpectedChangeObj(changeObj);
       setChangeReason('');
       setChangeReplacement('');
-      triggerStatus('Mudança de planos notificada ao portal da criança!');
+      triggerStatus(
+        locale === 'es'
+          ? '¡Cambio de planes notificado al portal del niño!'
+          : locale === 'en'
+          ? 'Change of plans notified to the child\'s portal!'
+          : 'Mudança de planos notificada ao portal da criança!'
+      );
     } catch (err) {
-      triggerStatus('Erro ao registrar mudança de planos.');
+      triggerStatus(
+        locale === 'es'
+          ? 'Error al registrar el cambio de planes.'
+          : locale === 'en'
+          ? 'Error registering change of plans.'
+          : 'Erro ao registrar mudança de planos.'
+      );
     }
   };
 
@@ -2035,9 +2053,21 @@ function ParentDashboardContent() {
       firebaseBridge.auth.setActiveChild(updated);
       setUnexpectedChangeObj(null);
       setSelectedCancelTaskTitle('');
-      triggerStatus('Mudança de planos removida.');
+      triggerStatus(
+        locale === 'es'
+          ? 'Cambio de planes eliminado.'
+          : locale === 'en'
+          ? 'Change of plans removed.'
+          : 'Mudança de planos removida.'
+      );
     } catch (err) {
-      triggerStatus('Erro ao limpar mudança.');
+      triggerStatus(
+        locale === 'es'
+          ? 'Error al limpiar el cambio.'
+          : locale === 'en'
+          ? 'Error clearing change.'
+          : 'Erro ao limpar mudança.'
+      );
     }
   };
 
@@ -3934,10 +3964,10 @@ function ParentDashboardContent() {
                     <div className="bg-gradient-to-br from-indigo-50/50 to-sky-50/50 border border-indigo-150 p-6 rounded-[28px] shadow-sm flex flex-col gap-4 text-left">
                       <div className="flex items-center gap-2 text-indigo-950">
                         <span className="text-xl">📅</span>
-                        <h4 className="font-extrabold text-sm font-Outfit uppercase tracking-wide">Modelo de Agenda</h4>
+                        <h4 className="font-extrabold text-sm font-Outfit uppercase tracking-wide">{t.dashboard.scheduleTemplate}</h4>
                       </div>
                       <p className="text-[10px] text-slate-500 font-semibold leading-relaxed">
-                        Salve o calendário completo de atividades personalizadas para o paciente e replique-o no início de cada semana para zerar o progresso em 1 clique.
+                        {t.dashboard.saveTemplateDesc}
                       </p>
                       <div className="flex gap-2.5 mt-2">
                         <button
@@ -3945,7 +3975,7 @@ function ParentDashboardContent() {
                           onClick={handleSaveMonthlyTemplate}
                           className="flex-1 py-2.5 bg-indigo-600 hover:bg-indigo-755 text-white text-xs font-black rounded-xl border-b-2 border-indigo-900 active:scale-95 transition-all cursor-pointer font-Outfit uppercase tracking-wider"
                         >
-                          💾 Salvar Modelo
+                          💾 {t.dashboard.saveTemplate}
                         </button>
                         <button
                           type="button"
@@ -3953,12 +3983,12 @@ function ParentDashboardContent() {
                           disabled={!activeChild.monthlyTemplate}
                           className="flex-1 py-2.5 bg-white hover:bg-slate-50 disabled:bg-slate-100 disabled:text-slate-455 disabled:border-slate-200 text-indigo-950 text-xs font-black rounded-xl border-2 border-slate-250 active:scale-95 transition-all cursor-pointer font-Outfit uppercase tracking-wider disabled:shadow-none"
                         >
-                          🔄 Reaplicar Modelo
+                          🔄 {t.dashboard.reapplyTemplate}
                         </button>
                       </div>
                       {activeChild.monthlyTemplate && (
                         <span className="text-[9px] text-emerald-600 font-bold bg-emerald-50/50 border border-emerald-150 px-2 py-1 rounded-lg text-center mt-1 self-start select-none">
-                          ✓ Modelo salvo no perfil do paciente
+                          ✓ {t.dashboard.templateSaved}
                         </span>
                       )}
                     </div>
@@ -3967,20 +3997,20 @@ function ParentDashboardContent() {
                     <div className="bg-gradient-to-br from-amber-50/50 to-orange-50/50 border border-amber-150 p-6 rounded-[28px] shadow-sm flex flex-col gap-4 text-left">
                       <div className="flex items-center gap-2 text-amber-950">
                         <span className="text-xl">⚠️</span>
-                        <h4 className="font-extrabold text-sm font-Outfit uppercase tracking-wide">Notificar Mudança Inesperada</h4>
+                        <h4 className="font-extrabold text-sm font-Outfit uppercase tracking-wide">{t.dashboard.notifyChangeTitle}</h4>
                       </div>
                       
                       {unexpectedChangeObj ? (
                         <div className="flex flex-col gap-3">
                           <div className="p-3 bg-white border border-amber-200 rounded-xl text-xxs font-semibold text-slate-700 flex flex-col gap-1.5">
                             <div>
-                              <strong className="text-amber-800">Atividade Cancelada:</strong> {unexpectedChangeObj.cancelledTaskTitle}
+                              <strong className="text-amber-800">{t.dashboard.cancelledActivity}</strong> {unexpectedChangeObj.cancelledTaskTitle}
                             </div>
                             <div>
-                              <strong className="text-amber-800">Motivo da Mudança:</strong> {unexpectedChangeObj.reason}
+                              <strong className="text-amber-800">{t.dashboard.changeReason}</strong> {unexpectedChangeObj.reason}
                             </div>
                             <div>
-                              <strong className="text-amber-800">Atividade Substituta:</strong> {unexpectedChangeObj.replacement}
+                              <strong className="text-amber-800">{t.dashboard.replacementActivity}</strong> {unexpectedChangeObj.replacement}
                             </div>
                           </div>
                           <button
@@ -3988,38 +4018,38 @@ function ParentDashboardContent() {
                             onClick={handleClearUnexpectedChange}
                             className="w-full py-2.5 bg-red-500 hover:bg-red-650 text-white text-xs font-black rounded-xl border-b-2 border-red-750 active:scale-95 transition-all cursor-pointer font-Outfit uppercase tracking-wider"
                           >
-                            ❌ Cancelar Notificação
+                            ❌ {t.dashboard.cancelNotification}
                           </button>
                         </div>
                       ) : (
                         <form onSubmit={handleDeclareUnexpectedChange} className="flex flex-col gap-2.5">
                           <p className="text-[10px] text-slate-500 font-semibold leading-relaxed">
-                            Intercepte o portal da criança com um modal explicativo (por voz/imagem) para prepará-la para alterações repentinas de rotina.
+                            {t.dashboard.unexpectedChangeDesc}
                           </p>
                           <div className="grid grid-cols-1 gap-2 mt-1">
                             <div>
-                              <label className="block text-[8px] font-black text-slate-500 uppercase mb-0.5 pl-0.5">Atividade Afetada</label>
+                              <label className="block text-[8px] font-black text-slate-500 uppercase mb-0.5 pl-0.5">{t.dashboard.affectedActivity}</label>
                               <select
                                 value={selectedCancelTaskTitle}
                                 onChange={e => setSelectedCancelTaskTitle(e.target.value)}
                                 className="w-full px-2.5 py-1.5 bg-white border border-slate-250 rounded-lg text-[10px] font-bold outline-none cursor-pointer"
                                 required
                               >
-                                <option value="">Selecione uma atividade...</option>
+                                <option value="">{t.dashboard.selectActivity}</option>
                                 {tasks.filter(t => t.day === activeDayFilter).map(t => (
                                   <option key={t.id} value={t.title}>{t.title} ({t.time})</option>
                                 ))}
                                 {tasks.filter(t => t.day === activeDayFilter).length === 0 && (
-                                  <option disabled>Nenhuma atividade cadastrada hoje</option>
+                                  <option disabled>{t.dashboard.noActivitiesToday}</option>
                                 )}
                               </select>
                             </div>
                             <div className="grid grid-cols-2 gap-2">
                               <div>
-                                <label className="block text-[8px] font-black text-slate-500 uppercase mb-0.5 pl-0.5">Motivo (Ex: carro quebrou)</label>
+                                <label className="block text-[8px] font-black text-slate-500 uppercase mb-0.5 pl-0.5">{t.dashboard.changeReasonLabel}</label>
                                 <input
                                   type="text"
-                                  placeholder="o carro quebrou..."
+                                  placeholder={t.dashboard.changeReasonPlaceholder}
                                   value={changeReason}
                                   onChange={e => setChangeReason(e.target.value)}
                                   className="w-full px-2.5 py-1.5 bg-white border border-slate-250 rounded-lg text-xxs font-bold outline-none"
@@ -4027,10 +4057,10 @@ function ParentDashboardContent() {
                                 />
                               </div>
                               <div>
-                                <label className="block text-[8px] font-black text-slate-500 uppercase mb-0.5 pl-0.5">Substituta (Ex: jogar blocos)</label>
+                                <label className="block text-[8px] font-black text-slate-500 uppercase mb-0.5 pl-0.5">{t.dashboard.replacementLabel}</label>
                                   <input
                                   type="text"
-                                  placeholder="assistir filme 🍿..."
+                                  placeholder={t.dashboard.replacementPlaceholder}
                                   value={changeReplacement}
                                   onChange={e => setChangeReplacement(e.target.value)}
                                   className="w-full px-2.5 py-1.5 bg-white border border-slate-250 rounded-lg text-xxs font-bold outline-none"
@@ -4043,7 +4073,7 @@ function ParentDashboardContent() {
                             type="submit"
                             className="w-full py-2 bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-black rounded-xl border-b-2 border-amber-700 active:scale-95 transition-all cursor-pointer font-Outfit uppercase tracking-wider"
                           >
-                            📢 Enviar para Criança
+                            📢 {t.dashboard.sendToChild}
                           </button>
                         </form>
                       )}
@@ -4425,34 +4455,34 @@ function ParentDashboardContent() {
                   {/* Sensory & Clinical Legend Card */}
                   <div className="bg-white border border-slate-200 p-4.5 rounded-2xl shadow-sm flex flex-col gap-2">
                     <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 select-none">
-                      {locale === 'es' ? '📚 Didáctica y Apoyo de Mediación Clínica' : locale === 'en' ? '📚 Didactics & Clinical Mediation Support' : '📚 Didática & Apoio de Mediação Clínica'}
+                      📚 {t.dashboard.didacticsLegendTitle}
                     </span>
                     <p className="text-[10px] text-slate-500 font-semibold leading-relaxed">
-                      {locale === 'es' ? 'Cada actividad puede tener demandas de procesamiento sensorial. Comprenda los símbolos y categorías en las tarjetas de su hijo:' : locale === 'en' ? 'Each activity may have sensory processing demands. Understand the symbols and categories on your child\'s cards:' : 'Cada atividade pode possuir demandas de processamento sensorial. Entenda os símbolos e categorias nos cartões do seu filho:'}
+                      {t.dashboard.didacticsLegendDesc}
                     </p>
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-3.5 mt-1 pt-3 border-t border-slate-100">
                       <div className="flex items-center gap-2">
                         <span className="text-xl">🧼</span>
                         <div className="text-[9px] font-bold text-slate-605">
-                          <strong>{locale === 'es' ? 'AVD (Vida Diaria):' : locale === 'en' ? 'ADL (Daily Life):' : 'AVD (Vida Diária):'}</strong> {locale === 'es' ? 'Higiene, alimentación, autocuidado.' : locale === 'en' ? 'Hygiene, eating, self-care.' : 'Higiene, alimentação, autocuidado.'}
+                          {t.dashboard.legendAvd}
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="text-xl">📚</span>
                         <div className="text-[9px] font-bold text-slate-605">
-                          <strong>{locale === 'es' ? 'Aprendizaje:' : locale === 'en' ? 'Learning:' : 'Aprendizado:'}</strong> {locale === 'es' ? 'Terapia, tareas escolares, lectura.' : locale === 'en' ? 'Therapy, school tasks, reading.' : 'Terapia, tarefas escolares, leitura.'}
+                          {t.dashboard.legendLearning}
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="text-xl">🧸</span>
                         <div className="text-[9px] font-bold text-slate-605">
-                          <strong>{locale === 'es' ? 'Ocio/Lúdico:' : locale === 'en' ? 'Leisure/Playful:' : 'Lazer/Lúdico:'}</strong> {locale === 'es' ? 'Juegos, tiempo libre, refuerzo.' : locale === 'en' ? 'Play, free time, reinforcement.' : 'Brincadeiras, tempo livre, reforço.'}
+                          {t.dashboard.legendLeisure}
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="text-xl">🗣️</span>
                         <div className="text-[9px] font-bold text-slate-605">
-                          <strong>{locale === 'es' ? 'Voz Familiar:' : locale === 'en' ? 'Familiar Voice:' : 'Voz Familiar:'}</strong> {locale === 'es' ? 'Grabaciones de audio para calmar en la transición.' : locale === 'en' ? 'Audio recordings to calm down during transition.' : 'Gravações de áudios para acalmar na transição.'}
+                          {t.dashboard.legendFamilyVoice}
                         </div>
                       </div>
                     </div>
@@ -5041,7 +5071,7 @@ function ParentDashboardContent() {
                     onClick={() => { playBubble(); setNewCpOpen(!newCpOpen); if (!newCpDate) setNewCpDate(new Date().toISOString().split('T')[0]); }}
                     className="flex items-center gap-1.5 px-4 py-2 bg-indigo-50 border border-indigo-100 hover:bg-indigo-100 text-indigo-600 text-xs font-black rounded-full shadow-sm transition-all cursor-pointer font-Outfit border-none outline-none"
                   >
-                    <Plus className="w-4 h-4" /> {newCpOpen ? (locale === 'es' ? 'Cerrar Registro' : locale === 'en' ? 'Close Register' : 'Fechar Cadastro') : (locale === 'es' ? 'Nuevo Punto de Control Diario' : locale === 'en' ? 'New Daily Checkpoint' : 'Novo Checkpoint Diário')}
+                    <Plus className="w-4 h-4" /> {newCpOpen ? (locale === 'es' ? 'Cerrar Registro' : locale === 'en' ? 'Close Register' : 'Fechar Cadastro') : `+ ${t.dashboard.newDailyCheckpoint}`}
                   </button>
                 </div>
 
@@ -5055,13 +5085,13 @@ function ParentDashboardContent() {
                       className="bg-slate-50 border border-slate-200 p-5 rounded-[24px] overflow-hidden flex flex-col gap-4 text-xs"
                     >
                       <h4 className="font-black text-slate-800 font-Outfit">
-                        {locale === 'es' ? 'Nuevo Punto de Control Clínico Diario' : locale === 'en' ? 'New Daily Clinical Checkpoint' : 'Novo Checkpoint Clínico Diário'}
+                        {t.dashboard.newDailyCheckpoint}
                       </h4>
                       
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
                           <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1">
-                            {locale === 'es' ? 'Fecha de la Sesión' : locale === 'en' ? 'Session Date' : 'Data da Sessão'}
+                            {t.dashboard.sessionDate}
                           </label>
                           <input
                             type="date"
@@ -5088,7 +5118,7 @@ function ParentDashboardContent() {
 
                         <div>
                           <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1">
-                            {locale === 'es' ? 'Especialidad' : locale === 'en' ? 'Specialty' : 'Especialidade'}
+                            {t.dashboard.professional}
                           </label>
                           <select
                             value={newCpRole}
@@ -5109,45 +5139,55 @@ function ParentDashboardContent() {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                           <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1">
-                            {locale === 'es' ? 'Feedback / Orientaciones para Casa' : locale === 'en' ? 'Feedback / Guidance for Home' : 'Feedback / Orientações para Casa'}
+                            {t.dashboard.homeFeedback}
                           </label>
                           <textarea
-                            required
-                            placeholder={locale === 'es' ? 'Instrucciones prácticas de regulación, refuerzo visual o conductas para que la familia adopte...' : locale === 'en' ? 'Practical regulation instructions, visual reinforcement, or behaviors for the family to adopt...' : 'Instruções práticas de regulação, reforço visual ou condutas para a família adotar...'}
+                            placeholder={t.dashboard.homeFeedbackPlaceholder}
                             value={newCpFeedback}
                             onChange={e => setNewCpFeedback(e.target.value)}
-                            className="w-full p-3 bg-white border-2 border-slate-200 rounded-xl text-xs font-semibold focus:border-indigo-655 focus:bg-white outline-none h-20 resize-none"
+                            className="w-full bg-white border-2 border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold focus:border-indigo-650 focus:bg-white outline-none h-20 resize-none"
                           />
                         </div>
-
                         <div>
                           <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1">
-                            {locale === 'es' ? 'Notas del Responsable / Relato (Opcional)' : locale === 'en' ? 'Parent Notes / Report (Optional)' : 'Notas do Responsável / Relato (Opcional)'}
+                            {t.dashboard.guardianNotes}
                           </label>
                           <textarea
-                            placeholder={locale === 'es' ? 'Notas de los padres sobre cómo se comportó el niño en la sesión o dudas...' : locale === 'en' ? 'Parent notes on how the child behaved in the session or doubts...' : 'Anotações dos pais sobre como a criança se comportou na sessão ou dúvidas...'}
+                            placeholder={t.dashboard.guardianNotesPlaceholder}
                             value={newCpNotes}
                             onChange={e => setNewCpNotes(e.target.value)}
-                            className="w-full p-3 bg-white border-2 border-slate-200 rounded-xl text-xs font-semibold focus:border-indigo-655 focus:bg-white outline-none h-20 resize-none"
+                            className="w-full bg-white border-2 border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold focus:border-indigo-650 focus:bg-white outline-none h-20 resize-none"
                           />
                         </div>
                       </div>
 
-                      <div className="flex justify-end gap-2 mt-1">
-                        <button
-                          type="button"
-                          onClick={() => { playBubble(); setNewCpOpen(false); }}
-                          className="px-4 py-2 bg-slate-200 text-slate-705 text-xs font-bold rounded-xl active:scale-95 cursor-pointer border-none outline-none"
-                        >
-                          {locale === 'es' ? 'Cancelar' : locale === 'en' ? 'Cancel' : 'Cancelar'}
-                        </button>
-                        <button
-                          type="submit"
-                          disabled={creatingCheckpoint}
-                          className="px-5 py-2 bg-indigo-600 hover:bg-indigo-750 text-white text-xs font-black rounded-xl shadow-sm active:scale-95 cursor-pointer disabled:opacity-50 border-none outline-none font-Outfit"
-                        >
-                          {creatingCheckpoint ? (locale === 'es' ? 'Registrando...' : locale === 'en' ? 'Registering...' : 'Registrando...') : (locale === 'es' ? 'Grabar Checkpoint' : locale === 'en' ? 'Record Checkpoint' : 'Gravar Checkpoint')}
-                        </button>
+                      <div className="flex items-center justify-between border-t border-slate-100 pt-4 mt-1">
+                        <label className="flex items-center gap-1.5 text-xs font-black text-slate-700 cursor-pointer select-none">
+                          <input 
+                            type="checkbox" 
+                            className="rounded text-indigo-650 focus:ring-indigo-500 w-4 h-4 border-2 border-slate-300"
+                            checked={newCpStatus === 'completed'}
+                            onChange={(e) => setNewCpStatus(e.target.checked ? 'completed' : 'pending')}
+                          />
+                          {t.dashboard.sessionRealized}
+                        </label>
+
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => { playBubble(); setNewCpOpen(false); }}
+                            className="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-755 text-xs font-black rounded-xl cursor-pointer active:scale-95 transition-all"
+                          >
+                            {t.common.cancel}
+                          </button>
+                          <button
+                            type="submit"
+                            disabled={creatingCheckpoint}
+                            className="px-4 py-2 bg-indigo-650 hover:bg-indigo-700 text-white text-xs font-black rounded-xl cursor-pointer active:scale-95 transition-all shadow-sm disabled:opacity-50"
+                          >
+                            {creatingCheckpoint ? t.dashboard.registering : t.dashboard.recordCheckpoint}
+                          </button>
+                        </div>
                       </div>
                     </motion.form>
                   )}
@@ -5160,7 +5200,7 @@ function ParentDashboardContent() {
                   </div>
                 ) : checkpoints.length === 0 ? (
                   <div className="text-slate-450 text-xs border border-dashed border-slate-200/80 p-8 rounded-2xl text-center bg-slate-50/50">
-                    Nenhuma sessão configurada. Certifique-se de selecionar uma criança válida no menu lateral.
+                    {t.dashboard.noSessions}
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -5190,9 +5230,7 @@ function ParentDashboardContent() {
                                 ? 'bg-emerald-50 text-emerald-600 border-emerald-250' 
                                 : 'bg-amber-50 text-amber-600 border-amber-200'
                             }`}>
-                              {cp.status === 'completed' 
-                                ? (locale === 'es' ? 'Completado ✓' : locale === 'en' ? 'Completed ✓' : 'Concluído ✓') 
-                                : (locale === 'es' ? 'Pendiente' : locale === 'en' ? 'Pending' : 'Pendente')}
+                              {cp.status === 'completed' ? t.dashboard.completed : t.dashboard.pending}
                             </span>
                           </div>
 
@@ -5206,14 +5244,14 @@ function ParentDashboardContent() {
                                   <input 
                                     type="text" 
                                     className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-700 focus:outline-indigo-500" 
-                                    placeholder={locale === 'es' ? 'Nombre del profesional' : locale === 'en' ? 'Professional name' : 'Nome do profissional'} 
+                                    placeholder={t.dashboard.professionalPlaceholder} 
                                     value={editName}
                                     onChange={(e) => setEditName(e.target.value)}
                                   />
                                 </div>
                                 <div>
                                   <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1">
-                                    {locale === 'es' ? 'Especialidad' : locale === 'en' ? 'Specialty' : 'Especialidade'}
+                                    {t.dashboard.professional}
                                   </label>
                                   <select 
                                     className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-extrabold text-slate-700 focus:outline-indigo-500" 
@@ -5234,7 +5272,7 @@ function ParentDashboardContent() {
                               <div className="grid grid-cols-2 gap-3">
                                 <div>
                                   <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1">
-                                    {locale === 'es' ? 'Fecha de la Sesión' : locale === 'en' ? 'Session Date' : 'Data da Sessão'}
+                                    {t.dashboard.sessionDate}
                                   </label>
                                   <input 
                                     type="date" 
@@ -5251,18 +5289,18 @@ function ParentDashboardContent() {
                                       checked={editStatus === 'completed'}
                                       onChange={(e) => setEditStatus(e.target.checked ? 'completed' : 'pending')}
                                     />
-                                    {locale === 'es' ? 'Sesión Realizada' : locale === 'en' ? 'Session Conducted' : 'Sessão Realizada'}
+                                    {t.dashboard.sessionRealized}
                                   </label>
                                 </div>
                               </div>
 
                               <div>
                                 <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1">
-                                  {locale === 'es' ? 'Observaciones de los Padres' : locale === 'en' ? 'Parents Comments' : 'Observações dos Pais'}
+                                  {t.dashboard.guardianObs}
                                 </label>
                                 <textarea 
                                   className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-700 focus:outline-indigo-500 h-16 resize-none" 
-                                  placeholder={locale === 'es' ? '¿Cómo fue el comportamiento en casa esta semana?' : locale === 'en' ? 'How was behavior at home this week?' : 'Como foi o comportamento em casa nesta semana?'}
+                                  placeholder={t.dashboard.guardianNotesPlaceholder}
                                   value={editNotes}
                                   onChange={(e) => setEditNotes(e.target.value)}
                                 />
@@ -5270,11 +5308,11 @@ function ParentDashboardContent() {
 
                               <div>
                                 <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1">
-                                  {locale === 'es' ? 'Recomendaciones del Profesional' : locale === 'en' ? 'Professional Recommendations' : 'Recomendações do Profissional'}
+                                  {t.dashboard.clinicianRecommendations}
                                 </label>
                                 <textarea 
                                   className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-700 focus:outline-indigo-500 h-16 resize-none" 
-                                  placeholder={locale === 'es' ? 'Feedback y orientaciones dadas para la semana...' : locale === 'en' ? 'Feedback and guidance given for the week...' : 'Feedback e orientações dadas para a semana...'}
+                                  placeholder={t.dashboard.clinicianRecommendationsPlaceholder}
                                   value={editFeedback}
                                   onChange={(e) => setEditFeedback(e.target.value)}
                                 />
@@ -5285,14 +5323,14 @@ function ParentDashboardContent() {
                                   onClick={() => { playBubble(); setEditingCheckpointId(null); }}
                                   className="px-3.5 py-2 bg-slate-200 hover:bg-slate-300 text-slate-755 text-xs font-black rounded-xl cursor-pointer active:scale-95 transition-all"
                                 >
-                                  {locale === 'es' ? 'Cancelar' : locale === 'en' ? 'Cancel' : 'Cancelar'}
+                                  {t.common.cancel}
                                 </button>
                                 <button 
                                   onClick={() => handleSaveCheckpoint(cp.id)}
                                   disabled={savingCheckpointId === cp.id}
                                   className="px-4 py-2 bg-indigo-650 hover:bg-indigo-700 text-white text-xs font-black rounded-xl cursor-pointer active:scale-95 transition-all shadow-sm disabled:opacity-50"
                                 >
-                                  {savingCheckpointId === cp.id ? (locale === 'es' ? 'Guardando...' : locale === 'en' ? 'Saving...' : 'Salvando...') : (locale === 'es' ? 'Guardar Cambios 💾' : locale === 'en' ? 'Save Changes 💾' : 'Salvar Alterações 💾')}
+                                  {savingCheckpointId === cp.id ? t.dashboard.saving : t.dashboard.saveChanges}
                                 </button>
                               </div>
                             </div>
@@ -5326,14 +5364,14 @@ function ParentDashboardContent() {
                                 </div>
                               ) : (
                                 <div className="text-slate-400 text-xxs border border-dashed border-slate-200 p-3.5 rounded-xl text-center font-semibold bg-slate-50/20">
-                                  {locale === 'es' ? 'Ninguna sesión registrada para esta semana.' : locale === 'en' ? 'No session registered for this week.' : 'Nenhuma sessão registrada para esta semana.'}
+                                  {t.dashboard.noSessionsThisWeek}
                                 </div>
                               )}
 
                               {cp.notes && (
                                 <div className="flex flex-col gap-0.5">
                                   <span className="text-[9px] font-black uppercase tracking-wider text-slate-400">
-                                    {locale === 'es' ? 'Observaciones de los Padres' : locale === 'en' ? 'Parents Comments' : 'Observações dos Pais'}
+                                    {t.dashboard.guardianObs}
                                   </span>
                                   <p className="text-xs text-slate-650 leading-normal font-medium bg-slate-50/30 p-2.5 rounded-lg border border-slate-150/50 whitespace-pre-wrap">{cp.notes}</p>
                                 </div>
@@ -5342,7 +5380,7 @@ function ParentDashboardContent() {
                               {cp.feedback && (
                                 <div className="flex flex-col gap-0.5">
                                   <span className="text-[9px] font-black uppercase tracking-wider text-indigo-400">
-                                    {locale === 'es' ? 'Recomendaciones Clínicas' : locale === 'en' ? 'Clinical Recommendations' : 'Recomendações Clínicas'}
+                                    {t.dashboard.clinicianRecommendations}
                                   </span>
                                   <p className="text-xs text-indigo-950 leading-normal font-medium bg-indigo-50/20 p-2.5 rounded-lg border border-indigo-100 whitespace-pre-wrap">{cp.feedback}</p>
                                 </div>
@@ -5352,9 +5390,7 @@ function ParentDashboardContent() {
                                 onClick={() => startEditingCheckpoint(cp)}
                                 className="w-full mt-1.5 py-2.5 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-750 border border-slate-200 hover:border-indigo-200 text-slate-700 hover:text-indigo-700 text-xs font-black rounded-xl transition-all cursor-pointer shadow-xxs active:scale-98 flex items-center justify-center gap-1 font-Outfit"
                               >
-                                {cp.professionalName 
-                                  ? (locale === 'es' ? 'Editar Registro 📝' : locale === 'en' ? 'Edit Record 📝' : 'Editar Registro 📝') 
-                                  : (locale === 'es' ? 'Registrar Checkpoint 🤝' : locale === 'en' ? 'Register Checkpoint 🤝' : 'Registrar Checkpoint 🤝')}
+                                {cp.professionalName ? t.dashboard.editRecord : t.dashboard.registerCheckpoint}
                               </button>
                             </div>
                           )}
