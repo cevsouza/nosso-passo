@@ -24,6 +24,7 @@
     "stripe": "^22.2.1"
   },
   "devDependencies": {
+    "@stripe/cli": "^1.42.14",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
