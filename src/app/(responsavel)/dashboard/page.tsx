@@ -395,7 +395,63 @@ function ParentDashboardContent() {
       tasks: [
         { title: locale === 'es' ? 'Desayuno especial' : locale === 'en' ? 'Special breakfast' : 'Café Especial', time: '09:00', period: 'manhã' as const },
         { title: locale === 'es' ? 'Organizar juguetes' : locale === 'en' ? 'Organize toys' : 'Organizar Brinquedos', time: '10:00', period: 'manhã' as const },
-        { title: locale === 'es' ? 'Parque y naturaleza' : locale === 'en' ? 'Park and nature' : 'Parque e Natureza', time: '10:30', period: 'manhã' as const }
+        { title: locale === 'es' ? 'Parque y naturaleza' : locale === 'en' ? 'Park and nature' : 'Parque e Natureza', time: '10:30', period: 'manhã' as const },
+        { title: locale === 'es' ? 'Almuerzo en familia' : locale === 'en' ? 'Family lunch' : 'Almoço em Família', time: '13:00', period: 'tarde' as const },
+        { title: locale === 'es' ? 'Tiempo libre (Hiperenfoque)' : locale === 'en' ? 'Free time (Hyperfocus)' : 'Tempo Livre (Hiperfoco)', time: '15:30', period: 'tarde' as const },
+        { title: locale === 'es' ? 'Cena familiar' : locale === 'en' ? 'Family dinner' : 'Jantar em Família', time: '19:30', period: 'noite' as const },
+        { title: locale === 'es' ? 'Higiene y dormir' : locale === 'en' ? 'Hygiene and sleep' : 'Higiene e Dormir', time: '21:00', period: 'noite' as const }
+      ]
+    },
+    therapy_aba: {
+      name: locale === 'es' ? "Rutina Terapéutica ABA 🧠" : locale === 'en' ? "ABA Therapy Routine 🧠" : "Rotina Terapêutica ABA 🧠",
+      description: locale === 'es' ? "Estructurada con sesiones ABA de mandos, imitación, merienda social y pausas reguladoras." : locale === 'en' ? "Structured with ABA sessions of mands, imitation, social snack, and regulating breaks." : "Estruturada com sessões ABA de mandos, imitação, lanche social e pausas reguladoras.",
+      tasks: [
+        { title: locale === 'es' ? 'Higiene matutina 🫧' : locale === 'en' ? 'Morning Hygiene 🫧' : 'Higiene da Manhã 🫧', time: '08:00', period: 'manhã' as const },
+        { title: locale === 'es' ? 'Entrenamiento ABA: Mandos y Mirada 🧠' : locale === 'en' ? 'ABA Training: Mands & Eye Contact 🧠' : 'Treino ABA: Mandos & Olhar 🧠', time: '09:00', period: 'manhã' as const },
+        { title: locale === 'es' ? 'Merienda conductual 🍎' : locale === 'en' ? 'Behavioral Snack 🍎' : 'Lanche Comportamental 🍎', time: '10:00', period: 'manhã' as const },
+        { title: locale === 'es' ? 'Entrenamiento ABA: Imitación y Motor 🧠' : locale === 'en' ? 'ABA Training: Imitation & Motor 🧠' : 'Treino ABA: Imitação & Motor 🧠', time: '10:30', period: 'manhã' as const },
+        { title: locale === 'es' ? 'Pausa de descompresión 🌙' : locale === 'en' ? 'Decompression Break 🌙' : 'Pausa de Descompressão 🌙', time: '11:30', period: 'manhã' as const },
+        { title: locale === 'es' ? 'Almuerzo cooperativo 🍎' : locale === 'en' ? 'Cooperative Lunch 🍎' : 'Almoço Cooperativo 🍎', time: '12:30', period: 'tarde' as const },
+        { title: locale === 'es' ? 'Juego dirigido (ABA) 🎮' : locale === 'en' ? 'Directed Play (ABA) 🎮' : 'Brincar Dirigido (ABA) 🎮', time: '15:00', period: 'tarde' as const },
+        { title: locale === 'es' ? 'Rutina de dormir 🌙' : locale === 'en' ? 'Bedtime Routine 🌙' : 'Rotina de Dormir 🌙', time: '20:30', period: 'noite' as const }
+      ]
+    },
+    therapy_ot_speech: {
+      name: locale === 'es' ? "Terapia Ocupacional y Fonoaudiología 🧼" : locale === 'en' ? "Occupational Therapy & Speech 🧼" : "Terapia Ocupacional & Fono 🧼",
+      description: locale === 'es' ? "Día enfocado en estimulación de habla, lenguaje, motricidad fina e integración sensorial." : locale === 'en' ? "Day focused on speech stimulation, language, fine motor skills, and sensory integration." : "Dia focado em estimulação de fala, linguagem, motricidade fina e integração sensorial.",
+      tasks: [
+        { title: locale === 'es' ? 'Cepillado de higiene 🫧' : locale === 'en' ? 'Hygiene Brushing 🫧' : 'Escovação de Higiene 🫧', time: '08:30', period: 'manhã' as const },
+        { title: locale === 'es' ? 'Sesión de fonoaudiología 🗣️' : locale === 'en' ? 'Speech Therapy Session 🗣️' : 'Sessão de Fonoterapia 🗣️', time: '09:30', period: 'manhã' as const },
+        { title: locale === 'es' ? 'Terapia Ocupacional: Tablero perforado 🧼' : locale === 'en' ? 'Occupational Therapy: Pegboard 🧼' : 'Terapia Ocupacional: Pegboard 🧼', time: '11:00', period: 'manhã' as const },
+        { title: locale === 'es' ? 'Almuerzo saludable 🍎' : locale === 'en' ? 'Healthy Lunch 🍎' : 'Almoço Saudável 🍎', time: '12:30', period: 'tarde' as const },
+        { title: locale === 'es' ? 'T.O.: Cepillado sensorial 🧼' : locale === 'en' ? 'O.T.: Sensory Brushing 🧼' : 'T.O.: Escovação Sensorial 🧼', time: '14:30', period: 'tarde' as const },
+        { title: locale === 'es' ? 'Fono: Lectura compartida 🗣️' : locale === 'en' ? 'Speech: Shared Reading 🗣️' : 'Fono: Leitura Compartilhada 🗣️', time: '16:00', period: 'tarde' as const },
+        { title: locale === 'es' ? 'Cena familiar 🍎' : locale === 'en' ? 'Family Dinner 🍎' : 'Jantar em Família 🍎', time: '19:30', period: 'noite' as const }
+      ]
+    },
+    therapy_motor: {
+      name: locale === 'es' ? "Fisioterapia y Psicomotricidad 🏃" : locale === 'en' ? "Physio & Psychomotricity 🏃" : "Fisio & Psicomotricidade 🏃",
+      description: locale === 'es' ? "Enfoque en motricidad gruesa, estiramiento, tono postural y circuitos de equilibrio." : locale === 'en' ? "Focus on gross motor skills, stretching, postural tone, and balance circuits." : "Foco em motricidade ampla, alongamento, tônus postural e circuitos de equilíbrio.",
+      tasks: [
+        { title: locale === 'es' ? 'Estiramiento matutino 🏃' : locale === 'en' ? 'Morning Stretching 🏃' : 'Alongamento Matinal 🏃', time: '08:30', period: 'manhã' as const },
+        { title: locale === 'es' ? 'Fisioterapia: Pelota de Pilates 🩺' : locale === 'en' ? 'Physical Therapy: Pilates Ball 🩺' : 'Fisioterapia: Bola Pilates 🩺', time: '09:30', period: 'manhã' as const },
+        { title: locale === 'es' ? 'Merienda saludable 🍎' : locale === 'en' ? 'Healthy Snack 🍎' : 'Lanche Saudável 🍎', time: '10:30', period: 'manhã' as const },
+        { title: locale === 'es' ? 'Psicomotricidad: Circuito 🏃' : locale === 'en' ? 'Psychomotricity: Circuit 🏃' : 'Psicomotricidade: Circuito 🏃', time: '11:00', period: 'manhã' as const },
+        { title: locale === 'es' ? 'Almuerzo y autonomía 🍎' : locale === 'en' ? 'Lunch and Autonomy 🍎' : 'Almoço e Autonomia 🍎', time: '12:30', period: 'tarde' as const },
+        { title: locale === 'es' ? 'Actividad física al aire libre 🏃' : locale === 'en' ? 'Outdoor Physical Activity 🏃' : 'Atividade Física ao Ar Livre 🏃', time: '16:00', period: 'tarde' as const },
+        { title: locale === 'es' ? 'Baño relajante 🫧' : locale === 'en' ? 'Relaxing Bath 🫧' : 'Banho Relaxante 🫧', time: '19:00', period: 'noite' as const }
+      ]
+    },
+    therapy_emotions: {
+      name: locale === 'es' ? "Psicoterapia y Regulación 💬" : locale === 'en' ? "Psychotherapy & Regulation 💬" : "Psicoterapia & Regulação 💬",
+      description: locale === 'es' ? "Enfoque en psicoeducación emocional, expresión de sentimientos y psicoterapia lúdica." : locale === 'en' ? "Focus on emotional psychoeducation, expression of feelings, and playful psychotherapy." : "Foco em psicoeducação emocional, expressão de sentimentos e psicoterapia lúdica.",
+      tasks: [
+        { title: locale === 'es' ? 'Diario de emociones (Dibujo) 📝' : locale === 'en' ? 'Emotions Diary (Drawing) 📝' : 'Diário das Emoções (Desenho) 📝', time: '09:00', period: 'manhã' as const },
+        { title: locale === 'es' ? 'Psicoterapia infantil 💬' : locale === 'en' ? 'Child Psychotherapy 💬' : 'Psicoterapia Infantil 💬', time: '10:30', period: 'manhã' as const },
+        { title: locale === 'es' ? 'Almuerzo tranquilo 🍎' : locale === 'en' ? 'Calm Lunch 🍎' : 'Almoço Calmo 🍎', time: '12:30', period: 'tarde' as const },
+        { title: locale === 'es' ? 'Psicoterapia: Diálogo emocional 💬' : locale === 'en' ? 'Psychotherapy: Emotional Dialogue 💬' : 'Psicoterapia: Diálogo Emocional 💬', time: '15:30', period: 'tarde' as const },
+        { title: locale === 'es' ? 'Tiempo libre relajante 🌙' : locale === 'en' ? 'Relaxing Free Time 🌙' : 'Tempo Livre Relaxante 🌙', time: '17:00', period: 'tarde' as const },
+        { title: locale === 'es' ? 'Lectura para calmar 🌙' : locale === 'en' ? 'Reading to Calm Down 🌙' : 'Leitura para Acalmar 🌙', time: '20:30', period: 'noite' as const }
       ]
     }
   };
@@ -509,8 +565,16 @@ function ParentDashboardContent() {
     }
 
     const confirmMsg = target === 'day'
-      ? `Deseja realmente carregar o modelo "${template.name}" para o dia atual? Isso substituirá as tarefas existentes de ${getDayLabel(activeDayFilter, locale).replace(/ 📅| ☀️/, '')}.`
-      : `Deseja realmente carregar o modelo "${template.name}" para TODOS OS DIAS do mês? Isso substituirá todas as tarefas existentes do dia 1 ao 31.`;
+      ? (locale === 'es'
+          ? `¿Realmente desea cargar el modelo "${template.name}" para el día actual? Esto reemplazará las tareas existentes de ${getDayLabel(activeDayFilter, locale).replace(/ 📅| ☀️/, '')}.`
+          : locale === 'en'
+            ? `Do you really want to load the template "${template.name}" for the current day? This will replace the existing tasks for ${getDayLabel(activeDayFilter, locale).replace(/ 📅| ☀️/, '')}.`
+            : `Deseja realmente carregar o modelo "${template.name}" para o dia atual? Isso substituirá as tarefas existentes de ${getDayLabel(activeDayFilter, locale).replace(/ 📅| ☀️/, '')}.`)
+      : (locale === 'es'
+          ? `¿Realmente desea cargar el modelo "${template.name}" para TODOS LOS DÍAS del mes? Esto reemplazará todas las tareas existentes del día 1 al 31.`
+          : locale === 'en'
+            ? `Do you really want to load the template "${template.name}" for ALL DAYS of the month? This will replace all existing tasks from day 1 to 31.`
+            : `Deseja realmente carregar o modelo "${template.name}" para TODOS OS DIAS do mês? Isso substituirá todas as tarefas existentes do dia 1 ao 31.`);
 
     if (!window.confirm(confirmMsg)) return;
 
@@ -4361,34 +4425,34 @@ function ParentDashboardContent() {
                   {/* Sensory & Clinical Legend Card */}
                   <div className="bg-white border border-slate-200 p-4.5 rounded-2xl shadow-sm flex flex-col gap-2">
                     <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 select-none">
-                      📚 Didática & Apoio de Mediação Clínica
+                      {locale === 'es' ? '📚 Didáctica y Apoyo de Mediación Clínica' : locale === 'en' ? '📚 Didactics & Clinical Mediation Support' : '📚 Didática & Apoio de Mediação Clínica'}
                     </span>
                     <p className="text-[10px] text-slate-500 font-semibold leading-relaxed">
-                      Cada atividade pode possuir demandas de processamento sensorial. Entenda os símbolos e categorias nos cartões do seu filho:
+                      {locale === 'es' ? 'Cada actividad puede tener demandas de procesamiento sensorial. Comprenda los símbolos y categorías en las tarjetas de su hijo:' : locale === 'en' ? 'Each activity may have sensory processing demands. Understand the symbols and categories on your child\'s cards:' : 'Cada atividade pode possuir demandas de processamento sensorial. Entenda os símbolos e categorias nos cartões do seu filho:'}
                     </p>
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-3.5 mt-1 pt-3 border-t border-slate-100">
                       <div className="flex items-center gap-2">
                         <span className="text-xl">🧼</span>
                         <div className="text-[9px] font-bold text-slate-605">
-                          <strong>AVD (Vida Diária):</strong> Higiene, alimentação, autocuidado.
+                          <strong>{locale === 'es' ? 'AVD (Vida Diaria):' : locale === 'en' ? 'ADL (Daily Life):' : 'AVD (Vida Diária):'}</strong> {locale === 'es' ? 'Higiene, alimentación, autocuidado.' : locale === 'en' ? 'Hygiene, eating, self-care.' : 'Higiene, alimentação, autocuidado.'}
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="text-xl">📚</span>
                         <div className="text-[9px] font-bold text-slate-605">
-                          <strong>Aprendizado:</strong> Terapia, tarefas escolares, leitura.
+                          <strong>{locale === 'es' ? 'Aprendizaje:' : locale === 'en' ? 'Learning:' : 'Aprendizado:'}</strong> {locale === 'es' ? 'Terapia, tareas escolares, lectura.' : locale === 'en' ? 'Therapy, school tasks, reading.' : 'Terapia, tarefas escolares, leitura.'}
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="text-xl">🧸</span>
                         <div className="text-[9px] font-bold text-slate-605">
-                          <strong>Lazer/Lúdico:</strong> Brincadeiras, tempo livre, reforço.
+                          <strong>{locale === 'es' ? 'Ocio/Lúdico:' : locale === 'en' ? 'Leisure/Playful:' : 'Lazer/Lúdico:'}</strong> {locale === 'es' ? 'Juegos, tiempo libre, refuerzo.' : locale === 'en' ? 'Play, free time, reinforcement.' : 'Brincadeiras, tempo livre, reforço.'}
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="text-xl">🗣️</span>
                         <div className="text-[9px] font-bold text-slate-605">
-                          <strong>Voz Familiar:</strong> Gravações de áudios para acalmar na transição.
+                          <strong>{locale === 'es' ? 'Voz Familiar:' : locale === 'en' ? 'Familiar Voice:' : 'Voz Familiar:'}</strong> {locale === 'es' ? 'Grabaciones de audio para calmar en la transición.' : locale === 'en' ? 'Audio recordings to calm down during transition.' : 'Gravações de áudios para acalmar na transição.'}
                         </div>
                       </div>
                     </div>
@@ -4969,7 +5033,7 @@ function ParentDashboardContent() {
                       {locale === 'es' ? 'Puntos de Control' : locale === 'en' ? 'Clinical Checkpoints' : 'Checkpoints Clínicos'} & Evolução 🤝
                     </h3>
                     <p className="text-xs text-slate-400 font-semibold mt-0.5">
-                      Acompanhamento por dia ou por semana das orientações e sessões dos especialistas.
+                      {locale === 'es' ? 'Seguimiento diario o semanal de las orientaciones y sesiones de los especialistas.' : locale === 'en' ? 'Daily or weekly follow-up of specialists\' guidance and sessions.' : 'Acompanhamento por dia ou por semana das orientações e sessões dos especialistas.'}
                     </p>
                   </div>
                   <button
@@ -4977,7 +5041,7 @@ function ParentDashboardContent() {
                     onClick={() => { playBubble(); setNewCpOpen(!newCpOpen); if (!newCpDate) setNewCpDate(new Date().toISOString().split('T')[0]); }}
                     className="flex items-center gap-1.5 px-4 py-2 bg-indigo-50 border border-indigo-100 hover:bg-indigo-100 text-indigo-600 text-xs font-black rounded-full shadow-sm transition-all cursor-pointer font-Outfit border-none outline-none"
                   >
-                    <Plus className="w-4 h-4" /> {newCpOpen ? 'Fechar Cadastro' : 'Novo Checkpoint Diário'}
+                    <Plus className="w-4 h-4" /> {newCpOpen ? (locale === 'es' ? 'Cerrar Registro' : locale === 'en' ? 'Close Register' : 'Fechar Cadastro') : (locale === 'es' ? 'Nuevo Punto de Control Diario' : locale === 'en' ? 'New Daily Checkpoint' : 'Novo Checkpoint Diário')}
                   </button>
                 </div>
 
@@ -4990,11 +5054,15 @@ function ParentDashboardContent() {
                       onSubmit={handleCreateDailyCheckpoint}
                       className="bg-slate-50 border border-slate-200 p-5 rounded-[24px] overflow-hidden flex flex-col gap-4 text-xs"
                     >
-                      <h4 className="font-black text-slate-800 font-Outfit">Novo Checkpoint Clínico Diário</h4>
+                      <h4 className="font-black text-slate-800 font-Outfit">
+                        {locale === 'es' ? 'Nuevo Punto de Control Clínico Diario' : locale === 'en' ? 'New Daily Clinical Checkpoint' : 'Novo Checkpoint Clínico Diário'}
+                      </h4>
                       
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
-                          <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1">Data da Sessão</label>
+                          <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1">
+                            {locale === 'es' ? 'Fecha de la Sesión' : locale === 'en' ? 'Session Date' : 'Data da Sessão'}
+                          </label>
                           <input
                             type="date"
                             required
@@ -5005,11 +5073,13 @@ function ParentDashboardContent() {
                         </div>
 
                         <div>
-                          <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1">Profissional / Terapeuta</label>
+                          <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1">
+                            {locale === 'es' ? 'Profesional / Terapeuta' : locale === 'en' ? 'Professional / Therapist' : 'Profissional / Terapeuta'}
+                          </label>
                           <input
                             type="text"
                             required
-                            placeholder="Ex: Dra. Ana Paula"
+                            placeholder={locale === 'es' ? 'Ej: Dra. Ana Paula' : locale === 'en' ? 'E.g.: Dr. Jane Doe' : 'Ex: Dra. Ana Paula'}
                             value={newCpName}
                             onChange={e => setNewCpName(e.target.value)}
                             className="w-full bg-white border-2 border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold focus:border-indigo-650 focus:bg-white outline-none"
@@ -5017,29 +5087,33 @@ function ParentDashboardContent() {
                         </div>
 
                         <div>
-                          <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1">Especialidade</label>
+                          <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1">
+                            {locale === 'es' ? 'Especialidad' : locale === 'en' ? 'Specialty' : 'Especialidade'}
+                          </label>
                           <select
                             value={newCpRole}
                             onChange={e => setNewCpRole(e.target.value)}
                             className="w-full bg-white border-2 border-slate-200 rounded-xl px-3 py-2 text-xs font-black focus:border-indigo-655 focus:bg-white outline-none cursor-pointer"
                           >
-                            <option value="Psicologia ABA">Psicologia ABA 🧠</option>
-                            <option value="Terapia Ocupacional">Terapia Ocupacional 🧼</option>
-                            <option value="Fonoterapia">Fonoterapia 🗣️</option>
-                            <option value="Fisioterapia">Fisioterapia 🩺</option>
-                            <option value="Psicoterapia">Psicoterapia 💬</option>
-                            <option value="Psicomotricidade">Psicomotricidade 🏃</option>
-                            <option value="Outro">Outro 🧑‍⚕️</option>
+                            <option value="Psicologia ABA">{locale === 'es' ? 'Psicología ABA 🧠' : locale === 'en' ? 'ABA Psychology 🧠' : 'Psicologia ABA 🧠'}</option>
+                            <option value="Terapia Ocupacional">{locale === 'es' ? 'Terapia Ocupacional 🧼' : locale === 'en' ? 'Occupational Therapy 🧼' : 'Terapia Ocupacional 🧼'}</option>
+                            <option value="Fonoterapia">{locale === 'es' ? 'Fonoaudiología 🗣️' : locale === 'en' ? 'Speech Therapy 🗣️' : 'Fonoterapia 🗣️'}</option>
+                            <option value="Fisioterapia">{locale === 'es' ? 'Fisioterapia 🩺' : locale === 'en' ? 'Physical Therapy 🩺' : 'Fisioterapia 🩺'}</option>
+                            <option value="Psicoterapia">{locale === 'es' ? 'Psicoterapia 💬' : locale === 'en' ? 'Psychotherapy 💬' : 'Psicoterapia 💬'}</option>
+                            <option value="Psicomotricidade">{locale === 'es' ? 'Psicomotricidad 🏃' : locale === 'en' ? 'Psychomotricity 🏃' : 'Psicomotricidade 🏃'}</option>
+                            <option value="Outro">{locale === 'es' ? 'Otro 🧑‍⚕️' : locale === 'en' ? 'Other 🧑‍⚕️' : 'Outro 🧑‍⚕️'}</option>
                           </select>
                         </div>
                       </div>
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                          <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1">Feedback / Orientações para Casa</label>
+                          <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1">
+                            {locale === 'es' ? 'Feedback / Orientaciones para Casa' : locale === 'en' ? 'Feedback / Guidance for Home' : 'Feedback / Orientações para Casa'}
+                          </label>
                           <textarea
                             required
-                            placeholder="Instruções práticas de regulação, reforço visual ou condutas para a família adotar..."
+                            placeholder={locale === 'es' ? 'Instrucciones prácticas de regulación, refuerzo visual o conductas para que la familia adopte...' : locale === 'en' ? 'Practical regulation instructions, visual reinforcement, or behaviors for the family to adopt...' : 'Instruções práticas de regulação, reforço visual ou condutas para a família adotar...'}
                             value={newCpFeedback}
                             onChange={e => setNewCpFeedback(e.target.value)}
                             className="w-full p-3 bg-white border-2 border-slate-200 rounded-xl text-xs font-semibold focus:border-indigo-655 focus:bg-white outline-none h-20 resize-none"
@@ -5047,9 +5121,11 @@ function ParentDashboardContent() {
                         </div>
 
                         <div>
-                          <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1">Notas do Responsável / Relato (Opcional)</label>
+                          <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1">
+                            {locale === 'es' ? 'Notas del Responsable / Relato (Opcional)' : locale === 'en' ? 'Parent Notes / Report (Optional)' : 'Notas do Responsável / Relato (Opcional)'}
+                          </label>
                           <textarea
-                            placeholder="Anotações dos pais sobre como a criança se comportou na sessão ou dúvidas..."
+                            placeholder={locale === 'es' ? 'Notas de los padres sobre cómo se comportó el niño en la sesión o dudas...' : locale === 'en' ? 'Parent notes on how the child behaved in the session or doubts...' : 'Anotações dos pais sobre como a criança se comportou na sessão ou dúvidas...'}
                             value={newCpNotes}
                             onChange={e => setNewCpNotes(e.target.value)}
                             className="w-full p-3 bg-white border-2 border-slate-200 rounded-xl text-xs font-semibold focus:border-indigo-655 focus:bg-white outline-none h-20 resize-none"
@@ -5063,14 +5139,14 @@ function ParentDashboardContent() {
                           onClick={() => { playBubble(); setNewCpOpen(false); }}
                           className="px-4 py-2 bg-slate-200 text-slate-705 text-xs font-bold rounded-xl active:scale-95 cursor-pointer border-none outline-none"
                         >
-                          Cancelar
+                          {locale === 'es' ? 'Cancelar' : locale === 'en' ? 'Cancel' : 'Cancelar'}
                         </button>
                         <button
                           type="submit"
                           disabled={creatingCheckpoint}
                           className="px-5 py-2 bg-indigo-600 hover:bg-indigo-750 text-white text-xs font-black rounded-xl shadow-sm active:scale-95 cursor-pointer disabled:opacity-50 border-none outline-none font-Outfit"
                         >
-                          {creatingCheckpoint ? 'Registrando...' : 'Gravar Checkpoint'}
+                          {creatingCheckpoint ? (locale === 'es' ? 'Registrando...' : locale === 'en' ? 'Registering...' : 'Registrando...') : (locale === 'es' ? 'Grabar Checkpoint' : locale === 'en' ? 'Record Checkpoint' : 'Gravar Checkpoint')}
                         </button>
                       </div>
                     </motion.form>
@@ -5101,14 +5177,22 @@ function ParentDashboardContent() {
                         >
                           <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                             <span className="text-sm font-black text-slate-850 font-Outfit">
-                              {cp.date ? `Sessão: ${new Date(cp.date + 'T00:00:00').toLocaleDateString('pt-BR')}` : `Semana ${cp.weekNum}`}
+                              {cp.date 
+                                ? (locale === 'es' 
+                                    ? `Sesión: ${new Date(cp.date + 'T00:00:00').toLocaleDateString('es-ES')}` 
+                                    : locale === 'en' 
+                                      ? `Session: ${new Date(cp.date + 'T00:00:00').toLocaleDateString('en-US')}` 
+                                      : `Sessão: ${new Date(cp.date + 'T00:00:00').toLocaleDateString('pt-BR')}`) 
+                                : (locale === 'es' ? `Semana ${cp.weekNum}` : locale === 'en' ? `Week ${cp.weekNum}` : `Semana ${cp.weekNum}`)}
                             </span>
                             <span className={`text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full border shadow-xxs ${
                               cp.status === 'completed' 
                                 ? 'bg-emerald-50 text-emerald-600 border-emerald-250' 
                                 : 'bg-amber-50 text-amber-600 border-amber-200'
                             }`}>
-                              {cp.status === 'completed' ? 'Concluído ✓' : 'Pendente'}
+                              {cp.status === 'completed' 
+                                ? (locale === 'es' ? 'Completado ✓' : locale === 'en' ? 'Completed ✓' : 'Concluído ✓') 
+                                : (locale === 'es' ? 'Pendiente' : locale === 'en' ? 'Pending' : 'Pendente')}
                             </span>
                           </div>
 
@@ -5116,36 +5200,42 @@ function ParentDashboardContent() {
                             <div className="flex flex-col gap-3">
                               <div className="grid grid-cols-2 gap-3">
                                 <div>
-                                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1">Profissional</label>
+                                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1">
+                                    {locale === 'es' ? 'Profesional' : locale === 'en' ? 'Professional' : 'Profissional'}
+                                  </label>
                                   <input 
                                     type="text" 
                                     className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-700 focus:outline-indigo-500" 
-                                    placeholder="Nome do profissional" 
+                                    placeholder={locale === 'es' ? 'Nombre del profesional' : locale === 'en' ? 'Professional name' : 'Nome do profissional'} 
                                     value={editName}
                                     onChange={(e) => setEditName(e.target.value)}
                                   />
                                 </div>
                                 <div>
-                                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1">Especialidade</label>
+                                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1">
+                                    {locale === 'es' ? 'Especialidad' : locale === 'en' ? 'Specialty' : 'Especialidade'}
+                                  </label>
                                   <select 
                                     className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-extrabold text-slate-700 focus:outline-indigo-500" 
                                     value={editRole}
                                     onChange={(e) => setEditRole(e.target.value)}
                                   >
-                                    <option value="Psicologia ABA">Psicologia ABA 🧠</option>
-                                    <option value="Terapia Ocupacional">Terapia Ocupacional 🧼</option>
-                                    <option value="Fonoterapia">Fonoterapia 🗣️</option>
-                                    <option value="Fisioterapia">Fisioterapia 🩺</option>
-                                    <option value="Psicoterapia">Psicoterapia 💬</option>
-                                    <option value="Psicomotricidade">Psicomotricidade 🏃</option>
-                                    <option value="Outro">Outro 🧑‍⚕️</option>
+                                    <option value="Psicologia ABA">{locale === 'es' ? 'Psicología ABA 🧠' : locale === 'en' ? 'ABA Psychology 🧠' : 'Psicologia ABA 🧠'}</option>
+                                    <option value="Terapia Ocupacional">{locale === 'es' ? 'Terapia Ocupacional 🧼' : locale === 'en' ? 'Occupational Therapy 🧼' : 'Terapia Ocupacional 🧼'}</option>
+                                    <option value="Fonoterapia">{locale === 'es' ? 'Fonoaudiología 🗣️' : locale === 'en' ? 'Speech Therapy 🗣️' : 'Fonoterapia 🗣️'}</option>
+                                    <option value="Fisioterapia">{locale === 'es' ? 'Fisioterapia 🩺' : locale === 'en' ? 'Physical Therapy 🩺' : 'Fisioterapia 🩺'}</option>
+                                    <option value="Psicoterapia">{locale === 'es' ? 'Psicoterapia 💬' : locale === 'en' ? 'Psychotherapy 💬' : 'Psicoterapia 💬'}</option>
+                                    <option value="Psicomotricidade">{locale === 'es' ? 'Psicomotricidad 🏃' : locale === 'en' ? 'Psychomotricity 🏃' : 'Psicomotricidade 🏃'}</option>
+                                    <option value="Outro">{locale === 'es' ? 'Otro 🧑‍⚕️' : locale === 'en' ? 'Other 🧑‍⚕️' : 'Outro 🧑‍⚕️'}</option>
                                   </select>
                                 </div>
                               </div>
 
                               <div className="grid grid-cols-2 gap-3">
                                 <div>
-                                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1">Data da Sessão</label>
+                                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1">
+                                    {locale === 'es' ? 'Fecha de la Sesión' : locale === 'en' ? 'Session Date' : 'Data da Sessão'}
+                                  </label>
                                   <input 
                                     type="date" 
                                     className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-700 focus:outline-indigo-500" 
@@ -5161,26 +5251,30 @@ function ParentDashboardContent() {
                                       checked={editStatus === 'completed'}
                                       onChange={(e) => setEditStatus(e.target.checked ? 'completed' : 'pending')}
                                     />
-                                    Sessão Realizada
+                                    {locale === 'es' ? 'Sesión Realizada' : locale === 'en' ? 'Session Conducted' : 'Sessão Realizada'}
                                   </label>
                                 </div>
                               </div>
 
                               <div>
-                                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1">Observações dos Pais</label>
+                                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1">
+                                  {locale === 'es' ? 'Observaciones de los Padres' : locale === 'en' ? 'Parents Comments' : 'Observações dos Pais'}
+                                </label>
                                 <textarea 
                                   className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-700 focus:outline-indigo-500 h-16 resize-none" 
-                                  placeholder="Como foi o comportamento em casa nesta semana?"
+                                  placeholder={locale === 'es' ? '¿Cómo fue el comportamiento en casa esta semana?' : locale === 'en' ? 'How was behavior at home this week?' : 'Como foi o comportamento em casa nesta semana?'}
                                   value={editNotes}
                                   onChange={(e) => setEditNotes(e.target.value)}
                                 />
                               </div>
 
                               <div>
-                                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1">Recomendações do Profissional</label>
+                                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1">
+                                  {locale === 'es' ? 'Recomendaciones del Profesional' : locale === 'en' ? 'Professional Recommendations' : 'Recomendações do Profissional'}
+                                </label>
                                 <textarea 
                                   className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-700 focus:outline-indigo-500 h-16 resize-none" 
-                                  placeholder="Feedback e orientações dadas para a semana..."
+                                  placeholder={locale === 'es' ? 'Feedback y orientaciones dadas para la semana...' : locale === 'en' ? 'Feedback and guidance given for the week...' : 'Feedback e orientações dadas para a semana...'}
                                   value={editFeedback}
                                   onChange={(e) => setEditFeedback(e.target.value)}
                                 />
@@ -5191,14 +5285,14 @@ function ParentDashboardContent() {
                                   onClick={() => { playBubble(); setEditingCheckpointId(null); }}
                                   className="px-3.5 py-2 bg-slate-200 hover:bg-slate-300 text-slate-755 text-xs font-black rounded-xl cursor-pointer active:scale-95 transition-all"
                                 >
-                                  Cancelar
+                                  {locale === 'es' ? 'Cancelar' : locale === 'en' ? 'Cancel' : 'Cancelar'}
                                 </button>
                                 <button 
                                   onClick={() => handleSaveCheckpoint(cp.id)}
                                   disabled={savingCheckpointId === cp.id}
                                   className="px-4 py-2 bg-indigo-650 hover:bg-indigo-700 text-white text-xs font-black rounded-xl cursor-pointer active:scale-95 transition-all shadow-sm disabled:opacity-50"
                                 >
-                                  {savingCheckpointId === cp.id ? 'Salvando...' : 'Salvar Alterações 💾'}
+                                  {savingCheckpointId === cp.id ? (locale === 'es' ? 'Guardando...' : locale === 'en' ? 'Saving...' : 'Salvando...') : (locale === 'es' ? 'Guardar Cambios 💾' : locale === 'en' ? 'Save Changes 💾' : 'Salvar Alterações 💾')}
                                 </button>
                               </div>
                             </div>
@@ -5208,30 +5302,48 @@ function ParentDashboardContent() {
                                 <div className="bg-slate-50/50 border border-slate-150 p-3 rounded-xl flex flex-col gap-1.5 shadow-xxs">
                                   <div className="flex items-center justify-between text-xs">
                                     <span className="font-extrabold text-slate-800">🧑‍⚕️ {cp.professionalName}</span>
-                                    <span className="text-xxs font-black bg-indigo-50 text-indigo-700 border border-indigo-200 px-2.5 py-0.5 rounded-full uppercase tracking-wider">{cp.professionalRole}</span>
+                                    <span className="text-xxs font-black bg-indigo-50 text-indigo-700 border border-indigo-200 px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                                      {cp.professionalRole === 'Psicologia ABA'
+                                        ? (locale === 'es' ? 'Psicología ABA' : locale === 'en' ? 'ABA Psychology' : 'Psicologia ABA')
+                                        : cp.professionalRole === 'Terapia Ocupacional'
+                                          ? (locale === 'es' ? 'Terapia Ocupacional' : locale === 'en' ? 'Occupational Therapy' : 'Terapia Ocupacional')
+                                          : cp.professionalRole === 'Fonoterapia'
+                                            ? (locale === 'es' ? 'Fonoaudiología' : locale === 'en' ? 'Speech Therapy' : 'Fonoterapia')
+                                            : cp.professionalRole === 'Fisioterapia'
+                                              ? (locale === 'es' ? 'Fisioterapia' : locale === 'en' ? 'Physical Therapy' : 'Fisioterapia')
+                                              : cp.professionalRole === 'Psicoterapia'
+                                                ? (locale === 'es' ? 'Psicoterapia' : locale === 'en' ? 'Psychotherapy' : 'Psicoterapia')
+                                                : cp.professionalRole === 'Psicomotricidade'
+                                                  ? (locale === 'es' ? 'Psicomotricidad' : locale === 'en' ? 'Psychomotricity' : 'Psicomotricidade')
+                                                  : (locale === 'es' ? 'Otro' : locale === 'en' ? 'Other' : cp.professionalRole || 'Outro')}
+                                    </span>
                                   </div>
                                   {cp.date && (
                                     <div className="text-[10px] text-slate-400 font-bold flex items-center gap-1">
-                                      <span>📅 Sessão:</span> {cp.date.split('-').reverse().join('/')}
+                                      <span>{locale === 'es' ? '📅 Sesión:' : locale === 'en' ? '📅 Session:' : '📅 Sessão:'}</span> {locale === 'es' ? cp.date.split('-').reverse().join('/') : locale === 'en' ? cp.date.split('-').join('/') : cp.date.split('-').reverse().join('/')}
                                     </div>
                                   )}
                                 </div>
                               ) : (
                                 <div className="text-slate-400 text-xxs border border-dashed border-slate-200 p-3.5 rounded-xl text-center font-semibold bg-slate-50/20">
-                                  Nenhuma sessão registrada para esta semana.
+                                  {locale === 'es' ? 'Ninguna sesión registrada para esta semana.' : locale === 'en' ? 'No session registered for this week.' : 'Nenhuma sessão registrada para esta semana.'}
                                 </div>
                               )}
 
                               {cp.notes && (
                                 <div className="flex flex-col gap-0.5">
-                                  <span className="text-[9px] font-black uppercase tracking-wider text-slate-400">Observações dos Pais</span>
+                                  <span className="text-[9px] font-black uppercase tracking-wider text-slate-400">
+                                    {locale === 'es' ? 'Observaciones de los Padres' : locale === 'en' ? 'Parents Comments' : 'Observações dos Pais'}
+                                  </span>
                                   <p className="text-xs text-slate-650 leading-normal font-medium bg-slate-50/30 p-2.5 rounded-lg border border-slate-150/50 whitespace-pre-wrap">{cp.notes}</p>
                                 </div>
                               )}
 
                               {cp.feedback && (
                                 <div className="flex flex-col gap-0.5">
-                                  <span className="text-[9px] font-black uppercase tracking-wider text-indigo-400">Recomendações Clínicas</span>
+                                  <span className="text-[9px] font-black uppercase tracking-wider text-indigo-400">
+                                    {locale === 'es' ? 'Recomendaciones Clínicas' : locale === 'en' ? 'Clinical Recommendations' : 'Recomendações Clínicas'}
+                                  </span>
                                   <p className="text-xs text-indigo-950 leading-normal font-medium bg-indigo-50/20 p-2.5 rounded-lg border border-indigo-100 whitespace-pre-wrap">{cp.feedback}</p>
                                 </div>
                               )}
@@ -5240,7 +5352,9 @@ function ParentDashboardContent() {
                                 onClick={() => startEditingCheckpoint(cp)}
                                 className="w-full mt-1.5 py-2.5 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-750 border border-slate-200 hover:border-indigo-200 text-slate-700 hover:text-indigo-700 text-xs font-black rounded-xl transition-all cursor-pointer shadow-xxs active:scale-98 flex items-center justify-center gap-1 font-Outfit"
                               >
-                                {cp.professionalName ? 'Editar Registro 📝' : 'Registrar Checkpoint 🤝'}
+                                {cp.professionalName 
+                                  ? (locale === 'es' ? 'Editar Registro 📝' : locale === 'en' ? 'Edit Record 📝' : 'Editar Registro 📝') 
+                                  : (locale === 'es' ? 'Registrar Checkpoint 🤝' : locale === 'en' ? 'Register Checkpoint 🤝' : 'Registrar Checkpoint 🤝')}
                               </button>
                             </div>
                           )}
