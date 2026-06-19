@@ -2585,7 +2585,7 @@ function ParentDashboardContent() {
             </div>
             <div>
               <h1 className="text-sm md:text-xl font-black text-slate-955 font-Outfit leading-tight">
-                {locale === 'es' ? 'Portal del Responsable' : locale === 'en' ? 'Guardian Portal' : 'Painel do {t.common.navResponsible}'}
+                {locale === 'es' ? 'Portal del Responsable' : locale === 'en' ? 'Guardian Portal' : `Painel do ${t.common.navResponsible}`}
               </h1>
               <p className="hidden md:block text-xs text-slate-655 font-semibold mt-0.5">
                 {locale === 'es' ? 'Control de Rutina y Seguridad Sensorial' : locale === 'en' ? 'Routine Control & Sensory Safety' : 'Controle de Rotina & Segurança Sensorial'}
@@ -6262,7 +6262,7 @@ function ParentDashboardContent() {
                             <div className="grid grid-cols-3 gap-8 border-b border-slate-200 pb-6">
                               <div>
                                 <h3 className="text-xs font-black uppercase text-slate-400 tracking-widest border-b border-slate-100 pb-1.5">{locale === 'en' ? 'General Information' : locale === 'es' ? 'Información General' : 'Informações Gerais'}</h3>
-                                <p className="text-xs font-bold text-slate-700 mt-2">{locale === 'en' ? 'Guardian:' : locale === 'es' ? 'Tutor:' : '{t.common.navResponsible}:'} <span className="font-extrabold">{currentUser?.email}</span></p>
+                                <p className="text-xs font-bold text-slate-700 mt-2">{locale === 'en' ? 'Guardian:' : locale === 'es' ? 'Tutor:' : `${t.common.navResponsible}:`} <span className="font-extrabold">{currentUser?.email}</span></p>
                                 <p className="text-xs font-bold text-slate-700 mt-1.5">{locale === 'en' ? 'Child:' : locale === 'es' ? 'Niño:' : 'Criança:'} <span className="font-extrabold">{activeChild?.name || (locale === 'en' ? 'Not registered' : locale === 'es' ? 'No registrado' : 'Não cadastrado')}</span></p>
                                 <p className="text-xs font-bold text-slate-700 mt-1.5">{locale === 'en' ? 'Active Hyperfocus:' : locale === 'es' ? 'Hiperenfoque Activo:' : 'Hiperfoco Ativo:'} <span className="font-extrabold">{activeChild?.childHyperfocus || (locale === 'en' ? 'Not registered' : locale === 'es' ? 'No registrado' : 'Não cadastrado')}</span></p>
                                 <p className="text-xs font-bold text-slate-700 mt-1.5">{locale === 'en' ? 'Diagnosis:' : locale === 'es' ? 'Diagnóstico:' : 'Diagnóstico:'} <span className="font-extrabold">{activeChild?.diagnosis || (locale === 'en' ? 'Not informed' : locale === 'es' ? 'No informado' : 'Não informado')}</span></p>
