@@ -299,7 +299,14 @@ const translateLogDetails = (details: string, locale: string) => {
       .replace(/Copiou em bloco a rotina de (.*?) para (.*?)\./g, 'Copied in block the routine from $1 to $2.')
       .replace(/Adicionou checkpoint clínico para a data (.*?) \((.*?) - (.*?)\)\./g, 'Added clinical checkpoint for date $1 ($2 - $3).')
       .replace(/Cadastrou uma nova criança: (.*?) \(Gênero: (.*?), Diagnóstico: (.*?), Data de Nasc\.: (.*?)\)\./g, 'Registered a new child: $1 (Gender: $2, Diagnosis: $3, Birth Date: $4).')
-      .replace(/Excluiu o perfil de criança: (.*?)\./g, 'Deleted child profile: $1.')
+            .replace(/Excluiu o perfil de criança: (.*?)\./g, 'Deleted child profile: $1.')
+      .replace(/SOS Sensorial ativado pela criança no aplicativo\./g, 'Sensory SOS activated by the child in the app.')
+      .replace(/Criança indicou Bateria Emocional: Cheia\/Ótimo 🔋/g, 'Child indicated Emotional Battery: Full/Great 🔋')
+      .replace(/Criança indicou Bateria Emocional: Média\/Cansado ⚡/g, 'Child indicated Emotional Battery: Medium/Tired ⚡')
+      .replace(/Criança indicou Bateria Emocional: Baixa\/Sobrecarregado 🪫/g, 'Child indicated Emotional Battery: Low/Overloaded 🪫')
+      .replace(/Comunicação AAC: "(.*?)"/g, 'AAC Communication: "$1"')
+      .replace(/Humor registrado pelo próprio usuário na rotina\./g, 'Mood registered by the user in the routine.')
+      .replace(/Sobrecarga Sensorial/g, 'Sensory Overload')
       .replace(/Removeu a tarefa "(.*?)" de (.*?) \((.*?)\)\./g, 'Removed task "$1" from $2 ($3).')
       .replace(/Editou a tarefa "(.*?)" \(Duração: (.*?)min, Ícone: (.*?), Categoria: (.*?)\) às (.*?) \((.*?)\) na (.*?)\./g, 'Edited task "$1" (Duration: $2min, Icon: $3, Category: $4) at $5 ($6) on $7.')
       .replace(/Atualizou o perfil de (.*?): Hiperfoco: "(.*?)", Bloqueio Infantil: "(.*?)" \(PIN: (.*?)\), Velocidade Fala: (.*?)x, Efeito Sonoro: "(.*?)", Visual: "(.*?)", Perfil Sensorial: "(.*?)", Estilo Timer: "(.*?)", Reforçador: "(.*?)" \((.*?) estrelas\), Alerta de Transição: (.*?)min\./g, 'Updated profile of $1: Hyperfocus: "$2", Child Lock: "$3" (PIN: $4), Speech Speed: $5x, Sound Effect: "$6", Visual: "$7", Sensory Profile: "$8", Timer Style: "$9", Reinforcer: "$10" ($11 stars), Transition Alert: $12min.')
@@ -326,7 +333,14 @@ const translateLogDetails = (details: string, locale: string) => {
       .replace(/Copiou em bloco a rotina de (.*?) para (.*?)\./g, 'Copió en bloque la rutina de $1 a $2.')
       .replace(/Adicionou checkpoint clínico para a data (.*?) \((.*?) - (.*?)\)\./g, 'Agregó punto de control clínico para la fecha $1 ($2 - $3).')
       .replace(/Cadastrou uma nova criança: (.*?) \(Gênero: (.*?), Diagnóstico: (.*?), Data de Nasc\.: (.*?)\)\./g, 'Registró un nuevo niño: $1 (Género: $2, Diagnóstico: $3, Fecha de Nac.: $4).')
-      .replace(/Excluiu o perfil de criança: (.*?)\./g, 'Eliminó el perfil del niño: $1.')
+            .replace(/Excluiu o perfil de criança: (.*?)\./g, 'Eliminó el perfil del niño: $1.')
+      .replace(/SOS Sensorial ativado pela criança no aplicativo\./g, 'SOS Sensorial activado por el niño en la aplicación.')
+      .replace(/Criança indicou Bateria Emocional: Cheia\/Ótimo 🔋/g, 'El niño indicó Batería Emocional: Llena/Excelente 🔋')
+      .replace(/Criança indicou Bateria Emocional: Média\/Cansado ⚡/g, 'El niño indicó Batería Emocional: Media/Cansado ⚡')
+      .replace(/Criança indicou Bateria Emocional: Baixa\/Sobrecarregado 🪫/g, 'El niño indicó Batería Emocional: Baja/Sobrecargado 🪫')
+      .replace(/Comunicação AAC: "(.*?)"/g, 'Comunicación AAC: "$1"')
+      .replace(/Humor registrado pelo próprio usuário na rotina\./g, 'Humor registrado por el propio usuario en la rutina.')
+      .replace(/Sobrecarga Sensorial/g, 'Sobrecarga Sensorial')
       .replace(/Removeu a tarefa "(.*?)" de (.*?) \((.*?)\)\./g, 'Eliminó la tarefa "$1" de $2 ($3).')
       .replace(/Editou a tarefa "(.*?)" \(Duração: (.*?)min, Ícone: (.*?), Categoria: (.*?)\) às (.*?) \((.*?)\) na (.*?)\./g, 'Editó la tarea "$1" (Duración: $2min, Icono: $3, Categoría: $4) a las $5 ($6) en $7.')
       .replace(/Atualizou o perfil de (.*?): Hiperfoco: "(.*?)", Bloqueio Infantil: "(.*?)" \(PIN: (.*?)\), Velocidade Fala: (.*?)x, Efeito Sonoro: "(.*?)", Visual: "(.*?)", Perfil Sensorial: "(.*?)", Estilo Timer: "(.*?)", Reforçador: "(.*?)" \((.*?) estrelas\), Alerta de Transição: (.*?)min\./g, 'Actualizó el perfil de $1: Hiperenfoque: "$2", Bloqueio Infantil: "$3" (PIN: $4), Velocidad de Habla: $5x, Efecto de Sonido: "$6", Visual: "$7", Perfil Sensorial: "$8", Estilo de Temporizador: "$9", Reforzador: "$10" ($11 estrellas), Alerta de Transición: $12min.')
@@ -540,7 +554,7 @@ function ParentDashboardContent() {
         currentUser?.email
       );
 
-      triggerStatus('Tarefa rápida adicionada!');
+      triggerStatus(t.dashboard.statusQuickTaskAdded);
     } catch (err) {
       triggerStatus('Erro ao adicionar preset.');
     }
@@ -714,9 +728,9 @@ function ParentDashboardContent() {
                 `Gravou áudio personalizado de transição (${type === 'audioAlert10' ? '10 min' : type === 'audioAlert5' ? '5 min' : '2 min'}) para ${activeChild.name}.`,
                 currentUser?.email
               );
-              triggerStatus('Áudio de alerta salvo com sucesso!');
+              triggerStatus(t.dashboard.statusAudioSaved);
             } catch (err) {
-              triggerStatus('Erro ao salvar áudio no servidor.');
+              triggerStatus(t.dashboard.statusAudioSaveError);
             }
           }
         };
@@ -740,7 +754,7 @@ function ParentDashboardContent() {
       
     } catch (err) {
       console.error('Microphone access denied:', err);
-      triggerStatus('Permissão de microfone negada ou não suportada.');
+      triggerStatus(t.dashboard.statusMicPermissionDenied);
     }
   };
 
@@ -775,7 +789,7 @@ function ParentDashboardContent() {
     setIsPlayingAudio(type);
     
     audio.play().catch(() => {
-      triggerStatus('Erro ao reproduzir o áudio.');
+      triggerStatus(t.dashboard.statusAudioPlayError);
       setIsPlayingAudio(null);
     });
     
@@ -801,9 +815,9 @@ function ParentDashboardContent() {
         `Removeu o áudio personalizado de transição (${type === 'audioAlert10' ? '10 min' : type === 'audioAlert5' ? '5 min' : '2 min'}) de ${activeChild.name}.`,
         currentUser?.email
       );
-      triggerStatus('Áudio de alerta removido!');
+      triggerStatus(t.dashboard.statusAudioRemoved);
     } catch (err) {
-      triggerStatus('Erro ao remover áudio.');
+      triggerStatus(t.dashboard.statusAudioRemoveError);
     }
   };
 
@@ -862,7 +876,7 @@ function ParentDashboardContent() {
       });
       
       setSensoryLogs(prev => [newLog, ...prev]);
-      triggerStatus('Simulação de crise registrada com GPS!');
+      triggerStatus(t.dashboard.statusSimulationRegistered);
       
       await immutableLogger.logChange(
         'ADD_TASK',
@@ -870,7 +884,7 @@ function ParentDashboardContent() {
         currentUser?.email
       );
     } catch (err) {
-      triggerStatus('Erro ao salvar log de simulação.');
+      triggerStatus(t.dashboard.statusSimulationSaveError);
     } finally {
       setSimulatingGps(false);
     }
@@ -1261,7 +1275,7 @@ function ParentDashboardContent() {
       
       setCheckpoints(prev => prev.map(c => c.id === id ? updated : c));
       setEditingCheckpointId(null);
-      triggerStatus('Checkpoint clínico salvo!');
+      triggerStatus(t.dashboard.statusCheckpointSaved);
       
       await immutableLogger.logChange(
         'UPDATE_PROFILE',
@@ -1385,7 +1399,7 @@ function ParentDashboardContent() {
       setNewCpName('');
       setNewCpFeedback('');
       setNewCpNotes('');
-      triggerStatus('Checkpoint diário clínico registrado!');
+      triggerStatus(t.dashboard.statusDailyCheckpointRegistered);
 
       await immutableLogger.logChange(
         'UPDATE_PROFILE',
@@ -1394,7 +1408,7 @@ function ParentDashboardContent() {
       );
     } catch (err) {
       console.error(err);
-      triggerStatus('Erro ao criar checkpoint diário.');
+      triggerStatus(t.dashboard.statusDailyCheckpointError);
     } finally {
       setCreatingCheckpoint(false);
     }
@@ -1491,7 +1505,7 @@ function ParentDashboardContent() {
         currentUser?.email
       );
 
-      triggerStatus('Criança cadastrada com sucesso!');
+      triggerStatus(t.dashboard.statusChildRegistered);
       setNewChildModalOpen(false);
       
       // Reset form states
@@ -1500,7 +1514,7 @@ function ParentDashboardContent() {
       setNewChildGender('Não Informado');
       setNewChildDiagnosis('Não Informado');
     } catch (err) {
-      triggerStatus('Erro ao cadastrar criança.');
+      triggerStatus(t.dashboard.statusChildRegisterError);
     } finally {
       setRegisteringChild(false);
     }
@@ -1531,9 +1545,9 @@ function ParentDashboardContent() {
         setTasks([]);
       }
 
-      triggerStatus('Criança removida com sucesso!');
+      triggerStatus(t.dashboard.statusChildRemoved);
     } catch (err) {
-      triggerStatus('Erro ao remover criança.');
+      triggerStatus(t.dashboard.statusChildRemoveError);
     }
   };
 
@@ -1729,7 +1743,7 @@ function ParentDashboardContent() {
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!activeChild) {
-      triggerStatus('Por favor, cadastre uma criança primeiro.');
+      triggerStatus(t.dashboard.statusRegisterChildFirst);
       return;
     }
 
@@ -1767,9 +1781,9 @@ function ParentDashboardContent() {
       setCollieState('celebrating');
       setTimeout(() => setCollieState('idle'), 2000);
       
-      triggerStatus('Configurações da criança salvas com sucesso!');
+      triggerStatus(t.dashboard.statusSettingsSaved);
     } catch (err) {
-      triggerStatus('Erro ao salvar configurações.');
+      triggerStatus(t.dashboard.statusSettingsSaveError);
     } finally {
       setSavingProfile(false);
     }
@@ -1783,7 +1797,7 @@ function ParentDashboardContent() {
     e.preventDefault();
     if (!activeChild) return;
     if (!newAacText.trim() || !newAacSpeech.trim()) {
-      triggerStatus('Preencha o título e a frase do botão.');
+      triggerStatus(t.dashboard.statusFillButtonFields);
       return;
     }
 
@@ -1808,7 +1822,7 @@ function ParentDashboardContent() {
       setNewAacSpeech('');
       setNewAacEmoji('🤗');
       setNewAacAlert(false);
-      triggerStatus('Botão AAC adicionado!');
+      triggerStatus(t.dashboard.statusAacButtonAdded);
     } catch (err) {
       triggerStatus('Erro ao salvar item AAC.');
     }
@@ -1825,7 +1839,7 @@ function ParentDashboardContent() {
       });
       setActiveChild(updated);
       firebaseBridge.auth.setActiveChild(updated);
-      triggerStatus('Botão AAC removido.');
+      triggerStatus(t.dashboard.statusAacButtonRemoved);
     } catch (err) {
       triggerStatus('Erro ao remover item AAC.');
     }
@@ -1835,7 +1849,7 @@ function ParentDashboardContent() {
     e.preventDefault();
     if (!activeChild) return;
     if (!aiTheme.trim()) {
-      triggerStatus('Digite um tema para a história.');
+      triggerStatus(t.dashboard.statusEnterStoryTheme);
       return;
     }
 
@@ -1915,10 +1929,10 @@ function ParentDashboardContent() {
         firebaseBridge.auth.setActiveChild(updated);
         setAiTheme('');
         setGeneratingAi(false);
-        triggerStatus('História Social gerada e salva!');
+        triggerStatus(t.dashboard.statusStoryGenerated);
       } catch (err) {
         setGeneratingAi(false);
-        triggerStatus('Erro ao salvar história.');
+        triggerStatus(t.dashboard.statusStorySaveError);
       }
     }, GENERATOR_STATUSES.length * 800 + 200);
   };
@@ -1934,9 +1948,9 @@ function ParentDashboardContent() {
       });
       setActiveChild(updated);
       firebaseBridge.auth.setActiveChild(updated);
-      triggerStatus('História excluída.');
+      triggerStatus(t.dashboard.statusStoryDeleted);
     } catch (err) {
-      triggerStatus('Erro ao excluir história.');
+      triggerStatus(t.dashboard.statusStoryDeleteError);
     }
   };
 
@@ -1989,7 +2003,7 @@ function ParentDashboardContent() {
       });
       setActiveChild(updated);
       firebaseBridge.auth.setActiveChild(updated);
-      triggerStatus('Sinal excluído.');
+      triggerStatus(t.dashboard.statusSignalDeleted);
     } catch (err) {
       triggerStatus('Erro ao excluir sinal.');
     }
@@ -2075,7 +2089,7 @@ function ParentDashboardContent() {
   const handleSaveMonthlyTemplate = async () => {
     if (!activeChild) return;
     if (tasks.length === 0) {
-      triggerStatus('Não há tarefas ativas para salvar como modelo.');
+      triggerStatus(t.dashboard.statusNoTasksToSave);
       return;
     }
 
@@ -2100,7 +2114,7 @@ function ParentDashboardContent() {
       });
       setActiveChild(updated);
       firebaseBridge.auth.setActiveChild(updated);
-      triggerStatus('Agenda do mês salva como modelo com sucesso!');
+      triggerStatus(t.dashboard.statusMonthSavedAsTemplate);
     } catch (err) {
       triggerStatus('Erro ao salvar modelo.');
     }
@@ -2138,7 +2152,7 @@ function ParentDashboardContent() {
         'Restaurou toda a rotina semanal para o modelo padrão da clínica.',
         currentUser?.email
       );
-      triggerStatus('Rotina padrão restaurada!');
+      triggerStatus(t.dashboard.statusStandardRoutineRestored);
     } catch (err) {
       triggerStatus('Erro ao restaurar rotina.');
     }
@@ -2165,7 +2179,7 @@ function ParentDashboardContent() {
   const handleExportABAData = () => {
     playBubble();
     if (!activeChild) {
-      triggerStatus('Selecione uma criança primeiro para exportar.');
+      triggerStatus(t.dashboard.statusSelectChildFirstToExport);
       return;
     }
 
@@ -2552,10 +2566,12 @@ function ParentDashboardContent() {
       <main className="flex-1 min-h-screen text-slate-900 pb-16 relative">
       {offline && (
         <div className="bg-amber-500 text-white py-2 px-4 text-center text-xs font-black select-none z-50 flex items-center justify-center gap-2 font-Outfit shadow-md">
-          <span>📶 Modo Offline Ativado</span>
+          <span>📶 {locale === 'es' ? 'Modo Offline Activado' : locale === 'en' ? 'Offline Mode Activated' : 'Modo Offline Ativado'}</span>
           {offlineQueueSize > 0 && (
             <span className="bg-amber-700/60 px-2 py-0.5 rounded text-[10px]">
-              {offlineQueueSize} {offlineQueueSize === 1 ? 'alteração pendente' : 'alterações pendentes'}
+              {offlineQueueSize} {offlineQueueSize === 1 
+                ? (locale === 'es' ? 'cambio pendiente' : locale === 'en' ? 'pending change' : 'alteração pendente') 
+                : (locale === 'es' ? 'cambios pendientes' : locale === 'en' ? 'pending changes' : 'alterações pendentes')}
             </span>
           )}
         </div>
@@ -2569,7 +2585,7 @@ function ParentDashboardContent() {
             </div>
             <div>
               <h1 className="text-sm md:text-xl font-black text-slate-955 font-Outfit leading-tight">
-                {locale === 'es' ? 'Portal del Responsable' : locale === 'en' ? 'Guardian Portal' : 'Painel do Responsável'}
+                {locale === 'es' ? 'Portal del Responsable' : locale === 'en' ? 'Guardian Portal' : 'Painel do {t.common.navResponsible}'}
               </h1>
               <p className="hidden md:block text-xs text-slate-655 font-semibold mt-0.5">
                 {locale === 'es' ? 'Control de Rutina y Seguridad Sensorial' : locale === 'en' ? 'Routine Control & Sensory Safety' : 'Controle de Rotina & Segurança Sensorial'}
@@ -2596,7 +2612,7 @@ function ParentDashboardContent() {
       <section className="bg-white border-b-2 border-slate-250 py-4.5 shadow-sm select-none">
         <div className="max-w-6xl mx-auto px-4 md:px-6 flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-3.5 flex-wrap">
-            <span className="text-xs font-black text-slate-450 uppercase tracking-widest font-Outfit">Crianças:</span>
+            <span className="text-xs font-black text-slate-450 uppercase tracking-widest font-Outfit">{t.dashboard.children}</span>
             {children.map((child, index) => {
               const isActive = activeChild?.id === child.id;
               const colors = [
@@ -2628,7 +2644,7 @@ function ParentDashboardContent() {
                       <span className="leading-none text-xxs font-black">{child.name}</span>
                       {child.diagnosis && child.diagnosis !== 'Não Informado' && (
                         <span className={`text-[8px] font-black uppercase tracking-wider mt-0.5 ${isActive ? 'text-indigo-100' : 'text-slate-400'}`}>
-                          {child.diagnosis}
+                          {locale === 'en' ? (child.diagnosis === 'Não Informado' ? 'Not Informed' : child.diagnosis) : locale === 'es' ? (child.diagnosis === 'Não Informado' ? 'No Informado' : child.diagnosis) : child.diagnosis}
                         </span>
                       )}
                     </div>
@@ -2638,7 +2654,7 @@ function ParentDashboardContent() {
                     <button
                       onClick={() => handleDeleteChild(child.id, child.name)}
                       className="absolute -top-1 -right-1 w-5 h-5 bg-red-100 text-red-600 hover:bg-red-500 hover:text-white rounded-full flex items-center justify-center transition-all border border-red-200 shadow-xxs opacity-0 group-hover:opacity-100 cursor-pointer text-[9px] font-black"
-                      title="Excluir Criança"
+                      title={t.dashboard.deleteChild}
                     >
                       ✕
                     </button>
@@ -2654,7 +2670,7 @@ function ParentDashboardContent() {
               <div className="w-7 h-7 rounded-full bg-slate-200 border border-slate-300 flex items-center justify-center font-extrabold text-xs text-slate-550">
                 +
               </div>
-              <span>Cadastrar Criança</span>
+              <span>{t.dashboard.registerChildBtn}</span>
             </button>
           </div>
 
@@ -2666,11 +2682,11 @@ function ParentDashboardContent() {
                 rel="noopener noreferrer"
                 className="px-5 py-2.5 bg-indigo-600 text-white hover:bg-indigo-755 text-xs font-black rounded-xl shadow-md border-b-4 border-indigo-900 transition-all active:scale-95 flex items-center gap-2 font-Outfit uppercase tracking-wider"
               >
-                <span>🚀</span> Ir para Tela de {activeChild.name.split(' ')[0]}
+                <span>🚀</span> {t.dashboard.goToChildRoutine} {activeChild.name.split(' ')[0]}
               </a>
             </div>
           ) : (
-            <span className="text-xs font-bold text-slate-500">Nenhuma criança cadastrada</span>
+            <span className="text-xs font-bold text-slate-500">{t.dashboard.noChildren}</span>
           )}
         </div>
       </section>
@@ -2738,9 +2754,9 @@ function ParentDashboardContent() {
                 <div className="flex items-center gap-3">
                   <span className="text-3xl animate-pulse">🎓</span>
                   <div>
-                    <h2 className="text-lg font-black text-slate-900 font-Outfit">Guia de Mediação Clínica e Rotina</h2>
+                    <h2 className="text-lg font-black text-slate-900 font-Outfit">{t.dashboard.guidanceTitle}</h2>
                     <p className="text-xs text-slate-500 font-semibold mt-0.5">
-                      Entenda como estruturar um ambiente previsível e sensorialmente seguro para o seu filho.
+                      {t.dashboard.guidanceDesc}
                     </p>
                   </div>
                 </div>
@@ -2751,9 +2767,9 @@ function ParentDashboardContent() {
                     localStorage.setItem('showOnboardingHelp', 'false');
                   }}
                   className="text-[10px] font-black text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100/60 px-3 py-1.5 rounded-xl transition-all cursor-pointer border-none font-Outfit uppercase tracking-wider"
-                  title="Ocultar guia de onboarding permanentemente"
+                  title={locale === 'en' ? 'Hide onboarding guide permanently' : locale === 'es' ? 'Ocultar guía de inducción permanentemente' : 'Ocultar guia de onboarding permanentemente'}
                 >
-                  Entendi, Ocultar ×
+                  {locale === 'en' ? 'Got it, Hide ×' : locale === 'es' ? 'Entendido, Ocultar ×' : 'Entendi, Ocultar ×'}
                 </button>
               </div>
 
@@ -2761,25 +2777,25 @@ function ParentDashboardContent() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6 pt-5 border-t border-slate-100">
                 <div className="flex flex-col gap-2 p-4 rounded-2xl bg-indigo-50/40 border border-indigo-100">
                   <span className="text-xl">📅</span>
-                  <h3 className="text-xs font-black text-slate-900 font-Outfit uppercase tracking-wider">1. Previsibilidade & Ansiedade</h3>
+                  <h3 className="text-xs font-black text-slate-900 font-Outfit uppercase tracking-wider">{t.dashboard.guidanceSection1Title}</h3>
                   <p className="text-[10px] text-slate-600 font-semibold leading-relaxed">
-                    Crianças no espectro TEA ou com TDAH beneficiam-se muito da previsibilidade. Rotinas visuais bem estruturadas reduzem a carga cognitiva do lobo frontal, diminuindo o estresse e prevenindo crises de desregulação emocional.
+                    {t.dashboard.guidanceSection1}
                   </p>
                 </div>
 
                 <div className="flex flex-col gap-2 p-4 rounded-2xl bg-emerald-50/40 border border-emerald-100">
                   <span className="text-xl">🧠</span>
-                  <h3 className="text-xs font-black text-slate-900 font-Outfit uppercase tracking-wider">2. Ajuste Sensorial Fino</h3>
+                  <h3 className="text-xs font-black text-slate-900 font-Outfit uppercase tracking-wider">{t.dashboard.guidanceSection2Title}</h3>
                   <p className="text-[10px] text-slate-600 font-semibold leading-relaxed">
-                    O processamento sensorial varia de acordo com o estado do dia. Ajustar a velocidade da voz do mascote (TTS) e o nível de estímulo visual (rich ou minimal) permite criar uma interface adaptável e acolhedora de acordo com a fadiga do dia.
+                    {t.dashboard.guidanceSection2}
                   </p>
                 </div>
 
                 <div className="flex flex-col gap-2 p-4 rounded-2xl bg-amber-50/40 border border-amber-100">
                   <span className="text-xl">🤝</span>
-                  <h3 className="text-xs font-black text-slate-900 font-Outfit uppercase tracking-wider">3. Sintonia Escola-Terapia</h3>
+                  <h3 className="text-xs font-black text-slate-900 font-Outfit uppercase tracking-wider">{t.dashboard.guidanceSection3Title}</h3>
                   <p className="text-[10px] text-slate-600 font-semibold leading-relaxed">
-                    Quando a escola, os pais e a equipe terapêutica usam o mesmo <strong>Dicionário Comportamental</strong>, as respostas aos comportamentos da criança tornam-se consistentes. Isso gera estabilidade e reforça a segurança social do indivíduo.
+                    {t.dashboard.guidanceSection3}
                   </p>
                 </div>
               </div>
@@ -2803,7 +2819,7 @@ function ParentDashboardContent() {
               >
                 <div className="flex items-center gap-2.5 text-indigo-655">
                   <span className="text-base">🔋</span>
-                  <h2 className="font-bold text-slate-900 text-sm font-Outfit uppercase tracking-wider">Energia Emocional</h2>
+                  <h2 className="font-bold text-slate-900 text-sm font-Outfit uppercase tracking-wider">{t.dashboard.emotionalBatteryTitle}</h2>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className={`text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full font-Outfit ${
@@ -2813,7 +2829,11 @@ function ParentDashboardContent() {
                       ? 'bg-yellow-100 text-yellow-800'
                       : 'bg-red-100 text-red-805'
                   }`}>
-                    {activeChild.emotionalBattery === 'green' ? 'Ótimo' : activeChild.emotionalBattery === 'yellow' ? 'Cansado' : 'Sobrecarregado'}
+                    {activeChild.emotionalBattery === 'green' 
+                      ? t.dashboard.emotionalBatteryStatusGreen 
+                      : activeChild.emotionalBattery === 'yellow' 
+                      ? t.dashboard.emotionalBatteryStatusYellow 
+                      : t.dashboard.emotionalBatteryStatusRed}
                   </span>
                   {collapsedSections.emotionalBattery ? <ChevronDown className="w-4 h-4 text-slate-400 shrink-0" /> : <ChevronUp className="w-4 h-4 text-slate-400 shrink-0" />}
                 </div>
@@ -2843,12 +2863,12 @@ function ParentDashboardContent() {
                     : 'bg-yellow-50 border-yellow-250 text-yellow-800'
                 }`}>
                   <span className="font-black font-Outfit uppercase text-[9px] tracking-widest flex items-center gap-1">
-                    ⚠️ {activeChild.emotionalBattery === 'red' ? 'Alerta de Crise' : 'Aviso de Cansaço'}
+                    ⚠️ {activeChild.emotionalBattery === 'red' ? t.dashboard.emotionalBatteryAlertTitleRed : t.dashboard.emotionalBatteryAlertTitleYellow}
                   </span>
                   <p>
                     {activeChild.emotionalBattery === 'red' 
-                      ? `Atenção: ${activeChild.name.split(' ')[0]} registrou sobrecarga extrema nas últimas horas. Considere imediatamente pausar telas, apagar luzes fortes e guiar uma atividade de descompressão ou usar o SOS Sensorial.`
-                      : `${activeChild.name.split(' ')[0]} sente cansaço ou fadiga. Considere reduzir a velocidade ou complexidade das tarefas de hoje e dar um tempo para descanso.`}
+                      ? t.dashboard.emotionalBatteryAlertDescRed.replace('{name}', activeChild.name.split(' ')[0])
+                      : t.dashboard.emotionalBatteryAlertDescYellow.replace('{name}', activeChild.name.split(' ')[0])}
                   </p>
                 </div>
               )}
@@ -2867,10 +2887,10 @@ function ParentDashboardContent() {
               >
                 <div className="flex items-center gap-2.5 text-indigo-600">
                   <span className="text-base">📅</span>
-                  <h2 className="font-bold text-slate-900 text-sm font-Outfit uppercase tracking-wider">Acompanhamento Diário</h2>
+                  <h2 className="font-bold text-slate-900 text-sm font-Outfit uppercase tracking-wider">{t.dashboard.dailyTrackingTitle}</h2>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-[9px] font-black text-slate-400 uppercase">Últimos 7 dias</span>
+                  <span className="text-[9px] font-black text-slate-400 uppercase">{t.dashboard.dailyTrackingSubtitle}</span>
                   {collapsedSections.dailyStatus ? <ChevronDown className="w-4 h-4 text-slate-400 shrink-0" /> : <ChevronUp className="w-4 h-4 text-slate-400 shrink-0" />}
                 </div>
               </button>
@@ -2913,7 +2933,7 @@ function ParentDashboardContent() {
                         
                         <div className="flex items-center gap-3">
                           {/* School badge */}
-                          <div className="flex items-center gap-1" title={schoolLog ? 'Relatório escolar recebido' : 'Sem relatório escolar hoje'}>
+                          <div className="flex items-center gap-1" title={schoolLog ? t.dashboard.schoolBadgeLog : t.dashboard.schoolBadgeNoLog}>
                             <span className="text-[10px]" title="Escola">🏫</span>
                             {schoolLog ? (
                               <span className="bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full text-[9px] font-black border border-emerald-250">
@@ -2927,8 +2947,8 @@ function ParentDashboardContent() {
                           </div>
 
                           {/* Clinical badge */}
-                          <div className="flex items-center gap-1" title={clinicalCp ? 'Acompanhamento clínico registrado' : 'Sem laudo clínico hoje'}>
-                            <span className="text-[10px]" title="Clínico">🧠</span>
+                          <div className="flex items-center gap-1" title={clinicalCp ? t.dashboard.clinicalBadgeLog : t.dashboard.clinicalBadgeNoLog}>
+                            <span className="text-[10px]" title={locale === 'en' ? 'Clinical' : locale === 'es' ? 'Clínico' : 'Clínico'}>🧠</span>
                             {clinicalCp ? (
                               <span className="bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full text-[9px] font-black border border-emerald-250" title={`${clinicalCp.professionalRole}: ${clinicalCp.feedback}`}>
                                 OK ✓
@@ -2967,10 +2987,10 @@ function ParentDashboardContent() {
             >
               <div className="flex items-center gap-2.5 text-indigo-600">
                 <Sparkles className="w-5 h-5" />
-                <h2 className="font-bold text-slate-900 text-lg font-Outfit">Perfil da Criança</h2>
+                <h2 className="font-bold text-slate-900 text-lg font-Outfit">{t.dashboard.childProfileTitle}</h2>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-[9px] font-black text-slate-400 uppercase">Configurações</span>
+                <span className="text-[9px] font-black text-slate-400 uppercase">{t.dashboard.childProfileSubtitle}</span>
                 {collapsedSections.profile ? <ChevronDown className="w-4 h-4 text-slate-400 shrink-0" /> : <ChevronUp className="w-4 h-4 text-slate-400 shrink-0" />}
               </div>
             </button>
@@ -3008,7 +3028,7 @@ function ParentDashboardContent() {
               </div>
               <div>
                 <label className="block text-xs font-black text-slate-700 uppercase tracking-wider mb-1.5 font-Outfit">
-                  {locale === 'en' ? 'Child Lock Type' : locale === 'es' ? 'Tipo de Bloqueo Infantil' : 'Tipo de Bloqueo Infantil'}
+                  {t.dashboard.childLockLabel}
                 </label>
                 <select
                   value={lockType}
@@ -3024,7 +3044,7 @@ function ParentDashboardContent() {
               {lockType === 'pin' && (
                 <div>
                   <label className="block text-xs font-black text-slate-700 uppercase tracking-wider mb-1.5 font-Outfit">
-                    {locale === 'en' ? 'Guardian PIN (4 digits)' : locale === 'es' ? 'PIN del Tutor (4 dígitos)' : 'PIN do Responsável (4 dígitos)'}
+                    {t.dashboard.childLockPin}
                   </label>
                   <input 
                     type="text" 
@@ -3133,10 +3153,10 @@ function ParentDashboardContent() {
                   <div className="flex items-center justify-between">
                     <div className="text-left">
                       <span className="text-[10px] font-black uppercase tracking-widest text-indigo-900 flex items-center gap-1 select-none font-Outfit">
-                        🚨 Modo Primeiro-Depois
+                        {t.dashboard.firstThenModeTitle}
                       </span>
                       <p className="text-[9.5px] text-slate-500 font-semibold leading-tight mt-0.5">
-                        Simplifica o portal em duas tarefas gigantes durante crises.
+                        {t.dashboard.firstThenModeDesc}
                       </p>
                     </div>
                     <button
@@ -3151,7 +3171,7 @@ function ParentDashboardContent() {
                           : 'bg-slate-200 border-slate-355 text-slate-700'
                       }`}
                     >
-                      {emergencyFirstThen ? 'Ativo 🟢' : 'Inativo'}
+                      {emergencyFirstThen ? t.dashboard.activeLabel : t.dashboard.inactiveLabel}
                     </button>
                   </div>
                 </div>
@@ -3160,11 +3180,11 @@ function ParentDashboardContent() {
               {/* Token Economy Config */}
               <div className="bg-indigo-50 border-2 border-indigo-200 p-4.5 rounded-2xl flex flex-col gap-3 shadow-xxs">
                 <span className="text-[10px] font-black uppercase tracking-widest text-indigo-900 flex items-center gap-1 select-none font-Outfit">
-                  🪙 Economia de Fichas (Reforço Positivo ABA)
+                  {t.dashboard.tokenEconomyTitle}
                 </span>
                 <div>
                   <label className="block text-xxs font-black text-slate-700 uppercase mb-1 font-Outfit">
-                    Nome do Prêmio / Reforçador
+                    {t.dashboard.tokenEconomyPrize}
                   </label>
                   <input 
                     type="text" 
@@ -3219,14 +3239,14 @@ function ParentDashboardContent() {
 
               <div>
                 <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">
-                  Assinatura do Serviço
+                  {t.dashboard.subscriptionTitle}
                 </label>
                 <div className={`px-4 py-3 rounded-xl border font-bold flex items-center justify-between text-sm ${
                   plan === 'premium'
                     ? 'bg-amber-50 border-amber-250 text-amber-700'
-                    : 'bg-slate-50 border-slate-200 text-slate-650'
+                    : 'bg-slate-50 border-slate-200 text-slate-655'
                 }`}>
-                  <span>{plan === 'premium' ? '💎 Premium Ativo' : '🔓 Plano Grátis'}</span>
+                  <span>{plan === 'premium' ? t.dashboard.premiumActive : t.dashboard.freePlanActive}</span>
                   {plan === 'premium' ? (
                     <button
                       type="button"
@@ -3234,11 +3254,11 @@ function ParentDashboardContent() {
                         playMarimba(261, 0.3);
                         await firebaseBridge.auth.updateProfileSettings({ plan: 'free' });
                         setPlan('free');
-                        triggerStatus('Sua assinatura foi cancelada (Plano Grátis).');
+                        triggerStatus(t.dashboard.premiumCancelSuccess);
                       }}
                       className="text-[10px] font-black uppercase text-red-500 hover:text-red-750 cursor-pointer bg-transparent border-none font-bold"
                     >
-                      Cancelar
+                      {t.common.cancel}
                     </button>
                   ) : (
                     <button
@@ -3258,16 +3278,16 @@ function ParentDashboardContent() {
               {/* Clinical Sharing Code */}
               <div className="bg-indigo-50 border-2 border-indigo-200 p-4.5 rounded-2xl flex flex-col gap-3 shadow-xxs">
                 <span className="text-[10px] font-black uppercase tracking-widest text-indigo-900 flex items-center gap-1 select-none font-Outfit">
-                  ⚕️ Compartilhamento Clínico (Terapeutas)
+                  {t.dashboard.clinicalSharingTitle}
                 </span>
                 <p className="text-[10px] text-indigo-950 font-semibold leading-tight">
-                  Gere um código de acesso seguro para terapeutas (psicólogos, T.O.s, fonoaudiólogos) acompanharem a rotina e registrarem checkpoints.
+                  {t.dashboard.clinicalSharingDesc}
                 </p>
                 <div className="flex flex-col gap-2 bg-white border border-slate-200 p-3 rounded-xl">
                   {activeChild?.sharingCode ? (
                     <>
                       <div className="flex items-center justify-between">
-                        <span className="text-[10px] font-extrabold text-slate-500 uppercase font-Outfit">Código do Paciente:</span>
+                        <span className="text-[10px] font-extrabold text-slate-500 uppercase font-Outfit">{t.dashboard.patientCode}</span>
                         <span className="text-sm font-black text-indigo-650 tracking-wider bg-indigo-50 px-2.5 py-1 rounded-lg border border-indigo-150 font-Outfit">
                           {activeChild.sharingCode}
                         </span>
@@ -3277,11 +3297,11 @@ function ParentDashboardContent() {
                           type="button"
                           onClick={() => {
                             navigator.clipboard.writeText(activeChild.sharingCode || '');
-                            triggerStatus('Código copiado!');
+                            triggerStatus(t.dashboard.statusCodeCopied);
                           }}
                           className="flex-1 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-[9px] font-black rounded-lg active:scale-95 transition-all cursor-pointer font-Outfit"
                         >
-                          Copiar Código
+                          {locale === 'en' ? 'Copy Code' : locale === 'es' ? 'Copiar Código' : 'Copiar Código'}
                         </button>
                         <button
                           type="button"
@@ -3289,7 +3309,7 @@ function ParentDashboardContent() {
                             if (typeof window !== 'undefined') {
                               const directLink = `${window.location.origin}/therapist?code=${activeChild.sharingCode}`;
                               navigator.clipboard.writeText(directLink);
-                              triggerStatus('Link direto copiado para a área de transferência!');
+                              triggerStatus(t.dashboard.statusLinkCopied);
                             }
                           }}
                           className="flex-1 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-[9px] font-black rounded-lg active:scale-95 transition-all cursor-pointer font-Outfit"
@@ -3300,19 +3320,19 @@ function ParentDashboardContent() {
                           type="button"
                           onClick={handleGenerateSharingCode}
                           className="py-1.5 px-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-[9px] font-black rounded-lg active:scale-95 transition-all cursor-pointer border border-slate-300 font-Outfit"
-                          title="Gerar novo código"
+                          title={locale === 'en' ? 'Generate new code' : locale === 'es' ? 'Generar nuevo código' : 'Gerar novo código'}
                         >
                           Renovar
                         </button>
                       </div>
                       <p className="text-[9px] text-slate-500 font-medium leading-normal mt-1 border-t border-slate-100 pt-2 text-left">
-                        💡 **Como o terapeuta acessa?** Ele pode entrar em <Link href="/therapist" className="text-indigo-650 hover:underline font-bold" target="_blank">/therapist</Link> e digitar o código, ou você pode clicar em **"Copiar Link Direto"** e enviar para ele no WhatsApp para acesso instantâneo!
+                        {locale === 'en' ? (<>💡 **How does the therapist access?** They can go to <Link href="/therapist" className="text-indigo-650 hover:underline font-bold" target="_blank">/therapist</Link> and enter the code, or you can click **"Copy Direct Link"** and send it to them on WhatsApp for instant access!</>) : locale === 'es' ? (<>💡 **¿Cómo accede el terapeuta?** ¡Puede ingresar a <Link href="/therapist" className="text-indigo-650 hover:underline font-bold" target="_blank">/therapist</Link> e ingresar el código, o puede hacer clic en **"Copiar Enlace Directo"** y enviárselo por WhatsApp para acceso instantáneo!</>) : (<>💡 **Como o terapeuta acessa?** Ele pode entrar em <Link href="/therapist" className="text-indigo-650 hover:underline font-bold" target="_blank">/therapist</Link> e digitar o código, ou você pode clicar em **"Copiar Link Direto"** e enviar para ele no WhatsApp para acesso instantâneo!</>)}
                       </p>
                       
                       <div className="mt-2.5 pt-2 border-t border-dashed border-slate-200 flex flex-col gap-2">
-                        <span className="text-[10px] font-black text-slate-700 uppercase font-Outfit">🏫 Acompanhamento Escolar (Mediador/Professor)</span>
+                        <span className="text-[10px] font-black text-slate-700 uppercase font-Outfit">{locale === 'en' ? '🏫 School Follow-up (Mediator/Teacher)' : locale === 'es' ? '🏫 Acompañamiento Escolar (Mediador/Profesor)' : '🏫 Acompanhamento Escolar (Mediador/Professor)'}</span>
                         <p className="text-[9px] text-slate-500 font-medium leading-normal">
-                          Envie o link do portal escolar para o professor ou mediador registrar relatórios diários de humor, alimentação e ruído da escola:
+                          {t.dashboard.schoolSharingDesc}
                         </p>
                         <button
                           type="button"
@@ -3320,12 +3340,12 @@ function ParentDashboardContent() {
                             if (typeof window !== 'undefined') {
                               const schoolLink = `${window.location.origin}/school?code=${activeChild?.sharingCode}`;
                               navigator.clipboard.writeText(schoolLink);
-                              triggerStatus('Link da escola copiado!');
+                              triggerStatus(t.dashboard.schoolLinkCopied);
                             }
                           }}
                           className="w-full py-2 bg-yellow-500 hover:bg-yellow-600 text-slate-950 text-[10px] font-black rounded-xl active:scale-95 transition-all cursor-pointer font-Outfit border-none uppercase tracking-wider shadow-sm font-black"
                         >
-                          Copiar Link da Escola 🏫
+                          {locale === 'en' ? 'Copy School Link 🏫' : locale === 'es' ? 'Copiar Enlace de la Escuela 🏫' : 'Copiar Link da Escola 🏫'}
                         </button>
                       </div>
                     </>
@@ -3335,7 +3355,7 @@ function ParentDashboardContent() {
                       onClick={handleGenerateSharingCode}
                       className="w-full py-2 bg-indigo-100 hover:bg-indigo-200 text-indigo-900 border border-indigo-300 rounded-xl text-xs font-black active:scale-95 transition-all cursor-pointer font-Outfit"
                     >
-                      Gerar Código Clínico
+                      {t.dashboard.generateClinicalCode}
                     </button>
                   )}
                 </div>
@@ -3346,11 +3366,11 @@ function ParentDashboardContent() {
                 disabled={savingProfile}
                 className="w-full py-3 bg-indigo-600 hover:bg-indigo-755 text-white text-sm font-black rounded-xl shadow-md transition-all active:scale-95 flex items-center justify-center gap-2 cursor-pointer border-b-4 border-indigo-900 font-Outfit"
               >
-                {savingProfile ? 'Salvando...' : 'Atualizar Perfil'}
+                {savingProfile ? t.common.loading : (locale === 'en' ? 'Update Profile' : locale === 'es' ? 'Actualizar Perfil' : 'Atualizar Perfil')}
               </button>
             </form>
             <p className="text-xxs text-slate-400 leading-relaxed">
-              * O hiperfoco ajuda a criança a se conectar com a rotina. O mascote utilizará este termo para incentivos lúdicos personalizados.
+              {locale === 'en' ? '* Hyperfocus helps the child connect with the routine. The mascot will use this term for personalized playful encouragement.' : locale === 'es' ? '* El hiperenfoque ayuda al niño a conectarse con la rutina. La mascota usará este término para incentivos lúdicos personalizados.' : '* O hiperfoco ajuda a criança a se conectar com a rotina. O mascote utilizará este termo para incentivos lúdicos personalizados.'}
             </p>
 
             <div className="flex flex-col items-center justify-center mt-8 pt-4 border-t border-slate-100 relative">
@@ -3363,7 +3383,7 @@ function ParentDashboardContent() {
               <div 
                 className="cursor-pointer relative p-3 rounded-full border border-slate-100 bg-slate-50/50 hover:bg-white hover:scale-[1.04] active:scale-95 transition-all shadow-premium"
                 onClick={() => { handleMiniCollieClick(); rotateTip(); }}
-                title="Clique para rotacionar dicas clínicas!"
+                title={locale === 'en' ? 'Click to rotate clinical tips!' : locale === 'es' ? '¡Haga clic para rotar consejos clínicos!' : 'Clique para rotacionar dicas clínicas!'}
               >
                 <div className="absolute inset-0 rounded-full bg-indigo-150 opacity-10 filter blur-sm"></div>
                 <HyperfocusMascot hyperfocus={hyperfocus || activeChild?.childHyperfocus || 'Border Collies 🐕'} state={collieState} size={110} />
@@ -3389,10 +3409,10 @@ function ParentDashboardContent() {
               >
                 <div className="flex items-center gap-2.5 text-indigo-650">
                   <Briefcase className="w-5 h-5 text-indigo-500" />
-                  <h2 className="font-bold text-slate-900 text-base font-Outfit">Apoio Clínico & Anexos 🎒</h2>
+                  <h2 className="font-bold text-slate-900 text-base font-Outfit">{t.dashboard.clinicalSupportTitle}</h2>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-[9px] font-black text-slate-400 uppercase">Ferramentas</span>
+                  <span className="text-[9px] font-black text-slate-400 uppercase">{locale === 'en' ? 'Tools' : locale === 'es' ? 'Herramientas' : 'Ferramentas'}</span>
                   {sidebarCollapsedStates.tools ? <ChevronDown className="w-4 h-4 text-slate-400 shrink-0" /> : <ChevronUp className="w-4 h-4 text-slate-400 shrink-0" />}
                 </div>
               </button>
@@ -3405,7 +3425,7 @@ function ParentDashboardContent() {
                   className="flex flex-col gap-4 border-t border-slate-100 pt-4 mt-4 w-full"
                 >
                   <label className="block text-[10px] font-black text-slate-500 uppercase">
-                    Selecione uma ferramenta de apoio:
+                    {t.dashboard.selectSupportToolLabel}
                   </label>
                   <select
                     value={activeSidebarTool}
@@ -3415,11 +3435,11 @@ function ParentDashboardContent() {
                     }}
                     className="w-full px-3 py-2 bg-slate-50 border border-slate-200 text-slate-700 text-xs font-bold rounded-xl outline-none focus:border-indigo-500 transition-all cursor-pointer shadow-xxs"
                   >
-                    <option value="none">Nenhuma ferramenta ativa</option>
-                    <option value="aac">🗣️ Prancha AAC Customizada</option>
-                    <option value="stories">📖 Histórias Sociais com IA</option>
-                    <option value="dictionary">🧠 Dicionário Comportamental</option>
-                    <option value="voice">📻 Gravador de Voz Familiar</option>
+                    <option value="none">{t.dashboard.toolNone}</option>
+                    <option value="aac">{t.dashboard.toolAac}</option>
+                    <option value="stories">{t.dashboard.toolStories}</option>
+                    <option value="dictionary">{t.dashboard.toolDictionary}</option>
+                    <option value="voice">{t.dashboard.toolVoice}</option>
                   </select>
 
                   {/* Render voice alert content if active */}
@@ -3427,15 +3447,15 @@ function ParentDashboardContent() {
                     <div className="flex flex-col gap-4 border-t border-slate-100/60 pt-4 mt-1">
                       <div className="flex items-center gap-2 text-indigo-650">
                         <Mic className="w-4 h-4 text-indigo-500" />
-                        <h3 className="font-extrabold text-slate-900 text-xs font-Outfit">IA de Voz Familiar (Regulação)</h3>
+                        <h3 className="font-extrabold text-slate-900 text-xs font-Outfit">{t.dashboard.familyVoiceTitle}</h3>
                       </div>
                       <p className="text-[10px] text-slate-500 font-semibold leading-relaxed">
-                        Grave avisos de transição com sua voz real para acalmar a criança durante a contagem regressiva da rotina.
+                        {t.dashboard.familyVoiceDesc}
                       </p>
 
                       <div className="flex flex-col gap-3">
                         {(['audioAlert10', 'audioAlert5', 'audioAlert2'] as const).map((type) => {
-                          const label = type === 'audioAlert10' ? 'Alerta de 10 min' : type === 'audioAlert5' ? 'Alerta de 5 min' : 'Alerta de 2 min';
+                          const label = type === 'audioAlert10' ? t.dashboard.audioAlert10Label : type === 'audioAlert5' ? t.dashboard.audioAlert5Label : t.dashboard.audioAlert2Label;
                           const hasAudio = !!activeChild[type];
                           const isRecording = recordingType === type;
                           const isPlaying = isPlayingAudio === type;
@@ -3445,15 +3465,15 @@ function ParentDashboardContent() {
                               <div className="flex items-center justify-between text-xxs font-black text-slate-700">
                                 <span>{label}</span>
                                 {hasAudio && !isRecording && (
-                                  <span className="text-[9px] text-emerald-600 font-bold bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-250">Gravado ✓</span>
+                                  <span className="text-[9px] text-emerald-600 font-bold bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-250">{t.dashboard.audioRecordedLabel}</span>
                                 )}
                                 {!hasAudio && !isRecording && (
-                                  <span className="text-[9px] text-slate-400 font-bold">Sem gravação</span>
+                                  <span className="text-[9px] text-slate-400 font-bold">{t.dashboard.audioNotRecordedLabel}</span>
                                 )}
                                 {isRecording && (
                                   <span className="text-[9px] text-red-600 font-bold animate-pulse flex items-center gap-1">
                                     <span className="w-1.5 h-1.5 rounded-full bg-red-600" />
-                                    Gravando ({recordingSecondsLeft}s)
+                                    {locale === 'en' ? 'Recording' : locale === 'es' ? 'Grabando' : 'Gravando'} ({recordingSecondsLeft}s)
                                   </span>
                                 )}
                               </div>
@@ -3465,7 +3485,7 @@ function ParentDashboardContent() {
                                     onClick={stopRecording}
                                     className="flex-1 py-1.5 bg-red-600 hover:bg-red-750 text-white rounded-xl text-xxs font-black flex items-center justify-center gap-1 cursor-pointer transition-all"
                                   >
-                                    <Square className="w-3.5 h-3.5 fill-current" /> Parar Gravação
+                                    <Square className="w-3.5 h-3.5 fill-current" /> {t.dashboard.stopRecording}
                                   </button>
                                 ) : (
                                   <>
@@ -3474,7 +3494,7 @@ function ParentDashboardContent() {
                                       onClick={() => startRecording(type)}
                                       className="flex-1 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 hover:text-indigo-800 border border-indigo-200 rounded-xl text-xxs font-black flex items-center justify-center gap-1 cursor-pointer transition-all"
                                     >
-                                      <Mic className="w-3.5 h-3.5" /> Gravar 10s
+                                      <Mic className="w-3.5 h-3.5" /> {locale === 'en' ? 'Record 10s' : locale === 'es' ? 'Grabar 10s' : 'Gravar 10s'}
                                     </button>
 
                                     {hasAudio && (
@@ -3487,7 +3507,7 @@ function ParentDashboardContent() {
                                               ? 'bg-amber-100 border-amber-300 text-amber-850' 
                                               : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
                                           }`}
-                                          title="Ouvir gravação"
+                                          title={t.dashboard.listenRecording}
                                         >
                                           {isPlaying ? <Square className="w-3.5 h-3.5 fill-current" /> : <Play className="w-3.5 h-3.5 fill-current" />}
                                         </button>
@@ -3495,7 +3515,7 @@ function ParentDashboardContent() {
                                           type="button"
                                           onClick={() => deleteRecordedAudio(type)}
                                           className="p-1.5 bg-rose-50 border border-rose-200 text-rose-600 hover:bg-rose-100 rounded-xl flex items-center justify-center cursor-pointer transition-all"
-                                          title="Excluir gravação"
+                                          title={t.dashboard.deleteRecording}
                                         >
                                           <Trash2 className="w-3.5 h-3.5" />
                                         </button>
@@ -3516,17 +3536,17 @@ function ParentDashboardContent() {
                     <div className="flex flex-col gap-4 border-t border-slate-100/60 pt-4 mt-1">
                       <div className="flex items-center gap-2 text-indigo-655">
                         <MessageSquare className="w-4 h-4 text-indigo-500" />
-                        <h3 className="font-extrabold text-slate-900 text-xs font-Outfit">Prancha AAC Customizada</h3>
+                        <h3 className="font-extrabold text-slate-900 text-xs font-Outfit">{t.dashboard.customAacTitle}</h3>
                       </div>
                       <p className="text-[10px] text-slate-500 font-semibold leading-relaxed">
-                        Personalize os botões de voz do paciente para que ele possa comunicar sentimentos, dores ou desejos no portal dele.
+                        {t.dashboard.customAacDesc}
                       </p>
 
                       {/* List of current custom items */}
                       <div className="flex flex-wrap gap-2 max-h-[200px] overflow-y-auto pr-1">
                         {aacItemsList.length === 0 ? (
                           <p className="text-slate-400 text-xxs italic w-full text-center py-4">
-                            Nenhum botão personalizado ainda.
+                            {t.dashboard.noCustomButtons}
                           </p>
                         ) : (
                           aacItemsList.map((item) => (
@@ -3543,7 +3563,7 @@ function ParentDashboardContent() {
                                 type="button"
                                 onClick={() => handleDeleteAacItem(item.id)}
                                 className="p-0.5 bg-transparent border-none text-slate-400 hover:text-red-655 cursor-pointer"
-                                title="Remover botão"
+                                title={locale === 'en' ? 'Remove button' : locale === 'es' ? 'Eliminar botón' : 'Remover botão'}
                               >
                                 <Trash2 className="w-3.5 h-3.5" />
                               </button>
@@ -3554,13 +3574,13 @@ function ParentDashboardContent() {
 
                       {/* Form to add item */}
                       <form onSubmit={handleAddAacItem} className="flex flex-col gap-2.5 border-t border-slate-100 pt-4 mt-2">
-                        <span className="text-xxs font-black text-slate-700 uppercase tracking-wider font-Outfit">Criar Novo Botão</span>
+                        <span className="text-xxs font-black text-slate-700 uppercase tracking-wider font-Outfit">{t.dashboard.createNewButton}</span>
                         
                         <div className="grid grid-cols-4 gap-2">
                           <div className="col-span-3">
                             <input
                               type="text"
-                              placeholder="Título (Ex: Quero colo)"
+                              placeholder={t.dashboard.buttonTitlePlaceholder}
                               value={newAacText}
                               onChange={e => setNewAacText(e.target.value)}
                               className="w-full px-3 py-2 bg-slate-50 border border-slate-255 rounded-xl text-xxs font-bold outline-none focus:bg-white focus:border-indigo-650"
@@ -3591,7 +3611,7 @@ function ParentDashboardContent() {
                         <div>
                           <input
                             type="text"
-                            placeholder="Texto falado (Ex: Quero um colo da mamãe)"
+                            placeholder={t.dashboard.buttonSpeechPlaceholder}
                             value={newAacSpeech}
                             onChange={e => setNewAacSpeech(e.target.value)}
                             className="w-full px-3 py-2 bg-slate-50 border border-slate-255 rounded-xl text-xxs font-bold outline-none focus:bg-white focus:border-indigo-650"
@@ -3609,7 +3629,7 @@ function ParentDashboardContent() {
                             className="w-4 h-4 text-indigo-600 border-slate-300 rounded focus:ring-indigo-500 cursor-pointer"
                           />
                           <label htmlFor="aacAlertCheck" className="text-xxs font-black text-rose-700 cursor-pointer select-none">
-                            🚨 Botão de Crise / Alerta Visual no SOS
+                            {t.dashboard.sosButtonAlert}
                           </label>
                         </div>
 
@@ -3617,7 +3637,7 @@ function ParentDashboardContent() {
                           type="submit"
                           className="w-full py-2 bg-indigo-600 hover:bg-indigo-755 text-white text-xs font-black rounded-xl border-b-2 border-indigo-900 active:scale-95 transition-all cursor-pointer font-Outfit uppercase tracking-wider"
                         >
-                          ➕ Adicionar Botão
+                          {t.dashboard.addButton}
                         </button>
                       </form>
                     </div>
@@ -3628,17 +3648,17 @@ function ParentDashboardContent() {
                     <div className="flex flex-col gap-4 border-t border-slate-100/60 pt-4 mt-1">
                       <div className="flex items-center gap-2 text-indigo-655">
                         <BookOpen className="w-4 h-4 text-indigo-500" />
-                        <h3 className="font-extrabold text-slate-900 text-xs font-Outfit">Histórias Sociais com IA</h3>
+                        <h3 className="font-extrabold text-slate-900 text-xs font-Outfit">{t.dashboard.aiSocialStoriesTitle}</h3>
                       </div>
                       <p className="text-[10px] text-slate-500 font-semibold leading-relaxed">
-                        Crie histórias sociais curtas para preparar seu filho para transições ou consultas. A IA usará o hiperfoco da criança para torná-la cativante.
+                        {t.dashboard.aiSocialStoriesDesc}
                       </p>
 
                       {/* List of current social stories */}
                       <div className="flex flex-col gap-2 max-h-[200px] overflow-y-auto pr-1">
                         {customStoriesList.length === 0 ? (
                           <p className="text-slate-400 text-xxs italic text-center py-4">
-                            Nenhuma história criada ainda.
+                            {t.dashboard.noStories}
                           </p>
                         ) : (
                           customStoriesList.map((story) => (
@@ -3651,7 +3671,7 @@ function ParentDashboardContent() {
                                 type="button"
                                 onClick={() => handleDeleteStory(story.id)}
                                 className="p-1.5 bg-rose-50 border border-rose-200 text-rose-605 hover:bg-rose-100 rounded-xl flex items-center justify-center cursor-pointer transition-all shrink-0"
-                                title="Excluir história"
+                                title={t.dashboard.deleteStory}
                               >
                                 <Trash2 className="w-3.5 h-3.5" />
                               </button>
@@ -3686,13 +3706,13 @@ function ParentDashboardContent() {
                               />
                             </div>
                             <p className="text-[9px] text-slate-400 leading-normal">
-                              💡 A IA vai adaptar a história com o hiperfoco ativo: <strong>{hyperfocus || activeChild.childHyperfocus || 'Border Collies 🐕'}</strong>.
+                              {t.dashboard.aiAdaptStoryTip} <strong>{hyperfocus || activeChild.childHyperfocus || 'Border Collies 🐕'}</strong>.
                             </p>
                             <button
                               type="submit"
                               className="w-full py-2 bg-indigo-600 hover:bg-indigo-755 text-white text-xs font-black rounded-xl border-b-2 border-indigo-900 active:scale-95 transition-all cursor-pointer font-Outfit uppercase tracking-wider flex items-center justify-center gap-1"
                             >
-                              <Sparkles className="w-3.5 h-3.5" /> Gerar História
+                              <Sparkles className="w-3.5 h-3.5" /> {t.dashboard.generateStory}
                             </button>
                           </>
                         )}
@@ -3705,17 +3725,17 @@ function ParentDashboardContent() {
                     <div className="flex flex-col gap-4 border-t border-slate-100/60 pt-4 mt-1">
                       <div className="flex items-center gap-2 text-indigo-655">
                         <Activity className="w-4 h-4 text-indigo-500" />
-                        <h3 className="font-extrabold text-slate-900 text-xs font-Outfit">Dicionário Comportamental</h3>
+                        <h3 className="font-extrabold text-slate-900 text-xs font-Outfit">{t.dashboard.behaviorDictionaryTitle}</h3>
                       </div>
                       <p className="text-[10px] text-slate-500 font-semibold leading-relaxed">
-                        Mapeie os sinais corporais da criança, seus significados e a conduta recomendada para mediadores escolares e terapeutas.
+                        {t.dashboard.behaviorDictionaryDesc}
                       </p>
 
                       {/* List of current signals */}
                       <div className="flex flex-col gap-2.5 max-h-[300px] overflow-y-auto pr-1">
                         {behaviorList.length === 0 ? (
                           <p className="text-slate-400 text-xxs italic text-center py-4">
-                            Nenhum sinal cadastrado ainda.
+                            {locale === 'en' ? 'No signal registered yet.' : locale === 'es' ? 'Ninguna señal registrada aún.' : 'Nenhum sinal cadastrado ainda.'}
                           </p>
                         ) : (
                           behaviorList.map((item) => (
@@ -3724,18 +3744,18 @@ function ParentDashboardContent() {
                                 type="button"
                                 onClick={() => handleDeleteBehaviorSignal(item.id)}
                                 className="absolute top-2.5 right-2.5 p-1 bg-transparent hover:bg-rose-50 text-slate-405 hover:text-red-655 rounded-md border-none cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity"
-                                title="Excluir sinal"
+                                title={locale === 'en' ? 'Delete signal' : locale === 'es' ? 'Eliminar señal' : 'Excluir sinal'}
                               >
                                 <Trash2 className="w-3.5 h-3.5" />
                               </button>
                               <div className="text-xxs font-black text-indigo-950 font-Outfit pr-6">
-                                📢 Sinal: {item.signal}
+                                📢 {locale === 'en' ? 'Signal' : locale === 'es' ? 'Señal' : 'Sinal'}: {item.signal}
                               </div>
                               <div className="text-[10px] text-slate-600 font-semibold leading-tight">
-                                <strong>🧠 Significado:</strong> {item.meaning}
+                                <strong>🧠 {locale === 'en' ? 'Meaning' : locale === 'es' ? 'Significado' : 'Significado'}:</strong> {item.meaning}
                               </div>
                               <div className="text-[10px] text-emerald-800 font-semibold bg-emerald-50/60 border border-emerald-150 p-2 rounded-xl mt-1 leading-normal">
-                                <strong>👩‍🏫 Conduta:</strong> {item.intervention}
+                                <strong>👩‍🏫 {locale === 'en' ? 'Action' : locale === 'es' ? 'Conducta' : 'Conduta'}:</strong> {item.intervention}
                               </div>
                             </div>
                           ))
@@ -3744,11 +3764,11 @@ function ParentDashboardContent() {
 
                       {/* Add form */}
                       <form onSubmit={handleAddBehaviorSignal} className="flex flex-col gap-2.5 border-t border-slate-100 pt-4 mt-2">
-                        <span className="text-xxs font-black text-slate-700 uppercase tracking-wider font-Outfit">Cadastrar Novo Sinal</span>
+                        <span className="text-xxs font-black text-slate-700 uppercase tracking-wider font-Outfit">{locale === 'en' ? 'Register New Sign' : locale === 'es' ? 'Registrar Nueva Señal' : 'Cadastrar Novo Sinal'}</span>
                         <div>
                           <input
                             type="text"
-                            placeholder="Sinal (Ex: Aleteo / Agitar mãos)"
+                            placeholder={t.dashboard.signalPlaceholder}
                             value={newSignal}
                             onChange={e => setNewSignal(e.target.value)}
                             className="w-full px-3 py-2 bg-slate-50 border border-slate-255 rounded-xl text-xxs font-bold outline-none focus:bg-white focus:border-indigo-650"
@@ -3758,7 +3778,7 @@ function ParentDashboardContent() {
                         <div>
                           <input
                             type="text"
-                            placeholder="Significado (Ex: Excitação ou sobrecarga)"
+                            placeholder={t.dashboard.meaningPlaceholder}
                             value={newMeaning}
                             onChange={e => setNewMeaning(e.target.value)}
                             className="w-full px-3 py-2 bg-slate-50 border border-slate-255 rounded-xl text-xxs font-bold outline-none focus:bg-white focus:border-indigo-650"
@@ -3768,7 +3788,7 @@ function ParentDashboardContent() {
                         <div>
                           <input
                             type="text"
-                            placeholder="Conduta (Ex: Reduzir estímulos / Dar tempo)"
+                            placeholder={t.dashboard.interventionPlaceholder}
                             value={newIntervention}
                             onChange={e => setNewIntervention(e.target.value)}
                             className="w-full px-3 py-2 bg-slate-50 border border-slate-255 rounded-xl text-xxs font-bold outline-none focus:bg-white focus:border-indigo-650"
@@ -3779,7 +3799,7 @@ function ParentDashboardContent() {
                           type="submit"
                           className="w-full py-2 bg-indigo-600 hover:bg-indigo-755 text-white text-xs font-black rounded-xl border-b-2 border-indigo-900 active:scale-95 transition-all cursor-pointer font-Outfit uppercase tracking-wider"
                         >
-                          ➕ Adicionar Sinal
+                          ➕ {locale === 'en' ? 'Add Sign' : locale === 'es' ? 'Añadir Señal' : 'Adicionar Sinal'}
                         </button>
                       </form>
                     </div>
@@ -3797,7 +3817,7 @@ function ParentDashboardContent() {
             >
               <div className="flex items-center gap-2.5 text-indigo-600">
                 <Settings className="w-5 h-5" />
-                <h2 className="font-bold text-slate-900 text-sm font-Outfit uppercase tracking-wider">Ações Rápidas & Modelos</h2>
+                <h2 className="font-bold text-slate-900 text-sm font-Outfit uppercase tracking-wider">{t.dashboard.quickActionsTitle}</h2>
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-[9px] font-black text-slate-400 uppercase">Restaurar / Modelos</span>
@@ -3819,7 +3839,7 @@ function ParentDashboardContent() {
                 className="w-full flex items-center justify-between px-4 py-3 bg-slate-50 hover:bg-indigo-50 text-slate-800 hover:text-indigo-700 border-2 border-slate-200 hover:border-indigo-300 rounded-xl text-xs font-extrabold transition-all text-left cursor-pointer font-Outfit"
               >
                 <span className="flex items-center gap-2">
-                  <RotateCcw className="w-4 h-4 text-indigo-500" /> Restaurar Rotina Clínica Padrão
+                  <RotateCcw className="w-4 h-4 text-indigo-500" /> {t.dashboard.restoreClinicalRoutine}
                 </span>
                 <span>→</span>
               </button>
@@ -3836,7 +3856,7 @@ function ParentDashboardContent() {
 
             <div className="mt-4 pt-4 border-t border-slate-150 flex flex-col gap-3">
               <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-1 select-none">
-                🚀 Modelos Clínicos Completos (1-Clique)
+                {t.dashboard.clinicalTemplatesTitle}
               </span>
               
               {Object.entries(CLINICAL_TEMPLATES).map(([key, tmpl]) => (
@@ -3856,7 +3876,7 @@ function ParentDashboardContent() {
                       onClick={() => handleLoadTemplate(key as any, 'month')}
                       className="flex-1 py-2 bg-white border-2 border-slate-300 hover:border-indigo-500 hover:text-indigo-700 text-[10px] font-black rounded-lg shadow-xxs cursor-pointer transition-all active:scale-95 text-slate-750 font-Outfit"
                     >
-                      Aplicar no Mês
+                      {t.dashboard.applyOnMonth}
                     </button>
                   </div>
                 </div>
@@ -3866,7 +3886,7 @@ function ParentDashboardContent() {
             <div className="mt-4 bg-slate-50 border border-slate-200/50 p-4 rounded-2xl flex gap-2">
               <Info className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
               <p className="text-xxs text-slate-500 leading-relaxed">
-                Todas as ações executadas geram registros instantâneos e imutáveis no histórico de segurança para assegurar que rotinas não sejam sobrepostas acidentalmente por outros cuidadores.
+                {t.dashboard.immutableLogsNotice}
               </p>
             </div>
               </motion.div>
@@ -4112,7 +4132,7 @@ function ParentDashboardContent() {
                                 : 'text-slate-500 hover:text-slate-800'
                             }`}
                           >
-                            {mode === 'daily' ? 'Diária' : mode === 'weekly' ? 'Semanal' : 'Mensal'}
+                            {mode === 'daily' ? (locale === 'en' ? 'Daily' : locale === 'es' ? 'Diario' : 'Diária') : mode === 'weekly' ? (locale === 'en' ? 'Weekly' : locale === 'es' ? 'Semanal' : 'Semanal') : (locale === 'en' ? 'Monthly' : locale === 'es' ? 'Mensual' : 'Mensal')}
                           </button>
                         ))}
                       </div>
@@ -4169,7 +4189,7 @@ function ParentDashboardContent() {
                     return activeDayTasks.length > 0 ? (
                       <div className="bg-gradient-to-r from-indigo-50 to-indigo-100/50 border border-indigo-100/80 p-4.5 rounded-2xl flex flex-col gap-2">
                         <div className="flex justify-between items-center text-xs font-bold text-indigo-850">
-                          <span>📈 Progresso da Criança hoje</span>
+                          <span>📈 {locale === 'en' ? "Child's Progress today" : locale === 'es' ? 'Progreso del Niño hoy' : 'Progresso da Criança hoje'}</span>
                           <span className="bg-indigo-600 text-white font-black px-2 py-0.5 rounded-md text-[10px] uppercase shadow-xxs">
                             {completedActiveDayTasks.length} de {activeDayTasks.length} feitas ({completionRate}%)
                           </span>
@@ -4189,7 +4209,7 @@ function ParentDashboardContent() {
                   {/* Presets Dropdown select for 1-click add */}
                   <div className="flex flex-col gap-2 border-b border-slate-100 pb-5">
                     <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-1 select-none">
-                      ✨ Modelos de Atividades Rápidas
+                      {t.dashboard.quickActivityTemplates}
                     </span>
                     <select
                       onChange={(e) => {
@@ -4202,7 +4222,7 @@ function ParentDashboardContent() {
                       defaultValue=""
                       className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 text-slate-700 text-xs font-bold rounded-xl outline-none focus:border-indigo-500 transition-all cursor-pointer shadow-xxs"
                     >
-                      <option value="" disabled>Escolha um modelo rápido para adicionar...</option>
+                      <option value="" disabled>{t.dashboard.chooseQuickTemplate}</option>
                       {PRESETS.map((preset, idx) => (
                         <option key={idx} value={idx}>
                           ➕ {preset.title} ({preset.time} - {preset.period === 'manhã' ? 'Manhã' : preset.period === 'tarde' ? 'Tarde' : 'Noite'})
@@ -4230,13 +4250,13 @@ function ParentDashboardContent() {
                             <span className={`px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-wider font-Outfit transition-all ${
                               formStep === 1 ? 'bg-indigo-600 text-white shadow-xxs' : 'bg-slate-200 text-slate-500'
                             }`}>
-                              1. Identificação
+                              {t.dashboard.stepIdentification}
                             </span>
                             <span className="text-slate-355 text-[10px] select-none">➔</span>
                             <span className={`px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-wider font-Outfit transition-all ${
                               formStep === 2 ? 'bg-indigo-600 text-white shadow-xxs' : 'bg-slate-200 text-slate-500'
                             }`}>
-                              2. Didática & PECS
+                              {t.dashboard.stepDidactics}
                             </span>
                           </div>
                         </div>
@@ -4246,7 +4266,7 @@ function ParentDashboardContent() {
                           <div className="flex flex-col gap-4">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                               <div>
-                                <label className="block text-xxs font-bold text-slate-500 uppercase mb-1">Título da Atividade</label>
+                                <label className="block text-xxs font-bold text-slate-500 uppercase mb-1">{t.dashboard.activityTitle}</label>
                                 <input
                                   type="text"
                                   required
@@ -4259,7 +4279,7 @@ function ParentDashboardContent() {
 
                               <div className="grid grid-cols-2 gap-3">
                                 <div>
-                                  <label className="block text-xxs font-bold text-slate-500 uppercase mb-1">Horário (Previsão)</label>
+                                  <label className="block text-xxs font-bold text-slate-500 uppercase mb-1">{t.dashboard.timeForecast}</label>
                                   <div className="relative">
                                     <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                                     <input
@@ -4273,7 +4293,7 @@ function ParentDashboardContent() {
                                 </div>
                                 
                                 <div>
-                                  <label className="block text-xxs font-bold text-slate-500 uppercase mb-1">Período</label>
+                                  <label className="block text-xxs font-bold text-slate-500 uppercase mb-1">{t.dashboard.period}</label>
                                   <select
                                     value={period}
                                     onChange={e => setPeriod(e.target.value as any)}
@@ -4334,7 +4354,7 @@ function ParentDashboardContent() {
                                 disabled={!title.trim() || !time}
                                 className="px-5 py-2.5 bg-indigo-650 text-white text-xs font-bold rounded-xl shadow-sm hover:bg-indigo-700 active:scale-95 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed cursor-pointer font-Outfit uppercase tracking-wider text-[10px]"
                               >
-                                Próximo Passo →
+                                {t.dashboard.nextStepBtn}
                               </button>
                             </div>
                           </div>
@@ -4345,7 +4365,7 @@ function ParentDashboardContent() {
                           <div className="flex flex-col gap-4">
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                               <div className="md:col-span-1">
-                                <label className="block text-xxs font-bold text-slate-500 uppercase mb-1">Duração (Minutos)</label>
+                                <label className="block text-xxs font-bold text-slate-500 uppercase mb-1">{t.dashboard.durationMinutes}</label>
                                 <input
                                   type="number"
                                   min={1}
@@ -4357,7 +4377,7 @@ function ParentDashboardContent() {
                                 />
                               </div>
                               <div className="md:col-span-2">
-                                <label className="block text-xxs font-bold text-slate-500 uppercase mb-1">Descrição Detalhada / Instruções (Opcional)</label>
+                                <label className="block text-xxs font-bold text-slate-500 uppercase mb-1">{t.dashboard.instructionsOptional}</label>
                                 <input
                                   type="text"
                                   value={taskDescription}
@@ -4370,7 +4390,7 @@ function ParentDashboardContent() {
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-slate-200/60 pt-3">
                               <div>
-                                <label className="block text-xxs font-bold text-slate-500 uppercase mb-1">Cartão PECS (Ícone): {taskIcon}</label>
+                                <label className="block text-xxs font-bold text-slate-500 uppercase mb-1">{t.dashboard.pecsCardIcon} {taskIcon}</label>
                                 <div className="flex flex-wrap gap-1.5 p-2 bg-white border border-slate-200 rounded-xl max-h-[82px] overflow-y-auto">
                                   {['🪥', '🍞', '🏫', '🍲', '🧸', '🛌', '🚶', '🚿', '📚', '🐶', '🍕', '🧼', '🎨', '⚽', '🧘', '🦷', '🍎', '💤', '🧴', '👕'].map(emoji => (
                                     <button
@@ -4422,7 +4442,7 @@ function ParentDashboardContent() {
                                 </div>
                                 {taskCustomIcon && (
                                   <div className="mt-2 flex items-center gap-2">
-                                    <span className="text-[9px] text-slate-400 font-semibold">Pré-visualização:</span>
+                                    <span className="text-[9px] text-slate-400 font-semibold">{t.dashboard.preview}</span>
                                     <div className="w-8 h-8 border border-slate-200 rounded-lg overflow-hidden flex items-center justify-center bg-slate-50 shadow-xxs">
                                       <img src={taskCustomIcon} alt="Preview" className="w-full h-full object-cover" />
                                     </div>
@@ -4503,7 +4523,7 @@ function ParentDashboardContent() {
 
                           {periodTasks.length === 0 ? (
                             <div className="text-slate-400 text-xs border border-dashed border-slate-200/80 p-4 rounded-2xl text-center bg-slate-50/50">
-                              Sem tarefas cadastradas para este período.
+                              {t.dashboard.noTasks}
                             </div>
                           ) : (
                             <div className="flex flex-col gap-2.5">
@@ -4520,14 +4540,14 @@ function ParentDashboardContent() {
                                     >
                                       <div className="flex justify-between items-center border-b border-indigo-100 pb-2">
                                         <h4 className="font-extrabold text-xs text-indigo-800 uppercase tracking-wider flex items-center gap-1.5 font-Outfit">
-                                          ✏️ Editar Atividade
+                                          {locale === 'en' ? '✏️ Edit Activity' : locale === 'es' ? '✏️ Editar Actividad' : '✏️ Editar Atividade'}
                                         </h4>
                                         <span className="text-[9px] font-bold text-slate-400">ID: {task.id.slice(-6)}</span>
                                       </div>
 
                                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                         <div>
-                                          <label className="block text-[10px] font-black text-slate-500 uppercase mb-1">Título da Atividade</label>
+                                          <label className="block text-[10px] font-black text-slate-500 uppercase mb-1">{t.dashboard.activityTitle}</label>
                                           <input
                                             type="text"
                                             required
@@ -4539,7 +4559,7 @@ function ParentDashboardContent() {
 
                                         <div className="grid grid-cols-2 gap-2">
                                           <div>
-                                            <label className="block text-[10px] font-black text-slate-500 uppercase mb-1">Horário</label>
+                                            <label className="block text-[10px] font-black text-slate-500 uppercase mb-1">{locale === 'en' ? 'Time' : locale === 'es' ? 'Horario' : 'Horário'}</label>
                                             <input
                                               type="time"
                                               required
@@ -4550,7 +4570,7 @@ function ParentDashboardContent() {
                                           </div>
                                           
                                           <div>
-                                            <label className="block text-[10px] font-black text-slate-500 uppercase mb-1">Período</label>
+                                            <label className="block text-[10px] font-black text-slate-500 uppercase mb-1">{t.dashboard.period}</label>
                                             <select
                                               value={editTaskPeriod}
                                               onChange={e => setEditTaskPeriod(e.target.value as any)}
@@ -4566,7 +4586,7 @@ function ParentDashboardContent() {
 
                                       <div className="grid grid-cols-1 md:grid-cols-3 gap-3 border-t border-slate-200/60 pt-3">
                                         <div>
-                                          <label className="block text-[10px] font-black text-slate-500 uppercase mb-1">Duração (Minutos)</label>
+                                          <label className="block text-[10px] font-black text-slate-500 uppercase mb-1">{t.dashboard.durationMinutes}</label>
                                           <input
                                             type="number"
                                             min={1}
@@ -4579,7 +4599,7 @@ function ParentDashboardContent() {
                                         </div>
                                         
                                         <div className="md:col-span-2">
-                                          <label className="block text-[10px] font-black text-slate-500 uppercase mb-1">Instruções / Descrição</label>
+                                          <label className="block text-[10px] font-black text-slate-500 uppercase mb-1">{locale === 'en' ? 'Instructions / Description' : locale === 'es' ? 'Instrucciones / Descripción' : 'Instruções / Descrição'}</label>
                                           <input
                                             type="text"
                                             value={editTaskDescription}
@@ -4605,7 +4625,7 @@ function ParentDashboardContent() {
                                         </div>
 
                                         <div>
-                                          <label className="block text-[10px] font-black text-slate-500 uppercase mb-1">PECS (Ícone): {editTaskIcon}</label>
+                                          <label className="block text-[10px] font-black text-slate-500 uppercase mb-1">{t.dashboard.pecsCardIcon} {editTaskIcon}</label>
                                           <div className="flex flex-wrap gap-1.5 p-1.5 bg-white border border-slate-200 rounded-xl max-h-[70px] overflow-y-auto">
                                             {['🪥', '🍞', '🏫', '🍲', '🧸', '🛌', '🚶', '🚿', '📚', '🐶', '🍕', '🧼', '🎨', '⚽', '🧘', '🦷', '🍎', '💤', '🧴', '👕'].map(emoji => (
                                               <button
@@ -4655,7 +4675,7 @@ function ParentDashboardContent() {
                                             </div>
                                             {editTaskCustomIcon && (
                                               <div className="mt-1 flex items-center gap-2">
-                                                <span className="text-[8px] text-slate-400 font-semibold">Pré-visualização:</span>
+                                                <span className="text-[8px] text-slate-400 font-semibold">{t.dashboard.preview}</span>
                                                 <div className="w-6 h-6 border border-slate-200 rounded-md overflow-hidden flex items-center justify-center bg-slate-50 shadow-xxs">
                                                   <img src={editTaskCustomIcon} alt="Preview" className="w-full h-full object-cover" />
                                                 </div>
@@ -4678,7 +4698,7 @@ function ParentDashboardContent() {
                                           onClick={() => handleSaveTaskEdit(task.id)}
                                           className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl shadow-sm active:scale-95 cursor-pointer transition-all"
                                         >
-                                          Salvar Alterações 💾
+                                          {t.dashboard.saveChanges}
                                         </button>
                                       </div>
                                     </motion.div>
@@ -5416,15 +5436,15 @@ function ParentDashboardContent() {
                     📊
                   </div>
                   <div>
-                    <h3 className="font-extrabold text-slate-850 text-xl">Relatórios Clínicos Avançados</h3>
+                    <h3 className="font-extrabold text-slate-850 text-xl">{t.dashboard.advancedClinicalReportsTitle}</h3>
                     <p className="text-sm text-slate-400 max-w-sm mt-1.5 leading-relaxed font-semibold">
-                      Gere laudos detalhados de aderência de rotina, picos de engajamento e exportação otimizada para terapeutas e médicos.
+                      {t.dashboard.advancedClinicalReportsDesc}
                     </p>
                   </div>
                   <div className="bg-indigo-50 border border-indigo-150 p-4.5 rounded-2xl text-left max-w-sm flex gap-3 shadow-xxs">
                     <span className="text-xl">✨</span>
                     <p className="text-xs text-indigo-700 leading-relaxed font-bold">
-                      A assinatura Premium desbloqueia relatórios em PDF com design de laudo clínico profissional, além de tarefas diárias ilimitadas.
+                      {t.dashboard.premiumUnlockDesc}
                     </p>
                   </div>
                   <button
@@ -5462,22 +5482,22 @@ function ParentDashboardContent() {
                   
                   <div className="flex flex-col md:flex-row md:items-center justify-between border-b border-slate-100 pb-4 gap-4">
                     <div>
-                      <h3 className="font-extrabold text-slate-850 text-xl">Relatório de Evolução Clínica</h3>
+                      <h3 className="font-extrabold text-slate-850 text-xl">{t.dashboard.evolutionReportTitle}</h3>
                       <p className="text-xs text-slate-400 font-semibold mt-0.5">
-                        Métricas analíticas consolidadas de conformidade de rotina.
+                        {t.dashboard.evolutionReportDesc}
                       </p>
                       {/* Clinical Metadata Bar */}
                       {(() => {
                         const currentDayNum = new Date().getDate();
                         return (
                           <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 mt-2 text-[11px] text-slate-500 font-bold bg-slate-50 border border-slate-150 px-3 py-1.5 rounded-lg w-fit">
-                            <span>Criança: <span className="text-indigo-650 font-black">{activeChild?.name}</span></span>
+                            <span>{t.dashboard.childLabel} <span className="text-indigo-650 font-black">{activeChild?.name}</span></span>
                             <span className="text-slate-300">|</span>
-                            <span>Diagnóstico: <span className="text-slate-700 font-black">{activeChild?.diagnosis || 'Não informado'}</span></span>
+                            <span>{t.dashboard.diagnosisLabel} <span className="text-slate-700 font-black">{activeChild?.diagnosis || (locale === 'en' ? 'Not informed' : locale === 'es' ? 'No informado' : 'Não informado')}</span></span>
                             <span className="text-slate-300">|</span>
-                            <span>Hiperfoco Ativo: <span className="text-sky-600 font-black">{activeChild?.childHyperfocus || 'Não cadastrado'}</span></span>
+                            <span>{t.dashboard.activeHyperfocusLabel} <span className="text-sky-600 font-black">{activeChild?.childHyperfocus || (locale === 'en' ? 'Not registered' : locale === 'es' ? 'No registrado' : 'Não cadastrado')}</span></span>
                             <span className="text-slate-300">|</span>
-                            <span>Período: <span className="text-slate-700 font-black">Dia 1 ao {currentDayNum}</span></span>
+                            <span>{t.dashboard.periodLabel} <span className="text-slate-700 font-black">{locale === 'en' ? `Day 1 to ${currentDayNum}` : locale === 'es' ? `Día 1 al ${currentDayNum}` : `Dia 1 ao ${currentDayNum}`}</span></span>
                           </div>
                         );
                       })()}
@@ -5958,7 +5978,7 @@ function ParentDashboardContent() {
                                 <Map className="w-4 h-4 text-indigo-500" /> Mapa de Calor Sensorial (Gatilhos de Crises)
                               </h4>
                               <p className="text-[10px] text-slate-400 font-semibold mt-0.5">
-                                Identifique picos de desregulação sensorial da criança mapeados por geolocalização.
+                                {t.dashboard.overloadRiskDesc}
                               </p>
                             </div>
                             <button
@@ -5977,7 +5997,7 @@ function ParentDashboardContent() {
                         {/* Diário de Regulação & Registro de Crises */}
                         <div className="bg-slate-50 border border-slate-200/50 p-5 rounded-2xl flex flex-col gap-4 shadow-xxs">
                           <h4 className="font-extrabold text-xs text-slate-500 uppercase tracking-wider flex items-center gap-1">
-                            🧠 Registro de Desregulação Sensorial e Crises
+                            🧠 {t.dashboard.overloadRiskTitle}
                           </h4>
                           
                           <form 
@@ -6042,11 +6062,11 @@ function ParentDashboardContent() {
                             }}
                             className="flex flex-col gap-2 bg-red-50/50 border border-red-100 p-3 rounded-xl"
                           >
-                            <label className="text-[10px] font-black text-red-700 uppercase">Anotar Evento de Desregulação</label>
+                            <label className="text-[10px] font-black text-red-700 uppercase">{t.dashboard.logDysregulationEvent}</label>
                             <textarea
                               value={crisisNotes}
                               onChange={e => setCrisisNotes(e.target.value)}
-                              placeholder="Resumo geral ou observações sobre a crise"
+                              placeholder={t.dashboard.crisisSummaryPlaceholder}
                               className="w-full p-2 bg-white border border-slate-200 rounded-lg text-xs font-semibold outline-none focus:border-red-400 h-14 resize-none"
                             />
 
@@ -6057,7 +6077,7 @@ function ParentDashboardContent() {
                                   type="text"
                                   value={crisisAntecedent}
                                   onChange={e => setCrisisAntecedent(e.target.value)}
-                                  placeholder="Ex: Barulho de liquidificador, transição de atividade"
+                                  placeholder={t.dashboard.crisisTriggerPlaceholder}
                                   className="w-full p-2 bg-white border border-slate-200 rounded-lg text-xs font-semibold outline-none focus:border-red-450"
                                 />
                               </div>
@@ -6074,12 +6094,12 @@ function ParentDashboardContent() {
                               </div>
 
                               <div>
-                                <label className="block text-[8px] font-black text-slate-500 uppercase mb-0.5 font-Outfit">Consequência (C) - Qual foi a intervenção?</label>
+                                <label className="block text-[8px] font-black text-slate-500 uppercase mb-0.5 font-Outfit">{t.dashboard.crisisConsequenceLabel}</label>
                                 <input
                                   type="text"
                                   value={crisisConsequence}
                                   onChange={e => setCrisisConsequence(e.target.value)}
-                                  placeholder="Ex: Fone abafador de ruídos, abraço apertado"
+                                  placeholder={t.dashboard.crisisConsequencePlaceholder}
                                   className="w-full p-2 bg-white border border-slate-200 rounded-lg text-xs font-semibold outline-none focus:border-red-450"
                                 />
                               </div>
@@ -6087,7 +6107,7 @@ function ParentDashboardContent() {
                             
                             <div className="grid grid-cols-2 gap-2 my-1.5">
                               <div>
-                                <label className="block text-[8px] font-black text-slate-500 uppercase mb-0.5">Localização</label>
+                                <label className="block text-[8px] font-black text-slate-500 uppercase mb-0.5">{t.dashboard.locationLabel}</label>
                                 <select
                                   value={crisisLocation}
                                   onChange={e => setCrisisLocation(e.target.value)}
@@ -6115,7 +6135,7 @@ function ParentDashboardContent() {
                               </div>
 
                               <div>
-                                <label className="block text-[8px] font-black text-slate-500 uppercase mb-0.5">Nível de Ruído (dB): {crisisDecibels}dB</label>
+                                <label className="block text-[8px] font-black text-slate-500 uppercase mb-0.5">{t.dashboard.noiseLevelLabel} {crisisDecibels}dB</label>
                                 <div className="flex items-center gap-1">
                                   <input
                                     type="range"
@@ -6150,14 +6170,14 @@ function ParentDashboardContent() {
                               disabled={savingCrisis || !crisisNotes.trim()}
                               className="self-end px-3.5 py-1.5 bg-red-600 hover:bg-red-750 text-white font-extrabold text-[10px] uppercase rounded-lg shadow-xxs cursor-pointer transition-all active:scale-95 disabled:opacity-50"
                             >
-                              {savingCrisis ? 'Gravando...' : 'Gravar no diário'}
+                              {savingCrisis ? t.common.loading : t.dashboard.recordInDiary}
                             </button>
                           </form>
 
                           <div className="flex flex-col gap-2 max-h-56 overflow-y-auto pr-1">
-                            <span className="text-[9px] font-black text-slate-400 uppercase">Diário Emocional e Crises Recentes</span>
+                            <span className="text-[9px] font-black text-slate-400 uppercase">{t.dashboard.emotionalDiaryTitle}</span>
                             {sensoryLogs.length === 0 ? (
-                              <p className="text-xxs text-slate-400 italic text-center py-2">Sem registros de regulação emocional.</p>
+                              <p className="text-xxs text-slate-400 italic text-center py-2">{t.dashboard.noEmotionalLogs}</p>
                             ) : (
                               sensoryLogs.map(log => {
                                 const isSchool = log.loggedBy === 'school';
@@ -6242,7 +6262,7 @@ function ParentDashboardContent() {
                             <div className="grid grid-cols-3 gap-8 border-b border-slate-200 pb-6">
                               <div>
                                 <h3 className="text-xs font-black uppercase text-slate-400 tracking-widest border-b border-slate-100 pb-1.5">{locale === 'en' ? 'General Information' : locale === 'es' ? 'Información General' : 'Informações Gerais'}</h3>
-                                <p className="text-xs font-bold text-slate-700 mt-2">{locale === 'en' ? 'Guardian:' : locale === 'es' ? 'Tutor:' : 'Responsável:'} <span className="font-extrabold">{currentUser?.email}</span></p>
+                                <p className="text-xs font-bold text-slate-700 mt-2">{locale === 'en' ? 'Guardian:' : locale === 'es' ? 'Tutor:' : '{t.common.navResponsible}:'} <span className="font-extrabold">{currentUser?.email}</span></p>
                                 <p className="text-xs font-bold text-slate-700 mt-1.5">{locale === 'en' ? 'Child:' : locale === 'es' ? 'Niño:' : 'Criança:'} <span className="font-extrabold">{activeChild?.name || (locale === 'en' ? 'Not registered' : locale === 'es' ? 'No registrado' : 'Não cadastrado')}</span></p>
                                 <p className="text-xs font-bold text-slate-700 mt-1.5">{locale === 'en' ? 'Active Hyperfocus:' : locale === 'es' ? 'Hiperenfoque Activo:' : 'Hiperfoco Ativo:'} <span className="font-extrabold">{activeChild?.childHyperfocus || (locale === 'en' ? 'Not registered' : locale === 'es' ? 'No registrado' : 'Não cadastrado')}</span></p>
                                 <p className="text-xs font-bold text-slate-700 mt-1.5">{locale === 'en' ? 'Diagnosis:' : locale === 'es' ? 'Diagnóstico:' : 'Diagnóstico:'} <span className="font-extrabold">{activeChild?.diagnosis || (locale === 'en' ? 'Not informed' : locale === 'es' ? 'No informado' : 'Não informado')}</span></p>
@@ -6334,7 +6354,7 @@ function ParentDashboardContent() {
                                   <div key={task.id} className="flex justify-between border-b border-slate-100 pb-1 text-xs">
                                     <span className="font-bold text-slate-700">{task.day.toUpperCase()} ({task.period}) - {task.time} - {task.title}</span>
                                     <span className={`font-black uppercase tracking-wider ${task.isCompleted ? 'text-emerald-600' : 'text-amber-600'}`}>
-                                      {task.isCompleted ? 'CONCLUÍDO ✓' : 'PENDENTE'}
+                                      {task.isCompleted ? t.dashboard.completedUppercase : t.dashboard.pendingUppercase}
                                     </span>
                                   </div>
                                 ))}
@@ -6343,7 +6363,7 @@ function ParentDashboardContent() {
 
                             <div className="mt-16 flex justify-between items-end border-t border-slate-200 pt-12">
                               <div className="text-center w-56 border-t border-slate-400 pt-2 text-xs font-bold text-slate-400">
-                                Responsável
+                                {t.common.navResponsible}
                               </div>
                               <div className="text-center w-56 border-t border-slate-400 pt-2 text-xs font-bold text-slate-400">
                                 Assinatura do Profissional / Terapeuta
@@ -6429,7 +6449,7 @@ function ParentDashboardContent() {
               window.print();
             }}
             className="flex items-center gap-1.5 px-4.5 py-2.5 bg-emerald-600 hover:bg-emerald-755 border-b-2 border-emerald-900 text-white text-xs font-black rounded-2xl active:scale-95 transition-all cursor-pointer font-Outfit uppercase tracking-wider"
-            title="Imprimir cartões PECS"
+            title={t.dashboard.printPecsCards}
           >
             🖨️ Imprimir PECS
           </button>
@@ -6471,7 +6491,7 @@ function ParentDashboardContent() {
               className="bg-white border border-slate-200 rounded-[28px] p-8 w-full max-w-md shadow-2xl flex flex-col gap-6 text-slate-800 relative overflow-hidden"
             >
               <div className="flex justify-between items-center">
-                <h3 className="text-xl font-black text-indigo-950 tracking-tight">Cadastrar Criança 👶</h3>
+                <h3 className="text-xl font-black text-indigo-950 tracking-tight">{t.dashboard.registerChildModalTitle}</h3>
                 <button
                   onClick={() => { playBubble(); setNewChildModalOpen(false); }}
                   className="text-slate-400 hover:text-slate-600 font-extrabold text-sm p-1 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer border-none bg-transparent"
@@ -6524,7 +6544,7 @@ function ParentDashboardContent() {
                     onChange={e => setNewChildDiagnosis(e.target.value)}
                     className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl font-semibold text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-850"
                   >
-                    <option value="Não Informado">Não Informado</option>
+                    <option value="Não Informado">{t.dashboard.notInformed}</option>
                     <option value="TEA Nível 1">{locale === 'en' ? 'ASD Level 1' : locale === 'es' ? 'TEA Nivel 1' : 'TEA Nível 1'}</option>
                     <option value="TEA Nível 2">{locale === 'en' ? 'ASD Level 2' : locale === 'es' ? 'TEA Nivel 2' : 'TEA Nível 2'}</option>
                     <option value="TEA Nível 3">{locale === 'en' ? 'ASD Level 3' : locale === 'es' ? 'TEA Nivel 3' : 'TEA Nível 3'}</option>
@@ -6573,7 +6593,7 @@ function ParentDashboardContent() {
               </div>
 
               <div>
-                <h3 className="text-2xl font-black text-amber-200 tracking-tight">Evolua para o Plano Premium</h3>
+                <h3 className="text-2xl font-black text-amber-200 tracking-tight">{t.dashboard.premiumUnlockTitle}</h3>
                 <p className="text-xs text-indigo-200 font-semibold mt-1">
                   {locale === 'en' ? 'Unlock the full potential of Rotina Animada' : locale === 'es' ? 'Desbloquea el potencial máximo de Rotina Animada' : 'Desbloqueie o potencial máximo da Rotina Animada'}
                 </p>
@@ -6638,7 +6658,7 @@ function ParentDashboardContent() {
                                 setPlan('premium');
                                 setShowPaywall(false);
                                 setCheckingOut(false);
-                                triggerStatus('Assinatura Premium ativa (Simulação)! Obrigado 💎');
+                                triggerStatus(t.dashboard.statusPremiumSimulated);
                               }, 1500);
                             } else {
                               window.location.href = data.url;
@@ -6657,7 +6677,7 @@ function ParentDashboardContent() {
                           setPlan('premium');
                           setShowPaywall(false);
                           setCheckingOut(false);
-                          triggerStatus('Assinatura Premium ativa (Simulação local)! Obrigado 💎');
+                          triggerStatus(t.dashboard.statusPremiumSimulatedLocal);
                         }, 1500);
                       }
                     }}

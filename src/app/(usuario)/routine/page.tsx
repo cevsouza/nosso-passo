@@ -1363,7 +1363,7 @@ export default function ChildRoutine() {
           childId: activeChild.id,
           mood: 'agitado',
           crisisOccurred: true,
-          notes: 'SOS Sensorial ativado pela criança no aplicativo.',
+          notes: locale === 'en' ? 'Sensory SOS activated by the child in the app.' : locale === 'es' ? 'SOS Sensorial activado por el niño en la aplicación.' : 'SOS Sensorial ativado pela criança no aplicativo.',
           loggedBy: 'child',
           location: 'Casa',
           trigger: 'Sobrecarga Sensorial'
@@ -1388,9 +1388,9 @@ export default function ChildRoutine() {
       
       const moodMap = { green: 'feliz', yellow: 'calmo', red: 'triste' };
       const noteMap = {
-        green: 'Criança indicou Bateria Emocional: Cheia/Ótimo 🔋',
-        yellow: 'Criança indicou Bateria Emocional: Média/Cansado ⚡',
-        red: 'Criança indicou Bateria Emocional: Baixa/Sobrecarregado 🪫'
+        green: locale === 'en' ? 'Child indicated Emotional Battery: Full/Great 🔋' : locale === 'es' ? 'El niño indicó Batería Emocional: Llena/Excelente 🔋' : 'Criança indicou Bateria Emocional: Cheia/Ótimo 🔋',
+        yellow: locale === 'en' ? 'Child indicated Emotional Battery: Medium/Tired ⚡' : locale === 'es' ? 'El niño indicó Batería Emocional: Media/Cansado ⚡' : 'Criança indicou Bateria Emocional: Média/Cansado ⚡',
+        red: locale === 'en' ? 'Child indicated Emotional Battery: Low/Overloaded 🪫' : locale === 'es' ? 'El niño indicó Batería Emocional: Baja/Sobrecargado 🪫' : 'Criança indicou Bateria Emocional: Baixa/Sobrecarregado 🪫'
       };
 
       await firebaseBridge.db.addSensoryLog({
@@ -1447,7 +1447,7 @@ export default function ChildRoutine() {
       const newLog = await firebaseBridge.db.addSensoryLog({
         childId: activeChild.id,
         mood: item.mood as any,
-        notes: `Comunicação AAC: "${item.text}"`,
+        notes: locale === 'en' ? `AAC Communication: "${item.text}"` : locale === 'es' ? `Comunicación AAC: "${item.text}"` : `Comunicação AAC: "${item.text}"`,
         loggedBy: 'child',
         crisisOccurred: item.alert || false,
       });
@@ -1577,7 +1577,7 @@ export default function ChildRoutine() {
       await firebaseBridge.db.addSensoryLog({
         childId: activeChild.id,
         mood: selectedMood,
-        notes: 'Humor registrado pelo próprio usuário na rotina.',
+        notes: locale === 'en' ? 'Mood registered by the user in the routine.' : locale === 'es' ? 'Humor registrado por el propio usuario en la rutina.' : 'Humor registrado pelo próprio usuário na rotina.',
         decibels: decibels,
         lightLevel: lightLevel,
         location: location,
@@ -3879,7 +3879,7 @@ export default function ChildRoutine() {
                       
                       {/* Big Tactile Audio Speaker Pill */}
                       <button 
-                        onClick={() => { playBubble(); speakText(activeTask.title + (activeTask.description ? `. Instruções: ${activeTask.description}` : '')); }}
+                        onClick={() => { playBubble(); speakText(activeTask.title + (activeTask.description ? (locale === 'en' ? `. Instructions: ${activeTask.description}` : locale === 'es' ? `. Instrucciones: ${activeTask.description}` : `. Instruções: ${activeTask.description}`) : '')); }}
                         className="flex items-center gap-1.5 px-5 py-3 bg-indigo-100 hover:bg-indigo-200 border-2 border-indigo-350 text-indigo-950 text-xs font-black rounded-full shadow-xxs cursor-pointer transition-all active:scale-95 hover:scale-[1.03] font-Outfit"
                       >
                         🔊 Ouvir Atividade
@@ -4084,7 +4084,7 @@ export default function ChildRoutine() {
                         )}
                       </div>
                       <h4 
-                        onClick={() => { playBubble(); speakText(activeTask.title + (activeTask.description ? `. Instruções: ${activeTask.description}` : '')); }}
+                        onClick={() => { playBubble(); speakText(activeTask.title + (activeTask.description ? (locale === 'en' ? `. Instructions: ${activeTask.description}` : locale === 'es' ? `. Instrucciones: ${activeTask.description}` : `. Instruções: ${activeTask.description}`) : '')); }}
                         className="text-xl font-black text-slate-950 tracking-tight cursor-pointer hover:text-indigo-700 select-none font-Outfit"
                       >
                         {activeTask.title}
@@ -4093,7 +4093,7 @@ export default function ChildRoutine() {
                         <p 
                           onClick={() => { playBubble(); speakText(activeTask.description || ''); }}
                           className="text-[11px] font-bold text-slate-500 mt-1 cursor-pointer max-w-[200px] hover:text-indigo-700 transition-all leading-normal select-none"
-                          title="Clique para ouvir as instruções"
+                          title={locale === 'en' ? 'Click to hear the instructions' : locale === 'es' ? 'Haga clic para escuchar las instrucciones' : 'Clique para ouvir as instruções'}
                         >
                           💡 {activeTask.description}
                         </p>
@@ -4105,7 +4105,7 @@ export default function ChildRoutine() {
                   <div className="bg-white border-4 border-dashed border-slate-300 rounded-[32px] p-6 shadow-premium flex flex-col items-center text-center justify-center gap-3 relative min-h-[200px]">
                     <span className="text-3xl">🎉</span>
                     <h4 className="text-lg font-black text-slate-800 font-Outfit">{locale === 'en' ? 'First Mission' : locale === 'es' ? 'Primera Misión' : 'Primeira Missão'}</h4>
-                    <p className="text-xs text-slate-400 font-semibold max-w-[200px]">Tudo pronto por hoje!</p>
+                    <p className="text-xs text-slate-400 font-semibold max-w-[200px]">{locale === 'en' ? 'All set for today!' : locale === 'es' ? '¡Todo listo por hoy!' : 'Tudo pronto por hoje!'}</p>
                   </div>
                 )}
 
@@ -4283,7 +4283,7 @@ export default function ChildRoutine() {
                   {locale === 'en' ? 'You completed your missions and unlocked your reward:' : locale === 'es' ? 'Completaste tus misiones y desbloqueaste tu premio:' : 'Você completou suas missões e desbloqueou seu prêmio:'}
                 </p>
                 <div className="mt-3.5 px-6 py-3 bg-indigo-100 border-2 border-indigo-300 text-indigo-950 font-black text-sm rounded-2xl shadow-xxs font-Outfit">
-                  {activeChild.rewardName || 'Prêmio'}
+                  {activeChild.rewardName || (locale === 'en' ? 'Reward' : locale === 'es' ? 'Premio' : 'Prêmio')}
                 </div>
               </div>
 
@@ -4387,7 +4387,7 @@ export default function ChildRoutine() {
 
                 <div className="grid grid-cols-3 gap-1.5 mt-1">
                   <div className="flex flex-col gap-0.5">
-                    <label className={`text-[8px] font-black uppercase ${sleepMode ? 'text-amber-450' : 'text-slate-450'}`}>Local</label>
+                    <label className={`text-[8px] font-black uppercase ${sleepMode ? 'text-amber-450' : 'text-slate-450'}`}>{locale === 'en' ? 'Location' : locale === 'es' ? 'Lugar' : 'Local'}</label>
                     <select 
                       value={location} 
                       onChange={(e) => setLocation(e.target.value)}
@@ -4395,16 +4395,16 @@ export default function ChildRoutine() {
                         sleepMode ? 'bg-[#090d1a] border-amber-900 text-amber-200' : 'bg-white border-slate-350 text-slate-700'
                       }`}
                     >
-                      <option value="Casa">Casa 🏠</option>
-                      <option value="Escola">Escola 🏫</option>
-                      <option value="Parque">Parque 🌳</option>
-                      <option value="Consultório">Consultório 🩺</option>
-                      <option value="Outro">Outro 📍</option>
+                      <option value="Casa">{locale === 'en' ? 'Home 🏠' : locale === 'es' ? 'Casa 🏠' : 'Casa 🏠'}</option>
+                      <option value="Escola">{locale === 'en' ? 'School 🏫' : locale === 'es' ? 'Escuela 🏫' : 'Escola 🏫'}</option>
+                      <option value="Parque">{locale === 'en' ? 'Park 🌳' : locale === 'es' ? 'Parque 🌳' : 'Parque 🌳'}</option>
+                      <option value="Consultório">{locale === 'en' ? 'Clinic 🩺' : locale === 'es' ? 'Consultorio 🩺' : 'Consultório 🩺'}</option>
+                      <option value="Outro">{locale === 'en' ? 'Other 📍' : locale === 'es' ? 'Otro 📍' : 'Outro 📍'}</option>
                     </select>
                   </div>
 
                   <div className="flex flex-col gap-0.5">
-                    <label className={`text-[8px] font-black uppercase ${sleepMode ? 'text-amber-450' : 'text-slate-450'}`}>Luz</label>
+                    <label className={`text-[8px] font-black uppercase ${sleepMode ? 'text-amber-450' : 'text-slate-450'}`}>{locale === 'en' ? 'Light' : locale === 'es' ? 'Luz' : 'Luz'}</label>
                     <select 
                       value={lightLevel} 
                       onChange={(e: any) => setLightLevel(e.target.value)}
@@ -4412,14 +4412,14 @@ export default function ChildRoutine() {
                         sleepMode ? 'bg-[#090d1a] border-amber-900 text-amber-200' : 'bg-white border-slate-350 text-slate-700'
                       }`}
                     >
-                      <option value="Baixa">Suave 💡</option>
-                      <option value="Média">Média 🔆</option>
-                      <option value="Alta">Forte ☀️</option>
+                      <option value="Baixa">{locale === 'en' ? 'Soft 💡' : locale === 'es' ? 'Suave 💡' : 'Suave 💡'}</option>
+                      <option value="Média">{locale === 'en' ? 'Medium 🔆' : locale === 'es' ? 'Media 🔆' : 'Média 🔆'}</option>
+                      <option value="Alta">{locale === 'en' ? 'Bright ☀️' : locale === 'es' ? 'Fuerte ☀️' : 'Forte ☀️'}</option>
                     </select>
                   </div>
 
                   <div className="flex flex-col gap-0.5">
-                    <label className={`text-[8px] font-black uppercase ${sleepMode ? 'text-amber-450' : 'text-slate-450'}`}>Gatilho</label>
+                    <label className={`text-[8px] font-black uppercase ${sleepMode ? 'text-amber-450' : 'text-slate-450'}`}>{locale === 'en' ? 'Trigger' : locale === 'es' ? 'Desencadenante' : 'Gatilho'}</label>
                     <select 
                       value={activeTrigger} 
                       onChange={(e) => setActiveTrigger(e.target.value)}
@@ -4427,12 +4427,12 @@ export default function ChildRoutine() {
                         sleepMode ? 'bg-[#090d1a] border-amber-900 text-amber-200' : 'bg-white border-slate-350 text-slate-700'
                       }`}
                     >
-                      <option value="Nenhum">Nenhum</option>
-                      <option value="Barulho">Barulho</option>
-                      <option value="Luz Forte">Luz Forte</option>
-                      <option value="Transição">Transição</option>
-                      <option value="Cansaço">Cansaço</option>
-                      <option value="Fome">Fome</option>
+                      <option value="Nenhum">{locale === 'en' ? 'None' : locale === 'es' ? 'Ninguno' : 'Nenhum'}</option>
+                      <option value="Barulho">{locale === 'en' ? 'Noise' : locale === 'es' ? 'Ruido' : 'Barulho'}</option>
+                      <option value="Luz Forte">{locale === 'en' ? 'Bright Light' : locale === 'es' ? 'Luz Fuerte' : 'Luz Forte'}</option>
+                      <option value="Transição">{locale === 'en' ? 'Transition' : locale === 'es' ? 'Transición' : 'Transição'}</option>
+                      <option value="Cansaço">{locale === 'en' ? 'Fatigue' : locale === 'es' ? 'Cansancio' : 'Cansaço'}</option>
+                      <option value="Fome">{locale === 'en' ? 'Hunger' : locale === 'es' ? 'Hambre' : 'Fome'}</option>
                     </select>
                   </div>
                 </div>
@@ -4444,7 +4444,7 @@ export default function ChildRoutine() {
                   sleepMode ? 'text-amber-500 hover:text-amber-305' : 'text-slate-450 hover:text-slate-650'
                 }`}
               >
-                Pular check-in
+                {locale === 'en' ? 'Skip check-in' : locale === 'es' ? 'Saltar check-in' : 'Pular check-in'}
               </button>
             </motion.div>
           </motion.div>
