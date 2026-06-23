@@ -722,6 +722,7 @@ export default function ChildRoutine() {
   const [waitTimerTimeLeft, setWaitTimerTimeLeft] = useState(300);
   const [isWaitTimerActive, setIsWaitTimerActive] = useState(false);
   const [waitTimerFinished, setWaitTimerFinished] = useState(false);
+  const [waitTimerConfigured, setWaitTimerConfigured] = useState(true);
   const [showBatteryMenu, setShowBatteryMenu] = useState(false);
   const [showWaitTimer, setShowWaitTimer] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -4390,6 +4391,7 @@ export default function ChildRoutine() {
                           setWaitTimerDuration(min * 60);
                           setWaitTimerTimeLeft(min * 60);
                           setWaitTimerFinished(false);
+                          setWaitTimerConfigured(false); // synced immediately
                           setIsWaitTimerActive(true); // Auto-start on tap!
                         }}
                         className={`py-1 rounded-lg text-[10px] font-black font-Outfit transition-all active:scale-95 cursor-pointer border ${
@@ -4409,6 +4411,10 @@ export default function ChildRoutine() {
                       onClick={() => {
                         playBubble();
                         if (waitTimerTimeLeft > 0) {
+                          if (!isWaitTimerActive && waitTimerConfigured) {
+                            setWaitTimerDuration(waitTimerTimeLeft);
+                            setWaitTimerConfigured(false);
+                          }
                           setIsWaitTimerActive(!isWaitTimerActive);
                         }
                       }}
@@ -4427,6 +4433,7 @@ export default function ChildRoutine() {
                         setIsWaitTimerActive(false);
                         setWaitTimerTimeLeft(waitTimerDuration);
                         setWaitTimerFinished(false);
+                        setWaitTimerConfigured(true);
                       }}
                       className="p-2 bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded-xl text-slate-700 text-xs font-black cursor-pointer transition-all active:scale-95"
                       title={t.routine.waitTimerReset}
@@ -4440,7 +4447,7 @@ export default function ChildRoutine() {
                         onClick={() => {
                           playBubble();
                           setWaitTimerTimeLeft(prev => Math.max(60, prev - 60));
-                          setWaitTimerDuration(prev => Math.max(60, prev - 60));
+                          setWaitTimerConfigured(true);
                         }}
                         className="w-8 h-8 bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded-xl flex items-center justify-center text-xs font-extrabold cursor-pointer transition-all active:scale-95"
                         title="-1 min"
@@ -4451,7 +4458,7 @@ export default function ChildRoutine() {
                         onClick={() => {
                           playBubble();
                           setWaitTimerTimeLeft(prev => prev + 60);
-                          setWaitTimerDuration(prev => prev + 60);
+                          setWaitTimerConfigured(true);
                           setWaitTimerFinished(false);
                         }}
                         className="w-8 h-8 bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded-xl flex items-center justify-center text-xs font-extrabold cursor-pointer transition-all active:scale-95"
