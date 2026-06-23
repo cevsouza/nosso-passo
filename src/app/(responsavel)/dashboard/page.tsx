@@ -33,6 +33,8 @@ import {
   AlertTriangle,
   ChevronDown,
   ChevronUp,
+  ChevronLeft,
+  ChevronRight,
   Briefcase,
   BookOpen,
   MessageSquare,
@@ -1020,7 +1022,136 @@ function ParentDashboardContent() {
     }
   };
 
-  const [activeDayFilter, setActiveDayFilter] = useState(new Date().getDate().toString());
+  const [reapplyTargetMonthOffset, setReapplyTargetMonthOffset] = useState<0 | 1>(0);
+
+  const [activeMonth, setActiveMonth] = useState<number>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('tea_active_month');
+      if (saved) return parseInt(saved, 10);
+    }
+    return new Date().getMonth() + 1;
+  });
+  const [activeYear, setActiveYear] = useState<number>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('tea_active_year');
+      if (saved) return parseInt(saved, 10);
+    }
+    return new Date().getFullYear();
+  });
+  const [activeDayFilter, setActiveDayFilter] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('tea_active_day');
+      if (saved) return saved;
+    }
+    return new Date().getDate().toString();
+  });
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('tea_active_month', String(activeMonth));
+      localStorage.setItem('tea_active_year', String(activeYear));
+      localStorage.setItem('tea_active_day', activeDayFilter);
+    }
+  }, [activeMonth, activeYear, activeDayFilter]);
+
+  useEffect(() => {
+    const fetchTasks = async () => {
+      try {
+        const fetched = await firebaseBridge.db.getTasks(activeMonth, activeYear);
+        setTasks(fetched);
+        window.dispatchEvent(new CustomEvent('firebase-mock-db-update', { detail: fetched }));
+      } catch (err) {
+        console.error("Error fetching tasks for active period:", err);
+      }
+    };
+    fetchTasks();
+  }, [activeMonth, activeYear, activeChild?.id]);
+
+
+  const DAYS_OF_MONTH = React.useMemo(() => {
+    const numDays = new Date(activeYear, activeMonth, 0).getDate();
+    const DAYS_PORTUGUESE = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+    const WEEKDAY_KEYS = ['domingo', 'segunda', 'terca', 'quarta', 'quinta', 'sexta', 'sabado'];
+    
+    return Array.from({ length: numDays }).map((_, i) => {
+      const dayNum = i + 1;
+      const date = new Date(activeYear, activeMonth - 1, dayNum);
+      const dayOfWeek = DAYS_PORTUGUESE[date.getDay()];
+      return {
+        key: String(dayNum),
+        label: `Dia ${dayNum} (${dayOfWeek}) 📅`,
+        short: `${dayNum}`,
+        weekdayKey: WEEKDAY_KEYS[date.getDay()],
+        weekdayShort: dayOfWeek
+      };
+    });
+  }, [activeMonth, activeYear]);
+
+  const getDayLabel = (dayKey: string, locale: string = 'pt') => {
+    const day = DAYS_OF_MONTH.find(d => d.key === dayKey);
+    if (!day) return locale === 'en' ? `Day ${dayKey}` : locale === 'es' ? `Día ${dayKey}` : `Dia ${dayKey}`;
+    
+    const weekdayShortMap: Record<string, Record<string, string>> = {
+      'Dom': { pt: 'Dom', es: 'Dom', en: 'Sun' },
+      'Seg': { pt: 'Seg', es: 'Lun', en: 'Mon' },
+      'Ter': { pt: 'Ter', es: 'Mar', en: 'Tue' },
+      'Qua': { pt: 'Qua', es: 'Mié', en: 'Wed' },
+      'Qui': { pt: 'Qui', es: 'Jue', en: 'Thu' },
+      'Sex': { pt: 'Sex', es: 'Vie', en: 'Fri' },
+      'Sáb': { pt: 'Sáb', es: 'Sáb', en: 'Sat' }
+    };
+    
+    const wTrans = weekdayShortMap[day.weekdayShort]?.[locale] || day.weekdayShort;
+    
+    return locale === 'en'
+      ? `Day ${day.key} (${wTrans}) 📅`
+      : locale === 'es'
+      ? `Día ${day.key} (${wTrans}) 📅`
+      : `Dia ${day.key} (${day.weekdayShort}) 📅`;
+  };
+
+  const getRecurrenceWeekdayLabel = (dayKey: string, locale: string = 'pt') => {
+    const dayObj = DAYS_OF_MONTH.find(d => d.key === dayKey);
+    if (!dayObj) return locale === 'en' ? 'on the same day of the week' : locale === 'es' ? 'en el mismo día de la semana' : 'no mesmo dia da semana';
+    
+    const mappingPt: Record<string, string> = {
+      domingo: 'Domingos',
+      segunda: 'Segundas-feiras',
+      terca: 'Terças-feiras',
+      quarta: 'Quartas-feiras',
+      quinta: 'Quintas-feiras',
+      sexta: 'Sextas-feiras',
+      sabado: 'Sábados'
+    };
+
+    const mappingEn: Record<string, string> = {
+      domingo: 'Sundays',
+      segunda: 'Mondays',
+      terca: 'Tuesdays',
+      quarta: 'Wednesdays',
+      quinta: 'Thursdays',
+      sexta: 'Fridays',
+      sabado: 'Saturdays'
+    };
+
+    const mappingEs: Record<string, string> = {
+      domingo: 'Domingos',
+      segunda: 'Lunes',
+      terca: 'Martes',
+      quarta: 'Miércoles',
+      quinta: 'Jueves',
+      sexta: 'Viernes',
+      sabado: 'Sábados'
+    };
+    
+    const mapping = locale === 'en' ? mappingEn : locale === 'es' ? mappingEs : mappingPt;
+    
+    return locale === 'en' 
+      ? `All ${mapping[dayObj.weekdayKey] || dayObj.weekdayKey} of the month`
+      : locale === 'es'
+      ? `Todos los ${mapping[dayObj.weekdayKey] || dayObj.weekdayKey} del mes`
+      : `Todas as ${mapping[dayObj.weekdayKey] || dayObj.weekdayKey} do mês`;
+  };
   const [activePanelTab, setActivePanelTab] = useState<'tasks' | 'reports' | 'logs' | 'checkpoints'>('tasks');
   const [checkpoints, setCheckpoints] = useState<any[]>([]);
   const [loadingCheckpoints, setLoadingCheckpoints] = useState(false);
@@ -4137,6 +4268,84 @@ function ParentDashboardContent() {
                 transition={{ duration: 0.3 }}
                 className="flex flex-col gap-6"
               >
+                {/* Month/Year Navigation Selector Header */}
+                <div className="flex items-center justify-between bg-white border border-slate-200 p-4 rounded-[22px] shadow-sm select-none gap-4">
+                  <div className="flex flex-col text-left">
+                    <span className="text-[10px] font-black uppercase tracking-wider text-indigo-650 font-Outfit">
+                      {locale === 'en' ? 'Active Period' : locale === 'es' ? 'Periodo Activo' : 'Período Ativo'}
+                    </span>
+                    <span className="text-sm font-black text-slate-800 font-Outfit">
+                      {(() => {
+                        const MONTH_NAMES: Record<string, string[]> = {
+                          pt: [
+                            'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+                            'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+                          ],
+                          en: [
+                            'January', 'February', 'March', 'April', 'May', 'June',
+                            'July', 'August', 'September', 'October', 'November', 'December'
+                          ],
+                          es: [
+                            'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+                            'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+                          ]
+                        };
+                        const monthName = MONTH_NAMES[locale]?.[activeMonth - 1] || MONTH_NAMES['pt'][activeMonth - 1];
+                        return `${monthName} ${activeYear}`;
+                      })()}
+                    </span>
+                  </div>
+                  
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        playBubble();
+                        let prevM = activeMonth - 1;
+                        let prevY = activeYear;
+                        if (prevM < 1) {
+                          prevM = 12;
+                          prevY -= 1;
+                        }
+                        setActiveMonth(prevM);
+                        setActiveYear(prevY);
+                        
+                        const maxDays = new Date(prevY, prevM, 0).getDate();
+                        if (parseInt(activeDayFilter, 10) > maxDays) {
+                          setActiveDayFilter('1');
+                        }
+                      }}
+                      className="w-9 h-9 flex items-center justify-center bg-white border border-slate-200 text-slate-600 hover:text-indigo-950 hover:bg-slate-50 hover:border-slate-350 rounded-xl transition-all cursor-pointer select-none active:scale-95 shadow-xxs"
+                      title={locale === 'en' ? 'Previous Month' : locale === 'es' ? 'Mes Anterior' : 'Mês Anterior'}
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                    </button>
+                    
+                    <button
+                      type="button"
+                      onClick={() => {
+                        playBubble();
+                        let nextM = activeMonth + 1;
+                        let nextY = activeYear;
+                        if (nextM > 12) {
+                          nextM = 1;
+                          nextY += 1;
+                        }
+                        setActiveMonth(nextM);
+                        setActiveYear(nextY);
+                        
+                        const maxDays = new Date(nextY, nextM, 0).getDate();
+                        if (parseInt(activeDayFilter, 10) > maxDays) {
+                          setActiveDayFilter('1');
+                        }
+                      }}
+                      className="w-9 h-9 flex items-center justify-center bg-white border border-slate-200 text-slate-600 hover:text-indigo-950 hover:bg-slate-50 hover:border-slate-350 rounded-xl transition-all cursor-pointer select-none active:scale-95 shadow-xxs"
+                      title={locale === 'en' ? 'Next Month' : locale === 'es' ? 'Siguiente Mes' : 'Próximo Mês'}
+                    >
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
                 
                 {/* Wrapped Days Calendar Grid Selector */}
                 <div className="flex flex-wrap gap-2 pb-3 max-h-36 overflow-y-auto pr-1 scrollbar-thin border-b border-slate-100 select-none">
@@ -6954,6 +7163,61 @@ function ParentDashboardContent() {
                 );
               })()}
 
+              {/* Target Month/Period Selector */}
+              <div className="flex flex-col gap-2">
+                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider text-left">
+                  {locale === 'en' ? 'Target Period:' : locale === 'es' ? 'Periodo de Destino:' : 'Período de Destino:'}
+                </label>
+                <div className="grid grid-cols-2 gap-2 bg-slate-100 p-1 rounded-xl">
+                  {(() => {
+                    const MONTH_NAMES: Record<string, string[]> = {
+                      pt: [
+                        'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+                        'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+                      ],
+                      en: [
+                        'January', 'February', 'March', 'April', 'May', 'June',
+                        'July', 'August', 'September', 'October', 'November', 'December'
+                      ],
+                      es: [
+                        'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+                        'Julio', 'Agosto', 'Septiembre', 'Outubro', 'Novembro', 'Diciembre'
+                      ]
+                    };
+                    const currentMonthName = MONTH_NAMES[locale]?.[activeMonth - 1] || MONTH_NAMES['pt'][activeMonth - 1];
+                    const nextMonthIdx = activeMonth === 12 ? 0 : activeMonth;
+                    const nextMonthName = MONTH_NAMES[locale]?.[nextMonthIdx] || MONTH_NAMES['pt'][nextMonthIdx];
+                    
+                    return (
+                      <>
+                        <button
+                          type="button"
+                          onClick={() => { playBubble(); setReapplyTargetMonthOffset(0); }}
+                          className={`py-2 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+                            reapplyTargetMonthOffset === 0
+                              ? 'bg-white text-indigo-950 shadow-sm font-extrabold'
+                              : 'text-slate-500 hover:text-slate-700'
+                          }`}
+                        >
+                          {locale === 'en' ? 'Current Month' : locale === 'es' ? 'Mes Actual' : 'Mês Atual'} ({currentMonthName})
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => { playBubble(); setReapplyTargetMonthOffset(1); }}
+                          className={`py-2 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+                            reapplyTargetMonthOffset === 1
+                              ? 'bg-white text-indigo-950 shadow-sm font-extrabold'
+                              : 'text-slate-500 hover:text-slate-700'
+                          }`}
+                        >
+                          {locale === 'en' ? 'Next Month' : locale === 'es' ? 'Siguiente Mes' : 'Próximo Mês'} ({nextMonthName})
+                        </button>
+                      </>
+                    );
+                  })()}
+                </div>
+              </div>
+
               {/* Target Type Selector */}
               <div className="flex flex-col gap-2">
                 <label className="text-xs font-bold text-slate-500 uppercase tracking-wider text-left">
@@ -6965,7 +7229,7 @@ function ParentDashboardContent() {
                     onClick={() => { playBubble(); setReapplyTargetType('month'); }}
                     className={`py-2 text-xs font-bold rounded-lg transition-all cursor-pointer ${
                       reapplyTargetType === 'month'
-                        ? 'bg-white text-indigo-950 shadow-sm'
+                        ? 'bg-white text-indigo-950 shadow-sm font-extrabold'
                         : 'text-slate-500 hover:text-slate-700'
                     }`}
                   >
@@ -6976,7 +7240,7 @@ function ParentDashboardContent() {
                     onClick={() => { playBubble(); setReapplyTargetType('weeks'); }}
                     className={`py-2 text-xs font-bold rounded-lg transition-all cursor-pointer ${
                       reapplyTargetType === 'weeks'
-                        ? 'bg-white text-indigo-950 shadow-sm'
+                        ? 'bg-white text-indigo-950 shadow-sm font-extrabold'
                         : 'text-slate-500 hover:text-slate-700'
                     }`}
                   >
@@ -6987,7 +7251,7 @@ function ParentDashboardContent() {
                     onClick={() => { playBubble(); setReapplyTargetType('days'); }}
                     className={`py-2 text-xs font-bold rounded-lg transition-all cursor-pointer ${
                       reapplyTargetType === 'days'
-                        ? 'bg-white text-indigo-950 shadow-sm'
+                        ? 'bg-white text-indigo-950 shadow-sm font-extrabold'
                         : 'text-slate-500 hover:text-slate-700'
                     }`}
                   >
@@ -6998,186 +7262,219 @@ function ParentDashboardContent() {
 
               {/* Content based on selected type */}
               <div className="flex-1 overflow-y-auto max-h-[250px] pr-1">
-                {reapplyTargetType === 'month' && (
-                  <div className="bg-amber-50/50 border border-amber-200 rounded-2xl p-4 text-left flex gap-3 items-start">
-                    <span className="text-xl">⚠️</span>
-                    <div className="flex flex-col gap-1 text-slate-700 text-xs">
-                      <span className="font-extrabold text-amber-800">
-                        {locale === 'en' ? 'Warning' : locale === 'es' ? 'Atención' : 'Atenção'}
-                      </span>
-                      <span>
-                        {locale === 'en'
-                          ? `This will copy the saved template to all ${DAYS_OF_MONTH.length} days of the current month. Existing tasks on all days will be replaced.`
-                          : locale === 'es'
-                          ? `Esto copiará el modelo guardado en todos los ${DAYS_OF_MONTH.length} días del mes actual. Las tareas existentes en todos los días serán reemplazadas.`
-                          : `Isso copiará o modelo salvo em todos os ${DAYS_OF_MONTH.length} dias do mês atual. Tarefas existentes em todos os dias serão substituídas.`}
-                      </span>
-                    </div>
-                  </div>
-                )}
-
-                {reapplyTargetType === 'weeks' && (() => {
-                  const numWeeks = Math.ceil(DAYS_OF_MONTH.length / 7);
-                  const activeWeekNum = Math.floor((parseInt(activeDayFilter || '1', 10) - 1) / 7) + 1;
+                {(() => {
+                  const targetM = reapplyTargetMonthOffset === 0 ? activeMonth : (activeMonth === 12 ? 1 : activeMonth + 1);
+                  const targetY = reapplyTargetMonthOffset === 0 ? activeYear : (activeMonth === 12 ? activeYear + 1 : activeYear);
+                  const numDaysInTargetMonth = new Date(targetY, targetM, 0).getDate();
+                  const DAYS_PORTUGUESE = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+                  const WEEKDAY_KEYS = ['domingo', 'segunda', 'terca', 'quarta', 'quinta', 'sexta', 'sabado'];
                   
-                  return (
-                    <div className="flex flex-col gap-3">
-                      {/* Quick actions */}
-                      <div className="flex gap-2 text-left">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            playBubble();
-                            const allWeeks = Array.from({ length: numWeeks }, (_, i) => String(i + 1));
-                            setReapplySelectedWeeks(allWeeks);
-                          }}
-                          className="px-2 py-1 text-[10px] font-black uppercase text-indigo-650 hover:text-indigo-850 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer border border-slate-200"
-                        >
-                          {locale === 'en' ? 'Select All' : locale === 'es' ? 'Seleccionar Todo' : 'Selecionar Tudo'}
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => { playBubble(); setReapplySelectedWeeks([]); }}
-                          className="px-2 py-1 text-[10px] font-black uppercase text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer border border-slate-200"
-                        >
-                          {locale === 'en' ? 'Clear' : locale === 'es' ? 'Limpiar' : 'Limpar'}
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            playBubble();
-                            const otherWeeks = Array.from({ length: numWeeks }, (_, i) => String(i + 1))
-                              .filter(w => w !== String(activeWeekNum));
-                            setReapplySelectedWeeks(otherWeeks);
-                          }}
-                          className="px-2 py-1 text-[10px] font-black uppercase text-amber-600 hover:text-amber-850 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer border border-slate-200"
-                        >
-                          {locale === 'en' ? 'All other weeks' : locale === 'es' ? 'Todas las demás semanas' : 'Todas as demais semanas'}
-                        </button>
+                  const targetMonthDays = Array.from({ length: numDaysInTargetMonth }).map((_, i) => {
+                    const dayNum = i + 1;
+                    const date = new Date(targetY, targetM - 1, dayNum);
+                    const dayOfWeek = DAYS_PORTUGUESE[date.getDay()];
+                    return {
+                      key: String(dayNum),
+                      label: `Dia ${dayNum} (${dayOfWeek}) 📅`,
+                      short: `${dayNum}`,
+                      weekdayKey: WEEKDAY_KEYS[date.getDay()],
+                      weekdayShort: dayOfWeek
+                    };
+                  });
+
+                  const numWeeks = Math.ceil(targetMonthDays.length / 7);
+                  const activeWeekNum = reapplyTargetMonthOffset === 0 
+                    ? Math.floor((parseInt(activeDayFilter || '1', 10) - 1) / 7) + 1 
+                    : -1;
+
+                  if (reapplyTargetType === 'month') {
+                    return (
+                      <div className="bg-amber-50/50 border border-amber-200 rounded-2xl p-4 text-left flex gap-3 items-start">
+                        <span className="text-xl">⚠️</span>
+                        <div className="flex flex-col gap-1 text-slate-700 text-xs">
+                          <span className="font-extrabold text-amber-800">
+                            {locale === 'en' ? 'Warning' : locale === 'es' ? 'Atención' : 'Atenção'}
+                          </span>
+                          <span>
+                            {locale === 'en'
+                              ? `This will copy the saved template to all ${targetMonthDays.length} days of the target month. Existing tasks on all days will be replaced.`
+                              : locale === 'es'
+                              ? `Esto copiará el modelo guardado en todos los ${targetMonthDays.length} días del mes de destino. Las tareas existentes en todos los días serán reemplazadas.`
+                              : `Isso copiará o modelo salvo em todos os ${targetMonthDays.length} dias do mês de destino. Tarefas existentes em todos os dias serão substituídas.`}
+                          </span>
+                        </div>
                       </div>
+                    );
+                  }
 
-                      {/* Checkbox List */}
-                      <div className="grid grid-cols-1 gap-2 mt-1">
-                        {Array.from({ length: numWeeks }, (_, i) => {
-                          const wNum = i + 1;
-                          const wStr = String(wNum);
-                          const start = (wNum - 1) * 7 + 1;
-                          const end = Math.min(wNum * 7, DAYS_OF_MONTH.length);
-                          const isActiveWeek = wNum === activeWeekNum;
-                          const isChecked = reapplySelectedWeeks.includes(wStr);
-                          
-                          return (
-                            <label
-                              key={wNum}
-                              className={`flex items-center justify-between p-3 rounded-xl border transition-all cursor-pointer ${
-                                isChecked
-                                  ? 'bg-indigo-50/40 border-indigo-200 text-indigo-950 font-bold'
-                                  : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100/50'
-                              }`}
-                            >
-                              <div className="flex items-center gap-3">
-                                <input
-                                  type="checkbox"
-                                  checked={isChecked}
-                                  onChange={() => {
-                                    playBubble();
-                                    if (isChecked) {
-                                      setReapplySelectedWeeks(reapplySelectedWeeks.filter(w => w !== wStr));
-                                    } else {
-                                      setReapplySelectedWeeks([...reapplySelectedWeeks, wStr]);
-                                    }
-                                  }}
-                                  className="w-4 h-4 rounded text-indigo-650 focus:ring-indigo-500 border-slate-300"
-                                />
-                                <span className="text-xs">
-                                  {locale === 'en' ? `Week ${wNum}` : locale === 'es' ? `Semana ${wNum}` : `Semana ${wNum}`}
-                                  <span className="text-[10px] text-slate-400 font-medium ml-1.5 font-Outfit">
-                                    (Dia {start} ao {end})
-                                  </span>
-                                </span>
-                              </div>
-                              {isActiveWeek && (
-                                <span className="text-[8px] font-black uppercase tracking-wider text-indigo-500 bg-indigo-50 px-1.5 py-0.5 rounded border border-indigo-150">
-                                  {locale === 'en' ? 'Active' : locale === 'es' ? 'Activa' : 'Ativa'}
-                                </span>
-                              )}
-                            </label>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  );
-                })()}
-
-                {reapplyTargetType === 'days' && (
-                  <div className="flex flex-col gap-3">
-                    {/* Quick actions */}
-                    <div className="flex gap-2 text-left">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          playBubble();
-                          const allDays = DAYS_OF_MONTH.map(d => d.key);
-                          setReapplySelectedDays(allDays);
-                        }}
-                        className="px-2 py-1 text-[10px] font-black uppercase text-indigo-650 hover:text-indigo-850 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer border border-slate-200"
-                      >
-                        {locale === 'en' ? 'Select All' : locale === 'es' ? 'Seleccionar Todo' : 'Selecionar Tudo'}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => { playBubble(); setReapplySelectedDays([]); }}
-                        className="px-2 py-1 text-[10px] font-black uppercase text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer border border-slate-200"
-                      >
-                        {locale === 'en' ? 'Clear' : locale === 'es' ? 'Limpiar' : 'Limpar'}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          playBubble();
-                          const otherDays = DAYS_OF_MONTH.map(d => d.key).filter(k => k !== activeDayFilter);
-                          setReapplySelectedDays(otherDays);
-                        }}
-                        className="px-2 py-1 text-[10px] font-black uppercase text-amber-600 hover:text-amber-850 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer border border-slate-200"
-                      >
-                        {locale === 'en' ? 'All other days' : locale === 'es' ? 'Todos los demás días' : 'Todos os demais dias'}
-                      </button>
-                    </div>
-
-                    {/* Calendar Grid of Days 1-31 */}
-                    <div className="grid grid-cols-7 gap-1.5 mt-1 bg-slate-50 p-3 rounded-2xl border border-slate-200">
-                      {DAYS_OF_MONTH.map(day => {
-                        const isChecked = reapplySelectedDays.includes(day.key);
-                        const isActiveDay = day.key === activeDayFilter;
-                        return (
+                  if (reapplyTargetType === 'weeks') {
+                    return (
+                      <div className="flex flex-col gap-3">
+                        {/* Quick actions */}
+                        <div className="flex gap-2 text-left">
                           <button
-                            key={day.key}
                             type="button"
                             onClick={() => {
                               playBubble();
-                              if (isChecked) {
-                                setReapplySelectedDays(reapplySelectedDays.filter(k => k !== day.key));
-                              } else {
-                                setReapplySelectedDays([...reapplySelectedDays, day.key]);
-                              }
+                              const allWeeks = Array.from({ length: numWeeks }, (_, i) => String(i + 1));
+                              setReapplySelectedWeeks(allWeeks);
                             }}
-                            className={`h-9 w-full rounded-xl flex flex-col items-center justify-center relative transition-all cursor-pointer ${
-                              isChecked
-                                ? 'bg-indigo-650 text-white font-extrabold shadow-sm'
-                                : 'bg-white hover:bg-indigo-50 border border-slate-200 text-slate-700 hover:text-indigo-950 hover:border-indigo-250 font-bold'
-                            }`}
+                            className="px-2 py-1 text-[10px] font-black uppercase text-indigo-650 hover:text-indigo-850 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer border border-slate-200"
                           >
-                            <span className="text-[11px] font-Outfit">{day.short}</span>
-                            <span className="text-[7px] uppercase tracking-tighter opacity-80 font-Outfit">{day.weekdayShort}</span>
-                            {isActiveDay && (
-                              <span className="absolute -top-1 -right-1 w-2 h-2 bg-indigo-500 border border-white rounded-full"></span>
-                            )}
+                            {locale === 'en' ? 'Select All' : locale === 'es' ? 'Seleccionar Todo' : 'Selecionar Tudo'}
                           </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
+                          <button
+                            type="button"
+                            onClick={() => { playBubble(); setReapplySelectedWeeks([]); }}
+                            className="px-2 py-1 text-[10px] font-black uppercase text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer border border-slate-200"
+                          >
+                            {locale === 'en' ? 'Clear' : locale === 'es' ? 'Limpiar' : 'Limpar'}
+                          </button>
+                          {reapplyTargetMonthOffset === 0 && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                playBubble();
+                                const otherWeeks = Array.from({ length: numWeeks }, (_, i) => String(i + 1))
+                                  .filter(w => w !== String(activeWeekNum));
+                                setReapplySelectedWeeks(otherWeeks);
+                              }}
+                              className="px-2 py-1 text-[10px] font-black uppercase text-amber-600 hover:text-amber-850 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer border border-slate-200"
+                            >
+                              {locale === 'en' ? 'All other weeks' : locale === 'es' ? 'Todas las demás semanas' : 'Todas as demais semanas'}
+                            </button>
+                          )}
+                        </div>
+
+                        {/* Checkbox List */}
+                        <div className="grid grid-cols-1 gap-2 mt-1">
+                          {Array.from({ length: numWeeks }, (_, i) => {
+                            const wNum = i + 1;
+                            const wStr = String(wNum);
+                            const start = (wNum - 1) * 7 + 1;
+                            const end = Math.min(wNum * 7, targetMonthDays.length);
+                            const isActiveWeek = wNum === activeWeekNum;
+                            const isChecked = reapplySelectedWeeks.includes(wStr);
+                            
+                            return (
+                              <label
+                                key={wNum}
+                                className={`flex items-center justify-between p-3 rounded-xl border transition-all cursor-pointer ${
+                                  isChecked
+                                    ? 'bg-indigo-50/40 border-indigo-200 text-indigo-950 font-bold'
+                                    : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100/50'
+                                }`}
+                              >
+                                <div className="flex items-center gap-3">
+                                  <input
+                                    type="checkbox"
+                                    checked={isChecked}
+                                    onChange={() => {
+                                      playBubble();
+                                      if (isChecked) {
+                                        setReapplySelectedWeeks(reapplySelectedWeeks.filter(w => w !== wStr));
+                                      } else {
+                                        setReapplySelectedWeeks([...reapplySelectedWeeks, wStr]);
+                                      }
+                                    }}
+                                    className="w-4 h-4 rounded text-indigo-650 focus:ring-indigo-500 border-slate-300"
+                                  />
+                                  <span className="text-xs">
+                                    {locale === 'en' ? `Week ${wNum}` : locale === 'es' ? `Semana ${wNum}` : `Semana ${wNum}`}
+                                    <span className="text-[10px] text-slate-400 font-medium ml-1.5 font-Outfit">
+                                      (Dia {start} ao {end})
+                                    </span>
+                                  </span>
+                                </div>
+                                {isActiveWeek && (
+                                  <span className="text-[8px] font-black uppercase tracking-wider text-indigo-500 bg-indigo-50 px-1.5 py-0.5 rounded border border-indigo-150">
+                                    {locale === 'en' ? 'Active' : locale === 'es' ? 'Activa' : 'Ativa'}
+                                  </span>
+                                )}
+                              </label>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  }
+
+                  if (reapplyTargetType === 'days') {
+                    return (
+                      <div className="flex flex-col gap-3">
+                        {/* Quick actions */}
+                        <div className="flex gap-2 text-left">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              playBubble();
+                              const allDays = targetMonthDays.map(d => d.key);
+                              setReapplySelectedDays(allDays);
+                            }}
+                            className="px-2 py-1 text-[10px] font-black uppercase text-indigo-650 hover:text-indigo-850 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer border border-slate-200"
+                          >
+                            {locale === 'en' ? 'Select All' : locale === 'es' ? 'Seleccionar Todo' : 'Selecionar Tudo'}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => { playBubble(); setReapplySelectedDays([]); }}
+                            className="px-2 py-1 text-[10px] font-black uppercase text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer border border-slate-200"
+                          >
+                            {locale === 'en' ? 'Clear' : locale === 'es' ? 'Limpiar' : 'Limpar'}
+                          </button>
+                          {reapplyTargetMonthOffset === 0 && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                playBubble();
+                                const otherDays = targetMonthDays.map(d => d.key).filter(k => k !== activeDayFilter);
+                                setReapplySelectedDays(otherDays);
+                              }}
+                              className="px-2 py-1 text-[10px] font-black uppercase text-amber-600 hover:text-amber-850 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer border border-slate-200"
+                            >
+                              {locale === 'en' ? 'All other days' : locale === 'es' ? 'Todos los demás días' : 'Todos os demais dias'}
+                            </button>
+                          )}
+                        </div>
+
+                        {/* Calendar Grid of Days 1-31 */}
+                        <div className="grid grid-cols-7 gap-1.5 mt-1 bg-slate-50 p-3 rounded-2xl border border-slate-200">
+                          {targetMonthDays.map(day => {
+                            const isChecked = reapplySelectedDays.includes(day.key);
+                            const isActiveDay = reapplyTargetMonthOffset === 0 && day.key === activeDayFilter;
+                            return (
+                              <button
+                                key={day.key}
+                                type="button"
+                                onClick={() => {
+                                  playBubble();
+                                  if (isChecked) {
+                                    setReapplySelectedDays(reapplySelectedDays.filter(k => k !== day.key));
+                                  } else {
+                                    setReapplySelectedDays([...reapplySelectedDays, day.key]);
+                                  }
+                                }}
+                                className={`h-9 w-full rounded-xl flex flex-col items-center justify-center relative transition-all cursor-pointer ${
+                                  isChecked
+                                    ? 'bg-indigo-650 text-white font-extrabold shadow-sm'
+                                    : 'bg-white hover:bg-indigo-50 border border-slate-200 text-slate-700 hover:text-indigo-950 hover:border-indigo-250 font-bold'
+                                }`}
+                              >
+                                <span className="text-[11px] font-Outfit">{day.short}</span>
+                                <span className="text-[7px] uppercase tracking-tighter opacity-80 font-Outfit">{day.weekdayShort}</span>
+                                {isActiveDay && (
+                                  <span className="absolute -top-1 -right-1 w-2 h-2 bg-indigo-500 border border-white rounded-full"></span>
+                                )}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  }
+
+                  return null;
+                })()}
               </div>
 
               {/* Confirm / Cancel Buttons */}

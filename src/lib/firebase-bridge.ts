@@ -489,17 +489,33 @@ export const firebaseBridge = {
       return data;
     },
 
-    getTasks: async (): Promise<Task[]> => {
+    getTasks: async (month?: number, year?: number): Promise<Task[]> => {
       const current = getLocalProfile();
       const userUid = current?.uid || 'user-123';
       const childId = typeof window !== 'undefined' ? localStorage.getItem('tea_active_child_id') : null;
+
+      let m = month;
+      let y = year;
+      if (m === undefined && typeof window !== 'undefined') {
+        const storedM = localStorage.getItem('tea_active_month');
+        m = storedM ? parseInt(storedM, 10) : new Date().getMonth() + 1;
+      }
+      if (y === undefined && typeof window !== 'undefined') {
+        const storedY = localStorage.getItem('tea_active_year');
+        y = storedY ? parseInt(storedY, 10) : new Date().getFullYear();
+      }
 
       const headers: Record<string, string> = { 'x-user-uid': userUid };
       if (childId) {
         headers['x-child-id'] = childId;
       }
 
-      const res = await safeFetch('/api/tasks', { headers });
+      let url = '/api/tasks';
+      if (m !== undefined && y !== undefined) {
+        url += `?month=${m}&year=${y}`;
+      }
+
+      const res = await safeFetch(url, { headers });
       const data = await res.json();
       if (data.error) throw new Error(data.error);
       return data;
@@ -518,10 +534,19 @@ export const firebaseBridge = {
         headers['x-child-id'] = childId;
       }
 
+      let m = typeof window !== 'undefined' ? localStorage.getItem('tea_active_month') : null;
+      let y = typeof window !== 'undefined' ? localStorage.getItem('tea_active_year') : null;
+      const month = m ? parseInt(m, 10) : new Date().getMonth() + 1;
+      const year = y ? parseInt(y, 10) : new Date().getFullYear();
+
+      const payload = Array.isArray(taskData)
+        ? taskData.map(t => ({ month, year, ...t }))
+        : { month, year, ...taskData };
+
       const res = await safeFetch('/api/tasks', {
         method: 'POST',
         headers,
-        body: JSON.stringify(taskData)
+        body: JSON.stringify(payload)
       });
       const data = await res.json();
       if (data.error) throw new Error(data.error);
@@ -559,7 +584,12 @@ export const firebaseBridge = {
         headers['x-child-id'] = childId;
       }
 
-      const res = await safeFetch(`/api/tasks?day=${day}`, {
+      let m = typeof window !== 'undefined' ? localStorage.getItem('tea_active_month') : null;
+      let y = typeof window !== 'undefined' ? localStorage.getItem('tea_active_year') : null;
+      const month = m ? parseInt(m, 10) : new Date().getMonth() + 1;
+      const year = y ? parseInt(y, 10) : new Date().getFullYear();
+
+      const res = await safeFetch(`/api/tasks?day=${day}&month=${month}&year=${year}`, {
         method: 'DELETE',
         headers
       });
@@ -729,10 +759,15 @@ export const firebaseBridge = {
         headers['x-child-id'] = childId;
       }
 
+      let m = typeof window !== 'undefined' ? localStorage.getItem('tea_active_month') : null;
+      let y = typeof window !== 'undefined' ? localStorage.getItem('tea_active_year') : null;
+      const month = m ? parseInt(m, 10) : new Date().getMonth() + 1;
+      const year = y ? parseInt(y, 10) : new Date().getFullYear();
+
       const res = await safeFetch('/api/tasks', {
         method: 'PUT',
         headers,
-        body: JSON.stringify({ resetCompletions: true })
+        body: JSON.stringify({ resetCompletions: true, month, year })
       });
       const data = await res.json();
       if (data.error) throw new Error(data.error);
@@ -742,7 +777,7 @@ export const firebaseBridge = {
       window.dispatchEvent(new CustomEvent(MOCK_DB_UPDATE_EVENT, { detail: tasks }));
     },
 
-    loadTemplate: async (templateTasks: Omit<Task, 'id' | 'isCompleted' | 'order'>[]): Promise<void> => {
+    loadTemplate: async (templateTasks: Omit<Task, 'id' | 'isCompleted' | 'order'>[], targetMonth?: number, targetYear?: number): Promise<void> => {
       const current = getLocalProfile();
       const userUid = current?.uid || 'user-123';
       const childId = typeof window !== 'undefined' ? localStorage.getItem('tea_active_child_id') : null;
@@ -755,15 +790,27 @@ export const firebaseBridge = {
         headers['x-child-id'] = childId;
       }
 
+      let m = targetMonth !== undefined ? targetMonth : (typeof window !== 'undefined' ? localStorage.getItem('tea_active_month') : null);
+      let y = targetYear !== undefined ? targetYear : (typeof window !== 'undefined' ? localStorage.getItem('tea_active_year') : null);
+      const month = m ? Number(m) : new Date().getMonth() + 1;
+      const year = y ? Number(y) : new Date().getFullYear();
+
       const res = await safeFetch('/api/tasks', {
         method: 'PUT',
         headers,
-        body: JSON.stringify({ overwrite: true, tasks: templateTasks })
+        body: JSON.stringify({ overwrite: true, month, year, tasks: templateTasks })
       });
       const data = await res.json();
       if (data.error) throw new Error(data.error);
 
-      window.dispatchEvent(new CustomEvent(MOCK_DB_UPDATE_EVENT, { detail: data }));
+      const activeM = typeof window !== 'undefined' ? localStorage.getItem('tea_active_month') : null;
+      const activeY = typeof window !== 'undefined' ? localStorage.getItem('tea_active_year') : null;
+      const actM = activeM ? parseInt(activeM, 10) : new Date().getMonth() + 1;
+      const actY = activeY ? parseInt(activeY, 10) : new Date().getFullYear();
+
+      if (month === actM && year === actY) {
+        window.dispatchEvent(new CustomEvent(MOCK_DB_UPDATE_EVENT, { detail: data }));
+      }
     },
 
     clearAllTasks: async (): Promise<void> => {
@@ -779,10 +826,15 @@ export const firebaseBridge = {
         headers['x-child-id'] = childId;
       }
 
+      let m = typeof window !== 'undefined' ? localStorage.getItem('tea_active_month') : null;
+      let y = typeof window !== 'undefined' ? localStorage.getItem('tea_active_year') : null;
+      const month = m ? parseInt(m, 10) : new Date().getMonth() + 1;
+      const year = y ? parseInt(y, 10) : new Date().getFullYear();
+
       const res = await safeFetch('/api/tasks', {
         method: 'PUT',
         headers,
-        body: JSON.stringify({ overwrite: true, tasks: [] })
+        body: JSON.stringify({ overwrite: true, month, year, tasks: [] })
       });
       const data = await res.json();
       if (data.error) throw new Error(data.error);

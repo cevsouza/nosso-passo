@@ -83,6 +83,8 @@ model Task {
   child       Child?   @relation(fields: [childId], references: [id], onDelete: Cascade)
   userUid     String
   user        UserProfile @relation(fields: [userUid], references: [uid], onDelete: Cascade)
+  month       Int?
+  year        Int?
   createdAt   DateTime @default(now())
 }
 

@@ -29,18 +29,37 @@ export async function GET(req: Request) {
       });
     }
 
-    let dbTasks;
+    const urlObj = new URL(req.url);
+    const queryMonth = urlObj.searchParams.get('month');
+    const queryYear = urlObj.searchParams.get('year');
+    
+    const filter: any = {};
     if (childId) {
-      dbTasks = await prisma.task.findMany({
-        where: { childId },
-        orderBy: [{ day: 'asc' }, { time: 'asc' }],
-      });
+      filter.childId = childId;
     } else {
-      dbTasks = await prisma.task.findMany({
-        where: { userUid },
-        orderBy: [{ day: 'asc' }, { time: 'asc' }],
-      });
+      filter.userUid = userUid;
     }
+
+    if (queryMonth && queryYear) {
+      const m = parseInt(queryMonth, 10);
+      const y = parseInt(queryYear, 10);
+      
+      // For backwards compatibility: query tasks of this month/year OR those with null month/year (if standard June 2026)
+      if (m === 6 && y === 2026) {
+        filter.OR = [
+          { month: m, year: y },
+          { month: null, year: null }
+        ];
+      } else {
+        filter.month = m;
+        filter.year = y;
+      }
+    }
+
+    const dbTasks = await prisma.task.findMany({
+      where: filter,
+      orderBy: [{ day: 'asc' }, { time: 'asc' }],
+    });
 
     return NextResponse.json(dbTasks);
   } catch (error: any) {
@@ -53,6 +72,9 @@ export async function POST(req: Request) {
     const userUid = req.headers.get('x-user-uid') || 'user-123';
     const childId = req.headers.get('x-child-id');
     const taskData = await req.json();
+
+    const defaultMonth = new Date().getMonth() + 1;
+    const defaultYear = new Date().getFullYear();
 
     if (Array.isArray(taskData)) {
       // Bulk create tasks
@@ -72,6 +94,8 @@ export async function POST(req: Request) {
             description: t.description || "",
             userUid,
             childId: childId || null,
+            month: t.month !== undefined && t.month !== null ? Number(t.month) : defaultMonth,
+            year: t.year !== undefined && t.year !== null ? Number(t.year) : defaultYear,
           },
         });
         createdTasks.push(newTask);
@@ -92,6 +116,8 @@ export async function POST(req: Request) {
           description: taskData.description || "",
           userUid,
           childId: childId || null,
+          month: taskData.month !== undefined && taskData.month !== null ? Number(taskData.month) : defaultMonth,
+          year: taskData.year !== undefined && taskData.year !== null ? Number(taskData.year) : defaultYear,
         },
       });
       return NextResponse.json(newTask);
@@ -108,36 +134,54 @@ export async function PUT(req: Request) {
     const body = await req.json();
 
     if (body.resetCompletions) {
+      const month = body.month !== undefined && body.month !== null ? Number(body.month) : null;
+      const year = body.year !== undefined && body.year !== null ? Number(body.year) : null;
+
+      const updateFilter: any = {};
       if (childId) {
-        await prisma.task.updateMany({
-          where: { childId },
-          data: { isCompleted: false },
-        });
-        const updatedTasks = await prisma.task.findMany({
-          where: { childId },
-          orderBy: [{ day: 'asc' }, { time: 'asc' }],
-        });
-        return NextResponse.json(updatedTasks);
+        updateFilter.childId = childId;
       } else {
-        await prisma.task.updateMany({
-          where: { userUid },
-          data: { isCompleted: false },
-        });
-        const updatedTasks = await prisma.task.findMany({
-          where: { userUid },
-          orderBy: [{ day: 'asc' }, { time: 'asc' }],
-        });
-        return NextResponse.json(updatedTasks);
+        updateFilter.userUid = userUid;
       }
+
+      if (month !== null && year !== null) {
+        updateFilter.month = month;
+        updateFilter.year = year;
+      }
+
+      await prisma.task.updateMany({
+        where: updateFilter,
+        data: { isCompleted: false },
+      });
+
+      const updatedTasks = await prisma.task.findMany({
+        where: updateFilter,
+        orderBy: [{ day: 'asc' }, { time: 'asc' }],
+      });
+      return NextResponse.json(updatedTasks);
     }
 
     if (body.overwrite && Array.isArray(body.tasks)) {
-      // Bulk overwrite tasks (loadTemplate, resetToDefaults, etc.)
-      if (childId) {
-        await prisma.task.deleteMany({
-          where: { childId },
-        });
+      const month = body.month !== undefined && body.month !== null ? Number(body.month) : null;
+      const year = body.year !== undefined && body.year !== null ? Number(body.year) : null;
 
+      const deleteFilter: any = {};
+      if (childId) {
+        deleteFilter.childId = childId;
+      } else {
+        deleteFilter.userUid = userUid;
+      }
+
+      if (month !== null && year !== null) {
+        deleteFilter.month = month;
+        deleteFilter.year = year;
+      }
+
+      await prisma.task.deleteMany({
+        where: deleteFilter,
+      });
+
+      if (body.tasks.length > 0) {
         await prisma.task.createMany({
           data: body.tasks.map((t: any, idx: number) => ({
             title: t.title,
@@ -152,45 +196,18 @@ export async function PUT(req: Request) {
             duration: t.duration !== undefined ? Number(t.duration) : 30,
             description: t.description || "",
             userUid,
-            childId,
+            childId: childId || null,
+            month: t.month !== undefined && t.month !== null ? Number(t.month) : (month || (new Date().getMonth() + 1)),
+            year: t.year !== undefined && t.year !== null ? Number(t.year) : (year || new Date().getFullYear()),
           })),
         });
-
-        const updatedTasks = await prisma.task.findMany({
-          where: { childId },
-          orderBy: [{ day: 'asc' }, { time: 'asc' }],
-        });
-        return NextResponse.json(updatedTasks);
-      } else {
-        await prisma.task.deleteMany({
-          where: { userUid },
-        });
-
-        if (body.tasks.length > 0) {
-          await prisma.task.createMany({
-            data: body.tasks.map((t: any, idx: number) => ({
-              title: t.title,
-              time: t.time,
-              period: t.period,
-              day: t.day,
-              isCompleted: t.isCompleted ?? false,
-              order: idx + 1,
-              icon: t.icon || "📅",
-              customIcon: t.customIcon || null,
-              category: t.category || "AVD",
-              duration: t.duration !== undefined ? Number(t.duration) : 30,
-              description: t.description || "",
-              userUid,
-            })),
-          });
-        }
-
-        const updatedTasks = await prisma.task.findMany({
-          where: { userUid },
-          orderBy: [{ day: 'asc' }, { time: 'asc' }],
-        });
-        return NextResponse.json(updatedTasks);
       }
+
+      const updatedTasks = await prisma.task.findMany({
+        where: deleteFilter,
+        orderBy: [{ day: 'asc' }, { time: 'asc' }],
+      });
+      return NextResponse.json(updatedTasks);
     }
 
     // Single task update
@@ -237,15 +254,24 @@ export async function DELETE(req: Request) {
     const userUid = req.headers.get('x-user-uid') || 'user-123';
 
     if (day) {
+      const monthStr = searchParams.get('month');
+      const yearStr = searchParams.get('year');
+      
+      const deleteFilter: any = { day };
       if (childId) {
-        await prisma.task.deleteMany({
-          where: { childId, day },
-        });
+        deleteFilter.childId = childId;
       } else {
-        await prisma.task.deleteMany({
-          where: { userUid, day },
-        });
+        deleteFilter.userUid = userUid;
       }
+      
+      if (monthStr && yearStr) {
+        deleteFilter.month = parseInt(monthStr, 10);
+        deleteFilter.year = parseInt(yearStr, 10);
+      }
+
+      await prisma.task.deleteMany({
+        where: deleteFilter,
+      });
       return NextResponse.json({ success: true });
     }
 
