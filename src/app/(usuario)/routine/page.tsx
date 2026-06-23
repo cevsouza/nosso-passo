@@ -712,7 +712,9 @@ export default function ChildRoutine() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [offline, setOffline] = useState(false);
   const [offlineQueueSize, setOfflineQueueSize] = useState(0);
-  const [currentDay, setCurrentDay] = useState(new Date().getDate().toString());
+  const [currentDay, setCurrentDay] = useState(() => new Date().getDate().toString());
+  const [currentMonth, setCurrentMonth] = useState(() => (new Date().getMonth() + 1).toString());
+  const [currentYear, setCurrentYear] = useState(() => new Date().getFullYear().toString());
   const [collieState, setCollieState] = useState<CollieState>('idle');
   const [celebratingTaskId, setCelebratingTaskId] = useState<string | null>(null);
   const [childHyperfocus, setChildHyperfocus] = useState('Border Collies 🐕');
@@ -725,7 +727,7 @@ export default function ChildRoutine() {
   const [waitTimerConfigured, setWaitTimerConfigured] = useState(true);
   const [showBatteryMenu, setShowBatteryMenu] = useState(false);
   const [showWaitTimer, setShowWaitTimer] = useState(false);
-  const [currentTime, setCurrentTime] = useState(new Date());
+  const [currentTime, setCurrentTime] = useState(() => new Date());
 
   // Keep currentTime updated every second to drive real-time clocks/locks
   useEffect(() => {
@@ -734,6 +736,18 @@ export default function ChildRoutine() {
     }, 1000);
     return () => clearInterval(clockInterval);
   }, []);
+
+  // Update currentDay, currentMonth, currentYear when the date changes
+  useEffect(() => {
+    const today = new Date();
+    const todayDay = today.getDate().toString();
+    const todayMonth = (today.getMonth() + 1).toString();
+    const todayYear = today.getFullYear().toString();
+    
+    if (todayDay !== currentDay) setCurrentDay(todayDay);
+    if (todayMonth !== currentMonth) setCurrentMonth(todayMonth);
+    if (todayYear !== currentYear) setCurrentYear(todayYear);
+  }, [currentTime, currentDay, currentMonth, currentYear]);
 
   const [sensoryVisuals, setSensoryVisuals] = useState<'rich' | 'minimal'>('rich');
   const [localCalmMode, setLocalCalmMode] = useState(false);
@@ -1055,11 +1069,8 @@ export default function ChildRoutine() {
     }, 2000);
   };
   
-  // 1. Detect current day of month, load children and subscribe to tasks
+  // 1. Load children list and setup active child configuration
   useEffect(() => {
-    const todayDay = new Date().getDate().toString();
-    setCurrentDay(todayDay);
-
     const loadPortal = async () => {
       setLoadingChildren(true);
       try {
@@ -1102,14 +1113,20 @@ export default function ChildRoutine() {
     };
 
     loadPortal();
+  }, []);
 
-    // Subscribe to tasks in real time
+  // 1.3 Subscribe to tasks in real time specifically for the current calendar month and year
+  useEffect(() => {
+    const m = parseInt(currentMonth, 10);
+    const y = parseInt(currentYear, 10);
+    if (isNaN(m) || isNaN(y)) return;
+
     const unsubscribeTasks = firebaseBridge.db.onSnapshotTasks((fetchedTasks) => {
       setTasks(fetchedTasks);
-    });
+    }, m, y);
 
     return () => unsubscribeTasks();
-  }, []);
+  }, [currentMonth, currentYear]);
 
   // Poll child settings in background to catch real-time parent changes (First-Then toggle / Unexpected changes)
   useEffect(() => {
@@ -1207,7 +1224,15 @@ export default function ChildRoutine() {
 
   // Filter tasks for the current day, sorted by time/order
   const todayTasks = tasks
-    .filter(t => t.day === currentDay)
+    .filter(t => {
+      const tm = t.month !== undefined && t.month !== null ? t.month : new Date().getMonth() + 1;
+      const ty = t.year !== undefined && t.year !== null ? t.year : new Date().getFullYear();
+      return (
+        t.day === currentDay &&
+        tm === parseInt(currentMonth, 10) &&
+        ty === parseInt(currentYear, 10)
+      );
+    })
     .sort((a, b) => a.time.localeCompare(b.time));
 
   // Find active task (first uncompleted task of today)

@@ -11,6 +11,8 @@ export interface Task {
   category?: 'AVD' | 'Aprendizado' | 'Lazer';
   duration?: number;
   description?: string;
+  month?: number | null;
+  year?: number | null;
 }
 
 export interface UserProfile {
@@ -842,16 +844,27 @@ export const firebaseBridge = {
       window.dispatchEvent(new CustomEvent(MOCK_DB_UPDATE_EVENT, { detail: data }));
     },
 
-    onSnapshotTasks: (callback: (tasks: Task[]) => void) => {
+    onSnapshotTasks: (callback: (tasks: Task[]) => void, month?: number, year?: number) => {
       if (typeof window === 'undefined') return () => {};
 
       // Initial read
-      firebaseBridge.db.getTasks().then(callback).catch(() => {});
+      firebaseBridge.db.getTasks(month, year).then(callback).catch(() => {});
 
       const handleUpdate = (e: Event) => {
         const customEvent = e as CustomEvent<Task[]>;
         if (customEvent.detail && Array.isArray(customEvent.detail)) {
-          callback(customEvent.detail);
+          let filtered = customEvent.detail;
+          if (month !== undefined || year !== undefined) {
+            filtered = customEvent.detail.filter(t => {
+              const tm = t.month !== undefined && t.month !== null ? t.month : new Date().getMonth() + 1;
+              const ty = t.year !== undefined && t.year !== null ? t.year : new Date().getFullYear();
+              
+              if (month !== undefined && tm !== month) return false;
+              if (year !== undefined && ty !== year) return false;
+              return true;
+            });
+          }
+          callback(filtered);
         }
       };
 
@@ -861,7 +874,7 @@ export const firebaseBridge = {
       let lastSerialized = '';
       const interval = setInterval(async () => {
         try {
-          const fetched = await firebaseBridge.db.getTasks();
+          const fetched = await firebaseBridge.db.getTasks(month, year);
           const serialized = JSON.stringify(fetched);
           if (serialized !== lastSerialized) {
             lastSerialized = serialized;
