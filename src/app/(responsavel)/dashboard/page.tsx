@@ -1005,6 +1005,7 @@ function ParentDashboardContent() {
   const [saveTemplateScope, setSaveTemplateScope] = useState<'day' | 'week' | 'month'>('month');
   const [applyTemplateScope, setApplyTemplateScope] = useState<'day' | 'week' | 'month'>('month');
   const [showReapplyModal, setShowReapplyModal] = useState(false);
+  const [showClearModal, setShowClearModal] = useState(false);
   const [reapplyTargetType, setReapplyTargetType] = useState<'days' | 'weeks' | 'month'>('month');
   const [reapplySelectedDays, setReapplySelectedDays] = useState<string[]>([]);
   const [reapplySelectedWeeks, setReapplySelectedWeeks] = useState<string[]>([]);
@@ -2486,21 +2487,61 @@ function ParentDashboardContent() {
     }
   };
 
-  // Clear all tasks
-  const handleClearAll = async () => {
-    if (!window.confirm('Atenção: deseja limpar toda a rotina? Esta ação não pode ser desfeita.')) return;
-    
+  // Clear tasks by scope (day, week, or month)
+  const handleClearGrid = async (scope: 'day' | 'week' | 'month') => {
+    let targetDays: string[] = [];
+    let scopeLabel = '';
+
+    if (scope === 'day') {
+      targetDays = [activeDayFilter];
+      scopeLabel = locale === 'en' ? `Day ${activeDayFilter}` : locale === 'es' ? `Día ${activeDayFilter}` : `Dia ${activeDayFilter}`;
+    } else if (scope === 'week') {
+      const activeWeekNum = Math.floor((parseInt(activeDayFilter || '1', 10) - 1) / 7) + 1;
+      const startDay = (activeWeekNum - 1) * 7 + 1;
+      const endDay = Math.min(activeWeekNum * 7, DAYS_OF_MONTH.length);
+      for (let d = startDay; d <= endDay; d++) {
+        targetDays.push(String(d));
+      }
+      scopeLabel = locale === 'en' ? `Week ${activeWeekNum}` : locale === 'es' ? `Semana ${activeWeekNum}` : `Semana ${activeWeekNum}`;
+    } else {
+      targetDays = DAYS_OF_MONTH.map(d => d.key);
+      const MONTH_NAMES: Record<string, string[]> = {
+        pt: ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'],
+        en: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+        es: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
+      };
+      const monthName = MONTH_NAMES[locale]?.[activeMonth - 1] || MONTH_NAMES['pt'][activeMonth - 1];
+      scopeLabel = `${monthName} ${activeYear}`;
+    }
+
+    const confirmMsg = locale === 'en'
+      ? `Attention: Are you sure you want to clear all tasks for ${scopeLabel}? This action cannot be undone.`
+      : locale === 'es'
+      ? `Atención: ¿Está seguro de que desea limpiar todas las tareas de ${scopeLabel}? Esta acción no se puede deshacer.`
+      : `Atenção: Tem certeza que deseja limpar todas as tarefas de ${scopeLabel}? Esta ação não pode ser desfeita.`;
+
+    if (!window.confirm(confirmMsg)) return;
+
     playMarimba(261.63, 0.5);
     try {
-      await firebaseBridge.db.clearAllTasks();
+      const filteredTasks = tasks.filter(t => !targetDays.includes(t.day));
+      await firebaseBridge.db.loadTemplate(filteredTasks, activeMonth, activeYear);
+
+      const updated = await firebaseBridge.db.getTasks(activeMonth, activeYear);
+      setTasks(updated);
+      window.dispatchEvent(new CustomEvent('firebase-mock-db-update', { detail: updated }));
+
       await immutableLogger.logChange(
         'RESET_ROUTINE',
-        'Limpou toda a grade de tarefas semanais.',
+        `Limpou as tarefas do escopo: ${scopeLabel}`,
         currentUser?.email
       );
-      triggerStatus('Grade limpa!');
+
+      triggerStatus(locale === 'en' ? 'Tasks cleared!' : locale === 'es' ? '¡Tareas limpiadas!' : 'Tarefas limpas!');
+      setShowClearModal(false);
     } catch (err) {
-      triggerStatus('Erro ao limpar rotina.');
+      console.error(err);
+      triggerStatus(locale === 'en' ? 'Error clearing tasks.' : locale === 'es' ? 'Error al limpiar tareas.' : 'Erro ao limpar tarefas.');
     }
   };
 
@@ -4172,8 +4213,8 @@ function ParentDashboardContent() {
                 <span>→</span>
               </button>
               <button 
-                onClick={handleClearAll}
-                className="w-full flex items-center justify-between px-4 py-3 bg-slate-50 hover:bg-red-50 text-slate-800 hover:text-red-600 border border-slate-100 hover:border-red-100 rounded-xl text-xs font-bold transition-all text-left"
+                onClick={() => { playBubble(); setShowClearModal(true); }}
+                className="w-full flex items-center justify-between px-4 py-3 bg-slate-50 hover:bg-red-50 text-slate-800 hover:text-red-600 border border-slate-100 hover:border-red-100 rounded-xl text-xs font-bold transition-all text-left font-Outfit"
               >
                 <span className="flex items-center gap-2">
                   <Trash2 className="w-4 h-4 text-red-400" /> Limpar Toda a Grade
@@ -7512,6 +7553,125 @@ function ParentDashboardContent() {
                   {locale === 'en' ? 'Reapply Template 🚀' : locale === 'es' ? 'Reaplicar Modelo 🚀' : 'Reaplicar Modelo 🚀'}
                 </button>
               </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Modal de Limpeza de Grade */}
+      <AnimatePresence>
+        {showClearModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm"
+          >
+            <motion.div
+              initial={{ scale: 0.95, y: 15 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.95, y: 15 }}
+              className="bg-white border border-slate-200 rounded-[28px] p-6 w-full max-w-md shadow-2xl flex flex-col gap-5 text-slate-800 relative overflow-hidden"
+            >
+              {/* Header */}
+              <div className="flex justify-between items-center">
+                <div className="flex items-center gap-2">
+                  <span className="text-xl">🗑️</span>
+                  <h3 className="text-lg font-black text-indigo-955 tracking-tight font-Outfit">
+                    {locale === 'en' ? 'Clear Schedule Grid' : locale === 'es' ? 'Limpiar Grilla de Agenda' : 'Limpar Grade da Agenda'}
+                  </h3>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => { playBubble(); setShowClearModal(false); }}
+                  className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 hover:text-slate-800 transition-colors border-none cursor-pointer"
+                >
+                  ✕
+                </button>
+              </div>
+
+              {/* Description */}
+              <p className="text-xs text-slate-550 leading-relaxed font-semibold text-left">
+                {locale === 'en'
+                  ? 'Select which period scope you would like to clear. This will delete all tasks within the chosen scope.'
+                  : locale === 'es'
+                  ? 'Seleccione el alcance del período que desea limpiar. Esto eliminará todas las tareas dentro del alcance elegido.'
+                  : 'Selecione qual escopo de período você deseja limpar. Isso apagará todas as tarefas contidas no escopo escolhido.'}
+              </p>
+
+              {/* Options Grid */}
+              <div className="flex flex-col gap-3">
+                {/* 1. Day Scope */}
+                <button
+                  type="button"
+                  onClick={() => handleClearGrid('day')}
+                  className="w-full flex items-center justify-between p-4 bg-slate-50 hover:bg-red-50/50 border border-slate-200 hover:border-red-200 rounded-2xl text-left transition-all cursor-pointer group"
+                >
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-xs font-black text-slate-800 group-hover:text-red-750 font-Outfit">
+                      {locale === 'en' ? 'Clear Selected Day Only' : locale === 'es' ? 'Limpiar Solo el Día Seleccionado' : 'Limpar Apenas o Dia Selecionado'}
+                    </span>
+                    <span className="text-[10px] text-slate-400 font-bold">
+                      {locale === 'en' ? `Delete tasks for Day ${activeDayFilter} only` : locale === 'es' ? `Eliminar tareas solo para el Día ${activeDayFilter}` : `Apagar tarefas apenas do Dia ${activeDayFilter}`}
+                    </span>
+                  </div>
+                  <span className="text-lg text-slate-400 group-hover:text-red-500 transition-colors">➔</span>
+                </button>
+
+                {/* 2. Week Scope */}
+                <button
+                  type="button"
+                  onClick={() => handleClearGrid('week')}
+                  className="w-full flex items-center justify-between p-4 bg-slate-50 hover:bg-red-50/50 border border-slate-200 hover:border-red-200 rounded-2xl text-left transition-all cursor-pointer group"
+                >
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-xs font-black text-slate-800 group-hover:text-red-750 font-Outfit">
+                      {locale === 'en' ? 'Clear Selected Week Only' : locale === 'es' ? 'Limpiar Solo la Semana Seleccionada' : 'Limpar Apenas a Semana Selecionada'}
+                    </span>
+                    <span className="text-[10px] text-slate-400 font-bold">
+                      {(() => {
+                        const activeWeekNum = Math.floor((parseInt(activeDayFilter || '1', 10) - 1) / 7) + 1;
+                        return locale === 'en' ? `Delete tasks for Week ${activeWeekNum} only` : locale === 'es' ? `Eliminar tareas solo para la Semana ${activeWeekNum}` : `Apagar tarefas apenas da Semana ${activeWeekNum}`;
+                      })()}
+                    </span>
+                  </div>
+                  <span className="text-lg text-slate-400 group-hover:text-red-500 transition-colors">➔</span>
+                </button>
+
+                {/* 3. Month Scope */}
+                <button
+                  type="button"
+                  onClick={() => handleClearGrid('month')}
+                  className="w-full flex items-center justify-between p-4 bg-slate-50 hover:bg-red-50/50 border border-slate-200 hover:border-red-200 rounded-2xl text-left transition-all cursor-pointer group"
+                >
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-xs font-black text-slate-800 group-hover:text-red-750 font-Outfit">
+                      {locale === 'en' ? 'Clear Entire Month' : locale === 'es' ? 'Limpiar Todo el Mes' : 'Limpar Todo o Mês'}
+                    </span>
+                    <span className="text-[10px] text-slate-400 font-bold">
+                      {(() => {
+                        const MONTH_NAMES: Record<string, string[]> = {
+                          pt: ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'],
+                          en: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+                          es: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
+                        };
+                        const monthName = MONTH_NAMES[locale]?.[activeMonth - 1] || MONTH_NAMES['pt'][activeMonth - 1];
+                        return locale === 'en' ? `Delete all tasks for ${monthName} ${activeYear}` : locale === 'es' ? `Eliminar todas las tareas de ${monthName} ${activeYear}` : `Apagar todas as tarefas de ${monthName} ${activeYear}`;
+                      })()}
+                    </span>
+                  </div>
+                  <span className="text-lg text-slate-400 group-hover:text-red-500 transition-colors">➔</span>
+                </button>
+              </div>
+
+              {/* Close Button */}
+              <button
+                type="button"
+                onClick={() => { playBubble(); setShowClearModal(false); }}
+                className="w-full py-3 bg-slate-100 hover:bg-slate-200 text-slate-650 hover:text-slate-800 font-extrabold text-xs rounded-xl active:scale-95 transition-all cursor-pointer uppercase tracking-wider font-Outfit border-none mt-2"
+              >
+                {locale === 'en' ? 'Cancel' : locale === 'es' ? 'Cancelar' : 'Cancelar'}
+              </button>
             </motion.div>
           </motion.div>
         )}
