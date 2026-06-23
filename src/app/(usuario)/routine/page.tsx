@@ -3367,7 +3367,7 @@ export default function ChildRoutine() {
       )}
 
       {/* Sticky Top Navigation Header */}
-      <div className={`sticky top-0 w-full z-30 transition-all border-b shadow-sm backdrop-blur-md select-none py-3 mb-8 ${
+      <div className={`sticky top-0 w-full z-40 transition-all border-b shadow-sm backdrop-blur-md select-none py-3 mb-8 ${
         sleepMode 
           ? 'bg-slate-950/85 border-slate-800/60 text-amber-205 shadow-slate-950/50' 
           : 'bg-white/85 border-slate-200/50 text-slate-800 shadow-slate-105/45'
