@@ -723,6 +723,7 @@ export default function ChildRoutine() {
   const [isWaitTimerActive, setIsWaitTimerActive] = useState(false);
   const [waitTimerFinished, setWaitTimerFinished] = useState(false);
   const [showBatteryMenu, setShowBatteryMenu] = useState(false);
+  const [showWaitTimer, setShowWaitTimer] = useState(false);
 
   const [sensoryVisuals, setSensoryVisuals] = useState<'rich' | 'minimal'>('rich');
   const [localCalmMode, setLocalCalmMode] = useState(false);
@@ -3541,6 +3542,18 @@ export default function ChildRoutine() {
                       >
                         🎮 Simulador
                       </button>
+                      <button
+                        onClick={() => { 
+                          playBubble(); 
+                          setShowWaitTimer(!showWaitTimer); 
+                          setShowSupportMenu(false); 
+                        }}
+                        className={`flex items-center gap-2 w-full px-4 py-2 text-left text-xs font-bold rounded-xl transition-colors border-none bg-transparent cursor-pointer font-Outfit ${
+                          sleepMode ? 'hover:bg-slate-850 text-amber-205' : 'hover:bg-slate-50 text-slate-705'
+                        }`}
+                      >
+                        ⏳ {locale === 'en' ? 'Waiting Hourglass' : locale === 'es' ? 'Reloj de Espera' : 'Ampulheta de Espera'}
+                      </button>
                     </>
                   )}
                 </div>
@@ -3896,7 +3909,7 @@ export default function ChildRoutine() {
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.97 }}
                     transition={transitionConfig}
-                    className={`bg-white border-4 rounded-[36px] p-8 shadow-premium flex flex-col lg:grid lg:grid-cols-12 lg:gap-8 items-center justify-center text-center gap-6 relative overflow-hidden transition-all duration-500 border-t-8 border-t-transparent md:col-span-8 ${category.shadow}`}
+                    className={`bg-white border-4 rounded-[36px] p-8 shadow-premium flex flex-col lg:grid lg:grid-cols-12 lg:gap-8 items-center justify-center text-center gap-6 relative overflow-hidden transition-all duration-500 border-t-8 border-t-transparent md:col-span-${showWaitTimer ? '8' : '12'} ${category.shadow}`}
                   >
                     {/* Glowing outer soft neon reflection underneath */}
                     {effectiveVisuals === 'rich' && (
@@ -4127,7 +4140,16 @@ export default function ChildRoutine() {
             </AnimatePresence>
 
                         {/* WAIT TIMER CARD */}
-            <div className={`bg-white border-4 border-slate-200 rounded-[36px] p-6 shadow-premium flex flex-col items-center justify-between text-center gap-4 relative overflow-hidden transition-all duration-500 md:col-span-4 ${sleepMode ? 'bg-slate-900 border-slate-800 text-amber-205' : 'bg-white text-slate-850'}`}>
+            {showWaitTimer && (
+              <div className={`bg-white border-4 border-slate-200 rounded-[36px] p-6 shadow-premium flex flex-col items-center justify-between text-center gap-4 relative overflow-hidden transition-all duration-500 md:col-span-4 ${sleepMode ? 'bg-slate-900 border-slate-800 text-amber-205' : 'bg-white text-slate-850'}`}>
+                {/* Close Button directly inside the card */}
+                <button
+                  onClick={() => { playBubble(); setShowWaitTimer(false); }}
+                  className="absolute top-3 right-3 text-slate-400 hover:text-slate-600 bg-slate-100 hover:bg-slate-200 border-none rounded-full w-6 h-6 flex items-center justify-center text-xs cursor-pointer select-none font-Outfit"
+                  title={locale === 'en' ? 'Close' : locale === 'es' ? 'Cerrar' : 'Fechar'}
+                >
+                  ✕
+                </button>
               <div className="flex flex-col items-center gap-1.5 w-full">
                 <span className="text-[10px] font-black uppercase tracking-widest text-indigo-600 bg-indigo-50 border border-indigo-100 px-3 py-1 rounded-full shadow-xxs font-Outfit">
                   ⏳ {t.routine.waitTimerTitle}
@@ -4262,6 +4284,7 @@ export default function ChildRoutine() {
                 </div>
               </div>
             </div>
+          )}
 
             {/* 2. PROGRESS TRACKER OR CLINICAL FIRST-THEN BOARD */}
             {effectiveVisuals === 'minimal' ? (
