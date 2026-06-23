@@ -724,6 +724,15 @@ export default function ChildRoutine() {
   const [waitTimerFinished, setWaitTimerFinished] = useState(false);
   const [showBatteryMenu, setShowBatteryMenu] = useState(false);
   const [showWaitTimer, setShowWaitTimer] = useState(false);
+  const [currentTime, setCurrentTime] = useState(new Date());
+
+  // Keep currentTime updated every second to drive real-time clocks/locks
+  useEffect(() => {
+    const clockInterval = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+    return () => clearInterval(clockInterval);
+  }, []);
 
   const [sensoryVisuals, setSensoryVisuals] = useState<'rich' | 'minimal'>('rich');
   const [localCalmMode, setLocalCalmMode] = useState(false);
@@ -4114,25 +4123,52 @@ export default function ChildRoutine() {
                     </div>
 
                     {/* LARGE COMPLETE MISSION BUTTON */}
-                    <motion.button
-                      whileHover={{ scale: 1.03, rotate: 0.5 }}
-                      whileTap={{ scale: 0.92, rotate: -0.5 }}
-                      onClick={() => handleCompleteTask(activeTask)}
-                      disabled={celebratingTaskId !== null}
-                      className={`w-full py-5 text-xl font-black rounded-2xl shadow-lg cursor-pointer transform transition-all duration-300 flex items-center justify-center gap-2 border-b-4 border-slate-950/20 ${
-                        celebratingTaskId === activeTask.id
-                          ? 'bg-gradient-to-r from-emerald-400 to-emerald-500 text-white animate-pulse border-emerald-600/70'
-                          : `bg-gradient-to-r ${category.gradient} text-white hover:opacity-95 shadow-md`
-                      }`}
-                    >
-                      {celebratingTaskId === activeTask.id ? (
-                        <span className="flex items-center gap-2">
-                          <Star className="w-6 h-6 text-yellow-200 animate-spin" /> EXCELENTE! 🎉
-                        </span>
-                      ) : (
-                        'EU TERMINEI! ✅'
-                      )}
-                    </motion.button>
+                    {(() => {
+                      const [activeH, activeM] = activeTask.time.split(':').map(Number);
+                      const activeStartTime = new Date(currentTime);
+                      activeStartTime.setHours(activeH, activeM, 0, 0);
+                      const timeToStartMs = activeStartTime.getTime() - currentTime.getTime();
+                      const isActiveLocked = timeToStartMs > 0;
+                      const lockSec = Math.max(0, Math.floor(timeToStartMs / 1000));
+                      const lockMin = Math.floor(lockSec / 60);
+                      const lockRemSec = lockSec % 60;
+
+                      return (
+                        <div className="w-full flex flex-col gap-2">
+                          <motion.button
+                            whileHover={isActiveLocked ? {} : { scale: 1.03, rotate: 0.5 }}
+                            whileTap={isActiveLocked ? {} : { scale: 0.92, rotate: -0.5 }}
+                            onClick={() => handleCompleteTask(activeTask)}
+                            disabled={celebratingTaskId !== null || isActiveLocked}
+                            className={`w-full py-5 text-xl font-black rounded-2xl shadow-lg transform transition-all duration-300 flex items-center justify-center gap-2 border-b-4 border-slate-950/20 ${
+                              celebratingTaskId === activeTask.id
+                                ? 'bg-gradient-to-r from-emerald-400 to-emerald-500 text-white animate-pulse border-emerald-600/70 cursor-default'
+                                : isActiveLocked
+                                ? 'bg-slate-200 border-slate-300 text-slate-400 cursor-not-allowed shadow-none'
+                                : `bg-gradient-to-r ${category.gradient} text-white hover:opacity-95 shadow-md cursor-pointer`
+                            }`}
+                          >
+                            {celebratingTaskId === activeTask.id ? (
+                              <span className="flex items-center gap-2">
+                                <Star className="w-6 h-6 text-yellow-200 animate-spin" /> EXCELENTE! 🎉
+                              </span>
+                            ) : isActiveLocked ? (
+                              <span className="flex items-center gap-2 select-none">
+                                🔒 {locale === 'en' ? 'Waiting Start Time' : locale === 'es' ? 'Espera Hora de Inicio' : 'Aguardando Horário'}
+                              </span>
+                            ) : (
+                              'EU TERMINEI! ✅'
+                            )}
+                          </motion.button>
+                          
+                          {isActiveLocked && (
+                            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest text-center select-none font-Outfit animate-pulse mt-0.5">
+                              ⏰ {locale === 'en' ? 'Starts in:' : locale === 'es' ? 'Inicia en:' : 'Inicia em:'} {lockMin}m {lockRemSec}s
+                            </span>
+                          )}
+                        </div>
+                      );
+                    })()}
                     </div>
                   </motion.div>
                 );
@@ -4360,7 +4396,23 @@ export default function ChildRoutine() {
                       >
                         {nextTask.title}
                       </h4>
-                      <span className="text-[9px] font-black text-slate-400 uppercase tracking-wide">{locale === 'en' ? 'Waiting for the current mission' : locale === 'es' ? 'Esperando la misión actual' : 'Aguardando a missão atual'}</span>
+                      {(() => {
+                        const [nextH, nextM] = nextTask.time.split(':').map(Number);
+                        const nextStartTime = new Date(currentTime);
+                        nextStartTime.setHours(nextH, nextM, 0, 0);
+                        const timeToNextStartMs = nextStartTime.getTime() - currentTime.getTime();
+                        const isNextFuture = timeToNextStartMs > 0;
+                        const diffMin = Math.ceil(timeToNextStartMs / 60000);
+
+                        return (
+                          <span className="text-[9px] font-black text-slate-500 uppercase tracking-wide font-Outfit">
+                            {isNextFuture 
+                              ? `⏰ ${locale === 'en' ? 'Starts in' : locale === 'es' ? 'Inicia en' : 'Inicia em'} ${diffMin} min`
+                              : (locale === 'en' ? 'Ready to start!' : locale === 'es' ? '¡Listo para empezar!' : 'Pronto para começar!')
+                            }
+                          </span>
+                        );
+                      })()}
                     </div>
                   );
                 })() : (
