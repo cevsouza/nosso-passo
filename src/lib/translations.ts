@@ -304,10 +304,12 @@ export const translations = {
         "Dormir / Descanso",
         "Sessão Psicologia ABA 🧠",
         "Terapia Ocupacional 🧼",
-        "Sessão Fonoterapia 🗣️",
+        "Sessão Fonoaudiologia 🗣️",
         "Fisioterapia Motora 🩺",
         "Psicoterapia Infantil 💬",
-        "Psicomotricidade 🏃"
+        "Psicomotricidade 🏃",
+        "Sessão Musicoterapia 🎵",
+        "Sessão Psicopedagogia 📚"
       ],
       "templates": {
         "standardName": "Rotina Clínica Padrão 🧭",
@@ -863,12 +865,14 @@ export const translations = {
         "Deberes escolares",
         "Cena familiar",
         "Dormir / Descanso",
-        "Sesión Psicologia ABA 🧠",
+        "Sesión Psicología ABA 🧠",
         "Terapia Ocupacional 🧼",
-        "Sesión Logopedia 🗣️",
+        "Sesión Fonoaudiología 🗣️",
         "Fisioterapia Motora 🩺",
         "Psicoterapia Infantil 💬",
-        "Psicomotricidade 🏃"
+        "Psicomotricidad 🏃",
+        "Sesión Musicoterapia 🎵",
+        "Sesión Psicopedagogía 📚"
       ],
       "templates": {
         "standardName": "Rutina Clínica Estándar 🧭",
@@ -1429,7 +1433,9 @@ export const translations = {
         "Speech Therapy Session 🗣️",
         "Motor Physical Therapy 🩺",
         "Child Psychotherapy 💬",
-        "Psychomotor Skills 🏃"
+        "Psychomotor Skills 🏃",
+        "Music Therapy Session 🎵",
+        "Psychopedagogy Session 📚"
       ],
       "templates": {
         "standardName": "Standard Clinical Routine 🧭",

@@ -170,19 +170,21 @@ const CLINICAL_TIPS = [
 ];
 
 const PRESETS = [
-  { title: 'Escovar os dentes', time: '08:00', period: 'manhã' as const },
-  { title: 'Tomar banho', time: '08:30', period: 'manhã' as const },
-  { title: 'Café da manhã', time: '09:00', period: 'manhã' as const },
-  { title: 'Ir para a escola', time: '13:00', period: 'tarde' as const },
-  { title: 'Dever de casa', time: '17:30', period: 'tarde' as const },
-  { title: 'Jantar em família', time: '19:30', period: 'noite' as const },
-  { title: 'Dormir / Descanso', time: '21:30', period: 'noite' as const },
-  { title: 'Sessão Psicologia ABA 🧠', time: '09:00', period: 'manhã' as const },
-  { title: 'Terapia Ocupacional 🧼', time: '14:00', period: 'tarde' as const },
-  { title: 'Sessão Fonoterapia 🗣️', time: '10:30', period: 'manhã' as const },
-  { title: 'Fisioterapia Motora 🩺', time: '15:30', period: 'tarde' as const },
-  { title: 'Psicoterapia Infantil 💬', time: '16:00', period: 'tarde' as const },
-  { title: 'Psicomotricidade 🏃', time: '11:00', period: 'manhã' as const }
+  { title: 'Escovar os dentes', icon: '🪥', time: '08:00', period: 'manhã' as const },
+  { title: 'Tomar banho', icon: '🧼', time: '08:30', period: 'manhã' as const },
+  { title: 'Café da manhã', icon: '🍳', time: '09:00', period: 'manhã' as const },
+  { title: 'Ir para a escola', icon: '🏫', time: '13:00', period: 'tarde' as const },
+  { title: 'Dever de casa', icon: '📝', time: '17:30', period: 'tarde' as const },
+  { title: 'Jantar em família', icon: '🍽️', time: '19:30', period: 'noite' as const },
+  { title: 'Dormir / Descanso', icon: '🛌', time: '21:30', period: 'noite' as const },
+  { title: 'Sessão Psicologia ABA 🧠', icon: '🧠', time: '09:00', period: 'manhã' as const },
+  { title: 'Terapia Ocupacional 🧼', icon: '🧼', time: '14:00', period: 'tarde' as const },
+  { title: 'Sessão Fonoaudiologia 🗣️', icon: '🗣️', time: '10:30', period: 'manhã' as const },
+  { title: 'Fisioterapia Motora 🩺', icon: '🩺', time: '15:30', period: 'tarde' as const },
+  { title: 'Psicoterapia Infantil 💬', icon: '💬', time: '16:00', period: 'tarde' as const },
+  { title: 'Psicomotricidade 🏃', icon: '🏃', time: '11:00', period: 'manhã' as const },
+  { title: 'Sessão Musicoterapia 🎵', icon: '🎵', time: '15:00', period: 'tarde' as const },
+  { title: 'Sessão Psicopedagogia 📚', icon: '📚', time: '16:30', period: 'tarde' as const }
 ];
 
 const CLINICAL_TEMPLATES = {
@@ -360,19 +362,21 @@ function ParentDashboardContent() {
   const { t, locale } = useLanguage();
 
   const PRESETS = [
-    { title: t.dashboard.presets[0], time: '08:00', period: 'manhã' as const },
-    { title: t.dashboard.presets[1], time: '08:30', period: 'manhã' as const },
-    { title: t.dashboard.presets[2], time: '09:00', period: 'manhã' as const },
-    { title: t.dashboard.presets[3], time: '13:00', period: 'tarde' as const },
-    { title: t.dashboard.presets[4], time: '17:30', period: 'tarde' as const },
-    { title: t.dashboard.presets[5], time: '19:30', period: 'noite' as const },
-    { title: t.dashboard.presets[6], time: '21:30', period: 'noite' as const },
-    { title: t.dashboard.presets[7], time: '09:00', period: 'manhã' as const },
-    { title: t.dashboard.presets[8], time: '14:00', period: 'tarde' as const },
-    { title: t.dashboard.presets[9], time: '10:30', period: 'manhã' as const },
-    { title: t.dashboard.presets[10], time: '15:30', period: 'tarde' as const },
-    { title: t.dashboard.presets[11], time: '16:00', period: 'tarde' as const },
-    { title: t.dashboard.presets[12], time: '11:00', period: 'manhã' as const }
+    { title: t.dashboard.presets[0], icon: '🪥', time: '08:00', period: 'manhã' as const },
+    { title: t.dashboard.presets[1], icon: '🧼', time: '08:30', period: 'manhã' as const },
+    { title: t.dashboard.presets[2], icon: '🍳', time: '09:00', period: 'manhã' as const },
+    { title: t.dashboard.presets[3], icon: '🏫', time: '13:00', period: 'tarde' as const },
+    { title: t.dashboard.presets[4], icon: '📝', time: '17:30', period: 'tarde' as const },
+    { title: t.dashboard.presets[5], icon: '🍽️', time: '19:30', period: 'noite' as const },
+    { title: t.dashboard.presets[6], icon: '🛌', time: '21:30', period: 'noite' as const },
+    { title: t.dashboard.presets[7], icon: '🧠', time: '09:00', period: 'manhã' as const },
+    { title: t.dashboard.presets[8], icon: '🧼', time: '14:00', period: 'tarde' as const },
+    { title: t.dashboard.presets[9], icon: '🗣️', time: '10:30', period: 'manhã' as const },
+    { title: t.dashboard.presets[10], icon: '🩺', time: '15:30', period: 'tarde' as const },
+    { title: t.dashboard.presets[11], icon: '💬', time: '16:00', period: 'tarde' as const },
+    { title: t.dashboard.presets[12], icon: '🏃', time: '11:00', period: 'manhã' as const },
+    { title: t.dashboard.presets[13], icon: '🎵', time: '15:00', period: 'tarde' as const },
+    { title: t.dashboard.presets[14], icon: '📚', time: '16:30', period: 'tarde' as const }
   ];
 
   const CLINICAL_TEMPLATES = {
@@ -544,7 +548,8 @@ function ParentDashboardContent() {
         title: preset.title,
         time: preset.time,
         period: preset.period,
-        day: activeDayFilter
+        day: activeDayFilter,
+        icon: preset.icon || '📅'
       });
 
       const dayLabel = getDayLabel(activeDayFilter, locale).replace(/ 📅| ☀️/, '');
@@ -4423,7 +4428,7 @@ function ParentDashboardContent() {
                       <option value="" disabled>{t.dashboard.chooseQuickTemplate}</option>
                       {PRESETS.map((preset, idx) => (
                         <option key={idx} value={idx}>
-                          ➕ {preset.title} ({preset.time} - {preset.period === 'manhã' ? 'Manhã' : preset.period === 'tarde' ? 'Tarde' : 'Noite'})
+                          {preset.icon || '➕'} {preset.title} ({preset.time} - {preset.period === 'manhã' ? 'Manhã' : preset.period === 'tarde' ? 'Tarde' : 'Noite'})
                         </option>
                       ))}
                     </select>
