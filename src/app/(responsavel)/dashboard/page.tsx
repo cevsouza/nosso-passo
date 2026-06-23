@@ -991,6 +991,26 @@ function ParentDashboardContent() {
   const [notifications, setNotifications] = useState<{ id: string; message: string; timestamp: Date }[]>([]);
   
   // Tab/Filter states
+  const [copiedTasksBuffer, setCopiedTasksBuffer] = useState<any[]>([]);
+  const [copiedFromDay, setCopiedFromDay] = useState<string | null>(null);
+
+  // Scope-based Schedule Template States
+  const [saveTemplateScope, setSaveTemplateScope] = useState<'day' | 'week' | 'month'>('month');
+  const [applyTemplateScope, setApplyTemplateScope] = useState<'day' | 'week' | 'month'>('month');
+
+  const getSavedTemplateType = () => {
+    if (!activeChild || !activeChild.monthlyTemplate) return null;
+    try {
+      const parsed = JSON.parse(activeChild.monthlyTemplate);
+      if (parsed && typeof parsed === 'object' && 'type' in parsed) {
+        return parsed.type as 'day' | 'week' | 'month';
+      }
+      return 'month';
+    } catch (e) {
+      return 'month';
+    }
+  };
+
   const [activeDayFilter, setActiveDayFilter] = useState(new Date().getDate().toString());
   const [activePanelTab, setActivePanelTab] = useState<'tasks' | 'reports' | 'logs' | 'checkpoints'>('tasks');
   const [checkpoints, setCheckpoints] = useState<any[]>([]);
@@ -1004,10 +1024,6 @@ function ParentDashboardContent() {
   const [editNotes, setEditNotes] = useState('');
   const [editFeedback, setEditFeedback] = useState('');
   const [editStatus, setEditStatus] = useState<'pending' | 'completed'>('pending');
-
-  // Copy/Paste Routine Buffer States
-  const [copiedTasksBuffer, setCopiedTasksBuffer] = useState<any[]>([]);
-  const [copiedFromDay, setCopiedFromDay] = useState<string | null>(null);
 
   // Custom Daily Checkpoint Form States
   const [newCpOpen, setNewCpOpen] = useState(false);
@@ -2085,7 +2101,7 @@ function ParentDashboardContent() {
     }
   };
 
-  // Monthly Template Saving & Reapplying
+  // Scope-based Schedule Template Saving & Reapplying
   const handleSaveMonthlyTemplate = async () => {
     if (!activeChild) return;
     if (tasks.length === 0) {
@@ -2093,28 +2109,70 @@ function ParentDashboardContent() {
       return;
     }
 
-    // Strip IDs, userUids, dates, and ensure isCompleted is false
-    const strippedTasks = tasks.map(t => ({
-      title: t.title,
-      time: t.time,
-      period: t.period,
-      day: t.day,
-      isCompleted: false,
-      order: t.order,
-      icon: t.icon || '📅',
-      customIcon: t.customIcon || null,
-      category: t.category || 'AVD',
-      duration: t.duration || 30,
-      description: t.description || ''
-    }));
+    // Determine target tasks based on saveTemplateScope
+    let targetTasks = [];
+    if (saveTemplateScope === 'day') {
+      targetTasks = tasks.filter(t => t.day === activeDayFilter);
+      if (targetTasks.length === 0) {
+        triggerStatus(locale === 'en' ? 'No tasks on this day to save.' : locale === 'es' ? 'No hay tareas en este día para guardar.' : 'Sem tarefas neste dia para salvar.');
+        return;
+      }
+    } else if (saveTemplateScope === 'week') {
+      const weekStart = Math.floor((parseInt(activeDayFilter || '1', 10) - 1) / 7) * 7 + 1;
+      const weekEnd = Math.min(weekStart + 6, DAYS_OF_MONTH.length);
+      const weekDays = Array.from({ length: weekEnd - weekStart + 1 }, (_, i) => String(weekStart + i));
+      targetTasks = tasks.filter(t => weekDays.includes(t.day));
+      if (targetTasks.length === 0) {
+        triggerStatus(locale === 'en' ? 'No tasks in this week to save.' : locale === 'es' ? 'No hay tareas en esta semana para guardar.' : 'Sem tarefas nesta semana para salvar.');
+        return;
+      }
+    } else {
+      targetTasks = tasks;
+    }
+
+    const weekStart = Math.floor((parseInt(activeDayFilter || '1', 10) - 1) / 7) * 7 + 1;
+    const strippedTasks = targetTasks.map(t => {
+      let relativeDay = t.day;
+      if (saveTemplateScope === 'day') {
+        relativeDay = '0';
+      } else if (saveTemplateScope === 'week') {
+        relativeDay = String(parseInt(t.day, 10) - weekStart);
+      }
+      return {
+        title: t.title,
+        time: t.time,
+        period: t.period,
+        day: relativeDay,
+        isCompleted: false,
+        order: t.order,
+        icon: t.icon || '📅',
+        customIcon: t.customIcon || null,
+        category: t.category || 'AVD',
+        duration: t.duration || 30,
+        description: t.description || ''
+      };
+    });
+
+    const templateData = {
+      type: saveTemplateScope,
+      sourceDay: activeDayFilter,
+      tasks: strippedTasks
+    };
 
     try {
       const updated = await firebaseBridge.auth.updateChildSettings(activeChild.id, {
-        monthlyTemplate: JSON.stringify(strippedTasks)
+        monthlyTemplate: JSON.stringify(templateData)
       });
       setActiveChild(updated);
       firebaseBridge.auth.setActiveChild(updated);
-      triggerStatus(t.dashboard.statusMonthSavedAsTemplate);
+      
+      const successMsg = saveTemplateScope === 'day'
+        ? (locale === 'en' ? 'Day schedule saved as template successfully!' : locale === 'es' ? '¡Agenda del día guardada como modelo con éxito!' : 'Modelo de dia salvo como modelo com sucesso!')
+        : saveTemplateScope === 'week'
+        ? (locale === 'en' ? 'Week schedule saved as template successfully!' : locale === 'es' ? '¡Agenda de la semana guardada como modelo con éxito!' : 'Modelo de semana salvo como modelo com sucesso!')
+        : t.dashboard.statusMonthSavedAsTemplate;
+      
+      triggerStatus(successMsg);
     } catch (err) {
       triggerStatus('Erro ao salvar modelo.');
     }
@@ -2127,15 +2185,142 @@ function ParentDashboardContent() {
       return;
     }
 
-    if (!window.confirm('Atenção: Reaplicar o modelo substituirá todas as atividades atuais do paciente por uma cópia limpa do modelo salvo. Deseja continuar?')) {
+    let templateData;
+    try {
+      const parsed = JSON.parse(activeChild.monthlyTemplate);
+      if (parsed && typeof parsed === 'object' && 'type' in parsed && 'tasks' in parsed) {
+        templateData = parsed;
+      } else if (Array.isArray(parsed)) {
+        templateData = {
+          type: 'month',
+          tasks: parsed
+        };
+      }
+    } catch (e) {
+      triggerStatus('Erro ao decodificar modelo.');
+      return;
+    }
+
+    if (!templateData || !templateData.tasks || templateData.tasks.length === 0) {
+      triggerStatus('Modelo vazio ou inválido.');
+      return;
+    }
+
+    const confirmMsg = locale === 'en'
+      ? 'Attention: Reapplying the template will replace all activities in the target period. Do you want to continue?'
+      : locale === 'es'
+      ? 'Atención: Reaplicar el modelo reemplazará todas las actividades en el período de destino. ¿Desea continuar?'
+      : 'Atenção: Reaplicar o modelo substituirá todas as atividades atuais no período de destino. Deseja continuar?';
+
+    if (!window.confirm(confirmMsg)) {
       return;
     }
 
     try {
-      const templateTasks = JSON.parse(activeChild.monthlyTemplate);
-      await firebaseBridge.db.loadTemplate(templateTasks);
-      triggerStatus('Modelo mensal reaplicado com sucesso!');
+      const activeWeekStart = Math.floor((parseInt(activeDayFilter || '1', 10) - 1) / 7) * 7 + 1;
+      const activeWeekEnd = Math.min(activeWeekStart + 6, DAYS_OF_MONTH.length);
+      const activeWeekDays = Array.from({ length: activeWeekEnd - activeWeekStart + 1 }, (_, i) => String(activeWeekStart + i));
+
+      let newTasksToLoad = [];
+
+      if (applyTemplateScope === 'day') {
+        const untouchedTasks = tasks.filter(t => t.day !== activeDayFilter);
+        const mappedTemplateTasks = templateData.tasks.map((tmplTask: any) => ({
+          ...tmplTask,
+          day: activeDayFilter
+        }));
+        newTasksToLoad = [...untouchedTasks, ...mappedTemplateTasks];
+
+      } else if (applyTemplateScope === 'week') {
+        const untouchedTasks = tasks.filter(t => !activeWeekDays.includes(t.day));
+        const mappedTemplateTasks: any[] = [];
+
+        if (templateData.type === 'day') {
+          activeWeekDays.forEach(day => {
+            templateData.tasks.forEach((tmplTask: any) => {
+              mappedTemplateTasks.push({
+                ...tmplTask,
+                day: day
+              });
+            });
+          });
+        } else if (templateData.type === 'week') {
+          templateData.tasks.forEach((tmplTask: any) => {
+            const offset = parseInt(tmplTask.day, 10);
+            const targetDayNum = activeWeekStart + offset;
+            if (targetDayNum <= activeWeekEnd) {
+              mappedTemplateTasks.push({
+                ...tmplTask,
+                day: String(targetDayNum)
+              });
+            }
+          });
+        } else {
+          templateData.tasks.forEach((tmplTask: any) => {
+            const tmplDay = parseInt(tmplTask.day, 10);
+            const offset = (tmplDay - 1) % 7;
+            const targetDayNum = activeWeekStart + offset;
+            if (targetDayNum <= activeWeekEnd) {
+              mappedTemplateTasks.push({
+                ...tmplTask,
+                day: String(targetDayNum)
+              });
+            }
+          });
+        }
+        newTasksToLoad = [...untouchedTasks, ...mappedTemplateTasks];
+
+      } else {
+        const mappedTemplateTasks: any[] = [];
+
+        if (templateData.type === 'day') {
+          for (let d = 1; d <= DAYS_OF_MONTH.length; d++) {
+            templateData.tasks.forEach((tmplTask: any) => {
+              mappedTemplateTasks.push({
+                ...tmplTask,
+                day: String(d)
+              });
+            });
+          }
+        } else if (templateData.type === 'week') {
+          for (let d = 1; d <= DAYS_OF_MONTH.length; d++) {
+            const offset = (d - 1) % 7;
+            const matchingTmplTasks = templateData.tasks.filter((t: any) => parseInt(t.day, 10) === offset);
+            matchingTmplTasks.forEach((tmplTask: any) => {
+              mappedTemplateTasks.push({
+                ...tmplTask,
+                day: String(d)
+              });
+            });
+          }
+        } else {
+          templateData.tasks.forEach((tmplTask: any) => {
+            mappedTemplateTasks.push({
+              ...tmplTask,
+              day: tmplTask.day
+            });
+          });
+        }
+        newTasksToLoad = mappedTemplateTasks;
+      }
+
+      await firebaseBridge.db.loadTemplate(newTasksToLoad);
+
+      const targetLabel = applyTemplateScope === 'day'
+        ? (locale === 'en' ? 'day' : locale === 'es' ? 'día' : 'dia')
+        : applyTemplateScope === 'week'
+        ? (locale === 'en' ? 'week' : locale === 'es' ? 'semana' : 'semana')
+        : (locale === 'en' ? 'month' : locale === 'es' ? 'mes' : 'mês');
+
+      const successMsg = locale === 'en'
+        ? `Template applied to the target ${targetLabel} successfully!`
+        : locale === 'es'
+        ? `¡Modelo aplicado en el ${targetLabel} con éxito!`
+        : `Modelo aplicado no ${targetLabel} com sucesso!`;
+
+      triggerStatus(successMsg);
     } catch (err) {
+      console.error(err);
       triggerStatus('Erro ao aplicar o modelo.');
     }
   };
@@ -3989,7 +4174,41 @@ function ParentDashboardContent() {
                       <p className="text-[10px] text-slate-500 font-semibold leading-relaxed">
                         {t.dashboard.saveTemplateDesc}
                       </p>
-                      <div className="flex gap-2.5 mt-2">
+
+                      {/* Select controls for scopes */}
+                      <div className="grid grid-cols-2 gap-3 mt-1 bg-white/65 p-3 rounded-2xl border border-indigo-150/40">
+                        <div className="flex flex-col gap-1">
+                          <label className="text-[8px] font-black uppercase text-indigo-955 tracking-wider select-none">
+                            {locale === 'en' ? 'Save scope:' : locale === 'es' ? 'Guardar ámbito:' : 'Salvar modelo de:'}
+                          </label>
+                          <select
+                            value={saveTemplateScope}
+                            onChange={e => setSaveTemplateScope(e.target.value as any)}
+                            className="px-2 py-1.5 bg-white border border-slate-200 rounded-lg text-[10px] font-bold text-slate-700 outline-none cursor-pointer hover:border-slate-350 transition-colors"
+                          >
+                            <option value="day">{locale === 'en' ? 'Only this day' : locale === 'es' ? 'Solo este día' : 'Apenas este dia'}</option>
+                            <option value="week">{locale === 'en' ? 'This week' : locale === 'es' ? 'Esta semana' : 'Esta semana'}</option>
+                            <option value="month">{locale === 'en' ? 'The entire month' : locale === 'es' ? 'El mes entero' : 'O mês inteiro'}</option>
+                          </select>
+                        </div>
+
+                        <div className="flex flex-col gap-1">
+                          <label className="text-[8px] font-black uppercase text-indigo-955 tracking-wider select-none">
+                            {locale === 'en' ? 'Apply scope:' : locale === 'es' ? 'Aplicar ámbito:' : 'Reaplicar modelo em:'}
+                          </label>
+                          <select
+                            value={applyTemplateScope}
+                            onChange={e => setApplyTemplateScope(e.target.value as any)}
+                            className="px-2 py-1.5 bg-white border border-slate-200 rounded-lg text-[10px] font-bold text-slate-700 outline-none cursor-pointer hover:border-slate-350 transition-colors"
+                          >
+                            <option value="day">{locale === 'en' ? 'To this day' : locale === 'es' ? 'En este día' : 'Neste dia'}</option>
+                            <option value="week">{locale === 'en' ? 'To this week' : locale === 'es' ? 'Nesta semana' : 'Nesta semana'}</option>
+                            <option value="month">{locale === 'en' ? 'To the entire month' : locale === 'es' ? 'No mês todo' : 'No mês todo'}</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <div className="flex gap-2.5 mt-1">
                         <button
                           type="button"
                           onClick={handleSaveMonthlyTemplate}
@@ -4001,16 +4220,23 @@ function ParentDashboardContent() {
                           type="button"
                           onClick={handleReapplyMonthlyTemplate}
                           disabled={!activeChild.monthlyTemplate}
-                          className="flex-1 py-2.5 bg-white hover:bg-slate-50 disabled:bg-slate-100 disabled:text-slate-455 disabled:border-slate-200 text-indigo-950 text-xs font-black rounded-xl border-2 border-slate-250 active:scale-95 transition-all cursor-pointer font-Outfit uppercase tracking-wider disabled:shadow-none"
+                          className="flex-1 py-2.5 bg-white hover:bg-slate-50 disabled:bg-slate-100 disabled:text-slate-455 disabled:border-slate-200 text-indigo-955 text-xs font-black rounded-xl border-2 border-slate-250 active:scale-95 transition-all cursor-pointer font-Outfit uppercase tracking-wider disabled:shadow-none"
                         >
                           🔄 {t.dashboard.reapplyTemplate}
                         </button>
                       </div>
-                      {activeChild.monthlyTemplate && (
-                        <span className="text-[9px] text-emerald-600 font-bold bg-emerald-50/50 border border-emerald-150 px-2 py-1 rounded-lg text-center mt-1 self-start select-none">
-                          ✓ {t.dashboard.templateSaved}
-                        </span>
-                      )}
+                      {activeChild.monthlyTemplate && (() => {
+                        const savedType = getSavedTemplateType();
+                        return (
+                          <span className="text-[9px] text-emerald-600 font-bold bg-emerald-50/50 border border-emerald-150 px-2 py-1 rounded-lg text-center mt-1 self-start select-none">
+                            ✓ {locale === 'en'
+                              ? `${savedType === 'day' ? 'Day' : savedType === 'week' ? 'Week' : 'Month'} template saved in patient profile`
+                              : locale === 'es'
+                              ? `Modelo de ${savedType === 'day' ? 'día' : savedType === 'week' ? 'semana' : 'mes'} guardado en el perfil`
+                              : `Modelo de ${savedType === 'day' ? 'dia' : savedType === 'week' ? 'semana' : 'mês'} salvo no perfil`}
+                          </span>
+                        );
+                      })()}
                     </div>
 
                     {/* Unexpected Change Panel */}
