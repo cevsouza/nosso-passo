@@ -4176,151 +4176,294 @@ export default function ChildRoutine() {
             </AnimatePresence>
 
                         {/* WAIT TIMER CARD */}
-            {showWaitTimer && (
-              <div className={`bg-white border-4 border-slate-200 rounded-[36px] p-6 shadow-premium flex flex-col items-center justify-between text-center gap-4 relative overflow-hidden transition-all duration-500 md:col-span-4 ${sleepMode ? 'bg-slate-900 border-slate-800 text-amber-205' : 'bg-white text-slate-850'}`}>
-                {/* Close Button directly inside the card */}
-                <button
-                  onClick={() => { playBubble(); setShowWaitTimer(false); }}
-                  className="absolute top-3 right-3 text-slate-400 hover:text-slate-600 bg-slate-100 hover:bg-slate-200 border-none rounded-full w-6 h-6 flex items-center justify-center text-xs cursor-pointer select-none font-Outfit"
-                  title={locale === 'en' ? 'Close' : locale === 'es' ? 'Cerrar' : 'Fechar'}
-                >
-                  ✕
-                </button>
-              <div className="flex flex-col items-center gap-1.5 w-full">
-                <span className="text-[10px] font-black uppercase tracking-widest text-indigo-600 bg-indigo-50 border border-indigo-100 px-3 py-1 rounded-full shadow-xxs font-Outfit">
-                  ⏳ {t.routine.waitTimerTitle}
-                </span>
-                <h3 className="font-extrabold text-sm text-slate-900 font-Outfit mt-1">
-                  {t.routine.waitTimerSubtitle}
-                </h3>
-              </div>
+            {showWaitTimer && (() => {
+              // Dynamically map hyperfocus theme to mascot, target, and visual styling
+              const getMascotDetails = (theme: string) => {
+                const focus = (theme || "").toLowerCase().trim();
+                
+                if (focus.includes("dino") || focus.includes("dinossauro") || focus.includes("dinosaur")) {
+                  return {
+                    emoji: "🦖",
+                    target: "🌴",
+                    stroke: "#22c55e",
+                    bg: "bg-emerald-50",
+                    border: "border-emerald-250",
+                    text: "text-emerald-700",
+                    btn: "bg-emerald-600 border-emerald-700 text-white shadow-sm hover:bg-emerald-700 hover:border-emerald-800",
+                    btnInactive: "bg-slate-50 border-slate-200 text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-200"
+                  };
+                }
+                if (focus.includes("espaço") || focus.includes("espao") || focus.includes("astronauta") || focus.includes("space") || focus.includes("estrela") || focus.includes("star") || focus.includes("foguete") || focus.includes("rocket")) {
+                  return {
+                    emoji: "🚀",
+                    target: "🪐",
+                    stroke: "#6366f1",
+                    bg: "bg-indigo-50",
+                    border: "border-indigo-250",
+                    text: "text-indigo-700",
+                    btn: "bg-indigo-600 border-indigo-700 text-white shadow-sm hover:bg-indigo-700 hover:border-indigo-800",
+                    btnInactive: "bg-slate-50 border-slate-200 text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 hover:border-indigo-200"
+                  };
+                }
+                if (focus.includes("minecraft") || focus.includes("bloco") || focus.includes("block")) {
+                  return {
+                    emoji: "🟩",
+                    target: "💎",
+                    stroke: "#84cc16",
+                    bg: "bg-lime-50",
+                    border: "border-lime-200",
+                    text: "text-lime-700",
+                    btn: "bg-lime-600 border-lime-700 text-white shadow-sm hover:bg-lime-700 hover:border-lime-800",
+                    btnInactive: "bg-slate-50 border-slate-200 text-slate-700 hover:bg-lime-50 hover:text-lime-700 hover:border-lime-200"
+                  };
+                }
+                if (focus.includes("gato") || focus.includes("cat")) {
+                  return {
+                    emoji: "🐱",
+                    target: "🧶",
+                    stroke: "#f59e0b",
+                    bg: "bg-amber-50",
+                    border: "border-amber-200",
+                    text: "text-amber-700",
+                    btn: "bg-amber-600 border-amber-700 text-white shadow-sm hover:bg-amber-700 hover:border-amber-800",
+                    btnInactive: "bg-slate-50 border-slate-200 text-slate-700 hover:bg-amber-50 hover:text-amber-700 hover:border-amber-200"
+                  };
+                }
+                if (focus.includes("carro") || focus.includes("car")) {
+                  return {
+                    emoji: "🏎️",
+                    target: "🏁",
+                    stroke: "#ef4444",
+                    bg: "bg-red-50",
+                    border: "border-red-200",
+                    text: "text-red-700",
+                    btn: "bg-red-600 border-red-700 text-white shadow-sm hover:bg-red-700 hover:border-red-800",
+                    btnInactive: "bg-slate-50 border-slate-200 text-slate-700 hover:bg-red-50 hover:text-red-700 hover:border-red-200"
+                  };
+                }
+                if (focus.includes("trem") || focus.includes("train") || focus.includes("locomotiva")) {
+                  return {
+                    emoji: "🚂",
+                    target: "🚉",
+                    stroke: "#ec4899",
+                    bg: "bg-pink-50",
+                    border: "border-pink-250",
+                    text: "text-pink-700",
+                    btn: "bg-pink-600 border-pink-700 text-white shadow-sm hover:bg-pink-700 hover:border-pink-800",
+                    btnInactive: "bg-slate-50 border-slate-200 text-slate-700 hover:bg-pink-50 hover:text-pink-700 hover:border-pink-200"
+                  };
+                }
+                if (focus.includes("herói") || focus.includes("heroi") || focus.includes("hero") || focus.includes("super")) {
+                  return {
+                    emoji: "🦸",
+                    target: "🛡️",
+                    stroke: "#3b82f6",
+                    bg: "bg-blue-50",
+                    border: "border-blue-200",
+                    text: "text-blue-700",
+                    btn: "bg-blue-600 border-blue-700 text-white shadow-sm hover:bg-blue-700 hover:border-blue-800",
+                    btnInactive: "bg-slate-50 border-slate-200 text-slate-700 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200"
+                  };
+                }
+                if (focus.includes("tubarão") || focus.includes("tubarao") || focus.includes("shark") || focus.includes("mar")) {
+                  return {
+                    emoji: "🦈",
+                    target: "⚓",
+                    stroke: "#06b6d4",
+                    bg: "bg-cyan-50",
+                    border: "border-cyan-200",
+                    text: "text-cyan-700",
+                    btn: "bg-cyan-600 border-cyan-700 text-white shadow-sm hover:bg-cyan-700 hover:border-cyan-800",
+                    btnInactive: "bg-slate-50 border-slate-200 text-slate-700 hover:bg-cyan-50 hover:text-cyan-700 hover:border-cyan-200"
+                  };
+                }
+                if (focus.includes("unicórnio") || focus.includes("unicornio") || focus.includes("unicorn")) {
+                  return {
+                    emoji: "🦄",
+                    target: "🌈",
+                    stroke: "#d946ef",
+                    bg: "bg-fuchsia-50",
+                    border: "border-fuchsia-200",
+                    text: "text-fuchsia-700",
+                    btn: "bg-fuchsia-600 border-fuchsia-700 text-white shadow-sm hover:bg-fuchsia-700 hover:border-fuchsia-800",
+                    btnInactive: "bg-slate-50 border-slate-200 text-slate-700 hover:bg-fuchsia-50 hover:text-fuchsia-700 hover:border-fuchsia-200"
+                  };
+                }
+                if (focus.includes("robô") || focus.includes("robo") || focus.includes("robot")) {
+                  return {
+                    emoji: "🤖",
+                    target: "🔌",
+                    stroke: "#64748b",
+                    bg: "bg-slate-50",
+                    border: "border-slate-200",
+                    text: "text-slate-700",
+                    btn: "bg-slate-600 border-slate-700 text-white shadow-sm hover:bg-slate-700 hover:border-slate-800",
+                    btnInactive: "bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-slate-700 hover:border-slate-200"
+                  };
+                }
 
-              {/* Progress Ring / Circle countdown */}
-              <div className="relative w-28 h-28 flex items-center justify-center my-1">
-                <svg viewBox="0 0 100 100" className="w-full h-full transform -rotate-90">
-                  <circle cx="50" cy="50" r="40" fill="none" stroke={sleepMode ? '#1e293b' : '#f1f5f9'} strokeWidth="8" />
-                  <circle 
-                    cx="50" 
-                    cy="50" 
-                    r="40" 
-                    fill="none" 
-                    stroke={waitTimerFinished ? '#10b981' : '#6366f1'} 
-                    strokeWidth="8" 
-                    strokeDasharray="251.2" 
-                    strokeDashoffset={251.2 * (1 - (waitTimerTimeLeft / waitTimerDuration))} 
-                    strokeLinecap="round"
-                    className="transition-all duration-1000 ease-linear"
-                  />
-                </svg>
-                <div className="absolute inset-0 flex flex-col items-center justify-center font-bold">
-                  {waitTimerFinished ? (
-                    <span className="text-2xl animate-bounce">🎉</span>
-                  ) : (
-                    <>
-                      <span className="text-xl font-black">{Math.floor(waitTimerTimeLeft / 60)}:{(waitTimerTimeLeft % 60).toString().padStart(2, '0')}</span>
-                      <span className="text-[8px] text-slate-400 uppercase tracking-wider font-extrabold">{locale === 'en' ? 'left' : locale === 'es' ? 'restante' : 'restam'}</span>
-                    </>
-                  )}
-                </div>
-              </div>
+                // Default fallback (Dog / Border Collie)
+                return {
+                  emoji: "🐶",
+                  target: "🏠",
+                  stroke: "#3b82f6",
+                  bg: "bg-blue-50",
+                  border: "border-blue-200",
+                  text: "text-blue-700",
+                  btn: "bg-blue-600 border-blue-700 text-white shadow-sm hover:bg-blue-700 hover:border-blue-800",
+                  btnInactive: "bg-slate-50 border-slate-200 text-slate-700 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200"
+                };
+              };
 
-              {/* Mascot visual walking track */}
-              <div className="w-full bg-slate-100 rounded-full h-6 px-1.5 flex items-center relative my-1 overflow-hidden border border-slate-200/60">
-                <motion.div 
-                  className="text-base absolute"
-                  animate={{ x: `${((waitTimerDuration - waitTimerTimeLeft) / waitTimerDuration) * 85}%` }}
-                  transition={{ duration: 0.5 }}
-                >
-                  🐾
-                </motion.div>
-                <div className="absolute right-2 text-sm select-none">
-                  🏆
-                </div>
-              </div>
+              const mascotInfo = getMascotDetails(childHyperfocus);
+              const progressRatio = waitTimerDuration > 0 ? (waitTimerDuration - waitTimerTimeLeft) / waitTimerDuration : 0;
 
-              {/* Preset Buttons Grid */}
-              <div className="grid grid-cols-4 gap-1.5 w-full mt-1">
-                {[5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60].map(min => (
+              return (
+                <div className={`bg-white border-4 border-slate-200 rounded-[36px] p-6 shadow-premium flex flex-col items-center justify-between text-center gap-4 relative overflow-hidden transition-all duration-500 md:col-span-4 ${sleepMode ? 'bg-slate-900 border-slate-800 text-amber-205' : 'bg-white text-slate-850'}`}>
+                  {/* Close Button directly inside the card */}
                   <button
-                    key={min}
-                    onClick={() => {
-                      playBubble();
-                      setWaitTimerDuration(min * 60);
-                      setWaitTimerTimeLeft(min * 60);
-                      setWaitTimerFinished(false);
-                      setIsWaitTimerActive(true); // Auto-start on tap!
-                    }}
-                    className={`py-1 rounded-lg text-[10px] font-black font-Outfit transition-all active:scale-95 cursor-pointer border ${
-                      Math.floor(waitTimerDuration / 60) === min
-                        ? 'bg-indigo-600 border-indigo-700 text-white shadow-sm'
-                        : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
-                    }`}
+                    onClick={() => { playBubble(); setShowWaitTimer(false); }}
+                    className="absolute top-3 right-3 text-slate-400 hover:text-slate-600 bg-slate-100 hover:bg-slate-200 border-none rounded-full w-6 h-6 flex items-center justify-center text-xs cursor-pointer select-none font-Outfit"
+                    title={locale === 'en' ? 'Close' : locale === 'es' ? 'Cerrar' : 'Fechar'}
                   >
-                    {min}m
+                    ✕
                   </button>
-                ))}
-              </div>
+                  <div className="flex flex-col items-center gap-1.5 w-full">
+                    <span className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full shadow-xxs font-Outfit ${mascotInfo.bg} ${mascotInfo.border} ${mascotInfo.text}`}>
+                      ⏳ {t.routine.waitTimerTitle}
+                    </span>
+                    <h3 className="font-extrabold text-sm text-slate-900 font-Outfit mt-1">
+                      {t.routine.waitTimerSubtitle}
+                    </h3>
+                  </div>
 
-              {/* Controls: Play/Pause, Reset, Adjusters */}
-              <div className="flex items-center justify-between w-full gap-2 mt-2">
-                <button
-                  onClick={() => {
-                    playBubble();
-                    if (waitTimerTimeLeft > 0) {
-                      setIsWaitTimerActive(!isWaitTimerActive);
-                    }
-                  }}
-                  className={`flex-1 py-2 px-3 rounded-xl text-xs font-black transition-all active:scale-95 cursor-pointer flex items-center justify-center gap-1 border-b-2 ${
-                    isWaitTimerActive
-                      ? 'bg-amber-500 border-amber-700 text-white hover:bg-amber-600'
-                      : 'bg-indigo-600 border-indigo-800 text-white hover:bg-indigo-700'
-                  }`}
-                >
-                  {isWaitTimerActive ? `⏸️ ${t.routine.waitTimerPause}` : `▶️ ${t.routine.waitTimerStart}`}
-                </button>
+                  {/* Progress Ring / Circle countdown */}
+                  <div className="relative w-28 h-28 flex items-center justify-center my-1">
+                    <svg viewBox="0 0 100 100" className="w-full h-full transform -rotate-90">
+                      <circle cx="50" cy="50" r="40" fill="none" stroke={sleepMode ? '#1e293b' : '#f1f5f9'} strokeWidth="8" />
+                      <circle 
+                        cx="50" 
+                        cy="50" 
+                        r="40" 
+                        fill="none" 
+                        stroke={waitTimerFinished ? '#10b981' : mascotInfo.stroke} 
+                        strokeWidth="8" 
+                        strokeDasharray="251.2" 
+                        strokeDashoffset={251.2 * (1 - (waitTimerTimeLeft / waitTimerDuration))} 
+                        strokeLinecap="round"
+                        className="transition-all duration-1000 ease-linear"
+                      />
+                    </svg>
+                    <div className="absolute inset-0 flex flex-col items-center justify-center font-bold">
+                      {waitTimerFinished ? (
+                        <span className="text-2xl animate-bounce">🎉</span>
+                      ) : (
+                        <>
+                          <span className="text-xl font-black">{Math.floor(waitTimerTimeLeft / 60)}:{(waitTimerTimeLeft % 60).toString().padStart(2, '0')}</span>
+                          <span className="text-[8px] text-slate-400 uppercase tracking-wider font-extrabold">{locale === 'en' ? 'left' : locale === 'es' ? 'restante' : 'restam'}</span>
+                        </>
+                      )}
+                    </div>
+                  </div>
 
-                <button
-                  onClick={() => {
-                    playBubble();
-                    setIsWaitTimerActive(false);
-                    setWaitTimerTimeLeft(waitTimerDuration);
-                    setWaitTimerFinished(false);
-                  }}
-                  className="p-2 bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded-xl text-slate-700 text-xs font-black cursor-pointer transition-all active:scale-95"
-                  title={t.routine.waitTimerReset}
-                >
-                  🔄
-                </button>
+                  {/* Mascot visual walking track */}
+                  <div className="w-full bg-slate-100 rounded-full h-6 px-1.5 flex items-center relative my-1 overflow-hidden border border-slate-200/60">
+                    <motion.div 
+                      className="text-base absolute select-none"
+                      animate={{ x: `${progressRatio * 85}%` }}
+                      transition={{ duration: 0.5 }}
+                    >
+                      {mascotInfo.emoji}
+                    </motion.div>
+                    <div className="absolute right-2 text-sm select-none">
+                      {mascotInfo.target}
+                    </div>
+                  </div>
 
-                {/* +/- Adjusters */}
-                <div className="flex items-center gap-1">
-                  <button
-                    onClick={() => {
-                      playBubble();
-                      setWaitTimerTimeLeft(prev => Math.max(60, prev - 60));
-                      setWaitTimerDuration(prev => Math.max(60, prev - 60));
-                    }}
-                    className="w-8 h-8 bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded-xl flex items-center justify-center text-xs font-extrabold cursor-pointer transition-all active:scale-95"
-                    title="-1 min"
-                  >
-                    -1m
-                  </button>
-                  <button
-                    onClick={() => {
-                      playBubble();
-                      setWaitTimerTimeLeft(prev => prev + 60);
-                      setWaitTimerDuration(prev => prev + 60);
-                      setWaitTimerFinished(false);
-                    }}
-                    className="w-8 h-8 bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded-xl flex items-center justify-center text-xs font-extrabold cursor-pointer transition-all active:scale-95"
-                    title="+1 min"
-                  >
-                    +1m
-                  </button>
+                  {/* Preset Buttons Grid */}
+                  <div className="grid grid-cols-4 gap-1.5 w-full mt-1">
+                    {[5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60].map(min => (
+                      <button
+                        key={min}
+                        onClick={() => {
+                          playBubble();
+                          setWaitTimerDuration(min * 60);
+                          setWaitTimerTimeLeft(min * 60);
+                          setWaitTimerFinished(false);
+                          setIsWaitTimerActive(true); // Auto-start on tap!
+                        }}
+                        className={`py-1 rounded-lg text-[10px] font-black font-Outfit transition-all active:scale-95 cursor-pointer border ${
+                          Math.floor(waitTimerDuration / 60) === min
+                            ? mascotInfo.btn
+                            : mascotInfo.btnInactive
+                        }`}
+                      >
+                        {min}m
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Controls: Play/Pause, Reset, Adjusters */}
+                  <div className="flex items-center justify-between w-full gap-2 mt-2">
+                    <button
+                      onClick={() => {
+                        playBubble();
+                        if (waitTimerTimeLeft > 0) {
+                          setIsWaitTimerActive(!isWaitTimerActive);
+                        }
+                      }}
+                      className={`flex-1 py-2 px-3 rounded-xl text-xs font-black transition-all active:scale-95 cursor-pointer flex items-center justify-center gap-1 border-b-2 ${
+                        isWaitTimerActive
+                          ? 'bg-amber-500 border-amber-700 text-white hover:bg-amber-600'
+                          : mascotInfo.btn
+                      }`}
+                    >
+                      {isWaitTimerActive ? `⏸️ ${t.routine.waitTimerPause}` : `▶️ ${t.routine.waitTimerStart}`}
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        playBubble();
+                        setIsWaitTimerActive(false);
+                        setWaitTimerTimeLeft(waitTimerDuration);
+                        setWaitTimerFinished(false);
+                      }}
+                      className="p-2 bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded-xl text-slate-700 text-xs font-black cursor-pointer transition-all active:scale-95"
+                      title={t.routine.waitTimerReset}
+                    >
+                      🔄
+                    </button>
+
+                    {/* +/- Adjusters */}
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={() => {
+                          playBubble();
+                          setWaitTimerTimeLeft(prev => Math.max(60, prev - 60));
+                          setWaitTimerDuration(prev => Math.max(60, prev - 60));
+                        }}
+                        className="w-8 h-8 bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded-xl flex items-center justify-center text-xs font-extrabold cursor-pointer transition-all active:scale-95"
+                        title="-1 min"
+                      >
+                        -1m
+                      </button>
+                      <button
+                        onClick={() => {
+                          playBubble();
+                          setWaitTimerTimeLeft(prev => prev + 60);
+                          setWaitTimerDuration(prev => prev + 60);
+                          setWaitTimerFinished(false);
+                        }}
+                        className="w-8 h-8 bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded-xl flex items-center justify-center text-xs font-extrabold cursor-pointer transition-all active:scale-95"
+                        title="+1 min"
+                      >
+                        +1m
+                      </button>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
-          )}
+              );
+            })()}
 
             {/* 2. PROGRESS TRACKER OR CLINICAL FIRST-THEN BOARD */}
             {effectiveVisuals === 'minimal' ? (
