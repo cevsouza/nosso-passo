@@ -1086,7 +1086,7 @@ function ParentDashboardContent() {
 
     monitoring: false,
 
-    tools: true,
+    tools: false,
 
     actions: true,
 
@@ -1992,17 +1992,17 @@ function ParentDashboardContent() {
 
     dailyStatus: true,       // Default collapsed
 
-    profile: true,           // Default collapsed
+    profile: false,           // Default collapsed
 
-    voiceRecorder: true,     // Default collapsed
+    voiceRecorder: false,     // Default collapsed
 
-    aacEditor: true,         // Default collapsed
+    aacEditor: false,         // Default collapsed
 
-    storiesEditor: true,     // Default collapsed
+    storiesEditor: false,     // Default collapsed
 
-    dictionary: true,        // Default collapsed
+    dictionary: false,        // Default collapsed
 
-    quickActions: true,      // Default collapsed
+    quickActions: false,      // Default collapsed
 
   });
 
@@ -2366,7 +2366,7 @@ function ParentDashboardContent() {
 
   };
 
-  const [activePanelTab, setActivePanelTab] = useState<'tasks' | 'reports' | 'logs' | 'checkpoints'>('tasks');
+  const [activePanelTab, setActivePanelTab] = useState<'tasks' | 'reports' | 'logs' | 'checkpoints' | 'tools'>('tasks');
 
   const [checkpoints, setCheckpoints] = useState<any[]>([]);
 
@@ -6778,7 +6778,147 @@ function ParentDashboardContent() {
 
 
 
-          {/* Child Hyperfocus Profile Card */}
+          
+
+
+
+                    
+
+
+
+        </div>
+
+
+
+        {/* Right Side: Routine Composer / Logs */}
+
+        <div className="md:col-span-8 flex flex-col gap-6">
+
+          
+
+          {/* Sticky Tab Bar Container for Desktop/Tablet landscape navigation */}
+
+          <div className="sticky top-[130px] md:top-[80px] z-20 bg-[#f8fafc]/95 backdrop-blur-md py-3 -mx-2 px-2">
+
+            <div className="bg-slate-100/80 p-1.5 rounded-2xl flex shadow-inner gap-1 overflow-x-auto scrollbar-none">
+
+            <button
+
+              onClick={() => { playBubble(); setActivePanelTab('tasks'); }}
+
+              className={`flex-1 py-2.5 text-xs font-black rounded-xl transition-all flex items-center justify-center gap-2 shrink-0 font-Outfit cursor-pointer select-none active:scale-95 ${
+
+                activePanelTab === 'tasks' 
+
+                  ? 'bg-white text-indigo-950 shadow-sm border border-slate-200/50 scale-100' 
+
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/40 border-2 border-transparent'
+
+              }`}
+
+            >
+
+              <ListTodo className="w-4.5 h-4.5" /> {locale === 'es' ? 'Agenda 📅' : locale === 'en' ? 'Schedule 📅' : 'Agenda'}
+
+            </button>
+
+            <button
+              onClick={() => { playBubble(); setActivePanelTab('tools'); }}
+              className={`flex-1 py-2.5 text-xs font-black rounded-xl transition-all flex items-center justify-center gap-2 shrink-0 font-Outfit cursor-pointer select-none active:scale-95 ${
+                activePanelTab === 'tools' 
+                  ? 'bg-white text-indigo-950 shadow-sm border border-slate-200/50 scale-100' 
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/40 border-2 border-transparent'
+              }`}
+            >
+              <Settings className="w-4.5 h-4.5" /> {locale === 'es' ? 'Herramientas' : locale === 'en' ? 'Tools' : 'Ferramentas'}
+            </button>
+
+            <button
+
+              onClick={() => { playBubble(); setActivePanelTab('checkpoints'); }}
+
+              className={`flex-1 py-2.5 text-xs font-black rounded-xl transition-all flex items-center justify-center gap-2 shrink-0 font-Outfit cursor-pointer select-none active:scale-95 ${
+
+                activePanelTab === 'checkpoints' 
+
+                  ? 'bg-white text-indigo-950 shadow-sm border border-slate-200/50 scale-100' 
+
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/40 border-2 border-transparent'
+
+              }`}
+
+            >
+
+              <span className="text-sm">🤝</span> {locale === 'es' ? 'Puntos de Control' : locale === 'en' ? 'Clinical Checkpoints' : 'Checkpoints Clínicos'}
+
+            </button>
+
+            <button
+
+              onClick={() => { playBubble(); setActivePanelTab('reports'); }}
+
+              className={`flex-1 py-2.5 text-xs font-black rounded-xl transition-all flex items-center justify-center gap-2 shrink-0 font-Outfit cursor-pointer select-none active:scale-95 ${
+
+                activePanelTab === 'reports' 
+
+                  ? 'bg-white text-indigo-950 shadow-sm border border-slate-200/50 scale-100' 
+
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/40 border-2 border-transparent'
+
+              }`}
+
+            >
+
+              <span className="text-sm">📊</span> {locale === 'es' ? 'Informe Clínico' : locale === 'en' ? 'Clinical Report' : 'Relatório Clínico'}
+
+            </button>
+
+            <button
+
+              onClick={() => { playBubble(); setActivePanelTab('logs'); }}
+
+              className={`flex-1 py-2.5 text-xs font-black rounded-xl transition-all flex items-center justify-center gap-2 shrink-0 font-Outfit cursor-pointer select-none active:scale-95 ${
+
+                activePanelTab === 'logs' 
+
+                  ? 'bg-white text-indigo-950 shadow-sm border border-slate-200/50 scale-100' 
+
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/40 border-2 border-transparent'
+
+              }`}
+
+            >
+
+              <History className="w-4.5 h-4.5" /> {locale === 'es' ? 'Registros de Seguridad' : locale === 'en' ? 'Security Logs' : 'Logs de Segurança'}
+
+              <span className="text-[10px] bg-indigo-50 border border-indigo-150 text-indigo-755 px-2 py-0.5 rounded-full font-extrabold shadow-xxs">
+
+                {logs.length}
+
+              </span>
+
+            </button>
+
+            </div>
+
+          </div>
+
+
+
+          <AnimatePresence mode="wait">
+
+            {activePanelTab === 'tools' ? (
+              <motion.div
+                key="tools-panel"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.3 }}
+                className="grid grid-cols-1 md:grid-cols-2 gap-6 text-left"
+              >
+                {/* Profile Card */}
+                <div className="flex flex-col gap-6">
+                  {/* Child Hyperfocus Profile Card */}
 
           <div className="bg-white border-2 border-slate-250 rounded-[28px] p-6 shadow-premium flex flex-col gap-4">
 
@@ -7611,10 +7751,182 @@ function ParentDashboardContent() {
           )}
 
           </div>
+                </div>
+
+                {/* Quick Actions Card */}
+                <div className="flex flex-col gap-6">
+                  {/* Quick Actions Card */}
+
+          <div className="bg-white border-2 border-slate-250 rounded-3xl p-6 shadow-premium">
+
+            <button
+
+              type="button"
+
+              onClick={() => toggleSection('quickActions')}
+
+              className="w-full flex items-center justify-between text-left cursor-pointer bg-transparent border-none outline-none select-none"
+
+            >
+
+              <div className="flex items-center gap-2.5 text-indigo-600">
+
+                <Settings className="w-5 h-5" />
+
+                <h2 className="font-bold text-slate-900 text-sm font-Outfit uppercase tracking-wider">{t.dashboard.quickActionsTitle}</h2>
+
+              </div>
+
+              <div className="flex items-center gap-2">
+
+                <span className="text-[9px] font-black text-slate-400 uppercase">Restaurar / Modelos</span>
+
+                {collapsedSections.quickActions ? <ChevronDown className="w-4 h-4 text-slate-400 shrink-0" /> : <ChevronUp className="w-4 h-4 text-slate-400 shrink-0" />}
+
+              </div>
+
+            </button>
 
 
 
-                    {/* Unified Clinical Support Tools & Attachments Card */}
+            {!collapsedSections.quickActions && (
+
+              <motion.div
+
+                initial={{ opacity: 0, height: 0 }}
+
+                animate={{ opacity: 1, height: 'auto' }}
+
+                exit={{ opacity: 0, height: 0 }}
+
+                className="flex flex-col gap-4 border-t border-slate-100 pt-4 mt-4 w-full"
+
+              >
+
+
+
+            <div className="flex flex-col gap-2">
+
+              <button 
+
+                onClick={handleResetToDefaults}
+
+                className="w-full flex items-center justify-between px-4 py-3 bg-slate-50 hover:bg-indigo-50 text-slate-800 hover:text-indigo-700 border-2 border-slate-200 hover:border-indigo-300 rounded-xl text-xs font-extrabold transition-all text-left cursor-pointer font-Outfit"
+
+              >
+
+                <span className="flex items-center gap-2">
+
+                  <RotateCcw className="w-4 h-4 text-indigo-500" /> {t.dashboard.restoreClinicalRoutine}
+
+                </span>
+
+                <span>→</span>
+
+              </button>
+
+              <button 
+
+                onClick={() => { playBubble(); setShowClearModal(true); }}
+
+                className="w-full flex items-center justify-between px-4 py-3 bg-slate-50 hover:bg-red-50 text-slate-800 hover:text-red-600 border border-slate-100 hover:border-red-100 rounded-xl text-xs font-bold transition-all text-left font-Outfit"
+
+              >
+
+                <span className="flex items-center gap-2">
+
+                  <Trash2 className="w-4 h-4 text-red-400" /> Limpar Toda a Grade
+
+                </span>
+
+                <span>→</span>
+
+              </button>
+
+            </div>
+
+
+
+            <div className="mt-4 pt-4 border-t border-slate-150 flex flex-col gap-3">
+
+              <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-1 select-none">
+
+                {t.dashboard.clinicalTemplatesTitle}
+
+              </span>
+
+              
+
+              {Object.entries(CLINICAL_TEMPLATES).map(([key, tmpl]) => (
+
+                <div key={key} className="bg-slate-100 border-2 border-slate-250 p-3.5 rounded-2xl flex flex-col gap-2 shadow-xxs">
+
+                  <div>
+
+                    <h4 className="font-black text-[12px] text-slate-900 font-Outfit">{tmpl.name}</h4>
+
+                    <p className="text-[10px] text-slate-700 leading-normal mt-0.5 font-semibold">{tmpl.description}</p>
+
+                  </div>
+
+                  <div className="flex gap-2">
+
+                    <button
+
+                      onClick={() => handleLoadTemplate(key as any, 'day')}
+
+                      className="flex-1 py-2 bg-white border-2 border-slate-300 hover:border-indigo-500 hover:text-indigo-700 text-[10px] font-black rounded-lg shadow-xxs cursor-pointer transition-all active:scale-95 text-slate-750 font-Outfit"
+
+                    >
+
+                      Aplicar no Dia
+
+                    </button>
+
+                    <button
+
+                      onClick={() => handleLoadTemplate(key as any, 'month')}
+
+                      className="flex-1 py-2 bg-white border-2 border-slate-300 hover:border-indigo-500 hover:text-indigo-700 text-[10px] font-black rounded-lg shadow-xxs cursor-pointer transition-all active:scale-95 text-slate-750 font-Outfit"
+
+                    >
+
+                      {t.dashboard.applyOnMonth}
+
+                    </button>
+
+                  </div>
+
+                </div>
+
+              ))}
+
+            </div>
+
+            
+
+            <div className="mt-4 bg-slate-50 border border-slate-200/50 p-4 rounded-2xl flex gap-2">
+
+              <Info className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
+
+              <p className="text-xxs text-slate-500 leading-relaxed">
+
+                {t.dashboard.immutableLogsNotice}
+
+              </p>
+
+            </div>
+
+              </motion.div>
+
+            )}
+
+          </div>
+                </div>
+
+                {/* Clinical Support Tools Card */}
+                <div className="md:col-span-2 flex flex-col gap-6">
+                  {/* Unified Clinical Support Tools & Attachments Card */}
 
           {activeChild && (
 
@@ -8437,286 +8749,9 @@ function ParentDashboardContent() {
             </div>
 
           )}
-
-{/* Quick Actions Card */}
-
-          <div className="bg-white border-2 border-slate-250 rounded-3xl p-6 shadow-premium">
-
-            <button
-
-              type="button"
-
-              onClick={() => toggleSection('quickActions')}
-
-              className="w-full flex items-center justify-between text-left cursor-pointer bg-transparent border-none outline-none select-none"
-
-            >
-
-              <div className="flex items-center gap-2.5 text-indigo-600">
-
-                <Settings className="w-5 h-5" />
-
-                <h2 className="font-bold text-slate-900 text-sm font-Outfit uppercase tracking-wider">{t.dashboard.quickActionsTitle}</h2>
-
-              </div>
-
-              <div className="flex items-center gap-2">
-
-                <span className="text-[9px] font-black text-slate-400 uppercase">Restaurar / Modelos</span>
-
-                {collapsedSections.quickActions ? <ChevronDown className="w-4 h-4 text-slate-400 shrink-0" /> : <ChevronUp className="w-4 h-4 text-slate-400 shrink-0" />}
-
-              </div>
-
-            </button>
-
-
-
-            {!collapsedSections.quickActions && (
-
-              <motion.div
-
-                initial={{ opacity: 0, height: 0 }}
-
-                animate={{ opacity: 1, height: 'auto' }}
-
-                exit={{ opacity: 0, height: 0 }}
-
-                className="flex flex-col gap-4 border-t border-slate-100 pt-4 mt-4 w-full"
-
-              >
-
-
-
-            <div className="flex flex-col gap-2">
-
-              <button 
-
-                onClick={handleResetToDefaults}
-
-                className="w-full flex items-center justify-between px-4 py-3 bg-slate-50 hover:bg-indigo-50 text-slate-800 hover:text-indigo-700 border-2 border-slate-200 hover:border-indigo-300 rounded-xl text-xs font-extrabold transition-all text-left cursor-pointer font-Outfit"
-
-              >
-
-                <span className="flex items-center gap-2">
-
-                  <RotateCcw className="w-4 h-4 text-indigo-500" /> {t.dashboard.restoreClinicalRoutine}
-
-                </span>
-
-                <span>→</span>
-
-              </button>
-
-              <button 
-
-                onClick={() => { playBubble(); setShowClearModal(true); }}
-
-                className="w-full flex items-center justify-between px-4 py-3 bg-slate-50 hover:bg-red-50 text-slate-800 hover:text-red-600 border border-slate-100 hover:border-red-100 rounded-xl text-xs font-bold transition-all text-left font-Outfit"
-
-              >
-
-                <span className="flex items-center gap-2">
-
-                  <Trash2 className="w-4 h-4 text-red-400" /> Limpar Toda a Grade
-
-                </span>
-
-                <span>→</span>
-
-              </button>
-
-            </div>
-
-
-
-            <div className="mt-4 pt-4 border-t border-slate-150 flex flex-col gap-3">
-
-              <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-1 select-none">
-
-                {t.dashboard.clinicalTemplatesTitle}
-
-              </span>
-
-              
-
-              {Object.entries(CLINICAL_TEMPLATES).map(([key, tmpl]) => (
-
-                <div key={key} className="bg-slate-100 border-2 border-slate-250 p-3.5 rounded-2xl flex flex-col gap-2 shadow-xxs">
-
-                  <div>
-
-                    <h4 className="font-black text-[12px] text-slate-900 font-Outfit">{tmpl.name}</h4>
-
-                    <p className="text-[10px] text-slate-700 leading-normal mt-0.5 font-semibold">{tmpl.description}</p>
-
-                  </div>
-
-                  <div className="flex gap-2">
-
-                    <button
-
-                      onClick={() => handleLoadTemplate(key as any, 'day')}
-
-                      className="flex-1 py-2 bg-white border-2 border-slate-300 hover:border-indigo-500 hover:text-indigo-700 text-[10px] font-black rounded-lg shadow-xxs cursor-pointer transition-all active:scale-95 text-slate-750 font-Outfit"
-
-                    >
-
-                      Aplicar no Dia
-
-                    </button>
-
-                    <button
-
-                      onClick={() => handleLoadTemplate(key as any, 'month')}
-
-                      className="flex-1 py-2 bg-white border-2 border-slate-300 hover:border-indigo-500 hover:text-indigo-700 text-[10px] font-black rounded-lg shadow-xxs cursor-pointer transition-all active:scale-95 text-slate-750 font-Outfit"
-
-                    >
-
-                      {t.dashboard.applyOnMonth}
-
-                    </button>
-
-                  </div>
-
                 </div>
-
-              ))}
-
-            </div>
-
-            
-
-            <div className="mt-4 bg-slate-50 border border-slate-200/50 p-4 rounded-2xl flex gap-2">
-
-              <Info className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
-
-              <p className="text-xxs text-slate-500 leading-relaxed">
-
-                {t.dashboard.immutableLogsNotice}
-
-              </p>
-
-            </div>
-
               </motion.div>
-
-            )}
-
-          </div>
-
-        </div>
-
-
-
-        {/* Right Side: Routine Composer / Logs */}
-
-        <div className="md:col-span-8 flex flex-col gap-6">
-
-          
-
-          {/* Sticky Tab Bar Container for Desktop/Tablet landscape navigation */}
-
-          <div className="sticky top-[130px] md:top-[80px] z-20 bg-[#f8fafc]/95 backdrop-blur-md py-3 -mx-2 px-2">
-
-            <div className="bg-slate-100/80 p-1.5 rounded-2xl flex shadow-inner gap-1 overflow-x-auto scrollbar-none">
-
-            <button
-
-              onClick={() => { playBubble(); setActivePanelTab('tasks'); }}
-
-              className={`flex-1 py-2.5 text-xs font-black rounded-xl transition-all flex items-center justify-center gap-2 shrink-0 font-Outfit cursor-pointer select-none active:scale-95 ${
-
-                activePanelTab === 'tasks' 
-
-                  ? 'bg-white text-indigo-950 shadow-sm border border-slate-200/50 scale-100' 
-
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/40 border-2 border-transparent'
-
-              }`}
-
-            >
-
-              <ListTodo className="w-4.5 h-4.5" /> {locale === 'es' ? 'Agenda 📅' : locale === 'en' ? 'Schedule 📅' : 'Agenda'}
-
-            </button>
-
-            <button
-
-              onClick={() => { playBubble(); setActivePanelTab('checkpoints'); }}
-
-              className={`flex-1 py-2.5 text-xs font-black rounded-xl transition-all flex items-center justify-center gap-2 shrink-0 font-Outfit cursor-pointer select-none active:scale-95 ${
-
-                activePanelTab === 'checkpoints' 
-
-                  ? 'bg-white text-indigo-950 shadow-sm border border-slate-200/50 scale-100' 
-
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/40 border-2 border-transparent'
-
-              }`}
-
-            >
-
-              <span className="text-sm">🤝</span> {locale === 'es' ? 'Puntos de Control' : locale === 'en' ? 'Clinical Checkpoints' : 'Checkpoints Clínicos'}
-
-            </button>
-
-            <button
-
-              onClick={() => { playBubble(); setActivePanelTab('reports'); }}
-
-              className={`flex-1 py-2.5 text-xs font-black rounded-xl transition-all flex items-center justify-center gap-2 shrink-0 font-Outfit cursor-pointer select-none active:scale-95 ${
-
-                activePanelTab === 'reports' 
-
-                  ? 'bg-white text-indigo-950 shadow-sm border border-slate-200/50 scale-100' 
-
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/40 border-2 border-transparent'
-
-              }`}
-
-            >
-
-              <span className="text-sm">📊</span> {locale === 'es' ? 'Informe Clínico' : locale === 'en' ? 'Clinical Report' : 'Relatório Clínico'}
-
-            </button>
-
-            <button
-
-              onClick={() => { playBubble(); setActivePanelTab('logs'); }}
-
-              className={`flex-1 py-2.5 text-xs font-black rounded-xl transition-all flex items-center justify-center gap-2 shrink-0 font-Outfit cursor-pointer select-none active:scale-95 ${
-
-                activePanelTab === 'logs' 
-
-                  ? 'bg-white text-indigo-950 shadow-sm border border-slate-200/50 scale-100' 
-
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/40 border-2 border-transparent'
-
-              }`}
-
-            >
-
-              <History className="w-4.5 h-4.5" /> {locale === 'es' ? 'Registros de Seguridad' : locale === 'en' ? 'Security Logs' : 'Logs de Segurança'}
-
-              <span className="text-[10px] bg-indigo-50 border border-indigo-150 text-indigo-755 px-2 py-0.5 rounded-full font-extrabold shadow-xxs">
-
-                {logs.length}
-
-              </span>
-
-            </button>
-
-            </div>
-
-          </div>
-
-
-
-          <AnimatePresence mode="wait">
-
-            {activePanelTab === 'tasks' ? (
+            ) : activePanelTab === 'tasks' ? (
 
               
 
@@ -8932,271 +8967,7 @@ function ParentDashboardContent() {
 
 
 
-                {/* GLOBAL CALENDAR REPLICATION & UNEXPECTED CHANGES */}
-
-                {activeChild && (
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-                    {/* Template Replication */}
-
-                    <div className="bg-gradient-to-br from-indigo-50/50 to-sky-50/50 border border-indigo-150 p-6 rounded-[28px] shadow-sm flex flex-col gap-4 text-left">
-
-                      <div className="flex items-center gap-2 text-indigo-950">
-
-                        <span className="text-xl">📅</span>
-
-                        <h4 className="font-extrabold text-sm font-Outfit uppercase tracking-wide">{t.dashboard.scheduleTemplate}</h4>
-
-                      </div>
-
-                      <p className="text-[10px] text-slate-500 font-semibold leading-relaxed">
-
-                        {t.dashboard.saveTemplateDesc}
-
-                      </p>
-
-
-
-                      
-
-
-
-                      <div className="flex gap-2.5 mt-1">
-
-                        <button
-
-                          type="button"
-
-                          onClick={handleSaveMonthlyTemplate}
-
-                          className="flex-1 py-2.5 bg-indigo-600 hover:bg-indigo-755 text-white text-xs font-black rounded-xl border-b-2 border-indigo-900 active:scale-95 transition-all cursor-pointer font-Outfit uppercase tracking-wider"
-
-                        >
-
-                          💾 {t.dashboard.saveTemplate}
-
-                        </button>
-
-                        <button
-
-                          type="button"
-
-                          onClick={handleReapplyMonthlyTemplate}
-
-                          disabled={!activeChild.monthlyTemplate}
-
-                          className="flex-1 py-2.5 bg-white hover:bg-slate-50 disabled:bg-slate-100 disabled:text-slate-455 disabled:border-slate-200 text-indigo-955 text-xs font-black rounded-xl border-2 border-slate-250 active:scale-95 transition-all cursor-pointer font-Outfit uppercase tracking-wider disabled:shadow-none"
-
-                        >
-
-                          🔄 {t.dashboard.reapplyTemplate}
-
-                        </button>
-
-                      </div>
-
-                      {activeChild.monthlyTemplate && (() => {
-
-                        const savedType = getSavedTemplateType();
-
-                        return (
-
-                          <span className="text-[9px] text-emerald-600 font-bold bg-emerald-50/50 border border-emerald-150 px-2 py-1 rounded-lg text-center mt-1 self-start select-none">
-
-                            ✓ {locale === 'en'
-
-                              ? `${savedType === 'day' ? 'Day' : savedType === 'week' ? 'Week' : 'Month'} template saved in patient profile`
-
-                              : locale === 'es'
-
-                              ? `Modelo de ${savedType === 'day' ? 'día' : savedType === 'week' ? 'semana' : 'mes'} guardado en el perfil`
-
-                              : `Modelo de ${savedType === 'day' ? 'dia' : savedType === 'week' ? 'semana' : 'mês'} salvo no perfil`}
-
-                          </span>
-
-                        );
-
-                      })()}
-
-                    </div>
-
-
-
-                    {/* Unexpected Change Panel */}
-
-                    <div className="bg-gradient-to-br from-amber-50/50 to-orange-50/50 border border-amber-150 p-6 rounded-[28px] shadow-sm flex flex-col gap-4 text-left">
-
-                      <div className="flex items-center gap-2 text-amber-950">
-
-                        <span className="text-xl">⚠️</span>
-
-                        <h4 className="font-extrabold text-sm font-Outfit uppercase tracking-wide">{t.dashboard.notifyChangeTitle}</h4>
-
-                      </div>
-
-                      
-
-                      {unexpectedChangeObj ? (
-
-                        <div className="flex flex-col gap-3">
-
-                          <div className="p-3 bg-white border border-amber-200 rounded-xl text-xxs font-semibold text-slate-700 flex flex-col gap-1.5">
-
-                            <div>
-
-                              <strong className="text-amber-800">{t.dashboard.cancelledActivity}</strong> {unexpectedChangeObj.cancelledTaskTitle}
-
-                            </div>
-
-                            <div>
-
-                              <strong className="text-amber-800">{t.dashboard.changeReason}</strong> {unexpectedChangeObj.reason}
-
-                            </div>
-
-                            <div>
-
-                              <strong className="text-amber-800">{t.dashboard.replacementActivity}</strong> {unexpectedChangeObj.replacement}
-
-                            </div>
-
-                          </div>
-
-                          <button
-
-                            type="button"
-
-                            onClick={handleClearUnexpectedChange}
-
-                            className="w-full py-2.5 bg-red-500 hover:bg-red-650 text-white text-xs font-black rounded-xl border-b-2 border-red-750 active:scale-95 transition-all cursor-pointer font-Outfit uppercase tracking-wider"
-
-                          >
-
-                            ❌ {t.dashboard.cancelNotification}
-
-                          </button>
-
-                        </div>
-
-                      ) : (
-
-                        <form onSubmit={handleDeclareUnexpectedChange} className="flex flex-col gap-2.5">
-
-                          <p className="text-[10px] text-slate-500 font-semibold leading-relaxed">
-
-                            {t.dashboard.unexpectedChangeDesc}
-
-                          </p>
-
-                          <div className="grid grid-cols-1 gap-2 mt-1">
-
-                            <div>
-
-                              <label className="block text-[8px] font-black text-slate-500 uppercase mb-0.5 pl-0.5">{t.dashboard.affectedActivity}</label>
-
-                              <select
-
-                                value={selectedCancelTaskTitle}
-
-                                onChange={e => setSelectedCancelTaskTitle(e.target.value)}
-
-                                className="w-full px-2.5 py-1.5 bg-white border border-slate-250 rounded-lg text-[10px] font-bold outline-none cursor-pointer"
-
-                                required
-
-                              >
-
-                                <option value="">{t.dashboard.selectActivity}</option>
-
-                                {tasks.filter(t => t.day === activeDayFilter).map(t => (
-
-                                  <option key={t.id} value={t.title}>{t.title} ({t.time})</option>
-
-                                ))}
-
-                                {tasks.filter(t => t.day === activeDayFilter).length === 0 && (
-
-                                  <option disabled>{t.dashboard.noActivitiesToday}</option>
-
-                                )}
-
-                              </select>
-
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-2">
-
-                              <div>
-
-                                <label className="block text-[8px] font-black text-slate-500 uppercase mb-0.5 pl-0.5">{t.dashboard.changeReasonLabel}</label>
-
-                                <input
-
-                                  type="text"
-
-                                  placeholder={t.dashboard.changeReasonPlaceholder}
-
-                                  value={changeReason}
-
-                                  onChange={e => setChangeReason(e.target.value)}
-
-                                  className="w-full px-2.5 py-1.5 bg-white border border-slate-250 rounded-lg text-xxs font-bold outline-none"
-
-                                  required
-
-                                />
-
-                              </div>
-
-                              <div>
-
-                                <label className="block text-[8px] font-black text-slate-500 uppercase mb-0.5 pl-0.5">{t.dashboard.replacementLabel}</label>
-
-                                  <input
-
-                                  type="text"
-
-                                  placeholder={t.dashboard.replacementPlaceholder}
-
-                                  value={changeReplacement}
-
-                                  onChange={e => setChangeReplacement(e.target.value)}
-
-                                  className="w-full px-2.5 py-1.5 bg-white border border-slate-250 rounded-lg text-xxs font-bold outline-none"
-
-                                  required
-
-                                />
-
-                              </div>
-
-                            </div>
-
-                          </div>
-
-                          <button
-
-                            type="submit"
-
-                            className="w-full py-2 bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-black rounded-xl border-b-2 border-amber-700 active:scale-95 transition-all cursor-pointer font-Outfit uppercase tracking-wider"
-
-                          >
-
-                            📢 {t.dashboard.sendToChild}
-
-                          </button>
-
-                        </form>
-
-                      )}
-
-                    </div>
-
-                  </div>
-
-                )}
+                
 
 
 
@@ -11125,6 +10896,272 @@ function ParentDashboardContent() {
                     </div>
 
                   )}
+
+                {/* GLOBAL CALENDAR REPLICATION & UNEXPECTED CHANGES */}
+
+                {activeChild && (
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                    {/* Template Replication */}
+
+                    <div className="bg-gradient-to-br from-indigo-50/50 to-sky-50/50 border border-indigo-150 p-6 rounded-[28px] shadow-sm flex flex-col gap-4 text-left">
+
+                      <div className="flex items-center gap-2 text-indigo-950">
+
+                        <span className="text-xl">📅</span>
+
+                        <h4 className="font-extrabold text-sm font-Outfit uppercase tracking-wide">{t.dashboard.scheduleTemplate}</h4>
+
+                      </div>
+
+                      <p className="text-[10px] text-slate-500 font-semibold leading-relaxed">
+
+                        {t.dashboard.saveTemplateDesc}
+
+                      </p>
+
+
+
+                      
+
+
+
+                      <div className="flex gap-2.5 mt-1">
+
+                        <button
+
+                          type="button"
+
+                          onClick={handleSaveMonthlyTemplate}
+
+                          className="flex-1 py-2.5 bg-indigo-600 hover:bg-indigo-755 text-white text-xs font-black rounded-xl border-b-2 border-indigo-900 active:scale-95 transition-all cursor-pointer font-Outfit uppercase tracking-wider"
+
+                        >
+
+                          💾 {t.dashboard.saveTemplate}
+
+                        </button>
+
+                        <button
+
+                          type="button"
+
+                          onClick={handleReapplyMonthlyTemplate}
+
+                          disabled={!activeChild.monthlyTemplate}
+
+                          className="flex-1 py-2.5 bg-white hover:bg-slate-50 disabled:bg-slate-100 disabled:text-slate-455 disabled:border-slate-200 text-indigo-955 text-xs font-black rounded-xl border-2 border-slate-250 active:scale-95 transition-all cursor-pointer font-Outfit uppercase tracking-wider disabled:shadow-none"
+
+                        >
+
+                          🔄 {t.dashboard.reapplyTemplate}
+
+                        </button>
+
+                      </div>
+
+                      {activeChild.monthlyTemplate && (() => {
+
+                        const savedType = getSavedTemplateType();
+
+                        return (
+
+                          <span className="text-[9px] text-emerald-600 font-bold bg-emerald-50/50 border border-emerald-150 px-2 py-1 rounded-lg text-center mt-1 self-start select-none">
+
+                            ✓ {locale === 'en'
+
+                              ? `${savedType === 'day' ? 'Day' : savedType === 'week' ? 'Week' : 'Month'} template saved in patient profile`
+
+                              : locale === 'es'
+
+                              ? `Modelo de ${savedType === 'day' ? 'día' : savedType === 'week' ? 'semana' : 'mes'} guardado en el perfil`
+
+                              : `Modelo de ${savedType === 'day' ? 'dia' : savedType === 'week' ? 'semana' : 'mês'} salvo no perfil`}
+
+                          </span>
+
+                        );
+
+                      })()}
+
+                    </div>
+
+
+
+                    {/* Unexpected Change Panel */}
+
+                    <div className="bg-gradient-to-br from-amber-50/50 to-orange-50/50 border border-amber-150 p-6 rounded-[28px] shadow-sm flex flex-col gap-4 text-left">
+
+                      <div className="flex items-center gap-2 text-amber-950">
+
+                        <span className="text-xl">⚠️</span>
+
+                        <h4 className="font-extrabold text-sm font-Outfit uppercase tracking-wide">{t.dashboard.notifyChangeTitle}</h4>
+
+                      </div>
+
+                      
+
+                      {unexpectedChangeObj ? (
+
+                        <div className="flex flex-col gap-3">
+
+                          <div className="p-3 bg-white border border-amber-200 rounded-xl text-xxs font-semibold text-slate-700 flex flex-col gap-1.5">
+
+                            <div>
+
+                              <strong className="text-amber-800">{t.dashboard.cancelledActivity}</strong> {unexpectedChangeObj.cancelledTaskTitle}
+
+                            </div>
+
+                            <div>
+
+                              <strong className="text-amber-800">{t.dashboard.changeReason}</strong> {unexpectedChangeObj.reason}
+
+                            </div>
+
+                            <div>
+
+                              <strong className="text-amber-800">{t.dashboard.replacementActivity}</strong> {unexpectedChangeObj.replacement}
+
+                            </div>
+
+                          </div>
+
+                          <button
+
+                            type="button"
+
+                            onClick={handleClearUnexpectedChange}
+
+                            className="w-full py-2.5 bg-red-500 hover:bg-red-650 text-white text-xs font-black rounded-xl border-b-2 border-red-750 active:scale-95 transition-all cursor-pointer font-Outfit uppercase tracking-wider"
+
+                          >
+
+                            ❌ {t.dashboard.cancelNotification}
+
+                          </button>
+
+                        </div>
+
+                      ) : (
+
+                        <form onSubmit={handleDeclareUnexpectedChange} className="flex flex-col gap-2.5">
+
+                          <p className="text-[10px] text-slate-500 font-semibold leading-relaxed">
+
+                            {t.dashboard.unexpectedChangeDesc}
+
+                          </p>
+
+                          <div className="grid grid-cols-1 gap-2 mt-1">
+
+                            <div>
+
+                              <label className="block text-[8px] font-black text-slate-500 uppercase mb-0.5 pl-0.5">{t.dashboard.affectedActivity}</label>
+
+                              <select
+
+                                value={selectedCancelTaskTitle}
+
+                                onChange={e => setSelectedCancelTaskTitle(e.target.value)}
+
+                                className="w-full px-2.5 py-1.5 bg-white border border-slate-250 rounded-lg text-[10px] font-bold outline-none cursor-pointer"
+
+                                required
+
+                              >
+
+                                <option value="">{t.dashboard.selectActivity}</option>
+
+                                {tasks.filter(t => t.day === activeDayFilter).map(t => (
+
+                                  <option key={t.id} value={t.title}>{t.title} ({t.time})</option>
+
+                                ))}
+
+                                {tasks.filter(t => t.day === activeDayFilter).length === 0 && (
+
+                                  <option disabled>{t.dashboard.noActivitiesToday}</option>
+
+                                )}
+
+                              </select>
+
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-2">
+
+                              <div>
+
+                                <label className="block text-[8px] font-black text-slate-500 uppercase mb-0.5 pl-0.5">{t.dashboard.changeReasonLabel}</label>
+
+                                <input
+
+                                  type="text"
+
+                                  placeholder={t.dashboard.changeReasonPlaceholder}
+
+                                  value={changeReason}
+
+                                  onChange={e => setChangeReason(e.target.value)}
+
+                                  className="w-full px-2.5 py-1.5 bg-white border border-slate-250 rounded-lg text-xxs font-bold outline-none"
+
+                                  required
+
+                                />
+
+                              </div>
+
+                              <div>
+
+                                <label className="block text-[8px] font-black text-slate-500 uppercase mb-0.5 pl-0.5">{t.dashboard.replacementLabel}</label>
+
+                                  <input
+
+                                  type="text"
+
+                                  placeholder={t.dashboard.replacementPlaceholder}
+
+                                  value={changeReplacement}
+
+                                  onChange={e => setChangeReplacement(e.target.value)}
+
+                                  className="w-full px-2.5 py-1.5 bg-white border border-slate-250 rounded-lg text-xxs font-bold outline-none"
+
+                                  required
+
+                                />
+
+                              </div>
+
+                            </div>
+
+                          </div>
+
+                          <button
+
+                            type="submit"
+
+                            className="w-full py-2 bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-black rounded-xl border-b-2 border-amber-700 active:scale-95 transition-all cursor-pointer font-Outfit uppercase tracking-wider"
+
+                          >
+
+                            📢 {t.dashboard.sendToChild}
+
+                          </button>
+
+                        </form>
+
+                      )}
+
+                    </div>
+
+                  </div>
+
+                )}
 
 
 
