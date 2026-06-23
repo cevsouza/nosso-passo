@@ -716,6 +716,14 @@ export default function ChildRoutine() {
   const [collieState, setCollieState] = useState<CollieState>('idle');
   const [celebratingTaskId, setCelebratingTaskId] = useState<string | null>(null);
   const [childHyperfocus, setChildHyperfocus] = useState('Border Collies 🐕');
+  
+  // Wait Timer states
+  const [waitTimerDuration, setWaitTimerDuration] = useState(300); // default 5m
+  const [waitTimerTimeLeft, setWaitTimerTimeLeft] = useState(300);
+  const [isWaitTimerActive, setIsWaitTimerActive] = useState(false);
+  const [waitTimerFinished, setWaitTimerFinished] = useState(false);
+  const [showBatteryMenu, setShowBatteryMenu] = useState(false);
+
   const [sensoryVisuals, setSensoryVisuals] = useState<'rich' | 'minimal'>('rich');
   const [localCalmMode, setLocalCalmMode] = useState(false);
   const effectiveVisuals = localCalmMode ? 'minimal' : sensoryVisuals;
@@ -728,6 +736,33 @@ export default function ChildRoutine() {
       }
     }
   }, []);
+
+  // Wait Timer countdown logic
+  useEffect(() => {
+    let interval: NodeJS.Timeout | null = null;
+    if (isWaitTimerActive && waitTimerTimeLeft > 0) {
+      interval = setInterval(() => {
+        setWaitTimerTimeLeft(prev => {
+          if (prev <= 1) {
+            setIsWaitTimerActive(false);
+            setWaitTimerFinished(true);
+            try {
+              playCelebration();
+            } catch (err) {
+              console.error('Erro ao tocar som:', err);
+            }
+            const msg = t.routine.waitTimerFinished || 'O tempo de espera terminou! Muito bem por esperar!';
+            speakText(msg);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [isWaitTimerActive, waitTimerTimeLeft, t.routine.waitTimerFinished]);
 
   // Child Multi-profile states
   const [children, setChildren] = useState<any[]>([]);
@@ -3377,7 +3412,7 @@ export default function ChildRoutine() {
             <button 
               onClick={() => handleAttemptExit('/')}
               onMouseEnter={playBubble}
-              className={`flex items-center gap-1.5 px-3.5 py-2 sm:px-5 sm:py-2.5 text-[10px] sm:text-xs font-black rounded-full border-2 shadow-premium transition-all active:scale-95 cursor-pointer shrink-0 whitespace-nowrap ${
+              className={`flex items-center gap-1.5 px-5 py-3 sm:px-6 sm:py-3.5 text-xs sm:text-sm font-black rounded-full border-2 shadow-premium transition-all active:scale-95 cursor-pointer shrink-0 whitespace-nowrap ${
                 sleepMode 
                   ? 'bg-slate-905 border-slate-700 text-amber-200 hover:bg-slate-805' 
                   : 'bg-white hover:bg-slate-50 border-slate-350 text-slate-805'
@@ -3389,7 +3424,7 @@ export default function ChildRoutine() {
             <button 
               onClick={() => handleAttemptExit('/dashboard')}
               onMouseEnter={playBubble}
-              className={`flex items-center gap-1.5 px-3.5 py-2 sm:px-5 sm:py-2.5 text-[10px] sm:text-xs font-black rounded-full border-2 shadow-premium transition-all active:scale-95 cursor-pointer shrink-0 whitespace-nowrap ${
+              className={`flex items-center gap-1.5 px-5 py-3 sm:px-6 sm:py-3.5 text-xs sm:text-sm font-black rounded-full border-2 shadow-premium transition-all active:scale-95 cursor-pointer shrink-0 whitespace-nowrap ${
                 sleepMode 
                   ? 'bg-slate-905 border-slate-700 text-amber-200 hover:bg-slate-805' 
                   : 'bg-white hover:bg-slate-50 border-slate-350 text-slate-850'
@@ -3403,7 +3438,7 @@ export default function ChildRoutine() {
               <button
                 onClick={() => { playBubble(); setShowSupportMenu(!showSupportMenu); }}
                 onMouseEnter={playBubble}
-                className={`flex items-center gap-1.5 px-3.5 py-2 sm:px-5 sm:py-2.5 border-2 text-[10px] sm:text-xs font-black rounded-full shadow-premium transition-all active:scale-95 cursor-pointer shrink-0 whitespace-nowrap ${
+                className={`flex items-center gap-1.5 px-5 py-3 sm:px-6 sm:py-3.5 border-2 text-xs sm:text-sm font-black rounded-full shadow-premium transition-all active:scale-95 cursor-pointer shrink-0 whitespace-nowrap ${
                   sleepMode 
                     ? 'bg-amber-950/20 border-amber-900/50 text-amber-300 hover:bg-amber-950/55' 
                     : 'bg-white hover:bg-indigo-50 border-indigo-250 text-indigo-700'
@@ -3523,7 +3558,7 @@ export default function ChildRoutine() {
                 }
               }}
               onMouseEnter={playBubble}
-              className={`flex items-center gap-1.5 px-3.5 py-2 sm:px-5 sm:py-2.5 text-[10px] sm:text-xs font-black rounded-full shadow-premium transition-all active:scale-95 cursor-pointer border-2 shrink-0 whitespace-nowrap ${
+              className={`flex items-center gap-1.5 px-5 py-3 sm:px-6 sm:py-3.5 text-xs sm:text-sm font-black rounded-full shadow-premium transition-all active:scale-95 cursor-pointer border-2 shrink-0 whitespace-nowrap ${
                 sleepMode 
                   ? 'bg-amber-950/80 border-amber-600 text-amber-200' 
                   : 'bg-white hover:bg-amber-50 border-amber-200 text-amber-700'
@@ -3545,7 +3580,7 @@ export default function ChildRoutine() {
                 }
               }}
               onMouseEnter={playBubble}
-              className={`flex items-center gap-1.5 px-3.5 py-2 sm:px-5 sm:py-2.5 border-2 text-[10px] sm:text-xs font-black rounded-full shadow-premium transition-all active:scale-95 cursor-pointer font-Outfit shrink-0 whitespace-nowrap ${
+              className={`flex items-center gap-1.5 px-5 py-3 sm:px-6 sm:py-3.5 border-2 text-xs sm:text-sm font-black rounded-full shadow-premium transition-all active:scale-95 cursor-pointer font-Outfit shrink-0 whitespace-nowrap ${
                 localCalmMode
                   ? 'bg-teal-500 border-teal-605 text-white animate-pulse'
                   : sleepMode
@@ -3559,7 +3594,7 @@ export default function ChildRoutine() {
             <button
               onClick={handleTriggerSos}
               onMouseEnter={playBubble}
-              className={`flex items-center gap-1.5 px-3.5 py-2 sm:px-5 sm:py-2.5 border-2 text-[10px] sm:text-xs font-black rounded-full shadow-premium transition-all active:scale-95 cursor-pointer shrink-0 whitespace-nowrap ${
+              className={`flex items-center gap-1.5 px-5 py-3 sm:px-6 sm:py-3.5 border-2 text-xs sm:text-sm font-black rounded-full shadow-premium transition-all active:scale-95 cursor-pointer shrink-0 whitespace-nowrap ${
                 sleepMode 
                   ? 'bg-red-950/20 border-red-900/50 text-red-300 hover:bg-red-950/50' 
                   : 'bg-red-50 hover:bg-red-100 border-red-250 text-red-650 animate-pulse font-Outfit'
@@ -3569,35 +3604,67 @@ export default function ChildRoutine() {
             </button>
             
             {!sleepMode && (
-              <div className="flex items-center gap-1 bg-white border-2 border-slate-200 rounded-full px-1.5 py-0.5 sm:px-2.5 sm:py-1 shadow-sm shrink-0">
-                <span className="text-[9px] font-black text-slate-500 uppercase font-Outfit mr-0.5 hidden md:inline">{t.routine.batteryTitle}:</span>
+              <div className="relative">
                 <button
-                  onClick={() => handleUpdateBattery('green')}
-                  className={`w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center text-xs transition-all active:scale-90 cursor-pointer border-none ${
-                    activeChild?.emotionalBattery === 'green' ? 'bg-emerald-500 text-white shadow-sm' : 'bg-slate-100 grayscale opacity-40 hover:opacity-100 hover:grayscale-0'
+                  onClick={() => { playBubble(); setShowBatteryMenu(!showBatteryMenu); }}
+                  className={`flex items-center gap-1.5 px-5 py-3 sm:px-6 sm:py-3.5 border-2 text-xs sm:text-sm font-black rounded-full shadow-premium transition-all active:scale-95 cursor-pointer shrink-0 whitespace-nowrap ${
+                    activeChild?.emotionalBattery === 'green'
+                      ? 'bg-emerald-50 border-emerald-250 text-emerald-700'
+                      : activeChild?.emotionalBattery === 'yellow'
+                      ? 'bg-yellow-50 border-yellow-250 text-yellow-755'
+                      : activeChild?.emotionalBattery === 'red'
+                      ? 'bg-red-50 border-red-255 text-red-700'
+                      : 'bg-white border-slate-350 text-slate-700'
                   }`}
-                  title={locale === "es" ? "Excelente" : locale === "en" ? "Great" : "Ótimo"}
                 >
-                  🔋
+                  {activeChild?.emotionalBattery === 'green' ? '🔋 ' : activeChild?.emotionalBattery === 'yellow' ? '⚡ ' : '🪫 '}
+                  <span className="hidden sm:inline">
+                    {activeChild?.emotionalBattery === 'green' 
+                      ? (locale === 'es' ? 'Excelente' : locale === 'en' ? 'Great' : 'Ótimo')
+                      : activeChild?.emotionalBattery === 'yellow'
+                      ? (locale === 'es' ? 'Cansado' : locale === 'en' ? 'Tired' : 'Cansado')
+                      : (locale === 'es' ? 'Sobrecargado' : locale === 'en' ? 'Overloaded' : 'Sobrecarregado')}
+                  </span>
+                  <span className="sm:hidden">
+                    {activeChild?.emotionalBattery === 'green' ? '🔋' : activeChild?.emotionalBattery === 'yellow' ? '⚡' : '🪫'}
+                  </span>
+                  {" "}{showBatteryMenu ? '▲' : '▼'}
                 </button>
-                <button
-                  onClick={() => handleUpdateBattery('yellow')}
-                  className={`w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center text-xs transition-all active:scale-90 cursor-pointer border-none ${
-                    activeChild?.emotionalBattery === 'yellow' ? 'bg-yellow-450 text-slate-950 shadow-sm' : 'bg-slate-100 grayscale opacity-40 hover:opacity-100 hover:grayscale-0'
-                  }`}
-                  title={locale === "es" ? "Cansado" : locale === "en" ? "Tired" : "Cansado"}
-                >
-                  ⚡
-                </button>
-                <button
-                  onClick={() => handleUpdateBattery('red')}
-                  className={`w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center text-xs transition-all active:scale-90 cursor-pointer border-none ${
-                    activeChild?.emotionalBattery === 'red' ? 'bg-red-500 text-white shadow-sm' : 'bg-slate-100 grayscale opacity-40 hover:opacity-100 hover:grayscale-0'
-                  }`}
-                  title={locale === "es" ? "Sobrecargado" : locale === "en" ? "Overloaded" : "Sobrecarregado"}
-                >
-                  🪫
-                </button>
+
+                {showBatteryMenu && (
+                  <div className="absolute right-0 mt-2 p-2 rounded-2xl border-2 shadow-2xl flex flex-col gap-1.5 min-w-[180px] z-50 bg-white border-slate-200 text-slate-800">
+                    <button
+                      onClick={() => {
+                        playBubble();
+                        handleUpdateBattery('green');
+                        setShowBatteryMenu(false);
+                      }}
+                      className="flex items-center gap-2 w-full px-4 py-2.5 text-left text-xs font-bold rounded-xl transition-colors hover:bg-slate-50 border-none bg-transparent cursor-pointer text-slate-750"
+                    >
+                      🔋 {locale === 'es' ? 'Excelente' : locale === 'en' ? 'Great' : 'Ótimo'}
+                    </button>
+                    <button
+                      onClick={() => {
+                        playBubble();
+                        handleUpdateBattery('yellow');
+                        setShowBatteryMenu(false);
+                      }}
+                      className="flex items-center gap-2 w-full px-4 py-2.5 text-left text-xs font-bold rounded-xl transition-colors hover:bg-slate-50 border-none bg-transparent cursor-pointer text-slate-750"
+                    >
+                      ⚡ {locale === 'es' ? 'Cansado' : locale === 'en' ? 'Tired' : 'Cansado'}
+                    </button>
+                    <button
+                      onClick={() => {
+                        playBubble();
+                        handleUpdateBattery('red');
+                        setShowBatteryMenu(false);
+                      }}
+                      className="flex items-center gap-2 w-full px-4 py-2.5 text-left text-xs font-bold rounded-xl transition-colors hover:bg-slate-50 border-none bg-transparent cursor-pointer text-slate-750"
+                    >
+                      🪫 {locale === 'es' ? 'Sobrecargado' : locale === 'en' ? 'Overloaded' : 'Sobrecarregado'}
+                    </button>
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -3613,7 +3680,7 @@ export default function ChildRoutine() {
             <div className="relative">
               <button
                 onClick={() => { playBubble(); setShowAmbientMenu(!showAmbientMenu); }}
-                className={`flex items-center gap-1.5 px-3.5 py-2 sm:px-5 sm:py-2.5 border-2 text-[10px] sm:text-xs font-black rounded-full shadow-premium transition-all active:scale-95 cursor-pointer font-Outfit ${
+                className={`flex items-center gap-1.5 px-5 py-3 sm:px-6 sm:py-3.5 border-2 text-xs sm:text-sm font-black rounded-full shadow-premium transition-all active:scale-95 cursor-pointer font-Outfit ${
                   activeAmbientType !== 'none'
                     ? sleepMode 
                       ? 'bg-blue-950 border-blue-600 text-blue-200' 
@@ -3829,7 +3896,7 @@ export default function ChildRoutine() {
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.97 }}
                     transition={transitionConfig}
-                    className={`bg-white border-4 rounded-[36px] p-8 shadow-premium flex flex-col lg:grid lg:grid-cols-12 lg:gap-8 items-center justify-center text-center gap-6 relative overflow-hidden transition-all duration-500 border-t-8 border-t-transparent md:col-span-7 ${category.shadow}`}
+                    className={`bg-white border-4 rounded-[36px] p-8 shadow-premium flex flex-col lg:grid lg:grid-cols-12 lg:gap-8 items-center justify-center text-center gap-6 relative overflow-hidden transition-all duration-500 border-t-8 border-t-transparent md:col-span-8 ${category.shadow}`}
                   >
                     {/* Glowing outer soft neon reflection underneath */}
                     {effectiveVisuals === 'rich' && (
@@ -4059,10 +4126,147 @@ export default function ChildRoutine() {
               })()}
             </AnimatePresence>
 
+                        {/* WAIT TIMER CARD */}
+            <div className={`bg-white border-4 border-slate-200 rounded-[36px] p-6 shadow-premium flex flex-col items-center justify-between text-center gap-4 relative overflow-hidden transition-all duration-500 md:col-span-4 ${sleepMode ? 'bg-slate-900 border-slate-800 text-amber-205' : 'bg-white text-slate-850'}`}>
+              <div className="flex flex-col items-center gap-1.5 w-full">
+                <span className="text-[10px] font-black uppercase tracking-widest text-indigo-600 bg-indigo-50 border border-indigo-100 px-3 py-1 rounded-full shadow-xxs font-Outfit">
+                  ⏳ {t.routine.waitTimerTitle}
+                </span>
+                <h3 className="font-extrabold text-sm text-slate-900 font-Outfit mt-1">
+                  {t.routine.waitTimerSubtitle}
+                </h3>
+              </div>
+
+              {/* Progress Ring / Circle countdown */}
+              <div className="relative w-28 h-28 flex items-center justify-center my-1">
+                <svg viewBox="0 0 100 100" className="w-full h-full transform -rotate-90">
+                  <circle cx="50" cy="50" r="40" fill="none" stroke={sleepMode ? '#1e293b' : '#f1f5f9'} strokeWidth="8" />
+                  <circle 
+                    cx="50" 
+                    cy="50" 
+                    r="40" 
+                    fill="none" 
+                    stroke={waitTimerFinished ? '#10b981' : '#6366f1'} 
+                    strokeWidth="8" 
+                    strokeDasharray="251.2" 
+                    strokeDashoffset={251.2 * (1 - (waitTimerTimeLeft / waitTimerDuration))} 
+                    strokeLinecap="round"
+                    className="transition-all duration-1000 ease-linear"
+                  />
+                </svg>
+                <div className="absolute inset-0 flex flex-col items-center justify-center font-bold">
+                  {waitTimerFinished ? (
+                    <span className="text-2xl animate-bounce">🎉</span>
+                  ) : (
+                    <>
+                      <span className="text-xl font-black">{Math.floor(waitTimerTimeLeft / 60)}:{(waitTimerTimeLeft % 60).toString().padStart(2, '0')}</span>
+                      <span className="text-[8px] text-slate-400 uppercase tracking-wider font-extrabold">{locale === 'en' ? 'left' : locale === 'es' ? 'restante' : 'restam'}</span>
+                    </>
+                  )}
+                </div>
+              </div>
+
+              {/* Mascot visual walking track */}
+              <div className="w-full bg-slate-100 rounded-full h-6 px-1.5 flex items-center relative my-1 overflow-hidden border border-slate-200/60">
+                <motion.div 
+                  className="text-base absolute"
+                  animate={{ x: `${((waitTimerDuration - waitTimerTimeLeft) / waitTimerDuration) * 85}%` }}
+                  transition={{ duration: 0.5 }}
+                >
+                  🐾
+                </motion.div>
+                <div className="absolute right-2 text-sm select-none">
+                  🏆
+                </div>
+              </div>
+
+              {/* Preset Buttons Grid */}
+              <div className="grid grid-cols-4 gap-1.5 w-full mt-1">
+                {[5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60].map(min => (
+                  <button
+                    key={min}
+                    onClick={() => {
+                      playBubble();
+                      setWaitTimerDuration(min * 60);
+                      setWaitTimerTimeLeft(min * 60);
+                      setWaitTimerFinished(false);
+                      setIsWaitTimerActive(true); // Auto-start on tap!
+                    }}
+                    className={`py-1 rounded-lg text-[10px] font-black font-Outfit transition-all active:scale-95 cursor-pointer border ${
+                      Math.floor(waitTimerDuration / 60) === min
+                        ? 'bg-indigo-600 border-indigo-700 text-white shadow-sm'
+                        : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
+                    }`}
+                  >
+                    {min}m
+                  </button>
+                ))}
+              </div>
+
+              {/* Controls: Play/Pause, Reset, Adjusters */}
+              <div className="flex items-center justify-between w-full gap-2 mt-2">
+                <button
+                  onClick={() => {
+                    playBubble();
+                    if (waitTimerTimeLeft > 0) {
+                      setIsWaitTimerActive(!isWaitTimerActive);
+                    }
+                  }}
+                  className={`flex-1 py-2 px-3 rounded-xl text-xs font-black transition-all active:scale-95 cursor-pointer flex items-center justify-center gap-1 border-b-2 ${
+                    isWaitTimerActive
+                      ? 'bg-amber-500 border-amber-700 text-white hover:bg-amber-600'
+                      : 'bg-indigo-600 border-indigo-800 text-white hover:bg-indigo-700'
+                  }`}
+                >
+                  {isWaitTimerActive ? `⏸️ ${t.routine.waitTimerPause}` : `▶️ ${t.routine.waitTimerStart}`}
+                </button>
+
+                <button
+                  onClick={() => {
+                    playBubble();
+                    setIsWaitTimerActive(false);
+                    setWaitTimerTimeLeft(waitTimerDuration);
+                    setWaitTimerFinished(false);
+                  }}
+                  className="p-2 bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded-xl text-slate-700 text-xs font-black cursor-pointer transition-all active:scale-95"
+                  title={t.routine.waitTimerReset}
+                >
+                  🔄
+                </button>
+
+                {/* +/- Adjusters */}
+                <div className="flex items-center gap-1">
+                  <button
+                    onClick={() => {
+                      playBubble();
+                      setWaitTimerTimeLeft(prev => Math.max(60, prev - 60));
+                      setWaitTimerDuration(prev => Math.max(60, prev - 60));
+                    }}
+                    className="w-8 h-8 bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded-xl flex items-center justify-center text-xs font-extrabold cursor-pointer transition-all active:scale-95"
+                    title="-1 min"
+                  >
+                    -1m
+                  </button>
+                  <button
+                    onClick={() => {
+                      playBubble();
+                      setWaitTimerTimeLeft(prev => prev + 60);
+                      setWaitTimerDuration(prev => prev + 60);
+                      setWaitTimerFinished(false);
+                    }}
+                    className="w-8 h-8 bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded-xl flex items-center justify-center text-xs font-extrabold cursor-pointer transition-all active:scale-95"
+                    title="+1 min"
+                  >
+                    +1m
+                  </button>
+                </div>
+              </div>
+            </div>
+
             {/* 2. PROGRESS TRACKER OR CLINICAL FIRST-THEN BOARD */}
             {effectiveVisuals === 'minimal' ? (
               /* TEACCH FIRST-THEN (PRIMEIRO-DEPOIS) BOARD */
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 w-full mt-2 md:col-span-5 md:mt-0">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full mt-4 md:col-span-12">
                 {/* FIRST CARD (CURRENT ACTIVE TASK) */}
                 {activeTask ? (() => {
                   const category = getTaskCategory(activeTask.title);
@@ -4149,7 +4353,7 @@ export default function ChildRoutine() {
               </div>
             ) : (
               /* THE ROUTINE TRAIL - GAMIFIED PROGRESS TRACKER (RICH VISUALS) */
-              <div className="bg-white border-2 border-slate-300 p-6.5 rounded-[32px] shadow-premium flex flex-col gap-4 text-left w-full md:col-span-5 md:mt-0">
+              <div className="bg-slate-50/70 border border-slate-200 p-4.5 rounded-[28px] shadow-sm flex flex-col gap-3 text-left w-full md:col-span-12 mt-4">
                 <h3 className="font-black text-xs text-slate-655 uppercase tracking-widest flex items-center gap-1.5 select-none font-Outfit">
                   🚂 {locale === 'en' ? 'My Missions Trail:' : locale === 'es' ? 'Sendero de Mis Misiones:' : 'Trilha das Minhas Missões:'}
                 </h3>
