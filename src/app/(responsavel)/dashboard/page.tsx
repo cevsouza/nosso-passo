@@ -2358,6 +2358,10 @@ function ParentDashboardContent() {
       return;
     }
 
+    const targetM = reapplyTargetMonthOffset === 0 ? activeMonth : (activeMonth === 12 ? 1 : activeMonth + 1);
+    const targetY = reapplyTargetMonthOffset === 0 ? activeYear : (activeMonth === 12 ? activeYear + 1 : activeYear);
+    const numDaysInTargetMonth = new Date(targetY, targetM, 0).getDate();
+
     // 1. Resolve Target Days
     let targetDays: string[] = [];
     if (reapplyTargetType === 'days') {
@@ -2366,7 +2370,7 @@ function ParentDashboardContent() {
       reapplySelectedWeeks.forEach(weekStr => {
         const w = parseInt(weekStr, 10);
         const startDay = (w - 1) * 7 + 1;
-        const endDay = Math.min(w * 7, DAYS_OF_MONTH.length);
+        const endDay = Math.min(w * 7, numDaysInTargetMonth);
         for (let d = startDay; d <= endDay; d++) {
           targetDays.push(String(d));
         }
@@ -2374,7 +2378,7 @@ function ParentDashboardContent() {
       targetDays = Array.from(new Set(targetDays));
     } else {
       // Entire Month
-      for (let d = 1; d <= DAYS_OF_MONTH.length; d++) {
+      for (let d = 1; d <= numDaysInTargetMonth; d++) {
         targetDays.push(String(d));
       }
     }
@@ -2391,17 +2395,19 @@ function ParentDashboardContent() {
     }
 
     const confirmMsg = locale === 'en'
-      ? `Attention: Reapplying the template will replace all activities in the ${targetDays.length} selected day(s). Do you want to continue?`
+      ? `Attention: Reapplying the template will replace all activities in the ${targetDays.length} selected day(s) of the target period. Do you want to continue?`
       : locale === 'es'
-      ? `Atención: Reaplicar el modelo reemplazará todas las actividades en los ${targetDays.length} día(s) seleccionado(s). ¿Desea continuar?`
-      : `Atenção: Reaplicar o modelo substituirá todas as atividades atuais nos ${targetDays.length} dia(s) selecionado(s). Deseja continuar?`;
+      ? `Atención: Reaplicar el modelo reemplazará todas las actividades en los ${targetDays.length} día(s) seleccionado(s) del período de destino. ¿Desea continuar?`
+      : `Atenção: Reaplicar o modelo substituirá todas as atividades atuais nos ${targetDays.length} dia(s) selecionado(s) do período de destino. Deseja continuar?`;
 
     if (!window.confirm(confirmMsg)) {
       return;
     }
 
     try {
-      const untouchedTasks = tasks.filter(t => !targetDays.includes(t.day));
+      // Fetch existing tasks of the target month so we don't wipe untouched days of the target month
+      const targetMonthTasks = await firebaseBridge.db.getTasks(targetM, targetY);
+      const untouchedTasks = targetMonthTasks.filter(t => !targetDays.includes(t.day));
       const mappedTemplateTasks: any[] = [];
 
       targetDays.forEach(tDay => {
@@ -2409,7 +2415,9 @@ function ParentDashboardContent() {
           templateData.tasks.forEach((tmplTask: any) => {
             mappedTemplateTasks.push({
               ...tmplTask,
-              day: tDay
+              day: tDay,
+              month: targetM,
+              year: targetY
             });
           });
         } else if (templateData.type === 'week') {
@@ -2418,7 +2426,9 @@ function ParentDashboardContent() {
           matchingTmplTasks.forEach((tmplTask: any) => {
             mappedTemplateTasks.push({
               ...tmplTask,
-              day: tDay
+              day: tDay,
+              month: targetM,
+              year: targetY
             });
           });
         } else {
@@ -2426,7 +2436,9 @@ function ParentDashboardContent() {
           matchingTmplTasks.forEach((tmplTask: any) => {
             mappedTemplateTasks.push({
               ...tmplTask,
-              day: tDay
+              day: tDay,
+              month: targetM,
+              year: targetY
             });
           });
         }
@@ -2434,7 +2446,7 @@ function ParentDashboardContent() {
 
       const newTasksToLoad = [...untouchedTasks, ...mappedTemplateTasks];
 
-      await firebaseBridge.db.loadTemplate(newTasksToLoad);
+      await firebaseBridge.db.loadTemplate(newTasksToLoad, targetM, targetY);
 
       const successMsg = locale === 'en'
         ? 'Template applied successfully!'
@@ -2444,6 +2456,12 @@ function ParentDashboardContent() {
 
       triggerStatus(successMsg);
       setShowReapplyModal(false);
+
+      if (targetM === activeMonth && targetY === activeYear) {
+        const updated = await firebaseBridge.db.getTasks(activeMonth, activeYear);
+        setTasks(updated);
+        window.dispatchEvent(new CustomEvent('firebase-mock-db-update', { detail: updated }));
+      }
     } catch (err) {
       console.error(err);
       triggerStatus('Erro ao aplicar o modelo.');
