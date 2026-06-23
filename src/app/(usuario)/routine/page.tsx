@@ -3373,7 +3373,7 @@ export default function ChildRoutine() {
           : 'bg-white/85 border-slate-200/50 text-slate-800 shadow-slate-105/45'
       }`}>
         <div className="w-full max-w-2xl md:max-w-5xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4 px-4 md:px-6">
-          <div className="flex flex-row flex-nowrap items-center gap-2 overflow-x-auto w-full md:w-auto pb-1.5 md:pb-0 scrollbar-none shrink-0">
+          <div className="flex flex-row flex-wrap items-center gap-2 w-full md:w-auto pb-1.5 md:pb-0 shrink-0">
             <button 
               onClick={() => handleAttemptExit('/')}
               onMouseEnter={playBubble}
