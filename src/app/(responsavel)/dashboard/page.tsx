@@ -6018,6 +6018,20 @@ function ParentDashboardContent() {
 
             </span>
 
+            {plan === 'premium' ? (
+              <span className="hidden xs:flex items-center gap-1 text-[11px] font-black bg-gradient-to-r from-amber-500 to-yellow-400 text-white px-3 py-1.5 rounded-full shadow-sm border border-amber-600 font-Outfit">
+                ⭐ Premium Pro
+              </span>
+            ) : (
+              <button
+                type="button"
+                onClick={() => { playBubble(); setShowPaywall(true); }}
+                className="hidden xs:flex items-center gap-1 text-[11px] font-black bg-slate-50 hover:bg-amber-50 border border-slate-250 hover:border-amber-400 text-slate-700 hover:text-amber-800 px-3 py-1.5 rounded-full shadow-sm transition-all cursor-pointer active:scale-95 font-Outfit"
+              >
+                🌱 Plano Gratuito (Upgrade 👑)
+              </button>
+            )}
+
             <button 
 
               onClick={handleLogout}
@@ -7444,68 +7458,54 @@ function ParentDashboardContent() {
 
                 </label>
 
-                <div className={`px-4 py-3 rounded-xl border font-bold flex items-center justify-between text-sm ${
-
+                <div className={`p-5 rounded-2xl border flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 transition-all shadow-xxs ${
                   plan === 'premium'
-
-                    ? 'bg-amber-50 border-amber-250 text-amber-700'
-
-                    : 'bg-slate-50 border-slate-200 text-slate-655'
-
+                    ? 'bg-gradient-to-r from-amber-50 to-yellow-50/50 border-amber-200 text-amber-900 shadow-amber-50'
+                    : 'bg-gradient-to-r from-slate-50 to-pink-50/30 border-slate-200 text-slate-750'
                 }`}>
-
-                  <span>{plan === 'premium' ? t.dashboard.premiumActive : t.dashboard.freePlanActive}</span>
-
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-[10px] font-black uppercase tracking-wider text-slate-400">Plano Atual</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-black flex items-center gap-1 font-Outfit">
+                        {plan === 'premium' ? '👑 Premium Pro' : '🌱 Plano Gratuito (Limitado)'}
+                      </span>
+                      <span className={`text-[8px] font-black px-1.5 py-0.5 rounded-md uppercase tracking-widest ${
+                        plan === 'premium' ? 'bg-amber-500 text-white' : 'bg-slate-200 text-slate-700'
+                      }`}>
+                        {plan === 'premium' ? 'Ativo' : 'Básico'}
+                      </span>
+                    </div>
+                    <p className="text-[11px] font-medium text-slate-550 leading-relaxed max-w-md mt-1">
+                      {plan === 'premium' 
+                        ? 'Você tem acesso a tarefas diárias ilimitadas, todos os laudos clínicos em PDF e o painel de análise de padrões da IA.'
+                        : 'Acesso básico limitado a 3 tarefas diárias por dia e painéis analíticos bloqueados.'}
+                    </p>
+                  </div>
                   {plan === 'premium' ? (
-
                     <button
-
                       type="button"
-
                       onClick={async () => {
-
                         playMarimba(261, 0.3);
-
                         await firebaseBridge.auth.updateProfileSettings({ plan: 'free' });
-
                         setPlan('free');
-
                         triggerStatus(t.dashboard.premiumCancelSuccess);
-
                       }}
-
-                      className="text-[10px] font-black uppercase text-red-500 hover:text-red-750 cursor-pointer bg-transparent border-none font-bold"
-
+                      className="px-4 py-2.5 bg-white hover:bg-red-50 text-red-500 hover:text-red-700 border border-slate-200 hover:border-red-200 text-xs font-black uppercase rounded-xl transition-all cursor-pointer shadow-xxs shrink-0 self-start sm:self-center font-Outfit active:scale-95"
                     >
-
-                      {t.common.cancel}
-
+                      {locale === 'en' ? 'Cancel Subscription' : locale === 'es' ? 'Cancelar Suscripción' : 'Cancelar Assinatura'}
                     </button>
-
                   ) : (
-
                     <button
-
                       type="button"
-
                       onClick={() => {
-
                         playBubble();
-
                         setShowPaywall(true);
-
                       }}
-
-                      className="text-[10px] font-black uppercase text-indigo-600 hover:text-indigo-850 cursor-pointer bg-transparent border-none font-bold"
-
+                      className="px-4 py-2.5 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white text-xs font-black uppercase rounded-xl transition-all cursor-pointer shadow-md shadow-amber-100 shrink-0 self-start sm:self-center font-Outfit active:scale-95 border-b-2 border-amber-700/30"
                     >
-
-                      Upgrade
-
+                      {locale === 'en' ? 'Upgrade to Premium 👑' : locale === 'es' ? 'Mejorar a Premium 👑' : 'Assinar Premium 👑'}
                     </button>
-
                   )}
-
                 </div>
 
               </div>
@@ -7996,7 +7996,14 @@ function ParentDashboardContent() {
 
                       playBubble();
 
-                      setActiveSidebarTool(e.target.value as any);
+                      const val = e.target.value;
+                      if (plan === 'free' && (val === 'voice' || val === 'stories')) {
+                        playMarimba(180, 0.2);
+                        setShowPaywall(true);
+                        return;
+                      }
+
+                      setActiveSidebarTool(val as any);
 
                     }}
 
@@ -8008,11 +8015,11 @@ function ParentDashboardContent() {
 
                     <option value="aac">{t.dashboard.toolAac}</option>
 
-                    <option value="stories">{t.dashboard.toolStories}</option>
+                    <option value="stories">{t.dashboard.toolStories} {plan === 'free' ? ' 👑' : ''}</option>
 
                     <option value="dictionary">{t.dashboard.toolDictionary}</option>
 
-                    <option value="voice">{t.dashboard.toolVoice}</option>
+                    <option value="voice">{t.dashboard.toolVoice} {plan === 'free' ? ' 👑' : ''}</option>
 
                   </select>
 
