@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { HyperfocusMascot } from '../components/ludic/HyperfocusMascot';
 import { playBubble, playMarimba } from '../lib/audio-synth';
-import { Sparkles, ArrowRight, GraduationCap, Stethoscope, Users, Gamepad2, Heart } from 'lucide-react';
+import { Sparkles, ArrowRight, GraduationCap, Stethoscope, Users, Gamepad2, Heart, Sun } from 'lucide-react';
 import { firebaseBridge } from '../lib/firebase-bridge';
 import { useLanguage } from '../lib/LanguageContext';
 import { LanguageSelector } from '../components/LanguageSelector';
@@ -13,10 +13,10 @@ const MotionLink = motion(Link);
 
 const localDict = {
   pt: {
-    welcomeTitle: "Acolhimento, Previsibilidade e Segurança 💙",
-    subheadline: "Onde a rotina pedagógica e o tratamento terapêutico se unem para dar suporte ao dia a dia do paciente no espectro autista.",
-    explainTitle: "O que é o TEAcolher?",
-    explainText: "O nome TEAcolher nasce da união de duas palavras fundamentais: TEA (Transtorno do Espectro Autista) e Acolher. Acreditamos que a rotina de uma criança autista não precisa ser rígida ou fria, mas sim um abraço diário de previsibilidade. O aplicativo conecta toda a rede de apoio — família, escola e terapeutas — em um portal integrativo único, reduzindo a ansiedade e promovendo uma vida mais saudável e independente.",
+    welcomeTitle: "Onde a rotina se torna um abraço de afeto 🌸",
+    subheadline: "Celebrando a beleza da vida e a singularidade de cada jornada com estrutura, previsibilidade e carinho para o desenvolvimento saudável.",
+    explainTitle: "🦋 A Essência do TEAcolher",
+    explainText: "O nome TEAcolher une o TEA (Transtorno do Espectro Autista) ao ato de Acolher. Acreditamos que a vida é bela em sua diversidade. Fornecer previsibilidade e segurança reduz a sobrecarga cognitiva e a ansiedade, abrindo espaço para a criança florescer. Conectamos a família, a escola e os terapeutas em um ecossistema integrado para que o dia a dia seja mais leve, sadio e feliz.",
     portalTitle: "Portais de Acesso Integrados",
     portalSubtitle: "Selecione o painel correspondente ao seu papel na rede de apoio:",
     
@@ -37,10 +37,10 @@ const localDict = {
     schoolBtn: "Painel Escolar"
   },
   es: {
-    welcomeTitle: "Acogida, Previsibilidad y Seguridad 💙",
-    subheadline: "Donde la rutina pedagógica y el tratamiento terapéutico se unen para apoyar el día a día del paciente en el espectro autista.",
-    explainTitle: "¿Qué es TEAcolher?",
-    explainText: "El nombre TEAcolher nace de la unión de dos palabras fundamentales: TEA (Trastorno del Espectro Autista) y Acolher (Acoger). Creemos que la rutina de un niño autista no tiene por qué ser rígida o fría, sino un abrazo diario de previsibilidad. La aplicación conecta a toda la red de apoyo — familia, escuela y terapeutas — en un portal integrador único, reduciendo la ansiedad y promoviendo una vida más saludable e independiente.",
+    welcomeTitle: "Donde la rutina se convierte en un abrazo de afecto 🌸",
+    subheadline: "Celebrando la belleza de la vida y la singularidad de cada jornada con estructura, previsibilidad y cariño para el desarrollo saludable.",
+    explainTitle: "🦋 La Esencia de TEAcolher",
+    explainText: "El nombre TEAcolher une el TEA (Trastorno del Espectro Autista) al acto de Acolher (Acoger). Creemos que la vida es bella en su diversidad. Brindar previsibilidad y seguridad reduce la sobrecarga cognitiva y la ansiedad, dando espacio para que el niño florezca. Conectamos a la familia, la escuela y los terapeutas en un ecosistema integrado para que el día a día sea más ligero, sano y feliz.",
     portalTitle: "Portales de Acceso Integrados",
     portalSubtitle: "Seleccione el panel correspondiente a su rol en la red de apoyo:",
     
@@ -61,10 +61,10 @@ const localDict = {
     schoolBtn: "Panel Escolar"
   },
   en: {
-    welcomeTitle: "Embracing, Predictability and Safety 💙",
-    subheadline: "Where pedagogical routine and therapeutic treatment unite to support the daily life of patients on the autism spectrum.",
-    explainTitle: "What is TEAcolher?",
-    explainText: "The name TEAcolher was born from the combination of two fundamental words: TEA (Autism Spectrum Disorder in Portuguese) and Acolher (to welcome/embrace). We believe that the routine of an autistic child does not have to be rigid or cold, but rather a daily hug of predictability. The app connects the entire support network — family, school, and therapists — in a single integrative portal, reducing anxiety and promoting a healthier and more independent life.",
+    welcomeTitle: "Where routine becomes a warm embrace of care 🌸",
+    subheadline: "Celebrating the beauty of life and the uniqueness of every journey with structure, predictability, and care for healthy development.",
+    explainTitle: "🦋 The Essence of TEAcolher",
+    explainText: "The name TEAcolher combines TEA (Autism Spectrum Disorder) and the verb Acolher (to welcome/embrace). We believe life is beautiful in its diversity. Providing predictability and safety reduces cognitive overload and anxiety, allowing the child to bloom. We connect family, school, and therapists in an integrated ecosystem to make daily life lighter, healthier, and happier.",
     portalTitle: "Integrated Access Portals",
     portalSubtitle: "Select the panel corresponding to your role in the support network:",
     
@@ -95,6 +95,13 @@ export default function Home() {
   const curLang = (locale === 'en' || locale === 'es' ? locale : 'pt') as 'pt' | 'es' | 'en';
   const info = localDict[curLang];
 
+  // Force light mode on the landing page for a sunny, welcoming feel
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      document.documentElement.classList.remove('dark');
+    }
+  }, []);
+
   useEffect(() => {
     try {
       const active = firebaseBridge.auth.getActiveChild();
@@ -108,11 +115,11 @@ export default function Home() {
 
   // Blue and pink sensory-safe slow rising bubbles
   const bubbles = [
-    { id: 1, size: 28, left: "7%", delay: 0, duration: 17, color: "bg-blue-300/15 border-blue-400/20" },
-    { id: 2, size: 42, left: "22%", delay: 3, duration: 23, color: "bg-pink-300/15 border-pink-400/20" },
-    { id: 3, size: 18, left: "76%", delay: 1, duration: 16, color: "bg-blue-300/15 border-blue-400/20" },
-    { id: 4, size: 32, left: "86%", delay: 5, duration: 25, color: "bg-pink-300/15 border-pink-400/20" },
-    { id: 5, size: 24, left: "48%", delay: 2, duration: 20, color: "bg-indigo-300/15 border-indigo-400/20" }
+    { id: 1, size: 28, left: "7%", delay: 0, duration: 17, color: "bg-blue-300/20 border-blue-400/20" },
+    { id: 2, size: 42, left: "22%", delay: 3, duration: 23, color: "bg-pink-300/20 border-pink-400/20" },
+    { id: 3, size: 18, left: "76%", delay: 1, duration: 16, color: "bg-blue-300/20 border-blue-400/20" },
+    { id: 4, size: 32, left: "86%", delay: 5, duration: 25, color: "bg-pink-300/20 border-pink-400/20" },
+    { id: 5, size: 24, left: "48%", delay: 2, duration: 20, color: "bg-indigo-300/20 border-indigo-400/20" }
   ];
 
   const handleMascotClick = () => {
@@ -168,30 +175,30 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen flex flex-col items-center justify-between p-4 md:p-8 bg-gradient-to-tr from-[#fdf2f8] via-[#f0f9ff] to-[#fff1f2] dark:from-[#1b1224] dark:via-[#0c0a12] dark:to-[#0f172a] animate-gradient-flow relative overflow-hidden font-sans transition-colors duration-300">
+    <main className="min-h-screen flex flex-col items-center justify-between p-4 md:p-8 bg-gradient-to-tr from-[#fff1f2] via-[#e2f1ff] to-[#fef9c3] animate-gradient-flow relative overflow-hidden font-sans">
       
       {/* Decorative slow floating SVGs clouds for sensory calmness */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
         {/* Soft Cloud 1 */}
         <motion.div
-          className="absolute opacity-25 dark:opacity-5"
+          className="absolute opacity-40"
           style={{ top: "8%", left: "-15%", width: 180 }}
           animate={{ x: ["-10vw", "110vw"] }}
           transition={{ duration: 110, repeat: Infinity, ease: "linear" }}
         >
-          <svg viewBox="0 0 100 100" fill="#cbd5e1">
+          <svg viewBox="0 0 100 100" fill="#ffffff">
             <path d="M 20 60 C 20 48, 32 38, 48 38 C 55 28, 75 28, 80 38 C 92 38, 98 48, 98 60 C 98 72, 88 82, 50 82 C 22 82, 20 72, 20 60 Z" />
           </svg>
         </motion.div>
 
         {/* Soft Cloud 2 */}
         <motion.div
-          className="absolute opacity-20 dark:opacity-5"
+          className="absolute opacity-30"
           style={{ top: "38%", left: "-25%", width: 240 }}
           animate={{ x: ["-20vw", "110vw"] }}
           transition={{ duration: 150, repeat: Infinity, ease: "linear", delay: 20 }}
         >
-          <svg viewBox="0 0 100 100" fill="#cbd5e1">
+          <svg viewBox="0 0 100 100" fill="#ffffff">
             <path d="M 20 60 C 20 48, 32 38, 48 38 C 55 28, 75 28, 80 38 C 92 38, 98 48, 98 60 C 98 72, 88 82, 50 82 C 22 82, 20 72, 20 60 Z" />
           </svg>
         </motion.div>
@@ -211,7 +218,7 @@ export default function Home() {
             animate={{
               y: ["0vh", "-115vh"],
               x: [0, Math.sin(b.id) * 40, 0],
-              opacity: [0, 0.5, 0.5, 0]
+              opacity: [0, 0.65, 0.65, 0]
             }}
             transition={{
               duration: b.duration,
@@ -228,13 +235,13 @@ export default function Home() {
         <div className="flex items-center gap-2 select-none">
           <span className="text-3xl animate-bounce">🐶</span>
           <span className="text-2xl font-black tracking-tight font-Outfit">
-            <span className="text-blue-600 dark:text-blue-400">TEA</span>
-            <span className="text-pink-500 dark:text-pink-400">colher</span>
+            <span className="text-blue-600">TEA</span>
+            <span className="text-pink-500">colher</span>
           </span>
         </div>
         
         <div className="flex items-center gap-4">
-          <span className="hidden sm:inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider text-pink-700 bg-pink-50 dark:text-pink-200 dark:bg-pink-950/40 border-2 border-pink-200 dark:border-pink-900 px-4 py-2 rounded-full shadow-sm font-Outfit">
+          <span className="hidden sm:inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider text-pink-700 bg-pink-50 border-2 border-pink-200 px-4 py-2 rounded-full shadow-sm font-Outfit">
             <Heart className="w-3.5 h-3.5 fill-pink-500 text-pink-600 animate-pulse" /> {t.landing.badgeNeuro}
           </span>
           <LanguageSelector />
@@ -255,15 +262,15 @@ export default function Home() {
               transition={{ duration: 0.6 }}
               className="flex flex-col items-center lg:items-start gap-3"
             >
-              <span className="text-[10px] font-black uppercase tracking-widest text-blue-950 bg-blue-100 border-2 border-blue-200 px-4 py-1.5 rounded-full flex items-center gap-1.5 shadow-sm dark:bg-blue-950/40 dark:text-blue-200 dark:border-blue-900 select-none">
-                <Sparkles className="w-3.5 h-3.5 text-blue-500 animate-pulse" /> {t.landing.badgeSensory}
+              <span className="text-[10px] font-black uppercase tracking-widest text-blue-950 bg-blue-100 border-2 border-blue-200 px-4 py-1.5 rounded-full flex items-center gap-1.5 shadow-sm select-none">
+                <Sun className="w-3.5 h-3.5 text-blue-500 animate-spin-slow" /> {locale === 'en' ? '🌸 Beautiful Life' : locale === 'es' ? '🌸 Hermosa Vida' : '🌸 A Beleza da Vida'}
               </span>
               
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tight leading-tight font-Outfit text-slate-900 dark:text-white">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tight leading-tight font-Outfit text-slate-900">
                 {info.welcomeTitle}
               </h1>
               
-              <p className="text-slate-700 dark:text-slate-350 text-sm md:text-base leading-relaxed font-semibold max-w-xl">
+              <p className="text-slate-700 text-sm md:text-base leading-relaxed font-semibold max-w-xl">
                 {info.subheadline}
               </p>
             </motion.div>
@@ -273,12 +280,12 @@ export default function Home() {
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="mt-2 p-5 md:p-6 bg-white/70 dark:bg-slate-900/60 border-2 border-pink-200/50 dark:border-pink-900/30 rounded-3xl shadow-sm max-w-2xl text-left"
+              className="mt-2 p-5 md:p-6 bg-white/80 border-2 border-pink-200/60 rounded-3xl shadow-sm max-w-2xl text-left"
             >
-              <h2 className="text-lg font-black text-pink-600 dark:text-pink-400 font-Outfit flex items-center gap-2 mb-2">
+              <h2 className="text-lg font-black text-pink-600 font-Outfit flex items-center gap-2 mb-2">
                 💙 {info.explainTitle}
               </h2>
-              <p className="text-slate-650 dark:text-slate-400 text-xs md:text-sm font-medium leading-relaxed">
+              <p className="text-slate-750 text-xs md:text-sm font-medium leading-relaxed">
                 {info.explainText}
               </p>
             </motion.div>
@@ -288,21 +295,21 @@ export default function Home() {
           <div className="lg:col-span-5 flex flex-col items-center justify-center relative select-none min-h-[300px]">
             {/* Pulsing orbital rings */}
             <motion.div 
-              className="absolute w-[240px] h-[240px] rounded-full border-2 border-dashed border-pink-400/20 dark:border-pink-500/10 -z-10"
+              className="absolute w-[240px] h-[240px] rounded-full border-2 border-dashed border-pink-400/30 -z-10"
               animate={{ rotate: 360 }}
               transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
             />
             <motion.div 
-              className="absolute w-[280px] h-[280px] rounded-full border border-dashed border-blue-400/20 dark:border-blue-500/10 -z-10"
+              className="absolute w-[280px] h-[280px] rounded-full border border-dashed border-blue-400/30 -z-10"
               animate={{ rotate: -360 }}
               transition={{ duration: 55, repeat: Infinity, ease: "linear" }}
             />
             
-            <div className="absolute w-[200px] h-[200px] bg-gradient-to-tr from-pink-100 to-blue-150 dark:from-pink-950/20 dark:to-blue-950/20 rounded-full filter blur-2xl opacity-40 -z-10 animate-pulse"></div>
+            <div className="absolute w-[200px] h-[200px] bg-gradient-to-tr from-pink-100 to-blue-150 rounded-full filter blur-2xl opacity-40 -z-10 animate-pulse"></div>
 
             {/* Pedestal Base Glass Circle */}
             <motion.div
-              className="cursor-pointer relative flex flex-col items-center justify-center p-6 bg-white border-2 border-slate-200 rounded-full shadow-[0_20px_45px_rgba(15,23,42,0.05)] dark:bg-slate-900 dark:border-slate-800 hover:scale-[1.03] transition-all"
+              className="cursor-pointer relative flex flex-col items-center justify-center p-6 bg-white border-2 border-slate-200 rounded-full shadow-[0_20px_45px_rgba(15,23,42,0.04)] hover:scale-[1.03] transition-all"
               onClick={handleMascotClick}
               onMouseEnter={handleHover}
               onMouseLeave={handleHoverLeave}
@@ -311,7 +318,7 @@ export default function Home() {
             >
               <HyperfocusMascot hyperfocus={childHyperfocus} state={collieState} size={180} />
               
-              <span className="absolute bottom-2 text-[9px] font-black bg-slate-950 text-white dark:bg-white dark:text-slate-950 px-3.5 py-1.5 rounded-full shadow-md select-none border border-slate-750 dark:border-slate-200 uppercase tracking-widest font-Outfit">
+              <span className="absolute bottom-2 text-[9px] font-black bg-slate-950 text-white px-3.5 py-1.5 rounded-full shadow-md select-none border border-slate-750 uppercase tracking-widest font-Outfit">
                 {collieState === 'celebrating' ? getMascotCelebrationText(childHyperfocus) : collieState === 'guiding' ? t.landing.mascotLook : t.landing.mascotTapMe}
               </span>
             </motion.div>
@@ -321,10 +328,10 @@ export default function Home() {
         {/* Section 2: Portals Grid */}
         <section className="flex flex-col gap-6 mt-6">
           <div className="text-center md:text-left">
-            <h2 className="text-2xl md:text-3xl font-black text-slate-850 dark:text-white font-Outfit">
+            <h2 className="text-2xl md:text-3xl font-black text-slate-850 font-Outfit">
               {info.portalTitle}
             </h2>
-            <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400 font-bold mt-1">
+            <p className="text-xs md:text-sm text-slate-500 font-bold mt-1">
               {info.portalSubtitle}
             </p>
           </div>
@@ -336,15 +343,15 @@ export default function Home() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.1 }}
-              className="bg-white dark:bg-slate-900 border-2 border-blue-200 hover:border-blue-400 dark:border-blue-900 dark:hover:border-blue-700 p-6 rounded-[32px] text-slate-800 dark:text-slate-250 shadow-[0_15px_35px_rgba(15,23,42,0.03)] flex flex-col justify-between min-h-[290px] transform hover:scale-[1.02] hover:shadow-[0_20px_45px_rgba(59,130,246,0.08)] transition-all group"
+              className="bg-white border-2 border-blue-200 hover:border-blue-400 p-6 rounded-[32px] text-slate-800 shadow-[0_15px_35px_rgba(15,23,42,0.02)] flex flex-col justify-between min-h-[290px] transform hover:scale-[1.02] hover:shadow-[0_20px_45px_rgba(59,130,246,0.08)] transition-all group"
             >
               <div className="flex flex-col gap-3.5">
-                <div className="w-12 h-12 bg-blue-50 border border-blue-150 text-blue-600 dark:bg-blue-950/40 dark:border-blue-900 dark:text-blue-400 rounded-2xl flex items-center justify-center group-hover:scale-105 transition-all select-none">
+                <div className="w-12 h-12 bg-blue-50 border border-blue-150 text-blue-600 rounded-2xl flex items-center justify-center group-hover:scale-105 transition-all select-none">
                   <Gamepad2 className="w-6 h-6" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-black tracking-tight leading-tight font-Outfit text-slate-900 dark:text-white">{info.kidsTitle}</h3>
-                  <p className="text-slate-600 dark:text-slate-400 text-[11px] font-semibold leading-relaxed mt-2.5">
+                  <h3 className="text-lg font-black tracking-tight leading-tight font-Outfit text-slate-900">{info.kidsTitle}</h3>
+                  <p className="text-slate-600 text-[11px] font-semibold leading-relaxed mt-2.5">
                     {info.kidsDesc}
                   </p>
                 </div>
@@ -365,15 +372,15 @@ export default function Home() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.2 }}
-              className="bg-white dark:bg-slate-900 border-2 border-pink-200 hover:border-pink-400 dark:border-pink-900 dark:hover:border-pink-700 p-6 rounded-[32px] text-slate-800 dark:text-slate-250 shadow-[0_15px_35px_rgba(15,23,42,0.03)] flex flex-col justify-between min-h-[290px] transform hover:scale-[1.02] hover:shadow-[0_20px_45px_rgba(244,63,94,0.08)] transition-all group"
+              className="bg-white border-2 border-pink-200 hover:border-pink-400 p-6 rounded-[32px] text-slate-800 shadow-[0_15px_35px_rgba(15,23,42,0.02)] flex flex-col justify-between min-h-[290px] transform hover:scale-[1.02] hover:shadow-[0_20px_45px_rgba(244,63,94,0.08)] transition-all group"
             >
               <div className="flex flex-col gap-3.5">
-                <div className="w-12 h-12 bg-pink-50 border border-pink-150 text-pink-600 dark:bg-pink-950/40 dark:border-pink-900 dark:text-pink-400 rounded-2xl flex items-center justify-center group-hover:scale-105 transition-all select-none">
+                <div className="w-12 h-12 bg-pink-50 border border-pink-150 text-pink-600 rounded-2xl flex items-center justify-center group-hover:scale-105 transition-all select-none">
                   <Users className="w-6 h-6" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-black tracking-tight leading-tight font-Outfit text-slate-900 dark:text-white">{info.parentsTitle}</h3>
-                  <p className="text-slate-600 dark:text-slate-400 text-[11px] font-semibold leading-relaxed mt-2.5">
+                  <h3 className="text-lg font-black tracking-tight leading-tight font-Outfit text-slate-900">{info.parentsTitle}</h3>
+                  <p className="text-slate-600 text-[11px] font-semibold leading-relaxed mt-2.5">
                     {info.parentsDesc}
                   </p>
                 </div>
@@ -394,15 +401,15 @@ export default function Home() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.3 }}
-              className="bg-white dark:bg-slate-900 border-2 border-blue-200 hover:border-blue-400 dark:border-blue-900 dark:hover:border-blue-700 p-6 rounded-[32px] text-slate-800 dark:text-slate-250 shadow-[0_15px_35px_rgba(15,23,42,0.03)] flex flex-col justify-between min-h-[290px] transform hover:scale-[1.02] hover:shadow-[0_20px_45px_rgba(59,130,246,0.08)] transition-all group"
+              className="bg-white border-2 border-blue-200 hover:border-blue-400 p-6 rounded-[32px] text-slate-800 shadow-[0_15px_35px_rgba(15,23,42,0.02)] flex flex-col justify-between min-h-[290px] transform hover:scale-[1.02] hover:shadow-[0_20px_45px_rgba(59,130,246,0.08)] transition-all group"
             >
               <div className="flex flex-col gap-3.5">
-                <div className="w-12 h-12 bg-blue-50 border border-blue-150 text-blue-600 dark:bg-blue-950/40 dark:border-blue-900 dark:text-blue-400 rounded-2xl flex items-center justify-center group-hover:scale-105 transition-all select-none">
+                <div className="w-12 h-12 bg-blue-50 border border-blue-150 text-blue-600 rounded-2xl flex items-center justify-center group-hover:scale-105 transition-all select-none">
                   <Stethoscope className="w-6 h-6" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-black tracking-tight leading-tight font-Outfit text-slate-900 dark:text-white">{info.therapistsTitle}</h3>
-                  <p className="text-slate-650 dark:text-slate-450 text-[11px] font-semibold leading-relaxed mt-2.5">
+                  <h3 className="text-lg font-black tracking-tight leading-tight font-Outfit text-slate-900">{info.therapistsTitle}</h3>
+                  <p className="text-slate-650 text-[11px] font-semibold leading-relaxed mt-2.5">
                     {info.therapistsDesc}
                   </p>
                 </div>
@@ -423,15 +430,15 @@ export default function Home() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.4 }}
-              className="bg-white dark:bg-slate-900 border-2 border-pink-200 hover:border-pink-400 dark:border-pink-900 dark:hover:border-pink-700 p-6 rounded-[32px] text-slate-800 dark:text-slate-250 shadow-[0_15px_35px_rgba(15,23,42,0.03)] flex flex-col justify-between min-h-[290px] transform hover:scale-[1.02] hover:shadow-[0_20px_45px_rgba(244,63,94,0.08)] transition-all group"
+              className="bg-white border-2 border-pink-200 hover:border-pink-400 p-6 rounded-[32px] text-slate-800 shadow-[0_15px_35px_rgba(15,23,42,0.02)] flex flex-col justify-between min-h-[290px] transform hover:scale-[1.02] hover:shadow-[0_20px_45px_rgba(244,63,94,0.08)] transition-all group"
             >
               <div className="flex flex-col gap-3.5">
-                <div className="w-12 h-12 bg-pink-50 border border-pink-150 text-pink-600 dark:bg-pink-950/40 dark:border-pink-900 dark:text-pink-400 rounded-2xl flex items-center justify-center group-hover:scale-105 transition-all select-none">
+                <div className="w-12 h-12 bg-pink-50 border border-pink-150 text-pink-600 rounded-2xl flex items-center justify-center group-hover:scale-105 transition-all select-none">
                   <GraduationCap className="w-6 h-6" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-black tracking-tight leading-tight font-Outfit text-slate-900 dark:text-white">{info.schoolTitle}</h3>
-                  <p className="text-slate-600 dark:text-slate-400 text-[11px] font-semibold leading-relaxed mt-2.5">
+                  <h3 className="text-lg font-black tracking-tight leading-tight font-Outfit text-slate-900">{info.schoolTitle}</h3>
+                  <p className="text-slate-600 text-[11px] font-semibold leading-relaxed mt-2.5">
                     {info.schoolDesc}
                   </p>
                 </div>
@@ -452,11 +459,11 @@ export default function Home() {
       </div>
 
       {/* Footer Info */}
-      <footer className="z-10 w-full text-center flex flex-col md:flex-row items-center justify-between gap-4 border-t border-slate-300/40 dark:border-slate-800/60 pt-6 pointer-events-auto mt-10">
-        <span className="text-[9px] text-slate-500 dark:text-slate-500 font-extrabold uppercase tracking-widest">
+      <footer className="z-10 w-full text-center flex flex-col md:flex-row items-center justify-between gap-4 border-t border-slate-300/40 pt-6 pointer-events-auto mt-10">
+        <span className="text-[9px] text-slate-500 font-extrabold uppercase tracking-widest">
           {t.landing.footerFriendly}
         </span>
-        <span className="text-[9px] text-slate-500 dark:text-slate-500 font-extrabold uppercase tracking-widest">
+        <span className="text-[9px] text-slate-500 font-extrabold uppercase tracking-widest">
           {t.landing.footerCopyright}
         </span>
       </footer>
