@@ -1428,6 +1428,9 @@ function ParentDashboardContent() {
 
 
 
+  const preferencesMenuRef = React.useRef<HTMLDivElement>(null);
+  const [showPreferencesMenu, setShowPreferencesMenu] = useState(false);
+
   const mediaRecorderRef = React.useRef<MediaRecorder | null>(null);
 
   const audioChunksRef = React.useRef<Blob[]>([]);
@@ -1450,6 +1453,17 @@ function ParentDashboardContent() {
 
     };
 
+  }, []);
+
+  // Close preferences dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (preferencesMenuRef.current && !preferencesMenuRef.current.contains(event.target as Node)) {
+        setShowPreferencesMenu(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
 
@@ -6010,39 +6024,78 @@ function ParentDashboardContent() {
 
           <div className="flex items-center gap-2 md:gap-3 shrink-0">
 
-            <LanguageSelector />
-
-            <span className="hidden sm:inline-block text-xs font-bold bg-indigo-50 border-2 border-indigo-200 text-indigo-800 px-3 py-1.5 rounded-full shadow-sm">
-
-              🧑‍💻 {currentUser?.email}
-
-            </span>
-
-            {plan === 'premium' ? (
-              <span className="hidden xs:flex items-center gap-1 text-[11px] font-black bg-gradient-to-r from-amber-500 to-yellow-400 text-white px-3 py-1.5 rounded-full shadow-sm border border-amber-600 font-Outfit">
-                ⭐ Premium Pro
-              </span>
-            ) : (
+            <div ref={preferencesMenuRef} className="relative z-45">
               <button
                 type="button"
-                onClick={() => { playBubble(); setShowPaywall(true); }}
-                className="hidden xs:flex items-center gap-1 text-[11px] font-black bg-slate-50 hover:bg-amber-50 border border-slate-250 hover:border-amber-400 text-slate-700 hover:text-amber-800 px-3 py-1.5 rounded-full shadow-sm transition-all cursor-pointer active:scale-95 font-Outfit"
+                onClick={() => { playBubble(); setShowPreferencesMenu(!showPreferencesMenu); }}
+                className="flex items-center gap-1.5 px-3.5 py-2 bg-slate-50 hover:bg-slate-100 border-2 border-slate-200 text-slate-750 hover:text-slate-900 text-xs font-black rounded-full transition-all cursor-pointer active:scale-95 font-Outfit"
               >
-                🌱 Plano Gratuito (Upgrade 👑)
+                ⚙️ {locale === 'en' ? 'Preferences' : locale === 'es' ? 'Preferencias' : 'Preferências'}
               </button>
-            )}
+              
+              <AnimatePresence>
+                {showPreferencesMenu && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                    transition={{ type: "spring", stiffness: 350, damping: 25 }}
+                    className="absolute top-11 right-0 w-64 bg-white border border-slate-200 rounded-2xl shadow-xl p-4 flex flex-col gap-3.5 z-50 text-left"
+                  >
+                    {/* User info */}
+                    <div className="flex flex-col gap-0.5 border-b border-slate-100 pb-2.5">
+                      <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Responsável</span>
+                      <span className="text-xs font-extrabold text-slate-800 truncate" title={currentUser?.email || ''}>
+                        🧑‍💻 {currentUser?.email}
+                      </span>
+                    </div>
 
-            <button 
+                    {/* Subscription plan */}
+                    <div className="flex flex-col gap-1 border-b border-slate-100 pb-3">
+                      <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Tipo de Assinatura</span>
+                      <div className="flex items-center justify-between gap-2 mt-0.5">
+                        <span className={`text-xs font-black flex items-center gap-1 font-Outfit ${plan === 'premium' ? 'text-amber-600' : 'text-slate-700'}`}>
+                          {plan === 'premium' ? '👑 Premium Pro' : '🌱 Plano Gratuito'}
+                        </span>
+                        {plan === 'free' && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              playBubble();
+                              setShowPreferencesMenu(false);
+                              setShowPaywall(true);
+                            }}
+                            className="text-[9px] font-black uppercase bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white px-2 py-1 rounded-md transition-all cursor-pointer shadow-xxs active:scale-95 border-none font-Outfit"
+                          >
+                            Upgrade
+                          </button>
+                        )}
+                      </div>
+                    </div>
 
-              onClick={handleLogout}
+                    {/* Language Preference */}
+                    <div className="flex flex-col gap-1.5 border-b border-slate-100 pb-3">
+                      <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Idioma / Language</span>
+                      <div className="flex justify-start">
+                        <LanguageSelector />
+                      </div>
+                    </div>
 
-              className="flex items-center gap-1.5 px-3 py-1.5 md:px-4 md:py-2 bg-red-50 border-2 border-red-200 hover:bg-red-100 hover:text-red-800 text-red-700 text-xxs md:text-xs font-black rounded-full transition-all active:scale-95 font-Outfit cursor-pointer"
-
-            >
-
-              <LogOut className="w-3.5 h-3.5" /> <span className="hidden xs:inline">{t.common.exit}</span>
-
-            </button>
+                    {/* Logout */}
+                    <button 
+                      type="button"
+                      onClick={() => {
+                        setShowPreferencesMenu(false);
+                        handleLogout();
+                      }}
+                      className="w-full flex items-center justify-center gap-1.5 py-2 bg-red-50 border border-red-200 hover:bg-red-100 hover:text-red-800 text-red-700 text-xs font-black rounded-xl transition-all active:scale-95 font-Outfit cursor-pointer"
+                    >
+                      <LogOut className="w-4 h-4" /> <span>{t.common.exit}</span>
+                    </button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
 
           </div>
 
