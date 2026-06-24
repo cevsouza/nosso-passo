@@ -386,6 +386,7 @@ export const firebaseBridge = {
       sensoryVisuals?: 'rich' | 'minimal';
       sensoryProfile?: 'balanced' | 'hypersensitive' | 'hyposensitive';
       timerStyle?: 'circle' | 'hourglass' | 'droplets';
+      password?: string;
     }): Promise<void> => {
       const current = getLocalProfile();
       if (!current) return;

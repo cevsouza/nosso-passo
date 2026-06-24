@@ -1430,6 +1430,34 @@ function ParentDashboardContent() {
 
   const preferencesMenuRef = React.useRef<HTMLDivElement>(null);
   const [showPreferencesMenu, setShowPreferencesMenu] = useState(false);
+  const [activePrefTab, setActivePrefTab] = useState<'conta' | 'sensorial' | 'seguranca' | 'plano'>('conta');
+  const [newPassword, setNewPassword] = useState('');
+  const [theme, setTheme] = useState<'light' | 'dark'>('light');
+
+  // Load and apply theme
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const savedTheme = (localStorage.getItem('tea_theme') || 'light') as 'light' | 'dark';
+      setTheme(savedTheme);
+      if (savedTheme === 'dark') {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    }
+  }, []);
+
+  const toggleTheme = () => {
+    playBubble();
+    const newTheme = theme === 'light' ? 'dark' : 'light';
+    setTheme(newTheme);
+    localStorage.setItem('tea_theme', newTheme);
+    if (newTheme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  };
 
   const mediaRecorderRef = React.useRef<MediaRecorder | null>(null);
 
@@ -6040,58 +6068,377 @@ function ParentDashboardContent() {
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: -10, scale: 0.95 }}
                     transition={{ type: "spring", stiffness: 350, damping: 25 }}
-                    className="absolute top-11 right-0 w-64 bg-white border border-slate-200 rounded-2xl shadow-xl p-4 flex flex-col gap-3.5 z-50 text-left"
+                    className="absolute top-11 right-0 w-80 bg-white border border-slate-200 rounded-2xl shadow-xl p-4 flex flex-col gap-3.5 z-50 text-left dark:bg-slate-900 dark:border-slate-800"
                   >
-                    {/* User info */}
-                    <div className="flex flex-col gap-0.5 border-b border-slate-100 pb-2.5">
-                      <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Responsável</span>
-                      <span className="text-xs font-extrabold text-slate-800 truncate" title={currentUser?.email || ''}>
-                        🧑‍💻 {currentUser?.email}
-                      </span>
+                    {/* Header Tabs */}
+                    <div className="flex border-b border-slate-100 dark:border-slate-800 pb-2 gap-1 select-none">
+                      {(['conta', 'sensorial', 'seguranca', 'plano'] as const).map(tab => (
+                        <button
+                          key={tab}
+                          type="button"
+                          onClick={() => { playBubble(); setActivePrefTab(tab); }}
+                          className={`flex-1 py-1 rounded-lg text-[8px] font-black uppercase tracking-wider transition-all cursor-pointer text-center ${
+                            activePrefTab === tab
+                              ? 'bg-indigo-100 text-indigo-950 font-black dark:bg-indigo-900/60 dark:text-indigo-200'
+                              : 'text-slate-400 hover:text-slate-700 hover:bg-slate-50 dark:text-slate-500 dark:hover:bg-slate-800/40 dark:hover:text-slate-300'
+                          }`}
+                        >
+                          {tab === 'conta' 
+                            ? (locale === 'en' ? '👤 Account' : locale === 'es' ? '👤 Cuenta' : '👤 Conta')
+                            : tab === 'sensorial' 
+                            ? (locale === 'en' ? '🧠 Sensory' : locale === 'es' ? '🧠 Sensorial' : '🧠 Sensor.')
+                            : tab === 'seguranca' 
+                            ? (locale === 'en' ? '🔒 Secur.' : locale === 'es' ? '🔒 Segur.' : '🔒 Segur.')
+                            : (locale === 'en' ? '💳 Plan' : locale === 'es' ? '💳 Plan' : '💳 Plano')}
+                        </button>
+                      ))}
                     </div>
 
-                    {/* Subscription plan */}
-                    <div className="flex flex-col gap-1 border-b border-slate-100 pb-3">
-                      <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Tipo de Assinatura</span>
-                      <div className="flex items-center justify-between gap-2 mt-0.5">
-                        <span className={`text-xs font-black flex items-center gap-1 font-Outfit ${plan === 'premium' ? 'text-amber-600' : 'text-slate-700'}`}>
-                          {plan === 'premium' ? '👑 Premium Pro' : '🌱 Plano Gratuito'}
-                        </span>
-                        {plan === 'free' && (
+                    {/* Tab 1: Conta (User Details, Change Password, Language, Theme) */}
+                    {activePrefTab === 'conta' && (
+                      <div className="flex flex-col gap-3 animate-pop">
+                        <div className="flex flex-col gap-0.5">
+                          <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider">
+                            {locale === 'en' ? 'Guardian E-mail' : locale === 'es' ? 'E-mail del Responsable' : 'E-mail do Responsável'}
+                          </span>
+                          <span className="text-xs font-extrabold text-slate-850 dark:text-slate-200 truncate" title={currentUser?.email || ''}>
+                            🧑‍💻 {currentUser?.email}
+                          </span>
+                        </div>
+
+                        {/* Change Password */}
+                        <div className="flex flex-col gap-1 border-t border-slate-100 dark:border-slate-800 pt-2.5">
+                          <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider">
+                            {locale === 'en' ? 'Change Password' : locale === 'es' ? 'Cambiar Contraseña' : 'Alterar Senha'}
+                          </span>
+                          <div className="flex gap-1.5 mt-0.5">
+                            <input
+                              type="password"
+                              value={newPassword}
+                              onChange={e => setNewPassword(e.target.value)}
+                              placeholder={locale === 'en' ? 'Min 6 chars' : locale === 'es' ? 'Mín 6 caracteres' : 'Mín 6 caracteres'}
+                              className="flex-1 px-2.5 py-1.5 bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 text-slate-750 dark:text-slate-300 text-xs font-bold rounded-lg outline-none focus:border-indigo-500"
+                            />
+                            <button
+                              type="button"
+                              onClick={async () => {
+                                if (newPassword.length < 6) {
+                                  playMarimba(196, 0.3);
+                                  triggerStatus(locale === 'en' ? 'Password must be at least 6 characters!' : locale === 'es' ? '¡La contraseña debe tener al menos 6 caracteres!' : 'A senha deve ter no mínimo 6 caracteres!');
+                                  return;
+                                }
+                                try {
+                                  playMarimba(329.63, 0.3);
+                                  await firebaseBridge.auth.updateProfileSettings({ password: newPassword });
+                                  setNewPassword('');
+                                  triggerStatus(locale === 'en' ? 'Password changed!' : locale === 'es' ? '¡Contraseña actualizada!' : 'Senha atualizada com sucesso!');
+                                } catch (err: any) {
+                                  triggerStatus(locale === 'en' ? 'Error changing password' : locale === 'es' ? 'Error al cambiar contraseña' : 'Erro ao alterar senha');
+                                }
+                              }}
+                              className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-[10px] font-black uppercase rounded-lg cursor-pointer transition-all active:scale-95 border-none font-Outfit"
+                            >
+                              {locale === 'en' ? 'Update' : locale === 'es' ? 'Actualizar' : 'Alterar'}
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Theme Switcher */}
+                        <div className="flex flex-col gap-1.5 border-t border-slate-100 dark:border-slate-800 pt-2.5">
+                          <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider">
+                            {locale === 'en' ? 'App Theme' : locale === 'es' ? 'Tema de la Aplicación' : 'Tema do App'}
+                          </span>
                           <button
                             type="button"
-                            onClick={() => {
-                              playBubble();
-                              setShowPreferencesMenu(false);
-                              setShowPaywall(true);
-                            }}
-                            className="text-[9px] font-black uppercase bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white px-2 py-1 rounded-md transition-all cursor-pointer shadow-xxs active:scale-95 border-none font-Outfit"
+                            onClick={toggleTheme}
+                            className="w-full flex items-center justify-between px-3 py-2 bg-slate-50 hover:bg-slate-100 dark:bg-slate-800/40 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-bold transition-all cursor-pointer font-Outfit text-slate-750 dark:text-slate-300"
                           >
-                            Upgrade
+                            <span>{theme === 'light' ? (locale === 'en' ? 'Dark Mode 🌙' : locale === 'es' ? 'Modo Oscuro 🌙' : 'Modo Escuro 🌙') : (locale === 'en' ? 'Light Mode ☀️' : locale === 'es' ? 'Modo Claro ☀️' : 'Modo Claro ☀️')}</span>
+                            <span className="text-[10px] text-slate-400 dark:text-slate-500 font-medium">{locale === 'en' ? 'Toggle' : locale === 'es' ? 'Alternar' : 'Alternar'}</span>
                           </button>
+                        </div>
+
+                        {/* Language Selector */}
+                        <div className="flex flex-col gap-1.5 border-t border-slate-100 dark:border-slate-800 pt-2.5">
+                          <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider">
+                            {locale === 'en' ? 'Language' : locale === 'es' ? 'Idioma' : 'Idioma'}
+                          </span>
+                          <div className="flex justify-start">
+                            <LanguageSelector />
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Tab 2: Sensorial (Interactive Clinical/Sensory Adjustments) */}
+                    {activePrefTab === 'sensorial' && (
+                      <div className="flex flex-col gap-2.5 animate-pop max-h-72 overflow-y-auto pr-1">
+                        {activeChild ? (
+                          <>
+                            {/* Sensory Profile */}
+                            <div className="flex flex-col gap-1">
+                              <span className="text-[8px] font-black text-slate-400 uppercase tracking-wider">
+                                {locale === 'en' ? 'Sensory Profile' : locale === 'es' ? 'Perfil Sensorial' : 'Perfil Sensorial'}
+                              </span>
+                              <select
+                                value={sensoryProfile}
+                                onChange={async (e) => {
+                                  const val = e.target.value as 'balanced' | 'hypersensitive' | 'hyposensitive';
+                                  setSensoryProfile(val);
+                                  let speed = sensorySpeed;
+                                  let visuals = sensoryVisuals;
+                                  if (val === 'hypersensitive') {
+                                    speed = 0.7;
+                                    visuals = 'minimal';
+                                    setSensorySpeed(0.7);
+                                    setSensoryVisuals('minimal');
+                                  } else if (val === 'hyposensitive') {
+                                    speed = 1.2;
+                                    visuals = 'rich';
+                                    setSensorySpeed(1.2);
+                                    setSensoryVisuals('rich');
+                                  }
+                                  const updated = await firebaseBridge.auth.updateChildSettings(activeChild.id, {
+                                    sensoryProfile: val,
+                                    sensorySpeed: speed,
+                                    sensoryVisuals: visuals
+                                  });
+                                  setActiveChild(updated);
+                                  triggerStatus(locale === 'en' ? 'Sensory profile updated!' : locale === 'es' ? '¡Perfil sensorial actualizado!' : 'Perfil sensorial atualizado!');
+                                }}
+                                className="w-full px-2 py-1.5 bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-350 text-xs font-bold rounded-lg outline-none cursor-pointer"
+                              >
+                                <option value="balanced">{locale === 'en' ? 'Balanced 🧘' : locale === 'es' ? 'Equilibrado 🧘' : 'Equilibrado 🧘'}</option>
+                                <option value="hypersensitive">{locale === 'en' ? 'Hypersensitive (Low Stim) 🔇' : locale === 'es' ? 'Hipersensible (Bajo Estímulo) 🔇' : 'Hipersensível (Baixo Estímulo) 🔇'}</option>
+                                <option value="hyposensitive">{locale === 'en' ? 'Hyposensitive (Stimulating) ⚡' : locale === 'es' ? 'Hiposensible (Estímulo Extra) ⚡' : 'Hipossensível (Estímulo Extra) ⚡'}</option>
+                              </select>
+                            </div>
+
+                            {/* Sound Style */}
+                            <div className="flex flex-col gap-1">
+                              <span className="text-[8px] font-black text-slate-400 uppercase tracking-wider">
+                                {locale === 'en' ? 'Sound Style' : locale === 'es' ? 'Estilo de Sonido' : 'Estilo de Som'}
+                              </span>
+                              <select
+                                value={sensorySound}
+                                onChange={async (e) => {
+                                  const val = e.target.value as any;
+                                  setSensorySound(val);
+                                  const updated = await firebaseBridge.auth.updateChildSettings(activeChild.id, { sensorySound: val });
+                                  setActiveChild(updated);
+                                  triggerStatus(locale === 'en' ? 'Sound updated!' : locale === 'es' ? '¡Efecto de sonido actualizado!' : 'Efeito sonoro atualizado!');
+                                }}
+                                className="w-full px-2 py-1.5 bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-355 text-xs font-bold rounded-lg outline-none cursor-pointer"
+                              >
+                                <option value="marimba">{locale === 'en' ? 'Marimba 🪵' : locale === 'es' ? 'Marimba 🪵' : 'Marimba 🪵'}</option>
+                                <option value="bubble">{locale === 'en' ? 'Bubbles 🫧' : locale === 'es' ? 'Burbujas 🫧' : 'Bolhas 🫧'}</option>
+                                <option value="silent">{locale === 'en' ? 'Silent 🔕' : locale === 'es' ? 'Silencioso 🔕' : 'Silencioso 🔕'}</option>
+                              </select>
+                            </div>
+
+                            {/* Visual Stimulation */}
+                            <div className="flex flex-col gap-1">
+                              <span className="text-[8px] font-black text-slate-400 uppercase tracking-wider">
+                                {locale === 'en' ? 'Visual Stimulation' : locale === 'es' ? 'Estímulos Visuales' : 'Filtro Visual'}
+                              </span>
+                              <select
+                                value={sensoryVisuals}
+                                onChange={async (e) => {
+                                  const val = e.target.value as any;
+                                  setSensoryVisuals(val);
+                                  const updated = await firebaseBridge.auth.updateChildSettings(activeChild.id, { sensoryVisuals: val });
+                                  setActiveChild(updated);
+                                  triggerStatus(locale === 'en' ? 'Visual stimulation updated!' : locale === 'es' ? '¡Estilo visual actualizado!' : 'Estilo visual atualizado!');
+                                }}
+                                className="w-full px-2 py-1.5 bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-355 text-xs font-bold rounded-lg outline-none cursor-pointer"
+                              >
+                                <option value="rich">{locale === 'en' ? 'Interactive / Rich ✨' : locale === 'es' ? 'Interactivo / Rico ✨' : 'Interativo / Rico ✨'}</option>
+                                <option value="minimal">{locale === 'en' ? 'Minimal / Low Stim 🧘' : locale === 'es' ? 'Minimalista / Bajo Estímulo 🧘' : 'Minimalista / Baixo Estímulo 🧘'}</option>
+                              </select>
+                            </div>
+
+                            {/* Mascot Speed */}
+                            <div className="flex flex-col gap-1">
+                              <span className="text-[8px] font-black text-slate-400 uppercase tracking-wider">
+                                {locale === 'en' ? 'Speech Speed' : locale === 'es' ? 'Velocidad de Voz' : 'Velocidade da Voz'}
+                              </span>
+                              <select
+                                value={sensorySpeed}
+                                onChange={async (e) => {
+                                  const val = parseFloat(e.target.value) as any;
+                                  setSensorySpeed(val);
+                                  const updated = await firebaseBridge.auth.updateChildSettings(activeChild.id, { sensorySpeed: val });
+                                  setActiveChild(updated);
+                                  triggerStatus(locale === 'en' ? 'Speech speed updated!' : locale === 'es' ? '¡Velocidad de habla actualizada!' : 'Velocidade de fala atualizada!');
+                                }}
+                                className="w-full px-2 py-1.5 bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-355 text-xs font-bold rounded-lg outline-none cursor-pointer"
+                              >
+                                <option value={0.7}>{locale === 'en' ? 'Slow (0.7x) 🐢' : locale === 'es' ? 'Lento (0.7x) 🐢' : 'Lento (0.7x) 🐢'}</option>
+                                <option value={1.0}>{locale === 'en' ? 'Normal (1.0x) ☕' : locale === 'es' ? 'Normal (1.0x) ☕' : 'Normal (1.0x) ☕'}</option>
+                                <option value={1.2}>{locale === 'en' ? 'Fast (1.2x) ⚡' : locale === 'es' ? 'Rápido (1.2x) ⚡' : 'Rápido (1.2x) ⚡'}</option>
+                              </select>
+                            </div>
+
+                            {/* Timer Style */}
+                            <div className="flex flex-col gap-1">
+                              <span className="text-[8px] font-black text-slate-400 uppercase tracking-wider">
+                                {locale === 'en' ? 'Timer Style' : locale === 'es' ? 'Estilo del Timer' : 'Estilo do Temporizador'}
+                              </span>
+                              <select
+                                value={timerStyle}
+                                onChange={async (e) => {
+                                  const val = e.target.value as any;
+                                  setTimerStyle(val);
+                                  const updated = await firebaseBridge.auth.updateChildSettings(activeChild.id, { timerStyle: val });
+                                  setActiveChild(updated);
+                                  triggerStatus(locale === 'en' ? 'Timer updated!' : locale === 'es' ? '¡Estilo del timer actualizado!' : 'Estilo do cronômetro atualizado!');
+                                }}
+                                className="w-full px-2 py-1.5 bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-355 text-xs font-bold rounded-lg outline-none cursor-pointer"
+                              >
+                                <option value="circle">{locale === 'en' ? 'Red Circle ⏱️' : locale === 'es' ? 'Círculo Rojo ⏱️' : 'Círculo Vermelho ⏱️'}</option>
+                                <option value="hourglass">{locale === 'en' ? 'Hourglass ⏳' : locale === 'es' ? 'Ampulheta ⏳' : 'Ampulheta ⏳'}</option>
+                                <option value="droplets">{locale === 'en' ? 'Water Droplets 💧' : locale === 'es' ? 'Gotas de Agua 💧' : 'Gotas de Água 💧'}</option>
+                              </select>
+                            </div>
+                          </>
+                        ) : (
+                          <span className="text-xs text-slate-400 font-bold leading-relaxed text-center py-4">
+                            {locale === 'en' ? 'Select or register a child to configure sensory filters.' : locale === 'es' ? 'Seleccione o registre un niño para configurar los filtros sensoriales.' : 'Selecione ou cadastre uma criança para configurar filtros sensoriais.'}
+                          </span>
                         )}
                       </div>
-                    </div>
+                    )}
 
-                    {/* Language Preference */}
-                    <div className="flex flex-col gap-1.5 border-b border-slate-100 pb-3">
-                      <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Idioma / Language</span>
-                      <div className="flex justify-start">
-                        <LanguageSelector />
+                    {/* Tab 3: Segurança */}
+                    {activePrefTab === 'seguranca' && (
+                      <div className="flex flex-col gap-3.5 animate-pop">
+                        {activeChild ? (
+                          <>
+                            <div className="flex flex-col gap-1">
+                              <label className="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1">
+                                {locale === 'en' ? 'Kid Lock Style' : locale === 'es' ? 'Tipo de Bloqueio' : 'Tipo de Bloqueio'}
+                              </label>
+                              <select
+                                value={lockType}
+                                onChange={async (e) => {
+                                  const val = e.target.value as any;
+                                  setLockType(val);
+                                  const updated = await firebaseBridge.auth.updateChildSettings(activeChild.id, { lockType: val });
+                                  setActiveChild(updated);
+                                  triggerStatus(locale === 'en' ? 'Lock updated!' : locale === 'es' ? '¡Bloqueio actualizado!' : 'Bloqueio atualizado!');
+                                }}
+                                className="w-full px-2.5 py-2 bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold rounded-lg outline-none focus:border-indigo-500 transition-all cursor-pointer"
+                              >
+                                <option value="math">{locale === 'en' ? 'Math Challenge 🧮' : locale === 'es' ? 'Desafío Matemático 🧮' : 'Matemática 🧮'}</option>
+                                <option value="pin">{locale === 'en' ? 'Numerical PIN 🔑' : locale === 'es' ? 'PIN Numérico 🔑' : 'PIN numérico 🔑'}</option>
+                                <option value="none">{locale === 'en' ? 'No lock 🔓' : locale === 'es' ? 'Sin bloqueo 🔓' : 'Sem bloqueio 🔓'}</option>
+                              </select>
+                            </div>
+
+                            {lockType === 'pin' && (
+                              <div className="flex flex-col gap-1">
+                                <label className="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1">
+                                  {locale === 'en' ? 'Parent PIN' : locale === 'es' ? 'PIN de los Padres' : 'PIN dos Pais'}
+                                </label>
+                                <div className="flex gap-1.5">
+                                  <input
+                                    type="text"
+                                    maxLength={4}
+                                    value={parentPinCode}
+                                    onChange={e => setParentPinCode(e.target.value.replace(/\D/g, ''))}
+                                    className="flex-1 px-2.5 py-1.5 bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 text-slate-750 dark:text-slate-300 text-xs font-bold rounded-lg outline-none focus:border-indigo-500"
+                                    placeholder="1234"
+                                  />
+                                  <button
+                                    type="button"
+                                    onClick={async () => {
+                                      playMarimba(329.63, 0.3);
+                                      const updated = await firebaseBridge.auth.updateChildSettings(activeChild.id, { parentPinCode });
+                                      setActiveChild(updated);
+                                      triggerStatus(locale === 'en' ? 'PIN Saved!' : locale === 'es' ? '¡PIN guardado!' : 'PIN de segurança salvo!');
+                                    }}
+                                    className="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-[10px] font-black uppercase rounded-lg cursor-pointer transition-all active:scale-95 border-none font-Outfit"
+                                  >
+                                    {locale === 'en' ? 'Save' : locale === 'es' ? 'Guardar' : 'Salvar'}
+                                  </button>
+                                </div>
+                              </div>
+                            )}
+                            
+                            <p className="text-[10px] text-slate-400 font-semibold leading-relaxed italic">
+                              {locale === 'en' ? '*Note: Lock prevents child from leaving the routine dashboard.' : locale === 'es' ? '*Nota: El bloqueo evita que el niño salga del panel de rutinas.' : '*Note: O bloqueio impede que a criança saia da tela de rotinas sem autorização.'}
+                            </p>
+                          </>
+                        ) : (
+                          <span className="text-xs text-slate-400 font-bold leading-relaxed text-center py-4">
+                            {locale === 'en' ? 'Register a child to manage safety.' : locale === 'es' ? 'Registre un niño para gestionar seguridad.' : 'Cadastre uma criança para gerenciar segurança.'}
+                          </span>
+                        )}
                       </div>
-                    </div>
+                    )}
 
-                    {/* Logout */}
-                    <button 
-                      type="button"
-                      onClick={() => {
-                        setShowPreferencesMenu(false);
-                        handleLogout();
-                      }}
-                      className="w-full flex items-center justify-center gap-1.5 py-2 bg-red-50 border border-red-200 hover:bg-red-100 hover:text-red-800 text-red-700 text-xs font-black rounded-xl transition-all active:scale-95 font-Outfit cursor-pointer"
-                    >
-                      <LogOut className="w-4 h-4" /> <span>{t.common.exit}</span>
-                    </button>
+                    {/* Tab 4: Plano */}
+                    {activePrefTab === 'plano' && (
+                      <div className="flex flex-col gap-3.5 animate-pop">
+                        <div className="flex flex-col gap-1">
+                          <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider">
+                            {locale === 'en' ? 'Subscription' : locale === 'es' ? 'Suscripción' : 'Tipo de Assinatura'}
+                          </span>
+                          <span className={`text-xs font-black flex items-center gap-1 font-Outfit mt-0.5 ${plan === 'premium' ? 'text-amber-600' : 'text-slate-655 dark:text-slate-350'}`}>
+                            {plan === 'premium' ? '👑 Premium Pro' : '🌱 Plano Gratuito'}
+                          </span>
+                        </div>
+
+                        <p className="text-[10px] font-semibold text-slate-450 dark:text-slate-400 leading-relaxed">
+                          {plan === 'premium' 
+                            ? (locale === 'en' ? 'Unrestricted access to clinical tools, consolidating PDF reports, and AI insights.' : locale === 'es' ? 'Acceso ilimitado a herramientas clínicas, informes consolidados en PDF e insights de IA.' : 'Acesso irrestrito a todas as ferramentas clínicas, relatórios consolidados em PDF e insights com inteligência artificial.')
+                            : (locale === 'en' ? 'Daily limit of 3 tasks per routine. Advanced analytics and AI insights unavailable.' : locale === 'es' ? 'Límite de 3 tareas diarias por rutina. Informes y gráficos analíticos de IA no disponibles.' : 'Limite diário de 3 tarefas por rotina. Gráficos analíticos avançados e relatórios de IA indisponíveis.')}
+                        </p>
+
+                        <div className="pt-2">
+                          {plan === 'premium' ? (
+                            <button
+                              type="button"
+                              onClick={async () => {
+                                playMarimba(261, 0.3);
+                                await firebaseBridge.auth.updateProfileSettings({ plan: 'free' });
+                                setPlan('free');
+                                triggerStatus(t.dashboard.premiumCancelSuccess);
+                              }}
+                              className="w-full py-2 bg-slate-50 dark:bg-slate-800/40 hover:bg-red-50 text-red-500 hover:text-red-700 border border-slate-200 dark:border-slate-800 hover:border-red-200 text-xs font-black uppercase rounded-xl transition-all cursor-pointer text-center font-Outfit active:scale-95"
+                            >
+                              {locale === 'en' ? 'Cancel Subscription' : locale === 'es' ? 'Cancelar Suscripción' : 'Cancelar Assinatura'}
+                            </button>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                playBubble();
+                                setShowPreferencesMenu(false);
+                                setShowPaywall(true);
+                              }}
+                              className="w-full py-2.5 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white text-xs font-black uppercase rounded-xl transition-all cursor-pointer text-center font-Outfit active:scale-95 border-b-2 border-amber-700/30"
+                            >
+                              {locale === 'en' ? 'Upgrade to Premium 👑' : locale === 'es' ? 'Mejorar a Premium 👑' : 'Assinar Premium 👑'}
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Separator & Logout button */}
+                    <div className="border-t border-slate-100 dark:border-slate-800 pt-2.5 mt-1">
+                      <button 
+                        type="button"
+                        onClick={() => {
+                          setShowPreferencesMenu(false);
+                          handleLogout();
+                        }}
+                        className="w-full flex items-center justify-center gap-1.5 py-2 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900 text-red-700 dark:text-red-300 text-xs font-black rounded-xl transition-all active:scale-95 font-Outfit cursor-pointer"
+                      >
+                        <LogOut className="w-4 h-4" /> <span>{t.common.exit}</span>
+                      </button>
+                    </div>
                   </motion.div>
                 )}
               </AnimatePresence>

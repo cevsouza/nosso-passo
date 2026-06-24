@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '../../../lib/prisma';
+import { hashPassword } from '../../../lib/auth-utils';
 
 export async function POST(req: Request) {
   try {
@@ -46,19 +47,25 @@ export async function PUT(req: Request) {
       return NextResponse.json({ error: 'UID do usuário é obrigatório' }, { status: 400 });
     }
 
+    const dataToUpdate: any = {
+      childHyperfocus: updates.childHyperfocus,
+      parentPinCode: updates.parentPinCode,
+      lockType: updates.lockType,
+      plan: updates.plan,
+      sensorySpeed: updates.sensorySpeed,
+      sensorySound: updates.sensorySound,
+      sensoryVisuals: updates.sensoryVisuals,
+      sensoryProfile: updates.sensoryProfile,
+      timerStyle: updates.timerStyle,
+    };
+
+    if (updates.password) {
+      dataToUpdate.passwordHash = hashPassword(updates.password);
+    }
+
     const updated = await prisma.userProfile.update({
       where: { uid },
-      data: {
-        childHyperfocus: updates.childHyperfocus,
-        parentPinCode: updates.parentPinCode,
-        lockType: updates.lockType,
-        plan: updates.plan,
-        sensorySpeed: updates.sensorySpeed,
-        sensorySound: updates.sensorySound,
-        sensoryVisuals: updates.sensoryVisuals,
-        sensoryProfile: updates.sensoryProfile,
-        timerStyle: updates.timerStyle,
-      },
+      data: dataToUpdate,
     });
 
     return NextResponse.json(updated);
