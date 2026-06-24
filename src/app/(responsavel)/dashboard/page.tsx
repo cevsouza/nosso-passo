@@ -9016,7 +9016,7 @@ function ParentDashboardContent() {
 
                       {/* View selector tabs */}
 
-                      <div className="flex bg-slate-100 p-0.5 rounded-full border border-slate-200 w-fit shrink-0">
+                      <div className="flex gap-1.5 bg-slate-100 p-1 rounded-full border border-slate-200 w-fit shrink-0">
 
                         {(['daily', 'weekly', 'monthly'] as const).map(mode => (
 
@@ -9028,13 +9028,13 @@ function ParentDashboardContent() {
 
                             onClick={() => { playBubble(); setScheduleViewMode(mode); }}
 
-                            className={`px-3.5 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer ${
+                            className={`px-4.5 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer ${
 
                               scheduleViewMode === mode
 
                                 ? 'bg-indigo-650 text-white shadow-xxs'
 
-                                : 'text-slate-500 hover:text-slate-800'
+                                : 'text-slate-500 hover:text-slate-800 hover:bg-white/45'
 
                             }`}
 
