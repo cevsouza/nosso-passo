@@ -274,8 +274,7 @@ interface TimerProps {
 
 const HourglassTimer: React.FC<TimerProps> = ({ progress, minutesLeft }) => {
   const { locale } = useLanguage();
-  const topPercent = progress * 100;
-  const bottomPercent = (1 - progress) * 100;
+  const sandRatio = 1 - progress; // goes from 0 (start) to 1 (end)
 
   return (
     <div className="flex flex-col items-center gap-1.5">
@@ -285,14 +284,14 @@ const HourglassTimer: React.FC<TimerProps> = ({ progress, minutesLeft }) => {
       <div className="relative w-20 h-20 flex items-center justify-center bg-white rounded-full p-2 border-2 border-slate-300 shadow-xxs">
         <svg viewBox="0 0 100 120" className="w-full h-full">
           <path d="M20,10 L80,10 L80,20 Q80,55 55,60 Q80,65 80,100 L80,110 L20,110 L20,100 Q20,65 45,60 Q20,55 20,20 Z" fill="none" stroke="#64748b" strokeWidth="6" strokeLinejoin="round" />
-          <clipPath id="top-clip">
-            <rect x="0" y={10 + (90 - topPercent * 0.45)} width="100" height="50" />
+          <clipPath id="main-top-clip">
+            <rect x="0" y={15 + sandRatio * 42} width="100" height="50" />
           </clipPath>
-          <path d="M25,15 L75,15 Q75,52 50,57 Q25,52 25,15 Z" fill="#eab308" opacity="0.85" clipPath="url(#top-clip)" />
-          <clipPath id="bottom-clip">
-            <rect x="0" y={105 - bottomPercent * 0.45} width="100" height="50" />
+          <path d="M25,15 L75,15 Q75,52 50,57 Q25,52 25,15 Z" fill="#eab308" opacity="0.85" clipPath="url(#main-top-clip)" />
+          <clipPath id="main-bottom-clip">
+            <rect x="0" y={105 - sandRatio * 42} width="100" height="50" />
           </clipPath>
-          <path d="M50,63 Q75,68 75,105 L25,105 Q25,68 50,63 Z" fill="#eab308" opacity="0.95" clipPath="url(#bottom-clip)" />
+          <path d="M50,63 Q75,68 75,105 L25,105 Q25,68 50,63 Z" fill="#eab308" opacity="0.95" clipPath="url(#main-bottom-clip)" />
           {progress > 0 && progress < 1 && (
             <line x1="50" y1="55" x2="50" y2="95" stroke="#eab308" strokeWidth="3" strokeDasharray="5,5" strokeLinecap="round">
               <animate attributeName="stroke-dashoffset" values="10;0" dur="1s" repeatCount="indefinite" />
@@ -4362,30 +4361,41 @@ export default function ChildRoutine() {
                     </h3>
                   </div>
 
-                  {/* Progress Ring / Circle countdown */}
+                  {/* Waiting Hourglass countdown */}
                   <div className="relative w-28 h-28 flex items-center justify-center my-1">
-                    <svg viewBox="0 0 100 100" className="w-full h-full transform -rotate-90">
-                      <circle cx="50" cy="50" r="40" fill="none" stroke={sleepMode ? '#1e293b' : '#f1f5f9'} strokeWidth="8" />
-                      <circle 
-                        cx="50" 
-                        cy="50" 
-                        r="40" 
+                    <svg viewBox="0 0 100 120" className="w-full h-full">
+                      <path 
+                        d="M20,10 L80,10 L80,20 Q80,55 55,60 Q80,65 80,100 L80,110 L20,110 L20,100 Q20,65 45,60 Q20,55 20,20 Z" 
                         fill="none" 
-                        stroke={waitTimerFinished ? '#10b981' : mascotInfo.stroke} 
-                        strokeWidth="8" 
-                        strokeDasharray="251.2" 
-                        strokeDashoffset={251.2 * (1 - (waitTimerTimeLeft / waitTimerDuration))} 
-                        strokeLinecap="round"
-                        className="transition-all duration-1000 ease-linear"
+                        stroke={sleepMode ? '#475569' : '#64748b'} 
+                        strokeWidth="6" 
+                        strokeLinejoin="round" 
                       />
+                      <clipPath id="wait-top-clip">
+                        <rect x="0" y={15 + progressRatio * 42} width="100" height="50" />
+                      </clipPath>
+                      <path d="M25,15 L75,15 Q75,52 50,57 Q25,52 25,15 Z" fill={waitTimerFinished ? '#10b981' : mascotInfo.stroke} opacity="0.85" clipPath="url(#wait-top-clip)" />
+                      <clipPath id="wait-bottom-clip">
+                        <rect x="0" y={105 - progressRatio * 42} width="100" height="50" />
+                      </clipPath>
+                      <path d="M50,63 Q75,68 75,105 L25,105 Q25,68 50,63 Z" fill={waitTimerFinished ? '#10b981' : mascotInfo.stroke} opacity="0.95" clipPath="url(#wait-bottom-clip)" />
+                      {progressRatio > 0 && progressRatio < 1 && (
+                        <line x1="50" y1="55" x2="50" y2="95" stroke={mascotInfo.stroke} strokeWidth="3" strokeDasharray="5,5" strokeLinecap="round">
+                          <animate attributeName="stroke-dashoffset" values="10;0" dur="1s" repeatCount="indefinite" />
+                        </line>
+                      )}
                     </svg>
-                    <div className="absolute inset-0 flex flex-col items-center justify-center font-bold">
+                    <div className="absolute inset-0 flex flex-col items-center justify-center font-bold pointer-events-none mt-2">
                       {waitTimerFinished ? (
                         <span className="text-2xl animate-bounce">🎉</span>
                       ) : (
                         <>
-                          <span className="text-xl font-black">{Math.floor(waitTimerTimeLeft / 60)}:{(waitTimerTimeLeft % 60).toString().padStart(2, '0')}</span>
-                          <span className="text-[8px] text-slate-400 uppercase tracking-wider font-extrabold">{locale === 'en' ? 'left' : locale === 'es' ? 'restante' : 'restam'}</span>
+                          <span className="text-sm font-black text-slate-900 bg-white/70 px-1.5 py-0.5 rounded">
+                            {Math.floor(waitTimerTimeLeft / 60)}:{(waitTimerTimeLeft % 60).toString().padStart(2, '0')}
+                          </span>
+                          <span className="text-[7px] text-slate-500 uppercase tracking-wider font-extrabold bg-white/70 px-1 rounded mt-0.5">
+                            {locale === 'en' ? 'left' : locale === 'es' ? 'restante' : 'restam'}
+                          </span>
                         </>
                       )}
                     </div>
@@ -4465,9 +4475,18 @@ export default function ChildRoutine() {
                         onClick={() => {
                           playBubble();
                           setWaitTimerTimeLeft(prev => {
-                            const newVal = Math.max(60, prev - 60);
-                            const delta = newVal - prev;
-                            setWaitTimerDuration(d => Math.max(60, d + delta));
+                            const newVal = Math.max(0, prev - 60);
+                            if (newVal === 0) {
+                              setIsWaitTimerActive(false);
+                              setWaitTimerFinished(true);
+                              try {
+                                playCelebration();
+                              } catch (err) {
+                                console.error('Erro ao tocar som:', err);
+                              }
+                              const msg = t.routine.waitTimerFinished || 'O tempo de espera terminou! Muito bem por esperar!';
+                              speakText(msg);
+                            }
                             return newVal;
                           });
                         }}
@@ -4481,7 +4500,7 @@ export default function ChildRoutine() {
                           playBubble();
                           setWaitTimerTimeLeft(prev => {
                             const newVal = prev + 60;
-                            setWaitTimerDuration(d => d + 60);
+                            setWaitTimerDuration(d => Math.max(d, newVal));
                             return newVal;
                           });
                           setWaitTimerFinished(false);

@@ -100,6 +100,45 @@ export interface Checkpoint {
 const MOCK_DB_UPDATE_EVENT = 'firebase-mock-db-update';
 const MOCK_AUTH_UPDATE_EVENT = 'firebase-mock-auth-update';
 
+const getTargetMonthYear = (monthParam?: number, yearParam?: number) => {
+  if (monthParam !== undefined && yearParam !== undefined) {
+    return { month: monthParam, year: yearParam };
+  }
+  const isRoutine = typeof window !== 'undefined' && window.location.pathname.includes('/routine');
+  if (isRoutine) {
+    const now = new Date();
+    return {
+      month: monthParam !== undefined ? monthParam : now.getMonth() + 1,
+      year: yearParam !== undefined ? yearParam : now.getFullYear()
+    };
+  } else {
+    const now = new Date();
+    let m = monthParam;
+    let y = yearParam;
+    if (m === undefined && typeof window !== 'undefined') {
+      const storedM = localStorage.getItem('tea_active_month');
+      m = storedM ? parseInt(storedM, 10) : now.getMonth() + 1;
+    } else if (m === undefined) {
+      m = now.getMonth() + 1;
+    }
+    if (y === undefined && typeof window !== 'undefined') {
+      const storedY = localStorage.getItem('tea_active_year');
+      y = storedY ? parseInt(storedY, 10) : now.getFullYear();
+    } else if (y === undefined) {
+      y = now.getFullYear();
+    }
+    return { month: m, year: y };
+  }
+};
+
+const dispatchDbUpdate = (tasks: Task[], month: number, year: number) => {
+  if (typeof window === 'undefined') return;
+  window.dispatchEvent(new CustomEvent(MOCK_DB_UPDATE_EVENT, { 
+    detail: { tasks, month, year } 
+  }));
+};
+
+
 export interface OfflineAction {
   id: string;
   url: string;
@@ -165,9 +204,11 @@ export const syncOfflineActions = async () => {
   saveOfflineQueue(remaining);
 
   // Broadcast updates
-  firebaseBridge.db.getTasks().then(tasks => {
-    window.dispatchEvent(new CustomEvent(MOCK_DB_UPDATE_EVENT, { detail: tasks }));
+  const { month, year } = getTargetMonthYear();
+  firebaseBridge.db.getTasks(month, year).then(tasks => {
+    dispatchDbUpdate(tasks, month, year);
   }).catch(() => {});
+
 };
 
 const safeFetch = async (url: string, options: RequestInit = {}): Promise<Response> => {
@@ -438,9 +479,10 @@ export const firebaseBridge = {
         localStorage.removeItem('tea_active_child_id');
       }
       
+      const { month, year } = getTargetMonthYear();
       // Broadcast update to sync local tasks
-      firebaseBridge.db.getTasks().then(tasks => {
-        window.dispatchEvent(new CustomEvent(MOCK_DB_UPDATE_EVENT, { detail: tasks }));
+      firebaseBridge.db.getTasks(month, year).then(tasks => {
+        dispatchDbUpdate(tasks, month, year);
       }).catch(() => {});
     },
 
@@ -496,16 +538,7 @@ export const firebaseBridge = {
       const userUid = current?.uid || 'user-123';
       const childId = typeof window !== 'undefined' ? localStorage.getItem('tea_active_child_id') : null;
 
-      let m = month;
-      let y = year;
-      if (m === undefined && typeof window !== 'undefined') {
-        const storedM = localStorage.getItem('tea_active_month');
-        m = storedM ? parseInt(storedM, 10) : new Date().getMonth() + 1;
-      }
-      if (y === undefined && typeof window !== 'undefined') {
-        const storedY = localStorage.getItem('tea_active_year');
-        y = storedY ? parseInt(storedY, 10) : new Date().getFullYear();
-      }
+      const { month: m, year: y } = getTargetMonthYear(month, year);
 
       const headers: Record<string, string> = { 'x-user-uid': userUid };
       if (childId) {
@@ -523,7 +556,7 @@ export const firebaseBridge = {
       return data;
     },
 
-    addTask: async (taskData: Omit<Task, 'id' | 'isCompleted' | 'order'> | Omit<Task, 'id' | 'isCompleted' | 'order'>[]): Promise<any> => {
+    addTask: async (taskData: Omit<Task, 'id' | 'isCompleted' | 'order'> | Omit<Task, 'id' | 'isCompleted' | 'order'>[], month?: number, year?: number): Promise<any> => {
       const current = getLocalProfile();
       const userUid = current?.uid || 'user-123';
       const childId = typeof window !== 'undefined' ? localStorage.getItem('tea_active_child_id') : null;
@@ -536,14 +569,11 @@ export const firebaseBridge = {
         headers['x-child-id'] = childId;
       }
 
-      let m = typeof window !== 'undefined' ? localStorage.getItem('tea_active_month') : null;
-      let y = typeof window !== 'undefined' ? localStorage.getItem('tea_active_year') : null;
-      const month = m ? parseInt(m, 10) : new Date().getMonth() + 1;
-      const year = y ? parseInt(y, 10) : new Date().getFullYear();
+      const { month: targetMonth, year: targetYear } = getTargetMonthYear(month, year);
 
       const payload = Array.isArray(taskData)
-        ? taskData.map(t => ({ month, year, ...t }))
-        : { month, year, ...taskData };
+        ? taskData.map(t => ({ month: targetMonth, year: targetYear, ...t }))
+        : { month: targetMonth, year: targetYear, ...taskData };
 
       const res = await safeFetch('/api/tasks', {
         method: 'POST',
@@ -554,27 +584,28 @@ export const firebaseBridge = {
       if (data.error) throw new Error(data.error);
 
       // Trigger a sync check locally
-      firebaseBridge.db.getTasks().then(tasks => {
-        window.dispatchEvent(new CustomEvent(MOCK_DB_UPDATE_EVENT, { detail: tasks }));
+      firebaseBridge.db.getTasks(targetMonth, targetYear).then(tasks => {
+        dispatchDbUpdate(tasks, targetMonth, targetYear);
       }).catch(() => {});
 
       return data;
     },
 
-    deleteTask: async (id: string): Promise<void> => {
+    deleteTask: async (id: string, month?: number, year?: number): Promise<void> => {
       const res = await safeFetch(`/api/tasks?id=${id}`, {
         method: 'DELETE'
       });
       const data = await res.json();
       if (data.error) throw new Error(data.error);
 
+      const { month: targetMonth, year: targetYear } = getTargetMonthYear(month, year);
       // Trigger a sync check locally
-      firebaseBridge.db.getTasks().then(tasks => {
-        window.dispatchEvent(new CustomEvent(MOCK_DB_UPDATE_EVENT, { detail: tasks }));
+      firebaseBridge.db.getTasks(targetMonth, targetYear).then(tasks => {
+        dispatchDbUpdate(tasks, targetMonth, targetYear);
       }).catch(() => {});
     },
 
-    deleteTasksByDay: async (day: string): Promise<void> => {
+    deleteTasksByDay: async (day: string, month?: number, year?: number): Promise<void> => {
       const current = getLocalProfile();
       const userUid = current?.uid || 'user-123';
       const childId = typeof window !== 'undefined' ? localStorage.getItem('tea_active_child_id') : null;
@@ -586,12 +617,9 @@ export const firebaseBridge = {
         headers['x-child-id'] = childId;
       }
 
-      let m = typeof window !== 'undefined' ? localStorage.getItem('tea_active_month') : null;
-      let y = typeof window !== 'undefined' ? localStorage.getItem('tea_active_year') : null;
-      const month = m ? parseInt(m, 10) : new Date().getMonth() + 1;
-      const year = y ? parseInt(y, 10) : new Date().getFullYear();
+      const { month: targetMonth, year: targetYear } = getTargetMonthYear(month, year);
 
-      const res = await safeFetch(`/api/tasks?day=${day}&month=${month}&year=${year}`, {
+      const res = await safeFetch(`/api/tasks?day=${day}&month=${targetMonth}&year=${targetYear}`, {
         method: 'DELETE',
         headers
       });
@@ -599,12 +627,12 @@ export const firebaseBridge = {
       if (data.error) throw new Error(data.error);
 
       // Trigger a sync check locally
-      firebaseBridge.db.getTasks().then(tasks => {
-        window.dispatchEvent(new CustomEvent(MOCK_DB_UPDATE_EVENT, { detail: tasks }));
+      firebaseBridge.db.getTasks(targetMonth, targetYear).then(tasks => {
+        dispatchDbUpdate(tasks, targetMonth, targetYear);
       }).catch(() => {});
     },
 
-    updateTask: async (id: string, updates: Partial<Omit<Task, 'id'>>): Promise<void> => {
+    updateTask: async (id: string, updates: Partial<Omit<Task, 'id'>>, month?: number, year?: number): Promise<void> => {
       const current = getLocalProfile();
       const userUid = current?.uid || 'user-123';
       const childId = typeof window !== 'undefined' ? localStorage.getItem('tea_active_child_id') : null;
@@ -625,9 +653,10 @@ export const firebaseBridge = {
       const data = await res.json();
       if (data.error) throw new Error(data.error);
 
+      const { month: targetMonth, year: targetYear } = getTargetMonthYear(month, year);
       // Fetch new task list
-      const tasks = await firebaseBridge.db.getTasks();
-      window.dispatchEvent(new CustomEvent(MOCK_DB_UPDATE_EVENT, { detail: tasks }));
+      const tasks = await firebaseBridge.db.getTasks(targetMonth, targetYear);
+      dispatchDbUpdate(tasks, targetMonth, targetYear);
 
       // If completing, fire completed event
       if (updates.isCompleted === true) {
@@ -745,10 +774,10 @@ export const firebaseBridge = {
       const data = await res.json();
       if (data.error) throw new Error(data.error);
 
-      window.dispatchEvent(new CustomEvent(MOCK_DB_UPDATE_EVENT, { detail: data }));
+      dispatchDbUpdate(data, month + 1, year);
     },
 
-    resetCompletions: async (): Promise<void> => {
+    resetCompletions: async (month?: number, year?: number): Promise<void> => {
       const current = getLocalProfile();
       const userUid = current?.uid || 'user-123';
       const childId = typeof window !== 'undefined' ? localStorage.getItem('tea_active_child_id') : null;
@@ -761,22 +790,19 @@ export const firebaseBridge = {
         headers['x-child-id'] = childId;
       }
 
-      let m = typeof window !== 'undefined' ? localStorage.getItem('tea_active_month') : null;
-      let y = typeof window !== 'undefined' ? localStorage.getItem('tea_active_year') : null;
-      const month = m ? parseInt(m, 10) : new Date().getMonth() + 1;
-      const year = y ? parseInt(y, 10) : new Date().getFullYear();
+      const { month: targetMonth, year: targetYear } = getTargetMonthYear(month, year);
 
       const res = await safeFetch('/api/tasks', {
         method: 'PUT',
         headers,
-        body: JSON.stringify({ resetCompletions: true, month, year })
+        body: JSON.stringify({ resetCompletions: true, month: targetMonth, year: targetYear })
       });
       const data = await res.json();
       if (data.error) throw new Error(data.error);
 
       // Fetch new task list
-      const tasks = await firebaseBridge.db.getTasks();
-      window.dispatchEvent(new CustomEvent(MOCK_DB_UPDATE_EVENT, { detail: tasks }));
+      const tasks = await firebaseBridge.db.getTasks(targetMonth, targetYear);
+      dispatchDbUpdate(tasks, targetMonth, targetYear);
     },
 
     loadTemplate: async (templateTasks: Omit<Task, 'id' | 'isCompleted' | 'order'>[], targetMonth?: number, targetYear?: number): Promise<void> => {
@@ -792,30 +818,20 @@ export const firebaseBridge = {
         headers['x-child-id'] = childId;
       }
 
-      let m = targetMonth !== undefined ? targetMonth : (typeof window !== 'undefined' ? localStorage.getItem('tea_active_month') : null);
-      let y = targetYear !== undefined ? targetYear : (typeof window !== 'undefined' ? localStorage.getItem('tea_active_year') : null);
-      const month = m ? Number(m) : new Date().getMonth() + 1;
-      const year = y ? Number(y) : new Date().getFullYear();
+      const { month: tMonth, year: tYear } = getTargetMonthYear(targetMonth, targetYear);
 
       const res = await safeFetch('/api/tasks', {
         method: 'PUT',
         headers,
-        body: JSON.stringify({ overwrite: true, month, year, tasks: templateTasks })
+        body: JSON.stringify({ overwrite: true, month: tMonth, year: tYear, tasks: templateTasks })
       });
       const data = await res.json();
       if (data.error) throw new Error(data.error);
 
-      const activeM = typeof window !== 'undefined' ? localStorage.getItem('tea_active_month') : null;
-      const activeY = typeof window !== 'undefined' ? localStorage.getItem('tea_active_year') : null;
-      const actM = activeM ? parseInt(activeM, 10) : new Date().getMonth() + 1;
-      const actY = activeY ? parseInt(activeY, 10) : new Date().getFullYear();
-
-      if (month === actM && year === actY) {
-        window.dispatchEvent(new CustomEvent(MOCK_DB_UPDATE_EVENT, { detail: data }));
-      }
+      dispatchDbUpdate(data, tMonth, tYear);
     },
 
-    clearAllTasks: async (): Promise<void> => {
+    clearAllTasks: async (targetMonth?: number, targetYear?: number): Promise<void> => {
       const current = getLocalProfile();
       const userUid = current?.uid || 'user-123';
       const childId = typeof window !== 'undefined' ? localStorage.getItem('tea_active_child_id') : null;
@@ -828,42 +844,54 @@ export const firebaseBridge = {
         headers['x-child-id'] = childId;
       }
 
-      let m = typeof window !== 'undefined' ? localStorage.getItem('tea_active_month') : null;
-      let y = typeof window !== 'undefined' ? localStorage.getItem('tea_active_year') : null;
-      const month = m ? parseInt(m, 10) : new Date().getMonth() + 1;
-      const year = y ? parseInt(y, 10) : new Date().getFullYear();
+      const { month: tMonth, year: tYear } = getTargetMonthYear(targetMonth, targetYear);
 
       const res = await safeFetch('/api/tasks', {
         method: 'PUT',
         headers,
-        body: JSON.stringify({ overwrite: true, month, year, tasks: [] })
+        body: JSON.stringify({ overwrite: true, month: tMonth, year: tYear, tasks: [] })
       });
       const data = await res.json();
       if (data.error) throw new Error(data.error);
 
-      window.dispatchEvent(new CustomEvent(MOCK_DB_UPDATE_EVENT, { detail: data }));
+      dispatchDbUpdate(data, tMonth, tYear);
     },
 
     onSnapshotTasks: (callback: (tasks: Task[]) => void, month?: number, year?: number) => {
       if (typeof window === 'undefined') return () => {};
 
+      const { month: targetMonth, year: targetYear } = getTargetMonthYear(month, year);
+
       // Initial read
-      firebaseBridge.db.getTasks(month, year).then(callback).catch(() => {});
+      firebaseBridge.db.getTasks(targetMonth, targetYear).then(callback).catch(() => {});
 
       const handleUpdate = (e: Event) => {
-        const customEvent = e as CustomEvent<Task[]>;
-        if (customEvent.detail && Array.isArray(customEvent.detail)) {
-          let filtered = customEvent.detail;
-          if (month !== undefined || year !== undefined) {
-            filtered = customEvent.detail.filter(t => {
-              const tm = t.month !== undefined && t.month !== null ? t.month : new Date().getMonth() + 1;
-              const ty = t.year !== undefined && t.year !== null ? t.year : new Date().getFullYear();
-              
-              if (month !== undefined && tm !== month) return false;
-              if (year !== undefined && ty !== year) return false;
-              return true;
-            });
+        const customEvent = e as CustomEvent<any>;
+        if (customEvent.detail) {
+          let eventTasks: Task[] = [];
+          let eventMonth: number | undefined;
+          let eventYear: number | undefined;
+
+          if (Array.isArray(customEvent.detail)) {
+            eventTasks = customEvent.detail;
+          } else if (customEvent.detail.tasks && Array.isArray(customEvent.detail.tasks)) {
+            eventTasks = customEvent.detail.tasks;
+            eventMonth = customEvent.detail.month;
+            eventYear = customEvent.detail.year;
           }
+
+          if (eventMonth !== undefined && eventMonth !== targetMonth) return;
+          if (eventYear !== undefined && eventYear !== targetYear) return;
+
+          let filtered = eventTasks;
+          filtered = eventTasks.filter(t => {
+            const tm = t.month !== undefined && t.month !== null ? t.month : new Date().getMonth() + 1;
+            const ty = t.year !== undefined && t.year !== null ? t.year : new Date().getFullYear();
+            
+            if (targetMonth !== undefined && tm !== targetMonth) return false;
+            if (targetYear !== undefined && ty !== targetYear) return false;
+            return true;
+          });
           callback(filtered);
         }
       };
@@ -874,11 +902,11 @@ export const firebaseBridge = {
       let lastSerialized = '';
       const interval = setInterval(async () => {
         try {
-          const fetched = await firebaseBridge.db.getTasks(month, year);
+          const fetched = await firebaseBridge.db.getTasks(targetMonth, targetYear);
           const serialized = JSON.stringify(fetched);
           if (serialized !== lastSerialized) {
             lastSerialized = serialized;
-            window.dispatchEvent(new CustomEvent(MOCK_DB_UPDATE_EVENT, { detail: fetched }));
+            dispatchDbUpdate(fetched, targetMonth, targetYear);
           }
         } catch (err) {
           // Silent catch
