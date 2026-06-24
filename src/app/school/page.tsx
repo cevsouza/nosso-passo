@@ -16,6 +16,7 @@ function SchoolPortalContent() {
   const [isVerifying, setIsVerifying] = useState(false);
   const [childData, setChildData] = useState<any | null>(null);
   const [verifyError, setVerifyError] = useState<string | null>(null);
+  const [showHelpBanner, setShowHelpBanner] = useState(false);
 
   // Form states
   const [mood, setMood] = useState<string>('calmo');
@@ -168,31 +169,52 @@ function SchoolPortalContent() {
                   </span>
                 </div>
               </div>
-              <button
-                type="button"
-                onClick={() => { setChildData(null); setSharingCode(''); }}
-                className="text-[10px] font-black text-slate-400 hover:text-slate-600 font-Outfit uppercase bg-transparent border-none cursor-pointer"
-              >
-                {t.common.exit}
-              </button>
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => { playBubble(); setShowHelpBanner(!showHelpBanner); }}
+                  className={`p-1.5 rounded-lg transition-all hover:bg-indigo-100 cursor-pointer ${
+                    showHelpBanner ? 'text-indigo-600 bg-indigo-50' : 'text-slate-400'
+                  }`}
+                  title={locale === 'en' ? 'Help Guide' : locale === 'es' ? 'Guía de Ayuda' : 'Guia de Ajuda'}
+                >
+                  <span className="text-sm select-none">❓</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setChildData(null); setSharingCode(''); }}
+                  className="text-[10px] font-black text-slate-400 hover:text-slate-600 font-Outfit uppercase bg-transparent border-none cursor-pointer"
+                >
+                  {t.common.exit}
+                </button>
+              </div>
             </div>
 
             {/* Didactic Clinical Banner */}
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-indigo-150 p-4 rounded-2xl text-left shadow-sm">
-              <div className="flex items-start gap-2.5">
-                <span className="text-xl">📊</span>
-                <div>
-                  <h4 className="text-xs font-black text-indigo-950 font-Outfit">{t.school.clinicalBannerTitle}</h4>
-                  <p className="text-[10px] text-indigo-900 leading-normal font-semibold mt-0.5">
-                    {locale === 'en' 
-                      ? `This diary synchronizes school behavior with therapist and parent reports. Always consult the Sign Guide to follow recommended strategies for ${childData.name.split(' ')[0]}.`
-                      : locale === 'es' 
-                      ? `Este diario sincroniza los comportamientos escolares con los informes de terapeutas y padres. Consulte siempre la Guía de Señales para seguir las conductas recomendadas para ${childData.name.split(' ')[0]}.`
-                      : `Este diário sincroniza os comportamentos observados na escola com os relatórios analíticos dos terapeutas e pais. Sempre consulte a aba Guia de Sinais para seguir as condutas recomendadas para o(a) ${childData.name.split(' ')[0]}.`}
-                  </p>
-                </div>
-              </div>
-            </div>
+            <AnimatePresence>
+              {showHelpBanner && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-indigo-150 p-4 rounded-2xl text-left shadow-sm overflow-hidden"
+                >
+                  <div className="flex items-start gap-2.5">
+                    <span className="text-xl select-none">📊</span>
+                    <div>
+                      <h4 className="text-xs font-black text-indigo-950 font-Outfit">{t.school.clinicalBannerTitle}</h4>
+                      <p className="text-[10px] text-indigo-900 leading-normal font-semibold mt-0.5">
+                        {locale === 'en' 
+                          ? `This diary synchronizes school behavior with therapist and parent reports. Always consult the Sign Guide to follow recommended strategies for ${childData.name.split(' ')[0]}.`
+                          : locale === 'es' 
+                          ? `Este diario sincroniza los comportamientos escolares con los informes de terapeutas y padres. Consulte siempre la Guía de Señales para seguir las conductas recomendadas para ${childData.name.split(' ')[0]}.`
+                          : `Este diário sincroniza os comportamentos observados na escola com os relatórios analíticos dos terapeutas e pais. Sempre consulte a aba Guia de Sinais para seguir as condutas recomendadas para o(a) ${childData.name.split(' ')[0]}.`}
+                      </p>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             {/* Tab Switcher */}
             <div className="flex bg-slate-100 p-1 rounded-xl">

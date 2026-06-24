@@ -36,6 +36,7 @@ export default function TherapistPortal() {
   const [verifying, setVerifying] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [childData, setChildData] = useState<any | null>(null);
+  const [activeTab, setActiveTab] = useState<'checkpoints' | 'routine' | 'analysis'>('checkpoints');
 
   // Form states for checkpoints
   const [selectedCheckpoint, setSelectedCheckpoint] = useState<any | null>(null);
@@ -557,150 +558,52 @@ export default function TherapistPortal() {
             </div>
           </div>
 
-          {/* Clinical Correlation & AI Banner */}
-          <div className="bg-gradient-to-r from-teal-50 to-cyan-50 border-2 border-teal-150 p-4.5 rounded-[24px] text-left shadow-sm flex items-start gap-3.5">
-            <div className="w-10 h-10 bg-teal-100 text-teal-700 rounded-xl flex items-center justify-center text-xl shrink-0 shadow-inner border border-teal-150">
-              🧠
-            </div>
-            <div>
-              <h4 className="text-xs font-black text-teal-950 font-Outfit">{locale === 'en' ? 'Smart Clinical Synchronization' : locale === 'es' ? 'Sincronización Clínica Inteligente' : 'Sincronização Clínica Inteligente'}</h4>
-              <p className="text-[10.5px] text-teal-900 leading-relaxed font-semibold mt-0.5">
-                {locale === 'en' 
-                  ? 'Clinical checkpoints registered on this platform cross-reference data in real time with the mediator\'s school notes and routine logs entered by the family. Our correlation AI analyzes these three sources to predict stress peaks, meltdowns, and determine the patient\'s Sensory Adherence.' 
-                  : locale === 'es' 
-                  ? 'Los puntos de control clínicos registrados en esta plataforma cruzan datos en tiempo real con las notas escolares del mediador y los registros de rutina introducidos por la familia. Nuestra IA de correlación analiza estas tres fuentes para predecir picos de estrés, meltdowns y determinar la Adherencia Sensorial del paciente.' 
-                  : 'Os checkpoints clínicos registrados nesta plataforma cruzam dados em tempo real com as anotações escolares do mediador e os registros de rotina inseridos pela família. Nossa IA de correlação analisa essas três fontes para prever picos de estresse, meltdowns e determinar a Aderência Sensorial do paciente.'}
-              </p>
+          {/* Sticky Tab Bar Container for Therapist Portal */}
+          <div className="sticky top-[130px] md:top-[80px] z-20 bg-[#eff6ff]/95 backdrop-blur-md py-3 -mx-2 px-2 print:hidden">
+            <div className="bg-slate-100/80 p-1.5 rounded-2xl flex shadow-inner gap-1 overflow-x-auto scrollbar-none">
+              <button
+                type="button"
+                onClick={() => { playBubble(); setActiveTab('checkpoints'); }}
+                className={`flex-1 py-2.5 text-xs font-black rounded-xl transition-all flex items-center justify-center gap-2 shrink-0 font-Outfit cursor-pointer select-none active:scale-95 border-none outline-none ${
+                  activeTab === 'checkpoints'
+                    ? 'bg-white text-teal-950 shadow-sm border border-slate-200/50 scale-100'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-white/40'
+                }`}
+              >
+                <ClipboardCheck className="w-4.5 h-4.5" />
+                {locale === 'en' ? 'Sessions & Evolution 📝' : locale === 'es' ? 'Sesiones y Evolución 📝' : 'Sessões & Evolução'}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => { playBubble(); setActiveTab('routine'); }}
+                className={`flex-1 py-2.5 text-xs font-black rounded-xl transition-all flex items-center justify-center gap-2 shrink-0 font-Outfit cursor-pointer select-none active:scale-95 border-none outline-none ${
+                  activeTab === 'routine'
+                    ? 'bg-white text-teal-950 shadow-sm border border-slate-200/50 scale-100'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-white/40'
+                }`}
+              >
+                <Calendar className="w-4.5 h-4.5" />
+                {locale === 'en' ? 'Prescribe Routine 📅' : locale === 'es' ? 'Prescribir Rutina 📅' : 'Prescrever Rotina'}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => { playBubble(); setActiveTab('analysis'); }}
+                className={`flex-1 py-2.5 text-xs font-black rounded-xl transition-all flex items-center justify-center gap-2 shrink-0 font-Outfit cursor-pointer select-none active:scale-95 border-none outline-none ${
+                  activeTab === 'analysis'
+                    ? 'bg-white text-teal-950 shadow-sm border border-slate-200/50 scale-100'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-white/40'
+                }`}
+              >
+                <TrendingUp className="w-4.5 h-4.5" />
+                {locale === 'en' ? 'Analysis & Diary 📊' : locale === 'es' ? 'Análisis y Diario 📊' : 'Análise & Diário'}
+              </button>
             </div>
           </div>
 
-          {/* Metrics Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-5">
-            
-            {/* compliance card */}
-            <div className="bg-white border border-slate-200 p-5 rounded-[24px] shadow-xxs flex flex-col justify-between gap-4">
-              <div className="flex justify-between items-start">
-                <div className="text-left">
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block font-Outfit">
-                    {locale === 'en' ? 'Routine Adherence' : locale === 'es' ? 'Adherencia a la Rutina' : 'Aderência à Rotina'}
-                  </span>
-                  <span className="text-3xl font-black text-slate-900 tracking-tight mt-1 block font-Outfit">{complianceRate}%</span>
-                </div>
-                <div className="w-10 h-10 bg-indigo-50 border border-indigo-100 text-indigo-700 rounded-xl flex items-center justify-center shadow-xxs">
-                  <Activity className="w-5 h-5" />
-                </div>
-              </div>
-              <div className="text-left">
-                <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden mb-1.5">
-                  <div 
-                    className={`h-full rounded-full ${complianceRate >= 80 ? 'bg-emerald-500' : complianceRate >= 50 ? 'bg-amber-500' : 'bg-red-500'}`} 
-                    style={{ width: `${complianceRate}%` }} 
-                  />
-                </div>
-                <span className="text-[9px] text-slate-450 font-bold">
-                  {locale === 'en' 
-                    ? `Calculated over ${totalTasksElapsed} tasks of the ${elapsedDays} elapsed days of the month.` 
-                    : locale === 'es' 
-                    ? `Calculado sobre ${totalTasksElapsed} tareas de los ${elapsedDays} días transcurridos del mes.` 
-                    : `Calculado sobre ${totalTasksElapsed} tarefas dos ${elapsedDays} dias decorridos do mês.`}
-                </span>
-              </div>
-            </div>
-
-            {/* stability card */}
-            <div className="bg-white border border-slate-200 p-5 rounded-[24px] shadow-xxs flex flex-col justify-between gap-4">
-              <div className="flex justify-between items-start">
-                <div className="text-left">
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block font-Outfit">
-                    {locale === 'en' ? 'Emotional Stability' : locale === 'es' ? 'Estabilidad Emocional' : 'Estabilidade Emocional'}
-                  </span>
-                  <span className="text-3xl font-black text-slate-900 tracking-tight mt-1 block font-Outfit">{stabilityRate}%</span>
-                </div>
-                <div className="w-10 h-10 bg-teal-50 border border-teal-100 text-teal-700 rounded-xl flex items-center justify-center shadow-xxs">
-                  <Smile className="w-5 h-5" />
-                </div>
-              </div>
-              <div className="text-left">
-                <span className="text-xs font-black text-teal-800 bg-teal-50 border border-teal-100 px-2 py-0.5 rounded-md inline-block mb-1 font-Outfit">
-                  {stabilityRate >= 80 
-                    ? (locale === 'en' ? 'Excellent' : locale === 'es' ? 'Excelente' : 'Excelente') 
-                    : stabilityRate >= 50 
-                    ? (locale === 'en' ? 'Stable' : locale === 'es' ? 'Estable' : 'Estável') 
-                    : (locale === 'en' ? 'Attention Needed' : locale === 'es' ? 'Atención Necesaria' : 'Atenção Necessária')}
-                </span>
-                <p className="text-[9px] text-slate-450 font-bold mt-0.5 leading-snug">
-                  {locale === 'en' 
-                    ? 'Average of regulated mood (Happy/Calm) in the emotional diary logs.' 
-                    : locale === 'es' 
-                    ? 'Promedio de humor regulado (Feliz/Calmo) en los registros del diario emocional.' 
-                    : 'Média de humor regulado (Feliz/Calmo) nos registros do diário emocional.'}
-                </p>
-              </div>
-            </div>
-
-            {/* crises card */}
-            <div className="bg-white border border-slate-200 p-5 rounded-[24px] shadow-xxs flex flex-col justify-between gap-4">
-              <div className="flex justify-between items-start">
-                <div className="text-left">
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block font-Outfit">
-                    {locale === 'en' ? 'Crisis Frequency' : locale === 'es' ? 'Frecuencia de Crisis' : 'Frequência de Crises'}
-                  </span>
-                  <span className="text-3xl font-black text-slate-900 tracking-tight mt-1 block font-Outfit">{crisesCount}</span>
-                </div>
-                <div className="w-10 h-10 bg-red-50 border border-red-100 text-red-700 rounded-xl flex items-center justify-center shadow-xxs">
-                  <AlertTriangle className="w-5 h-5" />
-                </div>
-              </div>
-              <div className="text-left">
-                <span className={`text-xs font-black px-2 py-0.5 rounded-md inline-block mb-1 font-Outfit ${
-                  crisesCount === 0 ? 'bg-emerald-50 text-emerald-800 border border-emerald-100' : 'bg-red-50 text-red-800 border border-red-100'
-                }`}>
-                  {crisesCount === 0 
-                    ? (locale === 'en' ? 'Under Control' : locale === 'es' ? 'Bajo Control' : 'Sob Controle') 
-                    : (locale === 'en' ? `${crisesCount} Recent Meltdown(s)` : locale === 'es' ? `${crisesCount} Meltdown(s) Reciente(s)` : `${crisesCount} Meltdown(s) Recente(s)`)}
-                </span>
-                <p className="text-[9px] text-slate-450 font-bold mt-0.5 leading-snug">
-                  {locale === 'en' 
-                    ? 'Total count of crises and severe sensory overloads this month.' 
-                    : locale === 'es' 
-                    ? 'Recuento total de crisis y sobrecargas sensoriales graves este mes.' 
-                    : 'Contagem total de crises e sobrecargas sensoriais graves neste mês.'}
-                </p>
-              </div>
-            </div>
-
-            {/* top trigger card */}
-            <div className="bg-white border border-slate-200 p-5 rounded-[24px] shadow-xxs flex flex-col justify-between gap-4">
-              <div className="flex justify-between items-start">
-                <div className="text-left">
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block font-Outfit">
-                    {locale === 'en' ? 'Most Frequent Trigger' : locale === 'es' ? 'Gatillo Más Frecuente' : 'Gatilho Mais Frequente'}
-                  </span>
-                  <span className="text-lg font-black text-slate-900 tracking-tight mt-1 block font-Outfit leading-tight">{topTrigger}</span>
-                </div>
-                <div className="w-10 h-10 bg-amber-50 border border-amber-100 text-amber-700 rounded-xl flex items-center justify-center shadow-xxs">
-                  <Brain className="w-5 h-5" />
-                </div>
-              </div>
-              <div className="text-left">
-                <span className="text-[9px] text-slate-450 font-bold leading-normal block">
-                  {locale === 'en' 
-                    ? 'Identified from environmental analysis filled in regulation logs.' 
-                    : locale === 'es' 
-                    ? 'Identificado a partir del análisis ambiental completado en los registros de regulación.' 
-                    : 'Identificado a partir das análises ambientais preenchidas nos registros de regulação.'}
-                </span>
-              </div>
-            </div>
-
-          </div>
-
-          {/* Main Content Sections */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-            
-            {/* Left Side: Checkpoints & Routine Trail */}
-            <div className="lg:col-span-8 flex flex-col gap-6">
-              
+          {/* Checkpoints Tab Content */}
+          <div className={activeTab === 'checkpoints' ? "w-full flex flex-col gap-6" : "hidden print:flex print:flex-col print:gap-6 print:w-full"}>
               {/* Checkpoints Tracker */}
               <div className="bg-white border border-slate-200 p-6 rounded-[28px] shadow-premium flex flex-col gap-4">
                 <div className="flex items-center justify-between border-b border-slate-100 pb-3">
@@ -952,6 +855,11 @@ export default function TherapistPortal() {
 
               </div>
 
+          </div>
+
+          {/* Routine Tab Content */}
+          <div className={activeTab === 'routine' ? "grid grid-cols-1 lg:grid-cols-12 gap-6 items-start w-full" : "hidden print:grid print:grid-cols-1 print:lg:grid-cols-12 print:gap-6 print:items-start print:w-full"}>
+            <div className="lg:col-span-8 flex flex-col gap-6">
               {/* Child Routine Inspection */}
               <div className="bg-white border border-slate-200 p-6 rounded-[28px] shadow-premium flex flex-col gap-4 text-left">
                 <div className="flex items-center justify-between gap-2 text-indigo-650 flex-wrap">
@@ -1251,9 +1159,244 @@ export default function TherapistPortal() {
                 </AnimatePresence>
               </div>
 
-              {/* Clinical Presets & Analytics Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-                
+
+            </div>
+            <div className="lg:col-span-4 flex flex-col gap-6">
+                {/* Presets Manager Card */}
+                <div className="bg-white border border-slate-200 p-6 rounded-[28px] shadow-premium flex flex-col gap-4 text-left">
+                  <div className="flex items-center gap-2 text-teal-650">
+                    <Brain className="w-5 h-5 text-indigo-500" />
+                    <h3 className="font-black text-slate-900 text-md font-Outfit">
+                      {locale === 'en' ? 'Prescribe Therapeutic Presets' : locale === 'es' ? 'Prescribir Ajustes Terapéuticos' : 'Prescrever Presets Terapêuticos'}
+                    </h3>
+                  </div>
+                  
+                  <p className="text-[10px] text-slate-500 font-semibold leading-relaxed">
+                    {locale === 'en' 
+                      ? 'Choose one of the models below based on clinical methodologies and add the activities instantly to the patient\'s routine.' 
+                      : locale === 'es' 
+                      ? 'Elija uno de los modelos a continuación basados en metodologías clínicas y agregue las actividades instantáneamente a la rutina del paciente.' 
+                      : 'Escolha um dos modelos abaixo baseados em metodologias clínicas e adicione as atividades instantaneamente à rotina do paciente.'}
+                  </p>
+
+                  <div className="flex flex-col gap-3">
+                    {[
+                      {
+                        title: locale === 'en' ? 'ABA Behavioral Intervention 🧩' : locale === 'es' ? 'Intervención Conductual ABA 🧩' : 'Intervenção Comportamental ABA 🧩',
+                        desc: locale === 'en' ? 'Structured routine with focus training and play breaks.' : locale === 'es' ? 'Rutina estructurada con entrenamiento de enfoque y pausas lúdicas.' : 'Rotina estruturada com treinos de foco e pausas lúdicas.',
+                        tasks: [
+                          { title: locale === 'en' ? 'Focus: ABA Imitation Training 🧩' : locale === 'es' ? 'Enfoque: Entr. de Imitación ABA 🧩' : 'Foco: Treino de Imitação ABA 🧩', time: '09:00', period: 'manhã', day: '1', order: 1, icon: '🧩', category: 'Aprendizado', duration: 30, description: locale === 'en' ? 'Focus work and shared attention.' : locale === 'es' ? 'Trabajo de enfoque y atención compartida.' : 'Trabalho de foco e atenção compartilhada.' },
+                          { title: locale === 'en' ? 'ADL Training: Washing Hands 🧼' : locale === 'es' ? 'Entr. de AVD: Lavarse las manos 🧼' : 'Treino de AVD: Lavar as mãos 🧼', time: '10:00', period: 'manhã', day: '1', order: 2, icon: '🧼', category: 'AVD', duration: 15, description: locale === 'en' ? 'Wash hands independently.' : locale === 'es' ? 'Lavarse las manos de forma independiente.' : 'Lavar as mãos de forma independente.' },
+                          { title: locale === 'en' ? 'Free Sensory Break 🧸' : locale === 'es' ? 'Pausa Sensorial Libre 🧸' : 'Pausa Sensorial Livre 🧸', time: '10:30', period: 'manhã', day: '1', order: 3, icon: '🧸', category: 'Lazer', duration: 20, description: locale === 'en' ? 'Regulating free play.' : locale === 'es' ? 'Juego libre regulador.' : 'Brincadeira livre reguladora.' }
+                        ]
+                      },
+                      {
+                        title: locale === 'en' ? 'OT Sensory Integration 跑' : locale === 'es' ? 'Integración Sensorial T.O. 跑' : 'Integração Sensorial T.O. 跑',
+                        desc: locale === 'en' ? 'Focus on psychomotor regulation and body relaxation.' : locale === 'es' ? 'Enfoque en regulación psicomotora y relajación corporal.' : 'Foco em regulação psicomotora e relaxamento corporal.',
+                        tasks: [
+                          { title: locale === 'en' ? 'Sensory Psychomotor Circuit 跑' : locale === 'es' ? 'Circuito Psicomotor Sensorial 跑' : 'Circuito Psicomotor Sensorial 跑', time: '14:00', period: 'tarde', day: '1', order: 1, icon: '跑', category: 'Aprendizado', duration: 45, description: locale === 'en' ? 'Circuit with pillows and jumps.' : locale === 'es' ? 'Circuito con almohadas y saltos.' : 'Circuito com almofadas e saltos.' },
+                          { title: locale === 'en' ? 'Regulating Bubble Bath 🚿' : locale === 'es' ? 'Baño de Espuma Regulador 🚿' : 'Banho de Espuma Regulador 🚿', time: '15:00', period: 'tarde', day: '1', order: 2, icon: '🚿', category: 'AVD', duration: 30, description: locale === 'en' ? 'Gentle tactile stimulation with foam.' : locale === 'es' ? 'Estimulación táctil suave con espuma.' : 'Estimulação tátil suave com espuma.' },
+                          { title: locale === 'en' ? 'Resting in the Hammock 💤' : locale === 'es' ? 'Descanso en la Hamaca 💤' : 'Descanso na Rede 💤', time: '15:45', period: 'tarde', day: '1', order: 3, icon: '💤', category: 'Lazer', duration: 20, description: locale === 'en' ? 'Passive vestibular regulation.' : locale === 'es' ? 'Regulación vestibular pasiva.' : 'Regulação vestibular passiva.' }
+                        ]
+                      },
+                      {
+                        title: locale === 'en' ? 'Communication & Language 🗣️' : locale === 'es' ? 'Comunicación y Lenguaje 🗣️' : 'Comunicação e Linguagem 🗣️',
+                        desc: locale === 'en' ? 'Focus on speech training, PECS cards, and social meals.' : locale === 'es' ? 'Enfoque en entrenamiento de habla, tarjetas PECS y comida social.' : 'Foco em treinos de fala, cartões PECS e refeição social.',
+                        tasks: [
+                          { title: locale === 'en' ? 'PECS Training / Naming 🗣️' : locale === 'es' ? 'Entr. de PECS / Nominación 🗣️' : 'Treino de PECS / Nomeação 🗣️', time: '11:00', period: 'manhã', day: '1', order: 1, icon: '🗣️', category: 'Aprendizado', duration: 30, description: locale === 'en' ? 'Augmentative communication exercises.' : locale === 'es' ? 'Ejercicios de comunicación aumentativa.' : 'Exercícios de comunicação aumentativa.' },
+                          { title: locale === 'en' ? 'Social Lunch Without Screens 🍱' : locale === 'es' ? 'Almuerzo Social Sin Pantallas 🍱' : 'Almoço Social Sem Telas 🍱', time: '12:00', period: 'tarde', day: '1', order: 2, icon: '🍱', category: 'AVD', duration: 45, description: locale === 'en' ? 'Lunch focused on chewing and interaction.' : locale === 'es' ? 'Almuerzo enfocado en masticación e interacción.' : 'Almoço focado em mastigação e interação.' },
+                          { title: locale === 'en' ? 'Shared Reading 📖' : locale === 'es' ? 'Lectura Compartida 📖' : 'Leitura Compartilhada 📖', time: '20:00', period: 'noite', day: '1', order: 3, icon: '📖', category: 'Lazer', duration: 30, description: locale === 'en' ? 'Interactive reading of social stories.' : locale === 'es' ? 'Lectura interactiva de historias sociales.' : 'Leitura interativa de histórias sociais.' }
+                        ]
+                      }
+                    ].map((preset, pIdx) => (
+                      <div key={pIdx} className="bg-slate-50 border border-slate-150 p-3 rounded-2xl flex flex-col gap-1 text-left">
+                        <div className="flex justify-between items-start gap-2">
+                          <div>
+                            <h4 className="text-[11px] font-black text-slate-800 font-Outfit">{preset.title}</h4>
+                            <p className="text-[9px] text-slate-500 font-semibold mt-0.5 leading-normal">{preset.desc}</p>
+                          </div>
+                          <button
+                            onClick={async () => {
+                              playMarimba(392, 0.2);
+                              setStatusMsg(locale === 'en' ? 'Prescribing routine...' : locale === 'es' ? 'Prescribiendo rutina...' : 'Prescrevendo rotina...');
+                              try {
+                                for (const t of preset.tasks) {
+                                  await fetch('/api/therapist', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({
+                                      sharingCode: childData.sharingCode,
+                                      action: 'CREATE_TASK',
+                                      taskData: t
+                                    })
+                                  });
+                                }
+                                playMarimba(523.25, 0.3);
+                                setStatusMsg(locale === 'en' ? `Routine "${preset.title}" prescribed successfully! 🎉` : locale === 'es' ? `¡Rutina "${preset.title}" prescrita con éxito! 🎉` : `Rotina "${preset.title}" prescrita com sucesso! 🎉`);
+                                handleVerify(undefined, childData.sharingCode);
+                                setTimeout(() => setStatusMsg(''), 4000);
+                              } catch (err) {
+                                console.error("Erro ao prescrever preset:", err);
+                                setStatusMsg(locale === 'en' ? 'Failed to prescribe routine.' : locale === 'es' ? 'Error al prescribir rutina.' : 'Falha ao prescrever rotina.');
+                              }
+                            }}
+                            className="px-3.5 py-1.5 bg-indigo-650 hover:bg-indigo-700 text-white text-[9px] font-black rounded-lg cursor-pointer border-none font-Outfit shadow-sm shrink-0 active:scale-95 transition-all outline-none"
+                          >
+                            {locale === 'en' ? 'Prescribe' : locale === 'es' ? 'Prescribir' : 'Prescrever'}
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+            </div>
+          </div>
+
+          {/* Analysis & Diary Tab Content */}
+          <div className={activeTab === 'analysis' ? "w-full flex flex-col gap-6" : "hidden print:flex print:flex-col print:gap-6 print:w-full"}>
+          {/* Clinical Correlation & AI Banner */}
+          <div className="bg-gradient-to-r from-teal-50 to-cyan-50 border-2 border-teal-150 p-4.5 rounded-[24px] text-left shadow-sm flex items-start gap-3.5">
+            <div className="w-10 h-10 bg-teal-100 text-teal-700 rounded-xl flex items-center justify-center text-xl shrink-0 shadow-inner border border-teal-150">
+              🧠
+            </div>
+            <div>
+              <h4 className="text-xs font-black text-teal-950 font-Outfit">{locale === 'en' ? 'Smart Clinical Synchronization' : locale === 'es' ? 'Sincronización Clínica Inteligente' : 'Sincronização Clínica Inteligente'}</h4>
+              <p className="text-[10.5px] text-teal-900 leading-relaxed font-semibold mt-0.5">
+                {locale === 'en' 
+                  ? 'Clinical checkpoints registered on this platform cross-reference data in real time with the mediator\'s school notes and routine logs entered by the family. Our correlation AI analyzes these three sources to predict stress peaks, meltdowns, and determine the patient\'s Sensory Adherence.' 
+                  : locale === 'es' 
+                  ? 'Los puntos de control clínicos registrados en esta plataforma cruzan datos en tiempo real con las notas escolares del mediador y los registros de rutina introducidos por la familia. Nuestra IA de correlación analiza estas tres fuentes para predecir picos de estrés, meltdowns y determinar la Adherencia Sensorial del paciente.' 
+                  : 'Os checkpoints clínicos registrados nesta plataforma cruzam dados em tempo real com as anotações escolares do mediador e os registros de rotina inseridos pela família. Nossa IA de correlação analisa essas três fontes para prever picos de estresse, meltdowns e determinar a Aderência Sensorial do paciente.'}
+              </p>
+            </div>
+          </div>
+
+
+          {/* Metrics Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-5">
+            
+            {/* compliance card */}
+            <div className="bg-white border border-slate-200 p-5 rounded-[24px] shadow-xxs flex flex-col justify-between gap-4">
+              <div className="flex justify-between items-start">
+                <div className="text-left">
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block font-Outfit">
+                    {locale === 'en' ? 'Routine Adherence' : locale === 'es' ? 'Adherencia a la Rutina' : 'Aderência à Rotina'}
+                  </span>
+                  <span className="text-3xl font-black text-slate-900 tracking-tight mt-1 block font-Outfit">{complianceRate}%</span>
+                </div>
+                <div className="w-10 h-10 bg-indigo-50 border border-indigo-100 text-indigo-700 rounded-xl flex items-center justify-center shadow-xxs">
+                  <Activity className="w-5 h-5" />
+                </div>
+              </div>
+              <div className="text-left">
+                <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden mb-1.5">
+                  <div 
+                    className={`h-full rounded-full ${complianceRate >= 80 ? 'bg-emerald-500' : complianceRate >= 50 ? 'bg-amber-500' : 'bg-red-500'}`} 
+                    style={{ width: `${complianceRate}%` }} 
+                  />
+                </div>
+                <span className="text-[9px] text-slate-450 font-bold">
+                  {locale === 'en' 
+                    ? `Calculated over ${totalTasksElapsed} tasks of the ${elapsedDays} elapsed days of the month.` 
+                    : locale === 'es' 
+                    ? `Calculado sobre ${totalTasksElapsed} tareas de los ${elapsedDays} días transcurridos del mes.` 
+                    : `Calculado sobre ${totalTasksElapsed} tarefas dos ${elapsedDays} dias decorridos do mês.`}
+                </span>
+              </div>
+            </div>
+
+            {/* stability card */}
+            <div className="bg-white border border-slate-200 p-5 rounded-[24px] shadow-xxs flex flex-col justify-between gap-4">
+              <div className="flex justify-between items-start">
+                <div className="text-left">
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block font-Outfit">
+                    {locale === 'en' ? 'Emotional Stability' : locale === 'es' ? 'Estabilidad Emocional' : 'Estabilidade Emocional'}
+                  </span>
+                  <span className="text-3xl font-black text-slate-900 tracking-tight mt-1 block font-Outfit">{stabilityRate}%</span>
+                </div>
+                <div className="w-10 h-10 bg-teal-50 border border-teal-100 text-teal-700 rounded-xl flex items-center justify-center shadow-xxs">
+                  <Smile className="w-5 h-5" />
+                </div>
+              </div>
+              <div className="text-left">
+                <span className="text-xs font-black text-teal-800 bg-teal-50 border border-teal-100 px-2 py-0.5 rounded-md inline-block mb-1 font-Outfit">
+                  {stabilityRate >= 80 
+                    ? (locale === 'en' ? 'Excellent' : locale === 'es' ? 'Excelente' : 'Excelente') 
+                    : stabilityRate >= 50 
+                    ? (locale === 'en' ? 'Stable' : locale === 'es' ? 'Estable' : 'Estável') 
+                    : (locale === 'en' ? 'Attention Needed' : locale === 'es' ? 'Atención Necesaria' : 'Atenção Necessária')}
+                </span>
+                <p className="text-[9px] text-slate-450 font-bold mt-0.5 leading-snug">
+                  {locale === 'en' 
+                    ? 'Average of regulated mood (Happy/Calm) in the emotional diary logs.' 
+                    : locale === 'es' 
+                    ? 'Promedio de humor regulado (Feliz/Calmo) en los registros del diario emocional.' 
+                    : 'Média de humor regulado (Feliz/Calmo) nos registros do diário emocional.'}
+                </p>
+              </div>
+            </div>
+
+            {/* crises card */}
+            <div className="bg-white border border-slate-200 p-5 rounded-[24px] shadow-xxs flex flex-col justify-between gap-4">
+              <div className="flex justify-between items-start">
+                <div className="text-left">
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block font-Outfit">
+                    {locale === 'en' ? 'Crisis Frequency' : locale === 'es' ? 'Frecuencia de Crisis' : 'Frequência de Crises'}
+                  </span>
+                  <span className="text-3xl font-black text-slate-900 tracking-tight mt-1 block font-Outfit">{crisesCount}</span>
+                </div>
+                <div className="w-10 h-10 bg-red-50 border border-red-100 text-red-700 rounded-xl flex items-center justify-center shadow-xxs">
+                  <AlertTriangle className="w-5 h-5" />
+                </div>
+              </div>
+              <div className="text-left">
+                <span className={`text-xs font-black px-2 py-0.5 rounded-md inline-block mb-1 font-Outfit ${
+                  crisesCount === 0 ? 'bg-emerald-50 text-emerald-800 border border-emerald-100' : 'bg-red-50 text-red-800 border border-red-100'
+                }`}>
+                  {crisesCount === 0 
+                    ? (locale === 'en' ? 'Under Control' : locale === 'es' ? 'Bajo Control' : 'Sob Controle') 
+                    : (locale === 'en' ? `${crisesCount} Recent Meltdown(s)` : locale === 'es' ? `${crisesCount} Meltdown(s) Reciente(s)` : `${crisesCount} Meltdown(s) Recente(s)`)}
+                </span>
+                <p className="text-[9px] text-slate-450 font-bold mt-0.5 leading-snug">
+                  {locale === 'en' 
+                    ? 'Total count of crises and severe sensory overloads this month.' 
+                    : locale === 'es' 
+                    ? 'Recuento total de crisis y sobrecargas sensoriales graves este mes.' 
+                    : 'Contagem total de crises e sobrecargas sensoriais graves neste mês.'}
+                </p>
+              </div>
+            </div>
+
+            {/* top trigger card */}
+            <div className="bg-white border border-slate-200 p-5 rounded-[24px] shadow-xxs flex flex-col justify-between gap-4">
+              <div className="flex justify-between items-start">
+                <div className="text-left">
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block font-Outfit">
+                    {locale === 'en' ? 'Most Frequent Trigger' : locale === 'es' ? 'Gatillo Más Frecuente' : 'Gatilho Mais Frequente'}
+                  </span>
+                  <span className="text-lg font-black text-slate-900 tracking-tight mt-1 block font-Outfit leading-tight">{topTrigger}</span>
+                </div>
+                <div className="w-10 h-10 bg-amber-50 border border-amber-100 text-amber-700 rounded-xl flex items-center justify-center shadow-xxs">
+                  <Brain className="w-5 h-5" />
+                </div>
+              </div>
+              <div className="text-left">
+                <span className="text-[9px] text-slate-450 font-bold leading-normal block">
+                  {locale === 'en' 
+                    ? 'Identified from environmental analysis filled in regulation logs.' 
+                    : locale === 'es' 
+                    ? 'Identificado a partir del análisis ambiental completado en los registros de regulación.' 
+                    : 'Identificado a partir das análises ambientais preenchidas nos registros de regulação.'}
+                </span>
+              </div>
+            </div>
+
+          </div>
+
+
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+              <div className="lg:col-span-8 flex flex-col gap-6">
                 {/* Visual Analytics Card */}
                 <div className="bg-white border border-slate-200 p-6 rounded-[28px] shadow-premium flex flex-col gap-4 text-left">
                   <div className="flex items-center gap-2 text-teal-650">
@@ -1352,101 +1495,8 @@ export default function TherapistPortal() {
                   </div>
                 </div>
 
-                {/* Presets Manager Card */}
-                <div className="bg-white border border-slate-200 p-6 rounded-[28px] shadow-premium flex flex-col gap-4 text-left">
-                  <div className="flex items-center gap-2 text-teal-650">
-                    <Brain className="w-5 h-5 text-indigo-500" />
-                    <h3 className="font-black text-slate-900 text-md font-Outfit">
-                      {locale === 'en' ? 'Prescribe Therapeutic Presets' : locale === 'es' ? 'Prescribir Ajustes Terapéuticos' : 'Prescrever Presets Terapêuticos'}
-                    </h3>
-                  </div>
-                  
-                  <p className="text-[10px] text-slate-500 font-semibold leading-relaxed">
-                    {locale === 'en' 
-                      ? 'Choose one of the models below based on clinical methodologies and add the activities instantly to the patient\'s routine.' 
-                      : locale === 'es' 
-                      ? 'Elija uno de los modelos a continuación basados en metodologías clínicas y agregue las actividades instantáneamente a la rutina del paciente.' 
-                      : 'Escolha um dos modelos abaixo baseados em metodologias clínicas e adicione as atividades instantaneamente à rotina do paciente.'}
-                  </p>
-
-                  <div className="flex flex-col gap-3">
-                    {[
-                      {
-                        title: locale === 'en' ? 'ABA Behavioral Intervention 🧩' : locale === 'es' ? 'Intervención Conductual ABA 🧩' : 'Intervenção Comportamental ABA 🧩',
-                        desc: locale === 'en' ? 'Structured routine with focus training and play breaks.' : locale === 'es' ? 'Rutina estructurada con entrenamiento de enfoque y pausas lúdicas.' : 'Rotina estruturada com treinos de foco e pausas lúdicas.',
-                        tasks: [
-                          { title: locale === 'en' ? 'Focus: ABA Imitation Training 🧩' : locale === 'es' ? 'Enfoque: Entr. de Imitación ABA 🧩' : 'Foco: Treino de Imitação ABA 🧩', time: '09:00', period: 'manhã', day: '1', order: 1, icon: '🧩', category: 'Aprendizado', duration: 30, description: locale === 'en' ? 'Focus work and shared attention.' : locale === 'es' ? 'Trabajo de enfoque y atención compartida.' : 'Trabalho de foco e atenção compartilhada.' },
-                          { title: locale === 'en' ? 'ADL Training: Washing Hands 🧼' : locale === 'es' ? 'Entr. de AVD: Lavarse las manos 🧼' : 'Treino de AVD: Lavar as mãos 🧼', time: '10:00', period: 'manhã', day: '1', order: 2, icon: '🧼', category: 'AVD', duration: 15, description: locale === 'en' ? 'Wash hands independently.' : locale === 'es' ? 'Lavarse las manos de forma independiente.' : 'Lavar as mãos de forma independente.' },
-                          { title: locale === 'en' ? 'Free Sensory Break 🧸' : locale === 'es' ? 'Pausa Sensorial Libre 🧸' : 'Pausa Sensorial Livre 🧸', time: '10:30', period: 'manhã', day: '1', order: 3, icon: '🧸', category: 'Lazer', duration: 20, description: locale === 'en' ? 'Regulating free play.' : locale === 'es' ? 'Juego libre regulador.' : 'Brincadeira livre reguladora.' }
-                        ]
-                      },
-                      {
-                        title: locale === 'en' ? 'OT Sensory Integration 跑' : locale === 'es' ? 'Integración Sensorial T.O. 跑' : 'Integração Sensorial T.O. 跑',
-                        desc: locale === 'en' ? 'Focus on psychomotor regulation and body relaxation.' : locale === 'es' ? 'Enfoque en regulación psicomotora y relajación corporal.' : 'Foco em regulação psicomotora e relaxamento corporal.',
-                        tasks: [
-                          { title: locale === 'en' ? 'Sensory Psychomotor Circuit 跑' : locale === 'es' ? 'Circuito Psicomotor Sensorial 跑' : 'Circuito Psicomotor Sensorial 跑', time: '14:00', period: 'tarde', day: '1', order: 1, icon: '跑', category: 'Aprendizado', duration: 45, description: locale === 'en' ? 'Circuit with pillows and jumps.' : locale === 'es' ? 'Circuito con almohadas y saltos.' : 'Circuito com almofadas e saltos.' },
-                          { title: locale === 'en' ? 'Regulating Bubble Bath 🚿' : locale === 'es' ? 'Baño de Espuma Regulador 🚿' : 'Banho de Espuma Regulador 🚿', time: '15:00', period: 'tarde', day: '1', order: 2, icon: '🚿', category: 'AVD', duration: 30, description: locale === 'en' ? 'Gentle tactile stimulation with foam.' : locale === 'es' ? 'Estimulación táctil suave con espuma.' : 'Estimulação tátil suave com espuma.' },
-                          { title: locale === 'en' ? 'Resting in the Hammock 💤' : locale === 'es' ? 'Descanso en la Hamaca 💤' : 'Descanso na Rede 💤', time: '15:45', period: 'tarde', day: '1', order: 3, icon: '💤', category: 'Lazer', duration: 20, description: locale === 'en' ? 'Passive vestibular regulation.' : locale === 'es' ? 'Regulación vestibular pasiva.' : 'Regulação vestibular passiva.' }
-                        ]
-                      },
-                      {
-                        title: locale === 'en' ? 'Communication & Language 🗣️' : locale === 'es' ? 'Comunicación y Lenguaje 🗣️' : 'Comunicação e Linguagem 🗣️',
-                        desc: locale === 'en' ? 'Focus on speech training, PECS cards, and social meals.' : locale === 'es' ? 'Enfoque en entrenamiento de habla, tarjetas PECS y comida social.' : 'Foco em treinos de fala, cartões PECS e refeição social.',
-                        tasks: [
-                          { title: locale === 'en' ? 'PECS Training / Naming 🗣️' : locale === 'es' ? 'Entr. de PECS / Nominación 🗣️' : 'Treino de PECS / Nomeação 🗣️', time: '11:00', period: 'manhã', day: '1', order: 1, icon: '🗣️', category: 'Aprendizado', duration: 30, description: locale === 'en' ? 'Augmentative communication exercises.' : locale === 'es' ? 'Ejercicios de comunicación aumentativa.' : 'Exercícios de comunicação aumentativa.' },
-                          { title: locale === 'en' ? 'Social Lunch Without Screens 🍱' : locale === 'es' ? 'Almuerzo Social Sin Pantallas 🍱' : 'Almoço Social Sem Telas 🍱', time: '12:00', period: 'tarde', day: '1', order: 2, icon: '🍱', category: 'AVD', duration: 45, description: locale === 'en' ? 'Lunch focused on chewing and interaction.' : locale === 'es' ? 'Almuerzo enfocado en masticación e interacción.' : 'Almoço focado em mastigação e interação.' },
-                          { title: locale === 'en' ? 'Shared Reading 📖' : locale === 'es' ? 'Lectura Compartida 📖' : 'Leitura Compartilhada 📖', time: '20:00', period: 'noite', day: '1', order: 3, icon: '📖', category: 'Lazer', duration: 30, description: locale === 'en' ? 'Interactive reading of social stories.' : locale === 'es' ? 'Lectura interactiva de historias sociales.' : 'Leitura interativa de histórias sociais.' }
-                        ]
-                      }
-                    ].map((preset, pIdx) => (
-                      <div key={pIdx} className="bg-slate-50 border border-slate-150 p-3 rounded-2xl flex flex-col gap-1 text-left">
-                        <div className="flex justify-between items-start gap-2">
-                          <div>
-                            <h4 className="text-[11px] font-black text-slate-800 font-Outfit">{preset.title}</h4>
-                            <p className="text-[9px] text-slate-500 font-semibold mt-0.5 leading-normal">{preset.desc}</p>
-                          </div>
-                          <button
-                            onClick={async () => {
-                              playMarimba(392, 0.2);
-                              setStatusMsg(locale === 'en' ? 'Prescribing routine...' : locale === 'es' ? 'Prescribiendo rutina...' : 'Prescrevendo rotina...');
-                              try {
-                                for (const t of preset.tasks) {
-                                  await fetch('/api/therapist', {
-                                    method: 'POST',
-                                    headers: { 'Content-Type': 'application/json' },
-                                    body: JSON.stringify({
-                                      sharingCode: childData.sharingCode,
-                                      action: 'CREATE_TASK',
-                                      taskData: t
-                                    })
-                                  });
-                                }
-                                playMarimba(523.25, 0.3);
-                                setStatusMsg(locale === 'en' ? `Routine "${preset.title}" prescribed successfully! 🎉` : locale === 'es' ? `¡Rutina "${preset.title}" prescrita con éxito! 🎉` : `Rotina "${preset.title}" prescrita com sucesso! 🎉`);
-                                handleVerify(undefined, childData.sharingCode);
-                                setTimeout(() => setStatusMsg(''), 4000);
-                              } catch (err) {
-                                console.error("Erro ao prescrever preset:", err);
-                                setStatusMsg(locale === 'en' ? 'Failed to prescribe routine.' : locale === 'es' ? 'Error al prescribir rutina.' : 'Falha ao prescrever rotina.');
-                              }
-                            }}
-                            className="px-3.5 py-1.5 bg-indigo-650 hover:bg-indigo-700 text-white text-[9px] font-black rounded-lg cursor-pointer border-none font-Outfit shadow-sm shrink-0 active:scale-95 transition-all outline-none"
-                          >
-                            {locale === 'en' ? 'Prescribe' : locale === 'es' ? 'Prescribir' : 'Prescrever'}
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
               </div>
-
-            </div>
-
-            {/* Right Side: Environmental Sensory Logs & Trigger Analysis */}
-            <div className="lg:col-span-4 flex flex-col gap-6 text-left">
-              
+              <div className="lg:col-span-4 flex flex-col gap-6 text-left">
               {/* Sensory Heatmap */}
               {sensoryLogs.length > 0 && (
                 <div className="bg-white border border-slate-200 p-5 rounded-[28px] shadow-premium flex flex-col gap-4">
@@ -1459,6 +1509,7 @@ export default function TherapistPortal() {
                   <SensoryHeatmap logs={sensoryLogs} />
                 </div>
               )}
+
 
               {/* Patient Behavior Dictionary / Guia de Sinais */}
               {childData && (
@@ -1504,6 +1555,7 @@ export default function TherapistPortal() {
                   </div>
                 </div>
               )}
+
 
               {/* Sensory Log / Crises History */}
               <div className="bg-white border border-slate-200 p-5 rounded-[28px] shadow-premium flex flex-col gap-4">
@@ -1583,8 +1635,8 @@ export default function TherapistPortal() {
                 </div>
               </div>
 
+              </div>
             </div>
-
           </div>
 
         </div>

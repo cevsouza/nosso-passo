@@ -2408,7 +2408,9 @@ function ParentDashboardContent() {
 
   };
 
-  const [activePanelTab, setActivePanelTab] = useState<'tasks' | 'reports' | 'logs' | 'checkpoints' | 'tools'>('tasks');
+  const [activePanelTab, setActivePanelTab] = useState<'tasks' | 'feedback' | 'tools'>('tasks');
+  const [activeFeedbackSubTab, setActiveFeedbackSubTab] = useState<'checkpoints' | 'reports'>('checkpoints');
+  const [activeToolsSubTab, setActiveToolsSubTab] = useState<'config' | 'logs'>('config');
 
   const [checkpoints, setCheckpoints] = useState<any[]>([]);
 
@@ -7150,7 +7152,8 @@ function ParentDashboardContent() {
 
                                   playBubble();
 
-                                  setActivePanelTab('checkpoints');
+                                  setActivePanelTab('feedback');
+                                  setActiveFeedbackSubTab('checkpoints');
 
                                   setNewCpDate(isoDate);
 
@@ -7213,1712 +7216,98 @@ function ParentDashboardContent() {
           {/* Sticky Tab Bar Container for Desktop/Tablet landscape navigation */}
 
           <div className="sticky top-[130px] md:top-[80px] z-20 bg-[#f8fafc]/95 backdrop-blur-md py-3 -mx-2 px-2">
-
             <div className="bg-slate-100/80 p-1.5 rounded-2xl flex shadow-inner gap-1 overflow-x-auto scrollbar-none">
-
-            <button
-
-              onClick={() => { playBubble(); setActivePanelTab('tasks'); }}
-
-              className={`flex-1 py-2.5 text-xs font-black rounded-xl transition-all flex items-center justify-center gap-2 shrink-0 font-Outfit cursor-pointer select-none active:scale-95 ${
-
-                activePanelTab === 'tasks' 
-
-                  ? 'bg-white text-indigo-950 shadow-sm border border-slate-200/50 scale-100' 
-
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/40 border-2 border-transparent'
-
-              }`}
-
-            >
-
-              <ListTodo className="w-4.5 h-4.5" /> {locale === 'es' ? 'Agenda 📅' : locale === 'en' ? 'Schedule 📅' : 'Agenda'}
-
-            </button>
-
-            <button
-              onClick={() => { playBubble(); setActivePanelTab('tools'); }}
-              className={`flex-1 py-2.5 text-xs font-black rounded-xl transition-all flex items-center justify-center gap-2 shrink-0 font-Outfit cursor-pointer select-none active:scale-95 ${
-                activePanelTab === 'tools' 
-                  ? 'bg-white text-indigo-950 shadow-sm border border-slate-200/50 scale-100' 
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/40 border-2 border-transparent'
-              }`}
-            >
-              <Settings className="w-4.5 h-4.5" /> {locale === 'es' ? 'Herramientas' : locale === 'en' ? 'Tools' : 'Ferramentas'}
-            </button>
-
-            <button
-
-              onClick={() => { playBubble(); setActivePanelTab('checkpoints'); }}
-
-              className={`flex-1 py-2.5 text-xs font-black rounded-xl transition-all flex items-center justify-center gap-2 shrink-0 font-Outfit cursor-pointer select-none active:scale-95 ${
-
-                activePanelTab === 'checkpoints' 
-
-                  ? 'bg-white text-indigo-950 shadow-sm border border-slate-200/50 scale-100' 
-
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/40 border-2 border-transparent'
-
-              }`}
-
-            >
-
-              <span className="text-sm">🤝</span> {locale === 'es' ? 'Puntos de Control' : locale === 'en' ? 'Clinical Checkpoints' : 'Checkpoints Clínicos'}
-
-            </button>
-
-            <button
-
-              onClick={() => { playBubble(); setActivePanelTab('reports'); }}
-
-              className={`flex-1 py-2.5 text-xs font-black rounded-xl transition-all flex items-center justify-center gap-2 shrink-0 font-Outfit cursor-pointer select-none active:scale-95 ${
-
-                activePanelTab === 'reports' 
-
-                  ? 'bg-white text-indigo-950 shadow-sm border border-slate-200/50 scale-100' 
-
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/40 border-2 border-transparent'
-
-              }`}
-
-            >
-
-              <span className="text-sm">📊</span> {locale === 'es' ? 'Informe Clínico' : locale === 'en' ? 'Clinical Report' : 'Relatório Clínico'}
-
-            </button>
-
-            <button
-
-              onClick={() => { playBubble(); setActivePanelTab('logs'); }}
-
-              className={`flex-1 py-2.5 text-xs font-black rounded-xl transition-all flex items-center justify-center gap-2 shrink-0 font-Outfit cursor-pointer select-none active:scale-95 ${
-
-                activePanelTab === 'logs' 
-
-                  ? 'bg-white text-indigo-950 shadow-sm border border-slate-200/50 scale-100' 
-
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/40 border-2 border-transparent'
-
-              }`}
-
-            >
-
-              <History className="w-4.5 h-4.5" /> {locale === 'es' ? 'Registros de Seguridad' : locale === 'en' ? 'Security Logs' : 'Logs de Segurança'}
-
-              <span className="text-[10px] bg-indigo-50 border border-indigo-150 text-indigo-755 px-2 py-0.5 rounded-full font-extrabold shadow-xxs">
-
-                {logs.length}
-
-              </span>
-
-            </button>
-
-            </div>
-
-          </div>
-
-
-
-          <AnimatePresence mode="wait">
-
-            {activePanelTab === 'tools' ? (
-              <motion.div
-                key="tools-panel"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.3 }}
-                className="grid grid-cols-1 md:grid-cols-2 gap-6 text-left"
+              <button
+                onClick={() => { playBubble(); setActivePanelTab('tasks'); }}
+                className={`flex-1 py-2.5 text-xs font-black rounded-xl transition-all flex items-center justify-center gap-2 shrink-0 font-Outfit cursor-pointer select-none active:scale-95 ${
+                  activePanelTab === 'tasks' 
+                    ? 'bg-white text-indigo-950 shadow-sm border border-slate-200/50 scale-100' 
+                    : 'text-slate-655 hover:text-slate-900 hover:bg-white/40 border-2 border-transparent'
+                }`}
               >
-                {/* Profile Card */}
-                <div className="flex flex-col gap-6">
-                  {/* Child Hyperfocus Profile Card */}
-
-          <div className="bg-white border-2 border-slate-250 rounded-[28px] p-6 shadow-premium flex flex-col gap-4">
-
-            <button
-
-              type="button"
-
-              onClick={() => toggleSection('profile')}
-
-              className="w-full flex items-center justify-between text-left cursor-pointer bg-transparent border-none outline-none select-none"
-
-            >
-
-              <div className="flex items-center gap-2.5 text-indigo-600">
-
-                <Sparkles className="w-5 h-5" />
-
-                <h2 className="font-bold text-slate-900 text-lg font-Outfit">{t.dashboard.childProfileTitle}</h2>
-
-              </div>
-
-              <div className="flex items-center gap-2">
-
-                <span className="text-[9px] font-black text-slate-400 uppercase">{t.dashboard.childProfileSubtitle}</span>
-
-                {collapsedSections.profile ? <ChevronDown className="w-4 h-4 text-slate-400 shrink-0" /> : <ChevronUp className="w-4 h-4 text-slate-400 shrink-0" />}
-
-              </div>
-
-            </button>
-
-
-
-            {!collapsedSections.profile && (
-
-              <motion.div
-
-                initial={{ opacity: 0, height: 0 }}
-
-                animate={{ opacity: 1, height: 'auto' }}
-
-                exit={{ opacity: 0, height: 0 }}
-
-                className="flex flex-col gap-4 border-t border-slate-100 pt-4 w-full"
-
-              >
-
-            
-
-            <form onSubmit={handleSaveProfile} className="flex flex-col gap-3">
-
-              <div>
-
-                <label className="block text-xs font-black text-slate-700 uppercase tracking-wider mb-1.5 font-Outfit">
-
-                  {locale === 'en' ? 'User\'s Main Hyperfocus' : locale === 'es' ? 'Hiperenfoque Principal del Usuario' : 'Hiperfoco Principal do Usuário'}
-
-                </label>
-
-                <select
-
-                  value={hyperfocus}
-
-                  onChange={e => setHyperfocus(e.target.value)}
-
-                  className="w-full px-4 py-2.5 bg-white border-2 border-slate-300 focus:border-indigo-600 focus:bg-white rounded-xl text-slate-900 outline-none text-sm transition-all shadow-xxs font-bold cursor-pointer focus:ring-4 focus:ring-indigo-100"
-
-                >
-
-                  <option value="Border Collies 🐕">{locale === 'en' ? 'Border Collie Dog 🐶' : locale === 'es' ? 'Perro Border Collie 🐶' : 'Cachorro Border Collie 🐶'}</option>
-
-                  <option value="Dinossauro 🦖">{locale === 'en' ? 'Dinosaur 🦖' : locale === 'es' ? 'Dinosaurio 🦖' : 'Dinossauro 🦖'}</option>
-
-                  <option value="Astronauta / Espaço 🚀">{locale === 'en' ? 'Space / Astronaut 🚀' : locale === 'es' ? 'Espacio / Astronauta 🚀' : 'Espaço / Astronauta 🚀'}</option>
-
-                  <option value="Minecraft / Blocos 🟩">{locale === 'en' ? 'Minecraft / Blocks 🟩' : locale === 'es' ? 'Minecraft / Bloques 🟩' : 'Minecraft / Blocos 🟩'}</option>
-
-                  <option value="Gato 🐱">{locale === 'en' ? 'Cat 🐱' : locale === 'es' ? 'Gato 🐱' : 'Gato 🐱'}</option>
-
-                  <option value="Carro 🚗">{locale === 'en' ? 'Car 🚗' : locale === 'es' ? 'Coche 🚗' : 'Carro 🚗'}</option>
-
-                  <option value="Trem / Locomotiva 🚂">{locale === 'en' ? 'Train / Locomotive 🚂' : locale === 'es' ? 'Tren / Locomotora 🚂' : 'Trem / Locomotiva 🚂'}</option>
-
-                  <option value="Super-herói 🦸">{locale === 'en' ? 'Superhero 🦸' : locale === 'es' ? 'Superhéroe 🦸' : 'Super-herói 🦸'}</option>
-
-                  <option value="Tubarão / Fundo do Mar 🦈">{locale === 'en' ? 'Shark / Undersea 🦈' : locale === 'es' ? 'Tiburón / Fondo del Mar 🦈' : 'Tubarão / Fundo do Mar 🦈'}</option>
-
-                  <option value="Unicórnio 🦄">{locale === 'en' ? 'Unicorn 🦄' : locale === 'es' ? 'Unicornio 🦄' : 'Unicórnio 🦄'}</option>
-
-                  <option value="Robô / Tecnologia 🤖">{locale === 'en' ? 'Robot / Technology 🤖' : locale === 'es' ? 'Robot / Tecnología 🤖' : 'Robô / Tecnologia 🤖'}</option>
-
-                </select>
-
-              </div>
-
-
-
-              {/* Emergency First-Then mode toggle */}
-
-              {activeChild && (
-
-                <div className="bg-gradient-to-tr from-indigo-50/50 to-indigo-100/50 border-2 border-indigo-200 p-4.5 rounded-2xl flex flex-col gap-3 shadow-xxs">
-
-                  <div className="flex items-center justify-between">
-
-                    <div className="text-left">
-
-                      <span className="text-[10px] font-black uppercase tracking-widest text-indigo-900 flex items-center gap-1 select-none font-Outfit">
-
-                        {t.dashboard.firstThenModeTitle}
-
-                      </span>
-
-                      <p className="text-[9.5px] text-slate-500 font-semibold leading-tight mt-0.5">
-
-                        {t.dashboard.firstThenModeDesc}
-
-                      </p>
-
-                    </div>
-
-                    <button
-
-                      type="button"
-
-                      onClick={() => {
-
-                        playBubble();
-
-                        setEmergencyFirstThen(!emergencyFirstThen);
-
-                      }}
-
-                      className={`px-3 py-1.5 text-[10px] font-black rounded-lg transition-all border-b-2 cursor-pointer ${
-
-                        emergencyFirstThen
-
-                          ? 'bg-indigo-600 border-indigo-950 text-white shadow-sm'
-
-                          : 'bg-slate-200 border-slate-355 text-slate-700'
-
-                      }`}
-
-                    >
-
-                      {emergencyFirstThen ? t.dashboard.activeLabel : t.dashboard.inactiveLabel}
-
-                    </button>
-
-                  </div>
-
-                </div>
-
-              )}
-
-
-
-              {/* Token Economy Config */}
-
-              <div className="bg-indigo-50 border-2 border-indigo-200 p-4.5 rounded-2xl flex flex-col gap-3 shadow-xxs">
-
-                <span className="text-[10px] font-black uppercase tracking-widest text-indigo-900 flex items-center gap-1 select-none font-Outfit">
-
-                  {t.dashboard.tokenEconomyTitle}
-
-                </span>
-
-                <div>
-
-                  <label className="block text-xxs font-black text-slate-700 uppercase mb-1 font-Outfit">
-
-                    {t.dashboard.tokenEconomyPrize}
-
-                  </label>
-
-                  <input 
-
-                    type="text" 
-
-                    value={rewardName}
-
-                    onChange={e => setRewardName(e.target.value)}
-
-                    placeholder="Ex: 15 min de tablet"
-
-                    className="w-full px-4 py-2.5 bg-white border-2 border-slate-300 focus:border-indigo-650 rounded-xl text-slate-900 outline-none text-xs font-bold focus:ring-4 focus:ring-indigo-100"
-
-                  />
-
-                </div>
-
-                <div className="grid grid-cols-3 gap-2">
-
-                  <div>
-
-                    <label className="block text-[9px] font-black text-slate-700 uppercase mb-1 font-Outfit truncate">
-
-                      Estrelas Atuais
-
-                    </label>
-
-                    <input 
-
-                      type="number" 
-
-                      min={0}
-
-                      max={100}
-
-                      value={tokens}
-
-                      onChange={e => setTokens(parseInt(e.target.value) || 0)}
-
-                      className="w-full px-2.5 py-2.5 bg-white border-2 border-slate-300 focus:border-indigo-650 rounded-xl text-slate-900 outline-none text-xs font-bold focus:ring-4 focus:ring-indigo-100"
-
-                    />
-
-                  </div>
-
-                  <div>
-
-                    <label className="block text-[9px] font-black text-slate-700 uppercase mb-1 font-Outfit truncate">
-
-                      Meta de Fichas
-
-                    </label>
-
-                    <input 
-
-                      type="number" 
-
-                      min={1}
-
-                      max={50}
-
-                      value={rewardCost}
-
-                      onChange={e => setRewardCost(parseInt(e.target.value) || 10)}
-
-                      className="w-full px-2.5 py-2.5 bg-white border-2 border-slate-300 focus:border-indigo-650 rounded-xl text-slate-900 outline-none text-xs font-bold focus:ring-4 focus:ring-indigo-100"
-
-                    />
-
-                  </div>
-
-                  <div>
-
-                    <label className="block text-[9px] font-black text-slate-700 uppercase mb-1 font-Outfit truncate">
-
-                      Aviso (min)
-
-                    </label>
-
-                    <input 
-
-                      type="number" 
-
-                      min={1}
-
-                      max={30}
-
-                      value={transitionMinutes}
-
-                      onChange={e => setTransitionMinutes(parseInt(e.target.value) || 5)}
-
-                      className="w-full px-2.5 py-2.5 bg-white border-2 border-slate-300 focus:border-indigo-650 rounded-xl text-slate-900 outline-none text-xs font-bold focus:ring-4 focus:ring-indigo-100"
-
-                    />
-
-                  </div>
-
-                </div>
-
-              </div>
-
-
-
-              <div>
-
-                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">
-
-                  {t.dashboard.subscriptionTitle}
-
-                </label>
-
-                <div className={`p-5 rounded-2xl border flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 transition-all shadow-xxs ${
-                  plan === 'premium'
-                    ? 'bg-gradient-to-r from-amber-50 to-yellow-50/50 border-amber-200 text-amber-900 shadow-amber-50'
-                    : 'bg-gradient-to-r from-slate-50 to-pink-50/30 border-slate-200 text-slate-750'
-                }`}>
-                  <div className="flex flex-col gap-0.5">
-                    <span className="text-[10px] font-black uppercase tracking-wider text-slate-400">Plano Atual</span>
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-black flex items-center gap-1 font-Outfit">
-                        {plan === 'premium' ? '👑 Premium Pro' : '🌱 Plano Gratuito (Limitado)'}
-                      </span>
-                      <span className={`text-[8px] font-black px-1.5 py-0.5 rounded-md uppercase tracking-widest ${
-                        plan === 'premium' ? 'bg-amber-500 text-white' : 'bg-slate-200 text-slate-700'
-                      }`}>
-                        {plan === 'premium' ? 'Ativo' : 'Básico'}
-                      </span>
-                    </div>
-                    <p className="text-[11px] font-medium text-slate-550 leading-relaxed max-w-md mt-1">
-                      {plan === 'premium' 
-                        ? 'Você tem acesso a tarefas diárias ilimitadas, todos os laudos clínicos em PDF e o painel de análise de padrões da IA.'
-                        : 'Acesso básico limitado a 3 tarefas diárias por dia e painéis analíticos bloqueados.'}
-                    </p>
-                  </div>
-                  {plan === 'premium' ? (
-                    <button
-                      type="button"
-                      onClick={async () => {
-                        playMarimba(261, 0.3);
-                        await firebaseBridge.auth.updateProfileSettings({ plan: 'free' });
-                        setPlan('free');
-                        triggerStatus(t.dashboard.premiumCancelSuccess);
-                      }}
-                      className="px-4 py-2.5 bg-white hover:bg-red-50 text-red-500 hover:text-red-700 border border-slate-200 hover:border-red-200 text-xs font-black uppercase rounded-xl transition-all cursor-pointer shadow-xxs shrink-0 self-start sm:self-center font-Outfit active:scale-95"
-                    >
-                      {locale === 'en' ? 'Cancel Subscription' : locale === 'es' ? 'Cancelar Suscripción' : 'Cancelar Assinatura'}
-                    </button>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        playBubble();
-                        setShowPaywall(true);
-                      }}
-                      className="px-4 py-2.5 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white text-xs font-black uppercase rounded-xl transition-all cursor-pointer shadow-md shadow-amber-100 shrink-0 self-start sm:self-center font-Outfit active:scale-95 border-b-2 border-amber-700/30"
-                    >
-                      {locale === 'en' ? 'Upgrade to Premium 👑' : locale === 'es' ? 'Mejorar a Premium 👑' : 'Assinar Premium 👑'}
-                    </button>
-                  )}
-                </div>
-
-              </div>
-
-
-
-              {/* Clinical Sharing Code */}
-
-              <div className="bg-indigo-50 border-2 border-indigo-200 p-4.5 rounded-2xl flex flex-col gap-3 shadow-xxs">
-
-                <span className="text-[10px] font-black uppercase tracking-widest text-indigo-900 flex items-center gap-1 select-none font-Outfit">
-
-                  {t.dashboard.clinicalSharingTitle}
-
-                </span>
-
-                <p className="text-[10px] text-indigo-950 font-semibold leading-tight">
-
-                  {t.dashboard.clinicalSharingDesc}
-
-                </p>
-
-                <div className="flex flex-col gap-2 bg-white border border-slate-200 p-3 rounded-xl">
-
-                  {activeChild?.sharingCode ? (
-
-                    <>
-
-                      <div className="flex items-center justify-between">
-
-                        <span className="text-[10px] font-extrabold text-slate-500 uppercase font-Outfit">{t.dashboard.patientCode}</span>
-
-                        <span className="text-sm font-black text-indigo-650 tracking-wider bg-indigo-50 px-2.5 py-1 rounded-lg border border-indigo-150 font-Outfit">
-
-                          {activeChild.sharingCode}
-
-                        </span>
-
-                      </div>
-
-                      <div className="flex gap-1.5 w-full mt-1.5 flex-wrap">
-
-                        <button
-
-                          type="button"
-
-                          onClick={() => {
-
-                            navigator.clipboard.writeText(activeChild.sharingCode || '');
-
-                            triggerStatus(t.dashboard.statusCodeCopied);
-
-                          }}
-
-                          className="flex-1 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-[9px] font-black rounded-lg active:scale-95 transition-all cursor-pointer font-Outfit"
-
-                        >
-
-                          {locale === 'en' ? 'Copy Code' : locale === 'es' ? 'Copiar Código' : 'Copiar Código'}
-
-                        </button>
-
-                        <button
-
-                          type="button"
-
-                          onClick={() => {
-
-                            if (typeof window !== 'undefined') {
-
-                              const directLink = `${window.location.origin}/therapist?code=${activeChild.sharingCode}`;
-
-                              navigator.clipboard.writeText(directLink);
-
-                              triggerStatus(t.dashboard.statusLinkCopied);
-
-                            }
-
-                          }}
-
-                          className="flex-1 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-[9px] font-black rounded-lg active:scale-95 transition-all cursor-pointer font-Outfit"
-
-                        >
-
-                          Copiar Link Direto
-
-                        </button>
-
-                        <button
-
-                          type="button"
-
-                          onClick={handleGenerateSharingCode}
-
-                          className="py-1.5 px-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-[9px] font-black rounded-lg active:scale-95 transition-all cursor-pointer border border-slate-300 font-Outfit"
-
-                          title={locale === 'en' ? 'Generate new code' : locale === 'es' ? 'Generar nuevo código' : 'Gerar novo código'}
-
-                        >
-
-                          Renovar
-
-                        </button>
-
-                      </div>
-
-                      <p className="text-[9px] text-slate-500 font-medium leading-normal mt-1 border-t border-slate-100 pt-2 text-left">
-
-                        {locale === 'en' ? (<>💡 **How does the therapist access?** They can go to <Link href="/therapist" className="text-indigo-650 hover:underline font-bold" target="_blank">/therapist</Link> and enter the code, or you can click **"Copy Direct Link"** and send it to them on WhatsApp for instant access!</>) : locale === 'es' ? (<>💡 **¿Cómo accede el terapeuta?** ¡Puede ingresar a <Link href="/therapist" className="text-indigo-650 hover:underline font-bold" target="_blank">/therapist</Link> e ingresar el código, o puede hacer clic en **"Copiar Enlace Directo"** y enviárselo por WhatsApp para acceso instantáneo!</>) : (<>💡 **Como o terapeuta acessa?** Ele pode entrar em <Link href="/therapist" className="text-indigo-650 hover:underline font-bold" target="_blank">/therapist</Link> e digitar o código, ou você pode clicar em **"Copiar Link Direto"** e enviar para ele no WhatsApp para acesso instantâneo!</>)}
-
-                      </p>
-
-                      
-
-                      <div className="mt-2.5 pt-2 border-t border-dashed border-slate-200 flex flex-col gap-2">
-
-                        <span className="text-[10px] font-black text-slate-700 uppercase font-Outfit">{locale === 'en' ? '🏫 School Follow-up (Mediator/Teacher)' : locale === 'es' ? '🏫 Acompañamiento Escolar (Mediador/Profesor)' : '🏫 Acompanhamento Escolar (Mediador/Professor)'}</span>
-
-                        <p className="text-[9px] text-slate-500 font-medium leading-normal">
-
-                          {t.dashboard.schoolSharingDesc}
-
-                        </p>
-
-                        <button
-
-                          type="button"
-
-                          onClick={() => {
-
-                            if (typeof window !== 'undefined') {
-
-                              const schoolLink = `${window.location.origin}/school?code=${activeChild?.sharingCode}`;
-
-                              navigator.clipboard.writeText(schoolLink);
-
-                              triggerStatus(t.dashboard.schoolLinkCopied);
-
-                            }
-
-                          }}
-
-                          className="w-full py-2 bg-yellow-500 hover:bg-yellow-600 text-slate-950 text-[10px] font-black rounded-xl active:scale-95 transition-all cursor-pointer font-Outfit border-none uppercase tracking-wider shadow-sm font-black"
-
-                        >
-
-                          {locale === 'en' ? 'Copy School Link 🏫' : locale === 'es' ? 'Copiar Enlace de la Escuela 🏫' : 'Copiar Link da Escola 🏫'}
-
-                        </button>
-
-                      </div>
-
-                    </>
-
-                  ) : (
-
-                    <button
-
-                      type="button"
-
-                      onClick={handleGenerateSharingCode}
-
-                      className="w-full py-2 bg-indigo-100 hover:bg-indigo-200 text-indigo-900 border border-indigo-300 rounded-xl text-xs font-black active:scale-95 transition-all cursor-pointer font-Outfit"
-
-                    >
-
-                      {t.dashboard.generateClinicalCode}
-
-                    </button>
-
-                  )}
-
-                </div>
-
-              </div>
-
-
-
-              <button 
-
-                type="submit" 
-
-                disabled={savingProfile}
-
-                className="w-full py-3 bg-indigo-600 hover:bg-indigo-755 text-white text-sm font-black rounded-xl shadow-md transition-all active:scale-95 flex items-center justify-center gap-2 cursor-pointer border-b-4 border-indigo-900 font-Outfit"
-
-              >
-
-                {savingProfile ? t.common.loading : (locale === 'en' ? 'Update Profile' : locale === 'es' ? 'Actualizar Perfil' : 'Atualizar Perfil')}
-
+                <ListTodo className="w-4.5 h-4.5" /> {locale === 'es' ? 'Agenda 📅' : locale === 'en' ? 'Schedule 📅' : 'Agenda'}
               </button>
-
-            </form>
-
-            <p className="text-xxs text-slate-400 leading-relaxed">
-
-              {locale === 'en' ? '* Hyperfocus helps the child connect with the routine. The mascot will use this term for personalized playful encouragement.' : locale === 'es' ? '* El hiperenfoque ayuda al niño a conectarse con la rutina. La mascota usará este término para incentivos lúdicos personalizados.' : '* O hiperfoco ajuda a criança a se conectar com a rotina. O mascote utilizará este termo para incentivos lúdicos personalizados.'}
-
-            </p>
-
-
-
-            <div className="flex flex-col items-center justify-center mt-8 pt-4 border-t border-slate-100 relative">
-
-              {/* Collie Speech Bubble Clinic Tip */}
-
-              <div className="absolute bottom-[138px] w-64 bg-slate-800 text-white p-3 rounded-2xl text-[10px] font-bold leading-relaxed shadow-lg border border-slate-700 pointer-events-none select-none text-center">
-
-                <div className="absolute bottom-[-6px] left-1/2 -translate-x-1/2 w-3 h-3 bg-slate-800 border-r border-b border-slate-700 rotate-45"></div>
-
-                💡 {CLINICAL_TIPS[activeTipIdx]}
-
-              </div>
-
-
-
-              <div 
-
-                className="cursor-pointer relative p-3 rounded-full border border-slate-100 bg-slate-50/50 hover:bg-white hover:scale-[1.04] active:scale-95 transition-all shadow-premium"
-
-                onClick={() => { handleMiniCollieClick(); rotateTip(); }}
-
-                title={locale === 'en' ? 'Click to rotate clinical tips!' : locale === 'es' ? '¡Haga clic para rotar consejos clínicos!' : 'Clique para rotacionar dicas clínicas!'}
-
-              >
-
-                <div className="absolute inset-0 rounded-full bg-indigo-150 opacity-10 filter blur-sm"></div>
-
-                <HyperfocusMascot hyperfocus={hyperfocus || activeChild?.childHyperfocus || 'Border Collies 🐕'} state={collieState} size={110} />
-
-              </div>
-
-              <span className="text-[9px] font-extrabold text-slate-400 mt-2 tracking-widest uppercase flex items-center gap-1 select-none">
-
-                {mascotLabel.emoji} {mascotLabel.text}
-
-              </span>
-
-            </div>
-
-            </motion.div>
-
-          )}
-
-          </div>
-                </div>
-
-                {/* Quick Actions Card */}
-                <div className="flex flex-col gap-6">
-                  {/* Quick Actions Card */}
-
-          <div className="bg-white border-2 border-slate-250 rounded-3xl p-6 shadow-premium">
-
-            <button
-
-              type="button"
-
-              onClick={() => toggleSection('quickActions')}
-
-              className="w-full flex items-center justify-between text-left cursor-pointer bg-transparent border-none outline-none select-none"
-
-            >
-
-              <div className="flex items-center gap-2.5 text-indigo-600">
-
-                <Settings className="w-5 h-5" />
-
-                <h2 className="font-bold text-slate-900 text-sm font-Outfit uppercase tracking-wider">{t.dashboard.quickActionsTitle}</h2>
-
-              </div>
-
-              <div className="flex items-center gap-2">
-
-                <span className="text-[9px] font-black text-slate-400 uppercase">Restaurar / Modelos</span>
-
-                {collapsedSections.quickActions ? <ChevronDown className="w-4 h-4 text-slate-400 shrink-0" /> : <ChevronUp className="w-4 h-4 text-slate-400 shrink-0" />}
-
-              </div>
-
-            </button>
-
-
-
-            {!collapsedSections.quickActions && (
-
-              <motion.div
-
-                initial={{ opacity: 0, height: 0 }}
-
-                animate={{ opacity: 1, height: 'auto' }}
-
-                exit={{ opacity: 0, height: 0 }}
-
-                className="flex flex-col gap-4 border-t border-slate-100 pt-4 mt-4 w-full"
-
-              >
-
-
-
-            <div className="flex flex-col gap-2">
-
-              <button 
-
-                onClick={handleResetToDefaults}
-
-                className="w-full flex items-center justify-between px-4 py-3 bg-slate-50 hover:bg-indigo-50 text-slate-800 hover:text-indigo-700 border-2 border-slate-200 hover:border-indigo-300 rounded-xl text-xs font-extrabold transition-all text-left cursor-pointer font-Outfit"
-
-              >
-
-                <span className="flex items-center gap-2">
-
-                  <RotateCcw className="w-4 h-4 text-indigo-500" /> {t.dashboard.restoreClinicalRoutine}
-
-                </span>
-
-                <span>→</span>
-
-              </button>
-
-              <button 
-
-                onClick={() => { playBubble(); setShowClearModal(true); }}
-
-                className="w-full flex items-center justify-between px-4 py-3 bg-slate-50 hover:bg-red-50 text-slate-800 hover:text-red-600 border border-slate-100 hover:border-red-100 rounded-xl text-xs font-bold transition-all text-left font-Outfit"
-
-              >
-
-                <span className="flex items-center gap-2">
-
-                  <Trash2 className="w-4 h-4 text-red-400" /> Limpar Toda a Grade
-
-                </span>
-
-                <span>→</span>
-
-              </button>
-
-            </div>
-
-
-
-            <div className="mt-4 pt-4 border-t border-slate-150 flex flex-col gap-3">
-
-              <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-1 select-none">
-
-                {t.dashboard.clinicalTemplatesTitle}
-
-              </span>
-
-              
-
-              {Object.entries(CLINICAL_TEMPLATES).map(([key, tmpl]) => (
-
-                <div key={key} className="bg-slate-100 border-2 border-slate-250 p-3.5 rounded-2xl flex flex-col gap-2 shadow-xxs">
-
-                  <div>
-
-                    <h4 className="font-black text-[12px] text-slate-900 font-Outfit">{tmpl.name}</h4>
-
-                    <p className="text-[10px] text-slate-700 leading-normal mt-0.5 font-semibold">{tmpl.description}</p>
-
-                  </div>
-
-                  <div className="flex gap-2">
-
-                    <button
-
-                      onClick={() => handleLoadTemplate(key as any, 'day')}
-
-                      className="flex-1 py-2 bg-white border-2 border-slate-300 hover:border-indigo-500 hover:text-indigo-700 text-[10px] font-black rounded-lg shadow-xxs cursor-pointer transition-all active:scale-95 text-slate-750 font-Outfit"
-
-                    >
-
-                      Aplicar no Dia
-
-                    </button>
-
-                    <button
-
-                      onClick={() => handleLoadTemplate(key as any, 'month')}
-
-                      className="flex-1 py-2 bg-white border-2 border-slate-300 hover:border-indigo-500 hover:text-indigo-700 text-[10px] font-black rounded-lg shadow-xxs cursor-pointer transition-all active:scale-95 text-slate-750 font-Outfit"
-
-                    >
-
-                      {t.dashboard.applyOnMonth}
-
-                    </button>
-
-                  </div>
-
-                </div>
-
-              ))}
-
-            </div>
-
-            
-
-            <div className="mt-4 bg-slate-50 border border-slate-200/50 p-4 rounded-2xl flex gap-2">
-
-              <Info className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
-
-              <p className="text-xxs text-slate-500 leading-relaxed">
-
-                {t.dashboard.immutableLogsNotice}
-
-              </p>
-
-            </div>
-
-              </motion.div>
-
-            )}
-
-          </div>
-                </div>
-
-                {/* Clinical Support Tools Card */}
-                <div className="md:col-span-2 flex flex-col gap-6">
-                  {/* Unified Clinical Support Tools & Attachments Card */}
-
-          {activeChild && (
-
-            <div className="bg-white border-2 border-slate-250 rounded-3xl p-6 shadow-premium">
 
               <button
-
-                type="button"
-
-                onClick={() => {
-
-                  playBubble();
-
-                  setSidebarCollapsedStates(prev => ({ ...prev, tools: !prev.tools }));
-
-                }}
-
-                className="w-full flex items-center justify-between text-left cursor-pointer bg-transparent border-none outline-none select-none"
-
+                onClick={() => { playBubble(); setActivePanelTab('feedback'); }}
+                className={`flex-1 py-2.5 text-xs font-black rounded-xl transition-all flex items-center justify-center gap-2 shrink-0 font-Outfit cursor-pointer select-none active:scale-95 ${
+                  activePanelTab === 'feedback' 
+                    ? 'bg-white text-indigo-950 shadow-sm border border-slate-200/50 scale-100' 
+                    : 'text-slate-655 hover:text-slate-900 hover:bg-white/40 border-2 border-transparent'
+                }`}
               >
-
-                <div className="flex items-center gap-2.5 text-indigo-650">
-
-                  <Briefcase className="w-5 h-5 text-indigo-500" />
-
-                  <h2 className="font-bold text-slate-900 text-base font-Outfit">{t.dashboard.clinicalSupportTitle}</h2>
-
-                </div>
-
-                <div className="flex items-center gap-2">
-
-                  <span className="text-[9px] font-black text-slate-400 uppercase">{locale === 'en' ? 'Tools' : locale === 'es' ? 'Herramientas' : 'Ferramentas'}</span>
-
-                  {sidebarCollapsedStates.tools ? <ChevronDown className="w-4 h-4 text-slate-400 shrink-0" /> : <ChevronUp className="w-4 h-4 text-slate-400 shrink-0" />}
-
-                </div>
-
+                <span className="text-sm">🤝</span> {locale === 'es' ? 'Retorno de la Red' : locale === 'en' ? 'Network Feedback' : 'Retorno da Rede'}
               </button>
 
-
-
-              {!sidebarCollapsedStates.tools && (
-
-                <motion.div
-
-                  initial={{ opacity: 0, height: 0 }}
-
-                  animate={{ opacity: 1, height: 'auto' }}
-
-                  exit={{ opacity: 0, height: 0 }}
-
-                  className="flex flex-col gap-4 border-t border-slate-100 pt-4 mt-4 w-full"
-
-                >
-
-                  <label className="block text-[10px] font-black text-slate-500 uppercase">
-
-                    {t.dashboard.selectSupportToolLabel}
-
-                  </label>
-
-                  <select
-
-                    value={activeSidebarTool}
-
-                    onChange={(e) => {
-
-                      playBubble();
-
-                      const val = e.target.value;
-                      if (plan === 'free' && (val === 'voice' || val === 'stories')) {
-                        playMarimba(180, 0.2);
-                        setShowPaywall(true);
-                        return;
-                      }
-
-                      setActiveSidebarTool(val as any);
-
-                    }}
-
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 text-slate-700 text-xs font-bold rounded-xl outline-none focus:border-indigo-500 transition-all cursor-pointer shadow-xxs"
-
-                  >
-
-                    <option value="none">{t.dashboard.toolNone}</option>
-
-                    <option value="aac">{t.dashboard.toolAac}</option>
-
-                    <option value="stories">{t.dashboard.toolStories} {plan === 'free' ? ' 👑' : ''}</option>
-
-                    <option value="dictionary">{t.dashboard.toolDictionary}</option>
-
-                    <option value="voice">{t.dashboard.toolVoice} {plan === 'free' ? ' 👑' : ''}</option>
-
-                  </select>
-
-
-
-                  {/* Render voice alert content if active */}
-
-                  {activeSidebarTool === 'voice' && (
-
-                    <div className="flex flex-col gap-4 border-t border-slate-100/60 pt-4 mt-1">
-
-                      <div className="flex items-center gap-2 text-indigo-650">
-
-                        <Mic className="w-4 h-4 text-indigo-500" />
-
-                        <h3 className="font-extrabold text-slate-900 text-xs font-Outfit">{t.dashboard.familyVoiceTitle}</h3>
-
-                      </div>
-
-                      <p className="text-[10px] text-slate-500 font-semibold leading-relaxed">
-
-                        {t.dashboard.familyVoiceDesc}
-
-                      </p>
-
-
-
-                      <div className="flex flex-col gap-3">
-
-                        {(['audioAlert10', 'audioAlert5', 'audioAlert2'] as const).map((type) => {
-
-                          const label = type === 'audioAlert10' ? t.dashboard.audioAlert10Label : type === 'audioAlert5' ? t.dashboard.audioAlert5Label : t.dashboard.audioAlert2Label;
-
-                          const hasAudio = !!activeChild[type];
-
-                          const isRecording = recordingType === type;
-
-                          const isPlaying = isPlayingAudio === type;
-
-
-
-                          return (
-
-                            <div key={type} className="flex flex-col gap-1.5 p-3 rounded-2xl bg-slate-50 border border-slate-200">
-
-                              <div className="flex items-center justify-between text-xxs font-black text-slate-700">
-
-                                <span>{label}</span>
-
-                                {hasAudio && !isRecording && (
-
-                                  <span className="text-[9px] text-emerald-600 font-bold bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-250">{t.dashboard.audioRecordedLabel}</span>
-
-                                )}
-
-                                {!hasAudio && !isRecording && (
-
-                                  <span className="text-[9px] text-slate-400 font-bold">{t.dashboard.audioNotRecordedLabel}</span>
-
-                                )}
-
-                                {isRecording && (
-
-                                  <span className="text-[9px] text-red-600 font-bold animate-pulse flex items-center gap-1">
-
-                                    <span className="w-1.5 h-1.5 rounded-full bg-red-600" />
-
-                                    {locale === 'en' ? 'Recording' : locale === 'es' ? 'Grabando' : 'Gravando'} ({recordingSecondsLeft}s)
-
-                                  </span>
-
-                                )}
-
-                              </div>
-
-
-
-                              <div className="flex items-center gap-1.5 mt-1">
-
-                                {isRecording ? (
-
-                                  <button
-
-                                    type="button"
-
-                                    onClick={stopRecording}
-
-                                    className="flex-1 py-1.5 bg-red-600 hover:bg-red-750 text-white rounded-xl text-xxs font-black flex items-center justify-center gap-1 cursor-pointer transition-all"
-
-                                  >
-
-                                    <Square className="w-3.5 h-3.5 fill-current" /> {t.dashboard.stopRecording}
-
-                                  </button>
-
-                                ) : (
-
-                                  <>
-
-                                    <button
-
-                                      type="button"
-
-                                      onClick={() => startRecording(type)}
-
-                                      className="flex-1 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 hover:text-indigo-800 border border-indigo-200 rounded-xl text-xxs font-black flex items-center justify-center gap-1 cursor-pointer transition-all"
-
-                                    >
-
-                                      <Mic className="w-3.5 h-3.5" /> {locale === 'en' ? 'Record 10s' : locale === 'es' ? 'Grabar 10s' : 'Gravar 10s'}
-
-                                    </button>
-
-
-
-                                    {hasAudio && (
-
-                                      <>
-
-                                        <button
-
-                                          type="button"
-
-                                          onClick={() => playRecordedAudio(type)}
-
-                                          className={`p-1.5 rounded-xl border flex items-center justify-center cursor-pointer transition-all ${
-
-                                            isPlaying 
-
-                                              ? 'bg-amber-100 border-amber-300 text-amber-850' 
-
-                                              : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
-
-                                          }`}
-
-                                          title={t.dashboard.listenRecording}
-
-                                        >
-
-                                          {isPlaying ? <Square className="w-3.5 h-3.5 fill-current" /> : <Play className="w-3.5 h-3.5 fill-current" />}
-
-                                        </button>
-
-                                        <button
-
-                                          type="button"
-
-                                          onClick={() => deleteRecordedAudio(type)}
-
-                                          className="p-1.5 bg-rose-50 border border-rose-200 text-rose-600 hover:bg-rose-100 rounded-xl flex items-center justify-center cursor-pointer transition-all"
-
-                                          title={t.dashboard.deleteRecording}
-
-                                        >
-
-                                          <Trash2 className="w-3.5 h-3.5" />
-
-                                        </button>
-
-                                      </>
-
-                                    )}
-
-                                  </>
-
-                                )}
-
-                              </div>
-
-                            </div>
-
-                          );
-
-                        })}
-
-                      </div>
-
-                    </div>
-
-                  )}
-
-
-
-                  {/* Render AAC board content if active */}
-
-                  {activeSidebarTool === 'aac' && (
-
-                    <div className="flex flex-col gap-4 border-t border-slate-100/60 pt-4 mt-1">
-
-                      <div className="flex items-center gap-2 text-indigo-655">
-
-                        <MessageSquare className="w-4 h-4 text-indigo-500" />
-
-                        <h3 className="font-extrabold text-slate-900 text-xs font-Outfit">{t.dashboard.customAacTitle}</h3>
-
-                      </div>
-
-                      <p className="text-[10px] text-slate-500 font-semibold leading-relaxed">
-
-                        {t.dashboard.customAacDesc}
-
-                      </p>
-
-
-
-                      {/* List of current custom items */}
-
-                      <div className="flex flex-wrap gap-2 max-h-[200px] overflow-y-auto pr-1">
-
-                        {aacItemsList.length === 0 ? (
-
-                          <p className="text-slate-400 text-xxs italic w-full text-center py-4">
-
-                            {t.dashboard.noCustomButtons}
-
-                          </p>
-
-                        ) : (
-
-                          aacItemsList.map((item) => (
-
-                            <div 
-
-                              key={item.id} 
-
-                              className={`px-3 py-2 border rounded-2xl flex items-center justify-between gap-3 text-xxs font-black shadow-xxs ${
-
-                                item.alert 
-
-                                  ? 'bg-rose-50 border-rose-200 text-rose-700' 
-
-                                  : 'bg-indigo-50 border-indigo-150 text-indigo-805'
-
-                              }`}
-
-                            >
-
-                              <span>{item.text}</span>
-
-                              <button
-
-                                type="button"
-
-                                onClick={() => handleDeleteAacItem(item.id)}
-
-                                className="p-0.5 bg-transparent border-none text-slate-400 hover:text-red-655 cursor-pointer"
-
-                                title={locale === 'en' ? 'Remove button' : locale === 'es' ? 'Eliminar botón' : 'Remover botão'}
-
-                              >
-
-                                <Trash2 className="w-3.5 h-3.5" />
-
-                              </button>
-
-                            </div>
-
-                          ))
-
-                        )}
-
-                      </div>
-
-
-
-                      {/* Form to add item */}
-
-                      <form onSubmit={handleAddAacItem} className="flex flex-col gap-2.5 border-t border-slate-100 pt-4 mt-2">
-
-                        <span className="text-xxs font-black text-slate-700 uppercase tracking-wider font-Outfit">{t.dashboard.createNewButton}</span>
-
-                        
-
-                        <div className="grid grid-cols-4 gap-2">
-
-                          <div className="col-span-3">
-
-                            <input
-
-                              type="text"
-
-                              placeholder={t.dashboard.buttonTitlePlaceholder}
-
-                              value={newAacText}
-
-                              onChange={e => setNewAacText(e.target.value)}
-
-                              className="w-full px-3 py-2 bg-slate-50 border border-slate-255 rounded-xl text-xxs font-bold outline-none focus:bg-white focus:border-indigo-650"
-
-                              maxLength={20}
-
-                              required
-
-                            />
-
-                          </div>
-
-                          <div className="col-span-1">
-
-                            <select
-
-                              value={newAacEmoji}
-
-                              onChange={e => setNewAacEmoji(e.target.value)}
-
-                              className="w-full px-2 py-2 bg-slate-50 border border-slate-255 rounded-xl text-xxs font-bold outline-none focus:bg-white focus:border-indigo-650 cursor-pointer"
-
-                            >
-
-                              <option value="🤗">🤗</option>
-
-                              <option value="🧸">🧸</option>
-
-                              <option value="🛌">🛌</option>
-
-                              <option value="🥛">🥛</option>
-
-                              <option value="🍎">🍎</option>
-
-                              <option value="🚽">🚽</option>
-
-                              <option value="🎧">🎧</option>
-
-                              <option value="❤️">❤️</option>
-
-                              <option value="🩹">🩹</option>
-
-                              <option value="🦖">🦖</option>
-
-                            </select>
-
-                          </div>
-
-                        </div>
-
-
-
-                        <div>
-
-                          <input
-
-                            type="text"
-
-                            placeholder={t.dashboard.buttonSpeechPlaceholder}
-
-                            value={newAacSpeech}
-
-                            onChange={e => setNewAacSpeech(e.target.value)}
-
-                            className="w-full px-3 py-2 bg-slate-50 border border-slate-255 rounded-xl text-xxs font-bold outline-none focus:bg-white focus:border-indigo-650"
-
-                            maxLength={100}
-
-                            required
-
-                          />
-
-                        </div>
-
-
-
-                        <div className="flex items-center gap-2">
-
-                          <input
-
-                            type="checkbox"
-
-                            id="aacAlertCheck"
-
-                            checked={newAacAlert}
-
-                            onChange={e => setNewAacAlert(e.target.checked)}
-
-                            className="w-4 h-4 text-indigo-600 border-slate-300 rounded focus:ring-indigo-500 cursor-pointer"
-
-                          />
-
-                          <label htmlFor="aacAlertCheck" className="text-xxs font-black text-rose-700 cursor-pointer select-none">
-
-                            {t.dashboard.sosButtonAlert}
-
-                          </label>
-
-                        </div>
-
-
-
-                        <button
-
-                          type="submit"
-
-                          className="w-full py-2 bg-indigo-600 hover:bg-indigo-755 text-white text-xs font-black rounded-xl border-b-2 border-indigo-900 active:scale-95 transition-all cursor-pointer font-Outfit uppercase tracking-wider"
-
-                        >
-
-                          {t.dashboard.addButton}
-
-                        </button>
-
-                      </form>
-
-                    </div>
-
-                  )}
-
-
-
-                  {/* Render social stories content if active */}
-
-                  {activeSidebarTool === 'stories' && (
-
-                    <div className="flex flex-col gap-4 border-t border-slate-100/60 pt-4 mt-1">
-
-                      <div className="flex items-center gap-2 text-indigo-655">
-
-                        <BookOpen className="w-4 h-4 text-indigo-500" />
-
-                        <h3 className="font-extrabold text-slate-900 text-xs font-Outfit">{t.dashboard.aiSocialStoriesTitle}</h3>
-
-                      </div>
-
-                      <p className="text-[10px] text-slate-500 font-semibold leading-relaxed">
-
-                        {t.dashboard.aiSocialStoriesDesc}
-
-                      </p>
-
-
-
-                      {/* List of current social stories */}
-
-                      <div className="flex flex-col gap-2 max-h-[200px] overflow-y-auto pr-1">
-
-                        {customStoriesList.length === 0 ? (
-
-                          <p className="text-slate-400 text-xxs italic text-center py-4">
-
-                            {t.dashboard.noStories}
-
-                          </p>
-
-                        ) : (
-
-                          customStoriesList.map((story) => (
-
-                            <div key={story.id} className="p-3 bg-slate-50 border border-slate-200 rounded-2xl flex items-center justify-between gap-3 text-xxs font-semibold">
-
-                              <div className="flex flex-col gap-0.5">
-
-                                <span className="font-bold text-slate-900">{story.title}</span>
-
-                                <span className="text-[10px] text-slate-505 truncate max-w-[200px]">{story.desc}</span>
-
-                              </div>
-
-                              <button
-
-                                type="button"
-
-                                onClick={() => handleDeleteStory(story.id)}
-
-                                className="p-1.5 bg-rose-50 border border-rose-200 text-rose-605 hover:bg-rose-100 rounded-xl flex items-center justify-center cursor-pointer transition-all shrink-0"
-
-                                title={t.dashboard.deleteStory}
-
-                              >
-
-                                <Trash2 className="w-3.5 h-3.5" />
-
-                              </button>
-
-                            </div>
-
-                          ))
-
-                        )}
-
-                      </div>
-
-
-
-                      {/* Form to generate via AI */}
-
-                      <form onSubmit={handleGenerateAiStory} className="flex flex-col gap-2.5 border-t border-slate-100 pt-4 mt-2">
-
-                        <span className="text-xxs font-black text-slate-700 uppercase tracking-wider font-Outfit flex items-center gap-1">
-
-                          <Sparkles className="w-3.5 h-3.5 text-indigo-500" /> Gerador Assistido por IA
-
-                        </span>
-
-
-
-                        {generatingAi ? (
-
-                          <div className="p-4 bg-indigo-50/50 border border-indigo-200 rounded-2xl flex flex-col items-center justify-center text-center gap-3">
-
-                            <div className="w-8 h-8 rounded-full border-4 border-indigo-650 border-t-transparent animate-spin" />
-
-                            <span className="text-xxs font-bold text-indigo-950 font-Outfit tracking-wide">
-
-                              {GENERATOR_STATUSES[aiStatusIdx]}
-
-                            </span>
-
-                          </div>
-
-                        ) : (
-
-                          <>
-
-                            <div>
-
-                              <input
-
-                                type="text"
-
-                                placeholder="Tema da dificuldade (Ex: Ir tomar vacina, Ir ao dentista)"
-
-                                value={aiTheme}
-
-                                onChange={e => setAiTheme(e.target.value)}
-
-                                className="w-full px-3 py-2 bg-slate-50 border border-slate-255 rounded-xl text-xxs font-bold outline-none focus:bg-white focus:border-indigo-650"
-
-                                required
-
-                              />
-
-                            </div>
-
-                            <p className="text-[9px] text-slate-400 leading-normal">
-
-                              {t.dashboard.aiAdaptStoryTip} <strong>{hyperfocus || activeChild.childHyperfocus || 'Border Collies 🐕'}</strong>.
-
-                            </p>
-
-                            <button
-
-                              type="submit"
-
-                              className="w-full py-2 bg-indigo-600 hover:bg-indigo-755 text-white text-xs font-black rounded-xl border-b-2 border-indigo-900 active:scale-95 transition-all cursor-pointer font-Outfit uppercase tracking-wider flex items-center justify-center gap-1"
-
-                            >
-
-                              <Sparkles className="w-3.5 h-3.5" /> {t.dashboard.generateStory}
-
-                            </button>
-
-                          </>
-
-                        )}
-
-                      </form>
-
-                    </div>
-
-                  )}
-
-
-
-                  {/* Render behavior dictionary content if active */}
-
-                  {activeSidebarTool === 'dictionary' && (
-
-                    <div className="flex flex-col gap-4 border-t border-slate-100/60 pt-4 mt-1">
-
-                      <div className="flex items-center gap-2 text-indigo-655">
-
-                        <Activity className="w-4 h-4 text-indigo-500" />
-
-                        <h3 className="font-extrabold text-slate-900 text-xs font-Outfit">{t.dashboard.behaviorDictionaryTitle}</h3>
-
-                      </div>
-
-                      <p className="text-[10px] text-slate-500 font-semibold leading-relaxed">
-
-                        {t.dashboard.behaviorDictionaryDesc}
-
-                      </p>
-
-
-
-                      {/* List of current signals */}
-
-                      <div className="flex flex-col gap-2.5 max-h-[300px] overflow-y-auto pr-1">
-
-                        {behaviorList.length === 0 ? (
-
-                          <p className="text-slate-400 text-xxs italic text-center py-4">
-
-                            {locale === 'en' ? 'No signal registered yet.' : locale === 'es' ? 'Ninguna señal registrada aún.' : 'Nenhum sinal cadastrado ainda.'}
-
-                          </p>
-
-                        ) : (
-
-                          behaviorList.map((item) => (
-
-                            <div key={item.id} className="p-3 bg-slate-50 border border-slate-200 rounded-2xl flex flex-col gap-1.5 relative group">
-
-                              <button
-
-                                type="button"
-
-                                onClick={() => handleDeleteBehaviorSignal(item.id)}
-
-                                className="absolute top-2.5 right-2.5 p-1 bg-transparent hover:bg-rose-50 text-slate-405 hover:text-red-655 rounded-md border-none cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity"
-
-                                title={locale === 'en' ? 'Delete signal' : locale === 'es' ? 'Eliminar señal' : 'Excluir sinal'}
-
-                              >
-
-                                <Trash2 className="w-3.5 h-3.5" />
-
-                              </button>
-
-                              <div className="text-xxs font-black text-indigo-950 font-Outfit pr-6">
-
-                                📢 {locale === 'en' ? 'Signal' : locale === 'es' ? 'Señal' : 'Sinal'}: {item.signal}
-
-                              </div>
-
-                              <div className="text-[10px] text-slate-600 font-semibold leading-tight">
-
-                                <strong>🧠 {locale === 'en' ? 'Meaning' : locale === 'es' ? 'Significado' : 'Significado'}:</strong> {item.meaning}
-
-                              </div>
-
-                              <div className="text-[10px] text-emerald-800 font-semibold bg-emerald-50/60 border border-emerald-150 p-2 rounded-xl mt-1 leading-normal">
-
-                                <strong>👩‍🏫 {locale === 'en' ? 'Action' : locale === 'es' ? 'Conducta' : 'Conduta'}:</strong> {item.intervention}
-
-                              </div>
-
-                            </div>
-
-                          ))
-
-                        )}
-
-                      </div>
-
-
-
-                      {/* Add form */}
-
-                      <form onSubmit={handleAddBehaviorSignal} className="flex flex-col gap-2.5 border-t border-slate-100 pt-4 mt-2">
-
-                        <span className="text-xxs font-black text-slate-700 uppercase tracking-wider font-Outfit">{locale === 'en' ? 'Register New Sign' : locale === 'es' ? 'Registrar Nueva Señal' : 'Cadastrar Novo Sinal'}</span>
-
-                        <div>
-
-                          <input
-
-                            type="text"
-
-                            placeholder={t.dashboard.signalPlaceholder}
-
-                            value={newSignal}
-
-                            onChange={e => setNewSignal(e.target.value)}
-
-                            className="w-full px-3 py-2 bg-slate-50 border border-slate-255 rounded-xl text-xxs font-bold outline-none focus:bg-white focus:border-indigo-650"
-
-                            required
-
-                          />
-
-                        </div>
-
-                        <div>
-
-                          <input
-
-                            type="text"
-
-                            placeholder={t.dashboard.meaningPlaceholder}
-
-                            value={newMeaning}
-
-                            onChange={e => setNewMeaning(e.target.value)}
-
-                            className="w-full px-3 py-2 bg-slate-50 border border-slate-255 rounded-xl text-xxs font-bold outline-none focus:bg-white focus:border-indigo-650"
-
-                            required
-
-                          />
-
-                        </div>
-
-                        <div>
-
-                          <input
-
-                            type="text"
-
-                            placeholder={t.dashboard.interventionPlaceholder}
-
-                            value={newIntervention}
-
-                            onChange={e => setNewIntervention(e.target.value)}
-
-                            className="w-full px-3 py-2 bg-slate-50 border border-slate-255 rounded-xl text-xxs font-bold outline-none focus:bg-white focus:border-indigo-650"
-
-                            required
-
-                          />
-
-                        </div>
-
-                        <button
-
-                          type="submit"
-
-                          className="w-full py-2 bg-indigo-600 hover:bg-indigo-755 text-white text-xs font-black rounded-xl border-b-2 border-indigo-900 active:scale-95 transition-all cursor-pointer font-Outfit uppercase tracking-wider"
-
-                        >
-
-                          ➕ {locale === 'en' ? 'Add Sign' : locale === 'es' ? 'Añadir Señal' : 'Adicionar Sinal'}
-
-                        </button>
-
-                      </form>
-
-                    </div>
-
-                  )}
-
-                </motion.div>
-
-              )}
-
+              <button
+                onClick={() => { playBubble(); setActivePanelTab('tools'); }}
+                className={`flex-1 py-2.5 text-xs font-black rounded-xl transition-all flex items-center justify-center gap-2 shrink-0 font-Outfit cursor-pointer select-none active:scale-95 ${
+                  activePanelTab === 'tools' 
+                    ? 'bg-white text-indigo-950 shadow-sm border border-slate-200/50 scale-100' 
+                    : 'text-slate-655 hover:text-slate-900 hover:bg-white/40 border-2 border-transparent'
+                }`}
+              >
+                <Settings className="w-4.5 h-4.5" /> {locale === 'es' ? 'Configuraciones' : locale === 'en' ? 'Settings & Logs' : 'Configurações & Logs'}
+              </button>
             </div>
+          </div>
 
+          {/* Sub-tab menus for Feedback and Tools */}
+          {activePanelTab === 'feedback' && (
+            <div className="bg-slate-100/80 p-1 rounded-xl flex shadow-inner gap-1 mb-4 w-fit">
+              <button
+                onClick={() => { playBubble(); setActiveFeedbackSubTab('checkpoints'); }}
+                className={`px-4 py-1.5 text-xs font-black rounded-lg transition-all cursor-pointer ${
+                  activeFeedbackSubTab === 'checkpoints'
+                    ? 'bg-white text-indigo-950 shadow-sm border border-slate-200/50'
+                    : 'text-slate-655 hover:text-slate-900 hover:bg-white/40'
+                }`}
+              >
+                🤝 {locale === 'es' ? 'Puntos de Control' : locale === 'en' ? 'Clinical Checkpoints' : 'Checkpoints da Rede'}
+              </button>
+              <button
+                onClick={() => { playBubble(); setActiveFeedbackSubTab('reports'); }}
+                className={`px-4 py-1.5 text-xs font-black rounded-lg transition-all cursor-pointer ${
+                  activeFeedbackSubTab === 'reports'
+                    ? 'bg-white text-indigo-950 shadow-sm border border-slate-200/50'
+                    : 'text-slate-655 hover:text-slate-900 hover:bg-white/40'
+                }`}
+              >
+                📊 {locale === 'es' ? 'Informe Clínico' : locale === 'en' ? 'Clinical Report' : 'Relatório de Evolução'}
+              </button>
+            </div>
           )}
-                </div>
-              </motion.div>
-            ) : activePanelTab === 'tasks' ? (
+
+          {activePanelTab === 'tools' && (
+            <div className="bg-slate-100/80 p-1 rounded-xl flex shadow-inner gap-1 mb-4 w-fit">
+              <button
+                onClick={() => { playBubble(); setActiveToolsSubTab('config'); }}
+                className={`px-4 py-1.5 text-xs font-black rounded-lg transition-all flex items-center gap-1.5 cursor-pointer ${
+                  activeToolsSubTab === 'config'
+                    ? 'bg-white text-indigo-950 shadow-sm border border-slate-200/50'
+                    : 'text-slate-655 hover:text-slate-900 hover:bg-white/40'
+                }`}
+              >
+                <Settings className="w-3.5 h-3.5" /> {locale === 'es' ? 'Herramientas' : locale === 'en' ? 'Tools' : 'Ferramentas do Painel'}
+              </button>
+              <button
+                onClick={() => { playBubble(); setActiveToolsSubTab('logs'); }}
+                className={`px-4 py-1.5 text-xs font-black rounded-lg transition-all flex items-center gap-1.5 cursor-pointer ${
+                  activeToolsSubTab === 'logs'
+                    ? 'bg-white text-indigo-950 shadow-sm border border-slate-200/50'
+                    : 'text-slate-655 hover:text-slate-900 hover:bg-white/40'
+                }`}
+              >
+                <History className="w-3.5 h-3.5" /> {locale === 'es' ? 'Registros de Segurança' : locale === 'en' ? 'Security Logs' : 'Logs de Atividades'}
+                <span className="text-[9px] bg-indigo-50 border border-indigo-150 text-indigo-755 px-1.5 py-0.5 rounded-full font-extrabold shadow-xxs ml-0.5">
+                  {logs.length}
+                </span>
+              </button>
+            </div>
+          )}
+
+          <AnimatePresence mode="wait">
+            {activePanelTab === 'tasks' ? (
 
               
 
@@ -11340,7 +9729,8 @@ function ParentDashboardContent() {
 
               </motion.div>
 
-            ) : activePanelTab === 'checkpoints' ? (
+            ) : activePanelTab === 'feedback' ? (
+              activeFeedbackSubTab === 'checkpoints' ? (
 
               <motion.div
 
@@ -12042,7 +10432,7 @@ function ParentDashboardContent() {
 
               </motion.div>
 
-            ) : activePanelTab === 'reports' ? (
+              ) : (
 
               
 
@@ -13954,7 +12344,1607 @@ function ParentDashboardContent() {
 
               )
 
+              )
             ) : (
+              activeToolsSubTab === 'config' ? (
+              <motion.div
+                key="tools-panel"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.3 }}
+                className="grid grid-cols-1 md:grid-cols-2 gap-6 text-left"
+              >
+                {/* Profile Card */}
+                <div className="flex flex-col gap-6">
+                  {/* Child Hyperfocus Profile Card */}
+
+          <div className="bg-white border-2 border-slate-250 rounded-[28px] p-6 shadow-premium flex flex-col gap-4">
+
+            <button
+
+              type="button"
+
+              onClick={() => toggleSection('profile')}
+
+              className="w-full flex items-center justify-between text-left cursor-pointer bg-transparent border-none outline-none select-none"
+
+            >
+
+              <div className="flex items-center gap-2.5 text-indigo-600">
+
+                <Sparkles className="w-5 h-5" />
+
+                <h2 className="font-bold text-slate-900 text-lg font-Outfit">{t.dashboard.childProfileTitle}</h2>
+
+              </div>
+
+              <div className="flex items-center gap-2">
+
+                <span className="text-[9px] font-black text-slate-400 uppercase">{t.dashboard.childProfileSubtitle}</span>
+
+                {collapsedSections.profile ? <ChevronDown className="w-4 h-4 text-slate-400 shrink-0" /> : <ChevronUp className="w-4 h-4 text-slate-400 shrink-0" />}
+
+              </div>
+
+            </button>
+
+
+
+            {!collapsedSections.profile && (
+
+              <motion.div
+
+                initial={{ opacity: 0, height: 0 }}
+
+                animate={{ opacity: 1, height: 'auto' }}
+
+                exit={{ opacity: 0, height: 0 }}
+
+                className="flex flex-col gap-4 border-t border-slate-100 pt-4 w-full"
+
+              >
+
+            
+
+            <form onSubmit={handleSaveProfile} className="flex flex-col gap-3">
+
+              <div>
+
+                <label className="block text-xs font-black text-slate-700 uppercase tracking-wider mb-1.5 font-Outfit">
+
+                  {locale === 'en' ? 'User\'s Main Hyperfocus' : locale === 'es' ? 'Hiperenfoque Principal del Usuario' : 'Hiperfoco Principal do Usuário'}
+
+                </label>
+
+                <select
+
+                  value={hyperfocus}
+
+                  onChange={e => setHyperfocus(e.target.value)}
+
+                  className="w-full px-4 py-2.5 bg-white border-2 border-slate-300 focus:border-indigo-600 focus:bg-white rounded-xl text-slate-900 outline-none text-sm transition-all shadow-xxs font-bold cursor-pointer focus:ring-4 focus:ring-indigo-100"
+
+                >
+
+                  <option value="Border Collies 🐕">{locale === 'en' ? 'Border Collie Dog 🐶' : locale === 'es' ? 'Perro Border Collie 🐶' : 'Cachorro Border Collie 🐶'}</option>
+
+                  <option value="Dinossauro 🦖">{locale === 'en' ? 'Dinosaur 🦖' : locale === 'es' ? 'Dinosaurio 🦖' : 'Dinossauro 🦖'}</option>
+
+                  <option value="Astronauta / Espaço 🚀">{locale === 'en' ? 'Space / Astronaut 🚀' : locale === 'es' ? 'Espacio / Astronauta 🚀' : 'Espaço / Astronauta 🚀'}</option>
+
+                  <option value="Minecraft / Blocos 🟩">{locale === 'en' ? 'Minecraft / Blocks 🟩' : locale === 'es' ? 'Minecraft / Bloques 🟩' : 'Minecraft / Blocos 🟩'}</option>
+
+                  <option value="Gato 🐱">{locale === 'en' ? 'Cat 🐱' : locale === 'es' ? 'Gato 🐱' : 'Gato 🐱'}</option>
+
+                  <option value="Carro 🚗">{locale === 'en' ? 'Car 🚗' : locale === 'es' ? 'Coche 🚗' : 'Carro 🚗'}</option>
+
+                  <option value="Trem / Locomotiva 🚂">{locale === 'en' ? 'Train / Locomotive 🚂' : locale === 'es' ? 'Tren / Locomotora 🚂' : 'Trem / Locomotiva 🚂'}</option>
+
+                  <option value="Super-herói 🦸">{locale === 'en' ? 'Superhero 🦸' : locale === 'es' ? 'Superhéroe 🦸' : 'Super-herói 🦸'}</option>
+
+                  <option value="Tubarão / Fundo do Mar 🦈">{locale === 'en' ? 'Shark / Undersea 🦈' : locale === 'es' ? 'Tiburón / Fondo del Mar 🦈' : 'Tubarão / Fundo do Mar 🦈'}</option>
+
+                  <option value="Unicórnio 🦄">{locale === 'en' ? 'Unicorn 🦄' : locale === 'es' ? 'Unicornio 🦄' : 'Unicórnio 🦄'}</option>
+
+                  <option value="Robô / Tecnologia 🤖">{locale === 'en' ? 'Robot / Technology 🤖' : locale === 'es' ? 'Robot / Tecnología 🤖' : 'Robô / Tecnologia 🤖'}</option>
+
+                </select>
+
+              </div>
+
+
+
+              {/* Emergency First-Then mode toggle */}
+
+              {activeChild && (
+
+                <div className="bg-gradient-to-tr from-indigo-50/50 to-indigo-100/50 border-2 border-indigo-200 p-4.5 rounded-2xl flex flex-col gap-3 shadow-xxs">
+
+                  <div className="flex items-center justify-between">
+
+                    <div className="text-left">
+
+                      <span className="text-[10px] font-black uppercase tracking-widest text-indigo-900 flex items-center gap-1 select-none font-Outfit">
+
+                        {t.dashboard.firstThenModeTitle}
+
+                      </span>
+
+                      <p className="text-[9.5px] text-slate-500 font-semibold leading-tight mt-0.5">
+
+                        {t.dashboard.firstThenModeDesc}
+
+                      </p>
+
+                    </div>
+
+                    <button
+
+                      type="button"
+
+                      onClick={() => {
+
+                        playBubble();
+
+                        setEmergencyFirstThen(!emergencyFirstThen);
+
+                      }}
+
+                      className={`px-3 py-1.5 text-[10px] font-black rounded-lg transition-all border-b-2 cursor-pointer ${
+
+                        emergencyFirstThen
+
+                          ? 'bg-indigo-600 border-indigo-950 text-white shadow-sm'
+
+                          : 'bg-slate-200 border-slate-355 text-slate-700'
+
+                      }`}
+
+                    >
+
+                      {emergencyFirstThen ? t.dashboard.activeLabel : t.dashboard.inactiveLabel}
+
+                    </button>
+
+                  </div>
+
+                </div>
+
+              )}
+
+
+
+              {/* Token Economy Config */}
+
+              <div className="bg-indigo-50 border-2 border-indigo-200 p-4.5 rounded-2xl flex flex-col gap-3 shadow-xxs">
+
+                <span className="text-[10px] font-black uppercase tracking-widest text-indigo-900 flex items-center gap-1 select-none font-Outfit">
+
+                  {t.dashboard.tokenEconomyTitle}
+
+                </span>
+
+                <div>
+
+                  <label className="block text-xxs font-black text-slate-700 uppercase mb-1 font-Outfit">
+
+                    {t.dashboard.tokenEconomyPrize}
+
+                  </label>
+
+                  <input 
+
+                    type="text" 
+
+                    value={rewardName}
+
+                    onChange={e => setRewardName(e.target.value)}
+
+                    placeholder="Ex: 15 min de tablet"
+
+                    className="w-full px-4 py-2.5 bg-white border-2 border-slate-300 focus:border-indigo-650 rounded-xl text-slate-900 outline-none text-xs font-bold focus:ring-4 focus:ring-indigo-100"
+
+                  />
+
+                </div>
+
+                <div className="grid grid-cols-3 gap-2">
+
+                  <div>
+
+                    <label className="block text-[9px] font-black text-slate-700 uppercase mb-1 font-Outfit truncate">
+
+                      Estrelas Atuais
+
+                    </label>
+
+                    <input 
+
+                      type="number" 
+
+                      min={0}
+
+                      max={100}
+
+                      value={tokens}
+
+                      onChange={e => setTokens(parseInt(e.target.value) || 0)}
+
+                      className="w-full px-2.5 py-2.5 bg-white border-2 border-slate-300 focus:border-indigo-650 rounded-xl text-slate-900 outline-none text-xs font-bold focus:ring-4 focus:ring-indigo-100"
+
+                    />
+
+                  </div>
+
+                  <div>
+
+                    <label className="block text-[9px] font-black text-slate-700 uppercase mb-1 font-Outfit truncate">
+
+                      Meta de Fichas
+
+                    </label>
+
+                    <input 
+
+                      type="number" 
+
+                      min={1}
+
+                      max={50}
+
+                      value={rewardCost}
+
+                      onChange={e => setRewardCost(parseInt(e.target.value) || 10)}
+
+                      className="w-full px-2.5 py-2.5 bg-white border-2 border-slate-300 focus:border-indigo-650 rounded-xl text-slate-900 outline-none text-xs font-bold focus:ring-4 focus:ring-indigo-100"
+
+                    />
+
+                  </div>
+
+                  <div>
+
+                    <label className="block text-[9px] font-black text-slate-700 uppercase mb-1 font-Outfit truncate">
+
+                      Aviso (min)
+
+                    </label>
+
+                    <input 
+
+                      type="number" 
+
+                      min={1}
+
+                      max={30}
+
+                      value={transitionMinutes}
+
+                      onChange={e => setTransitionMinutes(parseInt(e.target.value) || 5)}
+
+                      className="w-full px-2.5 py-2.5 bg-white border-2 border-slate-300 focus:border-indigo-650 rounded-xl text-slate-900 outline-none text-xs font-bold focus:ring-4 focus:ring-indigo-100"
+
+                    />
+
+                  </div>
+
+                </div>
+
+              </div>
+
+
+
+              <div>
+
+                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">
+
+                  {t.dashboard.subscriptionTitle}
+
+                </label>
+
+                <div className={`p-5 rounded-2xl border flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 transition-all shadow-xxs ${
+                  plan === 'premium'
+                    ? 'bg-gradient-to-r from-amber-50 to-yellow-50/50 border-amber-200 text-amber-900 shadow-amber-50'
+                    : 'bg-gradient-to-r from-slate-50 to-pink-50/30 border-slate-200 text-slate-750'
+                }`}>
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-[10px] font-black uppercase tracking-wider text-slate-400">Plano Atual</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-black flex items-center gap-1 font-Outfit">
+                        {plan === 'premium' ? '👑 Premium Pro' : '🌱 Plano Gratuito (Limitado)'}
+                      </span>
+                      <span className={`text-[8px] font-black px-1.5 py-0.5 rounded-md uppercase tracking-widest ${
+                        plan === 'premium' ? 'bg-amber-500 text-white' : 'bg-slate-200 text-slate-700'
+                      }`}>
+                        {plan === 'premium' ? 'Ativo' : 'Básico'}
+                      </span>
+                    </div>
+                    <p className="text-[11px] font-medium text-slate-550 leading-relaxed max-w-md mt-1">
+                      {plan === 'premium' 
+                        ? 'Você tem acesso a tarefas diárias ilimitadas, todos os laudos clínicos em PDF e o painel de análise de padrões da IA.'
+                        : 'Acesso básico limitado a 3 tarefas diárias por dia e painéis analíticos bloqueados.'}
+                    </p>
+                  </div>
+                  {plan === 'premium' ? (
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        playMarimba(261, 0.3);
+                        await firebaseBridge.auth.updateProfileSettings({ plan: 'free' });
+                        setPlan('free');
+                        triggerStatus(t.dashboard.premiumCancelSuccess);
+                      }}
+                      className="px-4 py-2.5 bg-white hover:bg-red-50 text-red-500 hover:text-red-700 border border-slate-200 hover:border-red-200 text-xs font-black uppercase rounded-xl transition-all cursor-pointer shadow-xxs shrink-0 self-start sm:self-center font-Outfit active:scale-95"
+                    >
+                      {locale === 'en' ? 'Cancel Subscription' : locale === 'es' ? 'Cancelar Suscripción' : 'Cancelar Assinatura'}
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        playBubble();
+                        setShowPaywall(true);
+                      }}
+                      className="px-4 py-2.5 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white text-xs font-black uppercase rounded-xl transition-all cursor-pointer shadow-md shadow-amber-100 shrink-0 self-start sm:self-center font-Outfit active:scale-95 border-b-2 border-amber-700/30"
+                    >
+                      {locale === 'en' ? 'Upgrade to Premium 👑' : locale === 'es' ? 'Mejorar a Premium 👑' : 'Assinar Premium 👑'}
+                    </button>
+                  )}
+                </div>
+
+              </div>
+
+
+
+              {/* Clinical Sharing Code */}
+
+              <div className="bg-indigo-50 border-2 border-indigo-200 p-4.5 rounded-2xl flex flex-col gap-3 shadow-xxs">
+
+                <span className="text-[10px] font-black uppercase tracking-widest text-indigo-900 flex items-center gap-1 select-none font-Outfit">
+
+                  {t.dashboard.clinicalSharingTitle}
+
+                </span>
+
+                <p className="text-[10px] text-indigo-950 font-semibold leading-tight">
+
+                  {t.dashboard.clinicalSharingDesc}
+
+                </p>
+
+                <div className="flex flex-col gap-2 bg-white border border-slate-200 p-3 rounded-xl">
+
+                  {activeChild?.sharingCode ? (
+
+                    <>
+
+                      <div className="flex items-center justify-between">
+
+                        <span className="text-[10px] font-extrabold text-slate-500 uppercase font-Outfit">{t.dashboard.patientCode}</span>
+
+                        <span className="text-sm font-black text-indigo-650 tracking-wider bg-indigo-50 px-2.5 py-1 rounded-lg border border-indigo-150 font-Outfit">
+
+                          {activeChild.sharingCode}
+
+                        </span>
+
+                      </div>
+
+                      <div className="flex gap-1.5 w-full mt-1.5 flex-wrap">
+
+                        <button
+
+                          type="button"
+
+                          onClick={() => {
+
+                            navigator.clipboard.writeText(activeChild.sharingCode || '');
+
+                            triggerStatus(t.dashboard.statusCodeCopied);
+
+                          }}
+
+                          className="flex-1 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-[9px] font-black rounded-lg active:scale-95 transition-all cursor-pointer font-Outfit"
+
+                        >
+
+                          {locale === 'en' ? 'Copy Code' : locale === 'es' ? 'Copiar Código' : 'Copiar Código'}
+
+                        </button>
+
+                        <button
+
+                          type="button"
+
+                          onClick={() => {
+
+                            if (typeof window !== 'undefined') {
+
+                              const directLink = `${window.location.origin}/therapist?code=${activeChild.sharingCode}`;
+
+                              navigator.clipboard.writeText(directLink);
+
+                              triggerStatus(t.dashboard.statusLinkCopied);
+
+                            }
+
+                          }}
+
+                          className="flex-1 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-[9px] font-black rounded-lg active:scale-95 transition-all cursor-pointer font-Outfit"
+
+                        >
+
+                          Copiar Link Direto
+
+                        </button>
+
+                        <button
+
+                          type="button"
+
+                          onClick={handleGenerateSharingCode}
+
+                          className="py-1.5 px-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-[9px] font-black rounded-lg active:scale-95 transition-all cursor-pointer border border-slate-300 font-Outfit"
+
+                          title={locale === 'en' ? 'Generate new code' : locale === 'es' ? 'Generar nuevo código' : 'Gerar novo código'}
+
+                        >
+
+                          Renovar
+
+                        </button>
+
+                      </div>
+
+                      <p className="text-[9px] text-slate-500 font-medium leading-normal mt-1 border-t border-slate-100 pt-2 text-left">
+
+                        {locale === 'en' ? (<>💡 **How does the therapist access?** They can go to <Link href="/therapist" className="text-indigo-650 hover:underline font-bold" target="_blank">/therapist</Link> and enter the code, or you can click **"Copy Direct Link"** and send it to them on WhatsApp for instant access!</>) : locale === 'es' ? (<>💡 **¿Cómo accede el terapeuta?** ¡Puede ingresar a <Link href="/therapist" className="text-indigo-650 hover:underline font-bold" target="_blank">/therapist</Link> e ingresar el código, o puede hacer clic en **"Copiar Enlace Directo"** y enviárselo por WhatsApp para acceso instantáneo!</>) : (<>💡 **Como o terapeuta acessa?** Ele pode entrar em <Link href="/therapist" className="text-indigo-650 hover:underline font-bold" target="_blank">/therapist</Link> e digitar o código, ou você pode clicar em **"Copiar Link Direto"** e enviar para ele no WhatsApp para acesso instantâneo!</>)}
+
+                      </p>
+
+                      
+
+                      <div className="mt-2.5 pt-2 border-t border-dashed border-slate-200 flex flex-col gap-2">
+
+                        <span className="text-[10px] font-black text-slate-700 uppercase font-Outfit">{locale === 'en' ? '🏫 School Follow-up (Mediator/Teacher)' : locale === 'es' ? '🏫 Acompañamiento Escolar (Mediador/Profesor)' : '🏫 Acompanhamento Escolar (Mediador/Professor)'}</span>
+
+                        <p className="text-[9px] text-slate-500 font-medium leading-normal">
+
+                          {t.dashboard.schoolSharingDesc}
+
+                        </p>
+
+                        <button
+
+                          type="button"
+
+                          onClick={() => {
+
+                            if (typeof window !== 'undefined') {
+
+                              const schoolLink = `${window.location.origin}/school?code=${activeChild?.sharingCode}`;
+
+                              navigator.clipboard.writeText(schoolLink);
+
+                              triggerStatus(t.dashboard.schoolLinkCopied);
+
+                            }
+
+                          }}
+
+                          className="w-full py-2 bg-yellow-500 hover:bg-yellow-600 text-slate-950 text-[10px] font-black rounded-xl active:scale-95 transition-all cursor-pointer font-Outfit border-none uppercase tracking-wider shadow-sm font-black"
+
+                        >
+
+                          {locale === 'en' ? 'Copy School Link 🏫' : locale === 'es' ? 'Copiar Enlace de la Escuela 🏫' : 'Copiar Link da Escola 🏫'}
+
+                        </button>
+
+                      </div>
+
+                    </>
+
+                  ) : (
+
+                    <button
+
+                      type="button"
+
+                      onClick={handleGenerateSharingCode}
+
+                      className="w-full py-2 bg-indigo-100 hover:bg-indigo-200 text-indigo-900 border border-indigo-300 rounded-xl text-xs font-black active:scale-95 transition-all cursor-pointer font-Outfit"
+
+                    >
+
+                      {t.dashboard.generateClinicalCode}
+
+                    </button>
+
+                  )}
+
+                </div>
+
+              </div>
+
+
+
+              <button 
+
+                type="submit" 
+
+                disabled={savingProfile}
+
+                className="w-full py-3 bg-indigo-600 hover:bg-indigo-755 text-white text-sm font-black rounded-xl shadow-md transition-all active:scale-95 flex items-center justify-center gap-2 cursor-pointer border-b-4 border-indigo-900 font-Outfit"
+
+              >
+
+                {savingProfile ? t.common.loading : (locale === 'en' ? 'Update Profile' : locale === 'es' ? 'Actualizar Perfil' : 'Atualizar Perfil')}
+
+              </button>
+
+            </form>
+
+            <p className="text-xxs text-slate-400 leading-relaxed">
+
+              {locale === 'en' ? '* Hyperfocus helps the child connect with the routine. The mascot will use this term for personalized playful encouragement.' : locale === 'es' ? '* El hiperenfoque ayuda al niño a conectarse con la rutina. La mascota usará este término para incentivos lúdicos personalizados.' : '* O hiperfoco ajuda a criança a se conectar com a rotina. O mascote utilizará este termo para incentivos lúdicos personalizados.'}
+
+            </p>
+
+
+
+            <div className="flex flex-col items-center justify-center mt-8 pt-4 border-t border-slate-100 relative">
+
+              {/* Collie Speech Bubble Clinic Tip */}
+
+              <div className="absolute bottom-[138px] w-64 bg-slate-800 text-white p-3 rounded-2xl text-[10px] font-bold leading-relaxed shadow-lg border border-slate-700 pointer-events-none select-none text-center">
+
+                <div className="absolute bottom-[-6px] left-1/2 -translate-x-1/2 w-3 h-3 bg-slate-800 border-r border-b border-slate-700 rotate-45"></div>
+
+                💡 {CLINICAL_TIPS[activeTipIdx]}
+
+              </div>
+
+
+
+              <div 
+
+                className="cursor-pointer relative p-3 rounded-full border border-slate-100 bg-slate-50/50 hover:bg-white hover:scale-[1.04] active:scale-95 transition-all shadow-premium"
+
+                onClick={() => { handleMiniCollieClick(); rotateTip(); }}
+
+                title={locale === 'en' ? 'Click to rotate clinical tips!' : locale === 'es' ? '¡Haga clic para rotar consejos clínicos!' : 'Clique para rotacionar dicas clínicas!'}
+
+              >
+
+                <div className="absolute inset-0 rounded-full bg-indigo-150 opacity-10 filter blur-sm"></div>
+
+                <HyperfocusMascot hyperfocus={hyperfocus || activeChild?.childHyperfocus || 'Border Collies 🐕'} state={collieState} size={110} />
+
+              </div>
+
+              <span className="text-[9px] font-extrabold text-slate-400 mt-2 tracking-widest uppercase flex items-center gap-1 select-none">
+
+                {mascotLabel.emoji} {mascotLabel.text}
+
+              </span>
+
+            </div>
+
+            </motion.div>
+
+          )}
+
+          </div>
+                </div>
+
+                {/* Quick Actions Card */}
+                <div className="flex flex-col gap-6">
+                  {/* Quick Actions Card */}
+
+          <div className="bg-white border-2 border-slate-250 rounded-3xl p-6 shadow-premium">
+
+            <button
+
+              type="button"
+
+              onClick={() => toggleSection('quickActions')}
+
+              className="w-full flex items-center justify-between text-left cursor-pointer bg-transparent border-none outline-none select-none"
+
+            >
+
+              <div className="flex items-center gap-2.5 text-indigo-600">
+
+                <Settings className="w-5 h-5" />
+
+                <h2 className="font-bold text-slate-900 text-sm font-Outfit uppercase tracking-wider">{t.dashboard.quickActionsTitle}</h2>
+
+              </div>
+
+              <div className="flex items-center gap-2">
+
+                <span className="text-[9px] font-black text-slate-400 uppercase">Restaurar / Modelos</span>
+
+                {collapsedSections.quickActions ? <ChevronDown className="w-4 h-4 text-slate-400 shrink-0" /> : <ChevronUp className="w-4 h-4 text-slate-400 shrink-0" />}
+
+              </div>
+
+            </button>
+
+
+
+            {!collapsedSections.quickActions && (
+
+              <motion.div
+
+                initial={{ opacity: 0, height: 0 }}
+
+                animate={{ opacity: 1, height: 'auto' }}
+
+                exit={{ opacity: 0, height: 0 }}
+
+                className="flex flex-col gap-4 border-t border-slate-100 pt-4 mt-4 w-full"
+
+              >
+
+
+
+            <div className="flex flex-col gap-2">
+
+              <button 
+
+                onClick={handleResetToDefaults}
+
+                className="w-full flex items-center justify-between px-4 py-3 bg-slate-50 hover:bg-indigo-50 text-slate-800 hover:text-indigo-700 border-2 border-slate-200 hover:border-indigo-300 rounded-xl text-xs font-extrabold transition-all text-left cursor-pointer font-Outfit"
+
+              >
+
+                <span className="flex items-center gap-2">
+
+                  <RotateCcw className="w-4 h-4 text-indigo-500" /> {t.dashboard.restoreClinicalRoutine}
+
+                </span>
+
+                <span>→</span>
+
+              </button>
+
+              <button 
+
+                onClick={() => { playBubble(); setShowClearModal(true); }}
+
+                className="w-full flex items-center justify-between px-4 py-3 bg-slate-50 hover:bg-red-50 text-slate-800 hover:text-red-600 border border-slate-100 hover:border-red-100 rounded-xl text-xs font-bold transition-all text-left font-Outfit"
+
+              >
+
+                <span className="flex items-center gap-2">
+
+                  <Trash2 className="w-4 h-4 text-red-400" /> Limpar Toda a Grade
+
+                </span>
+
+                <span>→</span>
+
+              </button>
+
+            </div>
+
+
+
+            <div className="mt-4 pt-4 border-t border-slate-150 flex flex-col gap-3">
+
+              <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-1 select-none">
+
+                {t.dashboard.clinicalTemplatesTitle}
+
+              </span>
+
+              
+
+              {Object.entries(CLINICAL_TEMPLATES).map(([key, tmpl]) => (
+
+                <div key={key} className="bg-slate-100 border-2 border-slate-250 p-3.5 rounded-2xl flex flex-col gap-2 shadow-xxs">
+
+                  <div>
+
+                    <h4 className="font-black text-[12px] text-slate-900 font-Outfit">{tmpl.name}</h4>
+
+                    <p className="text-[10px] text-slate-700 leading-normal mt-0.5 font-semibold">{tmpl.description}</p>
+
+                  </div>
+
+                  <div className="flex gap-2">
+
+                    <button
+
+                      onClick={() => handleLoadTemplate(key as any, 'day')}
+
+                      className="flex-1 py-2 bg-white border-2 border-slate-300 hover:border-indigo-500 hover:text-indigo-700 text-[10px] font-black rounded-lg shadow-xxs cursor-pointer transition-all active:scale-95 text-slate-750 font-Outfit"
+
+                    >
+
+                      Aplicar no Dia
+
+                    </button>
+
+                    <button
+
+                      onClick={() => handleLoadTemplate(key as any, 'month')}
+
+                      className="flex-1 py-2 bg-white border-2 border-slate-300 hover:border-indigo-500 hover:text-indigo-700 text-[10px] font-black rounded-lg shadow-xxs cursor-pointer transition-all active:scale-95 text-slate-750 font-Outfit"
+
+                    >
+
+                      {t.dashboard.applyOnMonth}
+
+                    </button>
+
+                  </div>
+
+                </div>
+
+              ))}
+
+            </div>
+
+            
+
+            <div className="mt-4 bg-slate-50 border border-slate-200/50 p-4 rounded-2xl flex gap-2">
+
+              <Info className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
+
+              <p className="text-xxs text-slate-500 leading-relaxed">
+
+                {t.dashboard.immutableLogsNotice}
+
+              </p>
+
+            </div>
+
+              </motion.div>
+
+            )}
+
+          </div>
+                </div>
+
+                {/* Clinical Support Tools Card */}
+                <div className="md:col-span-2 flex flex-col gap-6">
+                  {/* Unified Clinical Support Tools & Attachments Card */}
+
+          {activeChild && (
+
+            <div className="bg-white border-2 border-slate-250 rounded-3xl p-6 shadow-premium">
+
+              <button
+
+                type="button"
+
+                onClick={() => {
+
+                  playBubble();
+
+                  setSidebarCollapsedStates(prev => ({ ...prev, tools: !prev.tools }));
+
+                }}
+
+                className="w-full flex items-center justify-between text-left cursor-pointer bg-transparent border-none outline-none select-none"
+
+              >
+
+                <div className="flex items-center gap-2.5 text-indigo-650">
+
+                  <Briefcase className="w-5 h-5 text-indigo-500" />
+
+                  <h2 className="font-bold text-slate-900 text-base font-Outfit">{t.dashboard.clinicalSupportTitle}</h2>
+
+                </div>
+
+                <div className="flex items-center gap-2">
+
+                  <span className="text-[9px] font-black text-slate-400 uppercase">{locale === 'en' ? 'Tools' : locale === 'es' ? 'Herramientas' : 'Ferramentas'}</span>
+
+                  {sidebarCollapsedStates.tools ? <ChevronDown className="w-4 h-4 text-slate-400 shrink-0" /> : <ChevronUp className="w-4 h-4 text-slate-400 shrink-0" />}
+
+                </div>
+
+              </button>
+
+
+
+              {!sidebarCollapsedStates.tools && (
+
+                <motion.div
+
+                  initial={{ opacity: 0, height: 0 }}
+
+                  animate={{ opacity: 1, height: 'auto' }}
+
+                  exit={{ opacity: 0, height: 0 }}
+
+                  className="flex flex-col gap-4 border-t border-slate-100 pt-4 mt-4 w-full"
+
+                >
+
+                  <label className="block text-[10px] font-black text-slate-500 uppercase">
+
+                    {t.dashboard.selectSupportToolLabel}
+
+                  </label>
+
+                  <select
+
+                    value={activeSidebarTool}
+
+                    onChange={(e) => {
+
+                      playBubble();
+
+                      const val = e.target.value;
+                      if (plan === 'free' && (val === 'voice' || val === 'stories')) {
+                        playMarimba(180, 0.2);
+                        setShowPaywall(true);
+                        return;
+                      }
+
+                      setActiveSidebarTool(val as any);
+
+                    }}
+
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 text-slate-700 text-xs font-bold rounded-xl outline-none focus:border-indigo-500 transition-all cursor-pointer shadow-xxs"
+
+                  >
+
+                    <option value="none">{t.dashboard.toolNone}</option>
+
+                    <option value="aac">{t.dashboard.toolAac}</option>
+
+                    <option value="stories">{t.dashboard.toolStories} {plan === 'free' ? ' 👑' : ''}</option>
+
+                    <option value="dictionary">{t.dashboard.toolDictionary}</option>
+
+                    <option value="voice">{t.dashboard.toolVoice} {plan === 'free' ? ' 👑' : ''}</option>
+
+                  </select>
+
+
+
+                  {/* Render voice alert content if active */}
+
+                  {activeSidebarTool === 'voice' && (
+
+                    <div className="flex flex-col gap-4 border-t border-slate-100/60 pt-4 mt-1">
+
+                      <div className="flex items-center gap-2 text-indigo-650">
+
+                        <Mic className="w-4 h-4 text-indigo-500" />
+
+                        <h3 className="font-extrabold text-slate-900 text-xs font-Outfit">{t.dashboard.familyVoiceTitle}</h3>
+
+                      </div>
+
+                      <p className="text-[10px] text-slate-500 font-semibold leading-relaxed">
+
+                        {t.dashboard.familyVoiceDesc}
+
+                      </p>
+
+
+
+                      <div className="flex flex-col gap-3">
+
+                        {(['audioAlert10', 'audioAlert5', 'audioAlert2'] as const).map((type) => {
+
+                          const label = type === 'audioAlert10' ? t.dashboard.audioAlert10Label : type === 'audioAlert5' ? t.dashboard.audioAlert5Label : t.dashboard.audioAlert2Label;
+
+                          const hasAudio = !!activeChild[type];
+
+                          const isRecording = recordingType === type;
+
+                          const isPlaying = isPlayingAudio === type;
+
+
+
+                          return (
+
+                            <div key={type} className="flex flex-col gap-1.5 p-3 rounded-2xl bg-slate-50 border border-slate-200">
+
+                              <div className="flex items-center justify-between text-xxs font-black text-slate-700">
+
+                                <span>{label}</span>
+
+                                {hasAudio && !isRecording && (
+
+                                  <span className="text-[9px] text-emerald-600 font-bold bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-250">{t.dashboard.audioRecordedLabel}</span>
+
+                                )}
+
+                                {!hasAudio && !isRecording && (
+
+                                  <span className="text-[9px] text-slate-400 font-bold">{t.dashboard.audioNotRecordedLabel}</span>
+
+                                )}
+
+                                {isRecording && (
+
+                                  <span className="text-[9px] text-red-600 font-bold animate-pulse flex items-center gap-1">
+
+                                    <span className="w-1.5 h-1.5 rounded-full bg-red-600" />
+
+                                    {locale === 'en' ? 'Recording' : locale === 'es' ? 'Grabando' : 'Gravando'} ({recordingSecondsLeft}s)
+
+                                  </span>
+
+                                )}
+
+                              </div>
+
+
+
+                              <div className="flex items-center gap-1.5 mt-1">
+
+                                {isRecording ? (
+
+                                  <button
+
+                                    type="button"
+
+                                    onClick={stopRecording}
+
+                                    className="flex-1 py-1.5 bg-red-600 hover:bg-red-750 text-white rounded-xl text-xxs font-black flex items-center justify-center gap-1 cursor-pointer transition-all"
+
+                                  >
+
+                                    <Square className="w-3.5 h-3.5 fill-current" /> {t.dashboard.stopRecording}
+
+                                  </button>
+
+                                ) : (
+
+                                  <>
+
+                                    <button
+
+                                      type="button"
+
+                                      onClick={() => startRecording(type)}
+
+                                      className="flex-1 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 hover:text-indigo-800 border border-indigo-200 rounded-xl text-xxs font-black flex items-center justify-center gap-1 cursor-pointer transition-all"
+
+                                    >
+
+                                      <Mic className="w-3.5 h-3.5" /> {locale === 'en' ? 'Record 10s' : locale === 'es' ? 'Grabar 10s' : 'Gravar 10s'}
+
+                                    </button>
+
+
+
+                                    {hasAudio && (
+
+                                      <>
+
+                                        <button
+
+                                          type="button"
+
+                                          onClick={() => playRecordedAudio(type)}
+
+                                          className={`p-1.5 rounded-xl border flex items-center justify-center cursor-pointer transition-all ${
+
+                                            isPlaying 
+
+                                              ? 'bg-amber-100 border-amber-300 text-amber-850' 
+
+                                              : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+
+                                          }`}
+
+                                          title={t.dashboard.listenRecording}
+
+                                        >
+
+                                          {isPlaying ? <Square className="w-3.5 h-3.5 fill-current" /> : <Play className="w-3.5 h-3.5 fill-current" />}
+
+                                        </button>
+
+                                        <button
+
+                                          type="button"
+
+                                          onClick={() => deleteRecordedAudio(type)}
+
+                                          className="p-1.5 bg-rose-50 border border-rose-200 text-rose-600 hover:bg-rose-100 rounded-xl flex items-center justify-center cursor-pointer transition-all"
+
+                                          title={t.dashboard.deleteRecording}
+
+                                        >
+
+                                          <Trash2 className="w-3.5 h-3.5" />
+
+                                        </button>
+
+                                      </>
+
+                                    )}
+
+                                  </>
+
+                                )}
+
+                              </div>
+
+                            </div>
+
+                          );
+
+                        })}
+
+                      </div>
+
+                    </div>
+
+                  )}
+
+
+
+                  {/* Render AAC board content if active */}
+
+                  {activeSidebarTool === 'aac' && (
+
+                    <div className="flex flex-col gap-4 border-t border-slate-100/60 pt-4 mt-1">
+
+                      <div className="flex items-center gap-2 text-indigo-655">
+
+                        <MessageSquare className="w-4 h-4 text-indigo-500" />
+
+                        <h3 className="font-extrabold text-slate-900 text-xs font-Outfit">{t.dashboard.customAacTitle}</h3>
+
+                      </div>
+
+                      <p className="text-[10px] text-slate-500 font-semibold leading-relaxed">
+
+                        {t.dashboard.customAacDesc}
+
+                      </p>
+
+
+
+                      {/* List of current custom items */}
+
+                      <div className="flex flex-wrap gap-2 max-h-[200px] overflow-y-auto pr-1">
+
+                        {aacItemsList.length === 0 ? (
+
+                          <p className="text-slate-400 text-xxs italic w-full text-center py-4">
+
+                            {t.dashboard.noCustomButtons}
+
+                          </p>
+
+                        ) : (
+
+                          aacItemsList.map((item) => (
+
+                            <div 
+
+                              key={item.id} 
+
+                              className={`px-3 py-2 border rounded-2xl flex items-center justify-between gap-3 text-xxs font-black shadow-xxs ${
+
+                                item.alert 
+
+                                  ? 'bg-rose-50 border-rose-200 text-rose-700' 
+
+                                  : 'bg-indigo-50 border-indigo-150 text-indigo-805'
+
+                              }`}
+
+                            >
+
+                              <span>{item.text}</span>
+
+                              <button
+
+                                type="button"
+
+                                onClick={() => handleDeleteAacItem(item.id)}
+
+                                className="p-0.5 bg-transparent border-none text-slate-400 hover:text-red-655 cursor-pointer"
+
+                                title={locale === 'en' ? 'Remove button' : locale === 'es' ? 'Eliminar botón' : 'Remover botão'}
+
+                              >
+
+                                <Trash2 className="w-3.5 h-3.5" />
+
+                              </button>
+
+                            </div>
+
+                          ))
+
+                        )}
+
+                      </div>
+
+
+
+                      {/* Form to add item */}
+
+                      <form onSubmit={handleAddAacItem} className="flex flex-col gap-2.5 border-t border-slate-100 pt-4 mt-2">
+
+                        <span className="text-xxs font-black text-slate-700 uppercase tracking-wider font-Outfit">{t.dashboard.createNewButton}</span>
+
+                        
+
+                        <div className="grid grid-cols-4 gap-2">
+
+                          <div className="col-span-3">
+
+                            <input
+
+                              type="text"
+
+                              placeholder={t.dashboard.buttonTitlePlaceholder}
+
+                              value={newAacText}
+
+                              onChange={e => setNewAacText(e.target.value)}
+
+                              className="w-full px-3 py-2 bg-slate-50 border border-slate-255 rounded-xl text-xxs font-bold outline-none focus:bg-white focus:border-indigo-650"
+
+                              maxLength={20}
+
+                              required
+
+                            />
+
+                          </div>
+
+                          <div className="col-span-1">
+
+                            <select
+
+                              value={newAacEmoji}
+
+                              onChange={e => setNewAacEmoji(e.target.value)}
+
+                              className="w-full px-2 py-2 bg-slate-50 border border-slate-255 rounded-xl text-xxs font-bold outline-none focus:bg-white focus:border-indigo-650 cursor-pointer"
+
+                            >
+
+                              <option value="🤗">🤗</option>
+
+                              <option value="🧸">🧸</option>
+
+                              <option value="🛌">🛌</option>
+
+                              <option value="🥛">🥛</option>
+
+                              <option value="🍎">🍎</option>
+
+                              <option value="🚽">🚽</option>
+
+                              <option value="🎧">🎧</option>
+
+                              <option value="❤️">❤️</option>
+
+                              <option value="🩹">🩹</option>
+
+                              <option value="🦖">🦖</option>
+
+                            </select>
+
+                          </div>
+
+                        </div>
+
+
+
+                        <div>
+
+                          <input
+
+                            type="text"
+
+                            placeholder={t.dashboard.buttonSpeechPlaceholder}
+
+                            value={newAacSpeech}
+
+                            onChange={e => setNewAacSpeech(e.target.value)}
+
+                            className="w-full px-3 py-2 bg-slate-50 border border-slate-255 rounded-xl text-xxs font-bold outline-none focus:bg-white focus:border-indigo-650"
+
+                            maxLength={100}
+
+                            required
+
+                          />
+
+                        </div>
+
+
+
+                        <div className="flex items-center gap-2">
+
+                          <input
+
+                            type="checkbox"
+
+                            id="aacAlertCheck"
+
+                            checked={newAacAlert}
+
+                            onChange={e => setNewAacAlert(e.target.checked)}
+
+                            className="w-4 h-4 text-indigo-600 border-slate-300 rounded focus:ring-indigo-500 cursor-pointer"
+
+                          />
+
+                          <label htmlFor="aacAlertCheck" className="text-xxs font-black text-rose-700 cursor-pointer select-none">
+
+                            {t.dashboard.sosButtonAlert}
+
+                          </label>
+
+                        </div>
+
+
+
+                        <button
+
+                          type="submit"
+
+                          className="w-full py-2 bg-indigo-600 hover:bg-indigo-755 text-white text-xs font-black rounded-xl border-b-2 border-indigo-900 active:scale-95 transition-all cursor-pointer font-Outfit uppercase tracking-wider"
+
+                        >
+
+                          {t.dashboard.addButton}
+
+                        </button>
+
+                      </form>
+
+                    </div>
+
+                  )}
+
+
+
+                  {/* Render social stories content if active */}
+
+                  {activeSidebarTool === 'stories' && (
+
+                    <div className="flex flex-col gap-4 border-t border-slate-100/60 pt-4 mt-1">
+
+                      <div className="flex items-center gap-2 text-indigo-655">
+
+                        <BookOpen className="w-4 h-4 text-indigo-500" />
+
+                        <h3 className="font-extrabold text-slate-900 text-xs font-Outfit">{t.dashboard.aiSocialStoriesTitle}</h3>
+
+                      </div>
+
+                      <p className="text-[10px] text-slate-500 font-semibold leading-relaxed">
+
+                        {t.dashboard.aiSocialStoriesDesc}
+
+                      </p>
+
+
+
+                      {/* List of current social stories */}
+
+                      <div className="flex flex-col gap-2 max-h-[200px] overflow-y-auto pr-1">
+
+                        {customStoriesList.length === 0 ? (
+
+                          <p className="text-slate-400 text-xxs italic text-center py-4">
+
+                            {t.dashboard.noStories}
+
+                          </p>
+
+                        ) : (
+
+                          customStoriesList.map((story) => (
+
+                            <div key={story.id} className="p-3 bg-slate-50 border border-slate-200 rounded-2xl flex items-center justify-between gap-3 text-xxs font-semibold">
+
+                              <div className="flex flex-col gap-0.5">
+
+                                <span className="font-bold text-slate-900">{story.title}</span>
+
+                                <span className="text-[10px] text-slate-505 truncate max-w-[200px]">{story.desc}</span>
+
+                              </div>
+
+                              <button
+
+                                type="button"
+
+                                onClick={() => handleDeleteStory(story.id)}
+
+                                className="p-1.5 bg-rose-50 border border-rose-200 text-rose-605 hover:bg-rose-100 rounded-xl flex items-center justify-center cursor-pointer transition-all shrink-0"
+
+                                title={t.dashboard.deleteStory}
+
+                              >
+
+                                <Trash2 className="w-3.5 h-3.5" />
+
+                              </button>
+
+                            </div>
+
+                          ))
+
+                        )}
+
+                      </div>
+
+
+
+                      {/* Form to generate via AI */}
+
+                      <form onSubmit={handleGenerateAiStory} className="flex flex-col gap-2.5 border-t border-slate-100 pt-4 mt-2">
+
+                        <span className="text-xxs font-black text-slate-700 uppercase tracking-wider font-Outfit flex items-center gap-1">
+
+                          <Sparkles className="w-3.5 h-3.5 text-indigo-500" /> Gerador Assistido por IA
+
+                        </span>
+
+
+
+                        {generatingAi ? (
+
+                          <div className="p-4 bg-indigo-50/50 border border-indigo-200 rounded-2xl flex flex-col items-center justify-center text-center gap-3">
+
+                            <div className="w-8 h-8 rounded-full border-4 border-indigo-650 border-t-transparent animate-spin" />
+
+                            <span className="text-xxs font-bold text-indigo-950 font-Outfit tracking-wide">
+
+                              {GENERATOR_STATUSES[aiStatusIdx]}
+
+                            </span>
+
+                          </div>
+
+                        ) : (
+
+                          <>
+
+                            <div>
+
+                              <input
+
+                                type="text"
+
+                                placeholder="Tema da dificuldade (Ex: Ir tomar vacina, Ir ao dentista)"
+
+                                value={aiTheme}
+
+                                onChange={e => setAiTheme(e.target.value)}
+
+                                className="w-full px-3 py-2 bg-slate-50 border border-slate-255 rounded-xl text-xxs font-bold outline-none focus:bg-white focus:border-indigo-650"
+
+                                required
+
+                              />
+
+                            </div>
+
+                            <p className="text-[9px] text-slate-400 leading-normal">
+
+                              {t.dashboard.aiAdaptStoryTip} <strong>{hyperfocus || activeChild.childHyperfocus || 'Border Collies 🐕'}</strong>.
+
+                            </p>
+
+                            <button
+
+                              type="submit"
+
+                              className="w-full py-2 bg-indigo-600 hover:bg-indigo-755 text-white text-xs font-black rounded-xl border-b-2 border-indigo-900 active:scale-95 transition-all cursor-pointer font-Outfit uppercase tracking-wider flex items-center justify-center gap-1"
+
+                            >
+
+                              <Sparkles className="w-3.5 h-3.5" /> {t.dashboard.generateStory}
+
+                            </button>
+
+                          </>
+
+                        )}
+
+                      </form>
+
+                    </div>
+
+                  )}
+
+
+
+                  {/* Render behavior dictionary content if active */}
+
+                  {activeSidebarTool === 'dictionary' && (
+
+                    <div className="flex flex-col gap-4 border-t border-slate-100/60 pt-4 mt-1">
+
+                      <div className="flex items-center gap-2 text-indigo-655">
+
+                        <Activity className="w-4 h-4 text-indigo-500" />
+
+                        <h3 className="font-extrabold text-slate-900 text-xs font-Outfit">{t.dashboard.behaviorDictionaryTitle}</h3>
+
+                      </div>
+
+                      <p className="text-[10px] text-slate-500 font-semibold leading-relaxed">
+
+                        {t.dashboard.behaviorDictionaryDesc}
+
+                      </p>
+
+
+
+                      {/* List of current signals */}
+
+                      <div className="flex flex-col gap-2.5 max-h-[300px] overflow-y-auto pr-1">
+
+                        {behaviorList.length === 0 ? (
+
+                          <p className="text-slate-400 text-xxs italic text-center py-4">
+
+                            {locale === 'en' ? 'No signal registered yet.' : locale === 'es' ? 'Ninguna señal registrada aún.' : 'Nenhum sinal cadastrado ainda.'}
+
+                          </p>
+
+                        ) : (
+
+                          behaviorList.map((item) => (
+
+                            <div key={item.id} className="p-3 bg-slate-50 border border-slate-200 rounded-2xl flex flex-col gap-1.5 relative group">
+
+                              <button
+
+                                type="button"
+
+                                onClick={() => handleDeleteBehaviorSignal(item.id)}
+
+                                className="absolute top-2.5 right-2.5 p-1 bg-transparent hover:bg-rose-50 text-slate-405 hover:text-red-655 rounded-md border-none cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity"
+
+                                title={locale === 'en' ? 'Delete signal' : locale === 'es' ? 'Eliminar señal' : 'Excluir sinal'}
+
+                              >
+
+                                <Trash2 className="w-3.5 h-3.5" />
+
+                              </button>
+
+                              <div className="text-xxs font-black text-indigo-950 font-Outfit pr-6">
+
+                                📢 {locale === 'en' ? 'Signal' : locale === 'es' ? 'Señal' : 'Sinal'}: {item.signal}
+
+                              </div>
+
+                              <div className="text-[10px] text-slate-600 font-semibold leading-tight">
+
+                                <strong>🧠 {locale === 'en' ? 'Meaning' : locale === 'es' ? 'Significado' : 'Significado'}:</strong> {item.meaning}
+
+                              </div>
+
+                              <div className="text-[10px] text-emerald-800 font-semibold bg-emerald-50/60 border border-emerald-150 p-2 rounded-xl mt-1 leading-normal">
+
+                                <strong>👩‍🏫 {locale === 'en' ? 'Action' : locale === 'es' ? 'Conducta' : 'Conduta'}:</strong> {item.intervention}
+
+                              </div>
+
+                            </div>
+
+                          ))
+
+                        )}
+
+                      </div>
+
+
+
+                      {/* Add form */}
+
+                      <form onSubmit={handleAddBehaviorSignal} className="flex flex-col gap-2.5 border-t border-slate-100 pt-4 mt-2">
+
+                        <span className="text-xxs font-black text-slate-700 uppercase tracking-wider font-Outfit">{locale === 'en' ? 'Register New Sign' : locale === 'es' ? 'Registrar Nueva Señal' : 'Cadastrar Novo Sinal'}</span>
+
+                        <div>
+
+                          <input
+
+                            type="text"
+
+                            placeholder={t.dashboard.signalPlaceholder}
+
+                            value={newSignal}
+
+                            onChange={e => setNewSignal(e.target.value)}
+
+                            className="w-full px-3 py-2 bg-slate-50 border border-slate-255 rounded-xl text-xxs font-bold outline-none focus:bg-white focus:border-indigo-650"
+
+                            required
+
+                          />
+
+                        </div>
+
+                        <div>
+
+                          <input
+
+                            type="text"
+
+                            placeholder={t.dashboard.meaningPlaceholder}
+
+                            value={newMeaning}
+
+                            onChange={e => setNewMeaning(e.target.value)}
+
+                            className="w-full px-3 py-2 bg-slate-50 border border-slate-255 rounded-xl text-xxs font-bold outline-none focus:bg-white focus:border-indigo-650"
+
+                            required
+
+                          />
+
+                        </div>
+
+                        <div>
+
+                          <input
+
+                            type="text"
+
+                            placeholder={t.dashboard.interventionPlaceholder}
+
+                            value={newIntervention}
+
+                            onChange={e => setNewIntervention(e.target.value)}
+
+                            className="w-full px-3 py-2 bg-slate-50 border border-slate-255 rounded-xl text-xxs font-bold outline-none focus:bg-white focus:border-indigo-650"
+
+                            required
+
+                          />
+
+                        </div>
+
+                        <button
+
+                          type="submit"
+
+                          className="w-full py-2 bg-indigo-600 hover:bg-indigo-755 text-white text-xs font-black rounded-xl border-b-2 border-indigo-900 active:scale-95 transition-all cursor-pointer font-Outfit uppercase tracking-wider"
+
+                        >
+
+                          ➕ {locale === 'en' ? 'Add Sign' : locale === 'es' ? 'Añadir Señal' : 'Adicionar Sinal'}
+
+                        </button>
+
+                      </form>
+
+                    </div>
+
+                  )}
+
+                </motion.div>
+
+              )}
+
+            </div>
+
+          )}
+                </div>
+              </motion.div>
+
+              ) : (
 
               
 
@@ -14040,8 +14030,8 @@ function ParentDashboardContent() {
 
               </motion.div>
 
+              )
             )}
-
           </AnimatePresence>
 
 
