@@ -2819,7 +2819,7 @@ export default function ChildRoutine() {
             <button 
               onClick={() => handleAttemptExit('/')}
               onMouseEnter={playBubble}
-              className="flex items-center gap-1.5 px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-xs font-black rounded-full border-2 border-slate-700 shadow-premium transition-all active:scale-95 cursor-pointer text-slate-200"
+              className="flex items-center gap-1.5 px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-xs font-black rounded-full border-2 border-slate-700 shadow-premium transition-all active:scale-95 cursor-pointer text-white"
             >
               🏠 {locale === 'en' ? 'Home' : locale === 'es' ? 'Inicio' : 'Início'}
             </button>
@@ -2827,20 +2827,20 @@ export default function ChildRoutine() {
             <button
               onClick={() => { playBubble(); setShowStoriesModal(true); }}
               onMouseEnter={playBubble}
-              className="flex items-center gap-1.5 px-5 py-2.5 bg-indigo-950 hover:bg-indigo-900 border-2 border-indigo-800 text-indigo-200 text-xs font-black rounded-full shadow-premium transition-all active:scale-95 cursor-pointer"
+              className="flex items-center gap-1.5 px-5 py-2.5 bg-indigo-950 hover:bg-indigo-900 border-2 border-indigo-800 text-indigo-100 text-xs font-black rounded-full shadow-premium transition-all active:scale-95 cursor-pointer"
             >
               📖 {locale === 'en' ? 'Stories' : locale === 'es' ? 'Historias' : 'Histórias'}
             </button>
             <button
               onClick={() => { playBubble(); setShowHyperfocusModal(true); }}
               onMouseEnter={playBubble}
-              className="flex items-center gap-1.5 px-5 py-2.5 bg-yellow-950 hover:bg-yellow-900 border-2 border-yellow-800 text-yellow-200 text-xs font-black rounded-full shadow-premium transition-all active:scale-95 cursor-pointer"
+              className="flex items-center gap-1.5 px-5 py-2.5 bg-yellow-950 hover:bg-yellow-900 border-2 border-yellow-800 text-yellow-100 text-xs font-black rounded-full shadow-premium transition-all active:scale-95 cursor-pointer"
             >
               🎮 Meu Mundo ({activeChild?.collectedParts || 0}/4)
             </button>
           </div>
 
-          <h2 className="text-xs font-black bg-slate-800 border-2 border-slate-700 text-slate-200 px-5 py-2.5 rounded-full shadow-premium uppercase tracking-widest font-Outfit">
+          <h2 className="text-xs font-black bg-slate-800 border-2 border-slate-700 text-white px-5 py-2.5 rounded-full shadow-premium uppercase tracking-widest font-Outfit">
             {(t.common.dayLabels as any)[currentDay] || (locale === 'es' ? `Día ${currentDay} 📅` : locale === 'en' ? `Day ${currentDay} 📅` : `Dia ${currentDay} 📅`)}
           </h2>
           
@@ -2851,7 +2851,7 @@ export default function ChildRoutine() {
               className={`px-3 py-1.5 rounded-full text-xs font-black transition-all ${
                 activeAmbientType === 'none'
                   ? 'bg-slate-700 text-slate-100'
-                  : 'bg-transparent text-slate-405 hover:text-slate-200'
+                  : 'bg-transparent text-slate-400 hover:text-slate-200'
               }`}
               title="Silencioso"
             >
@@ -2861,8 +2861,8 @@ export default function ChildRoutine() {
               onClick={() => handleAmbientChange('rain')}
               className={`px-3 py-1.5 rounded-full text-xs font-black transition-all ${
                 activeAmbientType === 'rain'
-                  ? 'bg-blue-900 text-blue-105'
-                  : 'bg-transparent text-slate-405 hover:text-blue-300'
+                  ? 'bg-blue-900 text-blue-100'
+                  : 'bg-transparent text-slate-400 hover:text-blue-300'
               }`}
               title="Som de Chuva"
             >
@@ -2872,8 +2872,8 @@ export default function ChildRoutine() {
               onClick={() => handleAmbientChange('binaural')}
               className={`px-3 py-1.5 rounded-full text-xs font-black transition-all ${
                 activeAmbientType === 'binaural'
-                  ? 'bg-indigo-900 text-indigo-105'
-                  : 'bg-transparent text-slate-405 hover:text-indigo-300'
+                  ? 'bg-indigo-900 text-indigo-100'
+                  : 'bg-transparent text-slate-400 hover:text-indigo-300'
               }`}
               title="Foco Binaural"
             >
@@ -2889,14 +2889,14 @@ export default function ChildRoutine() {
           className="z-10 w-full max-w-lg md:max-w-4xl text-center flex flex-col items-center gap-6 px-4 md:px-6"
         >
           {/* Night indicator */}
-          <span className="text-xs font-black uppercase tracking-wider text-indigo-300 bg-indigo-950/70 px-4.5 py-2 rounded-full border border-indigo-700/50 shadow-inner flex items-center gap-1.5">
+          <span className="text-xs font-black uppercase tracking-wider text-indigo-100 bg-indigo-950/70 px-4.5 py-2 rounded-full border border-indigo-700/50 shadow-inner flex items-center gap-1.5">
             🌙 Previsibilidade de Fim de Dia
           </span>
 
-          <h1 className="text-4xl md:text-5xl font-black tracking-tight mb-1 text-yellow-100">
+          <h1 className="text-4xl md:text-5xl font-black tracking-tight mb-1 text-yellow-300">
             {locale === 'en' ? 'Missions Completed!' : locale === 'es' ? '¡Misiones Cumplidas!' : 'Missões Cumpridas!'}
           </h1>
-          <p className="text-slate-350 text-sm max-w-xs leading-relaxed font-semibold">
+          <p className="text-slate-50 text-sm max-w-xs leading-relaxed font-semibold">
             {locale === 'en' ? 'You completed all of today\'s activities. Time to rest!' : locale === 'es' ? 'Completaste todas las actividades de hoy. ¡Hora de descansar!' : 'Você completou todas as atividades de hoje. Hora de descansar!'}
           </p>
 
@@ -2910,7 +2910,7 @@ export default function ChildRoutine() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
             {/* Badges Gallery Reward */}
             <div className="w-full bg-slate-800/50 border border-slate-700/40 p-5 rounded-3xl flex flex-col gap-4 text-left shadow-2xl">
-              <h4 className="font-extrabold text-slate-200 text-xs uppercase tracking-widest flex items-center gap-1.5 select-none">
+              <h4 className="font-extrabold text-white text-xs uppercase tracking-widest flex items-center gap-1.5 select-none">
                 🏅 Medalhas conquistadas hoje:
               </h4>
               <div className="grid grid-cols-3 gap-3">
@@ -2921,8 +2921,8 @@ export default function ChildRoutine() {
                     className="bg-slate-700/40 border border-slate-600/30 p-3 rounded-2xl flex flex-col items-center text-center gap-1 shadow-md"
                   >
                     <span className="text-3xl animate-pulse select-none">{badge.icon}</span>
-                    <h5 className="font-black text-slate-100 text-[10px] leading-tight mt-1">{badge.label}</h5>
-                    <span className="text-[8px] text-slate-400 leading-tight mt-0.5">{badge.desc}</span>
+                    <h5 className="font-black text-white text-[10px] leading-tight mt-1">{badge.label}</h5>
+                    <span className="text-[9px] text-slate-100 leading-tight mt-0.5">{badge.desc}</span>
                   </motion.div>
                 ))}
               </div>
@@ -2930,7 +2930,7 @@ export default function ChildRoutine() {
 
             {/* TEACCH Choice Board (Painel de Escolhas Lúdicas) */}
             <div className="w-full bg-slate-800/50 border border-slate-700/40 p-5 rounded-3xl flex flex-col gap-4 text-left shadow-2xl">
-              <h4 className="font-extrabold text-slate-200 text-xs uppercase tracking-widest flex items-center gap-1.5 select-none font-Outfit">
+              <h4 className="font-extrabold text-white text-xs uppercase tracking-widest flex items-center gap-1.5 select-none font-Outfit">
                 {locale === 'en' ? '🪁 Playful Choices Board (What do you want to do now?):' : locale === 'es' ? '🪁 Panel de Elecciones Lúdicas (¿Qué quieres hacer ahora?):' : '🪁 Painel de Escolhas Lúdicas (O que quer fazer agora?):'}
               </h4>
               <div className="grid grid-cols-2 gap-3">
@@ -2954,17 +2954,17 @@ export default function ChildRoutine() {
                       className={`p-4.5 rounded-2xl flex flex-col items-center justify-center text-center gap-2 border-2 transition-all cursor-pointer ${
                         isSelected
                           ? 'bg-indigo-650/80 border-indigo-500 text-white shadow-lg shadow-indigo-950/50'
-                          : 'bg-slate-700/30 border-slate-600/30 text-slate-200 hover:bg-slate-700/50'
+                          : 'bg-slate-700/30 border-slate-600/30 text-slate-50 hover:bg-slate-700/50 hover:text-white'
                       }`}
                     >
                       <span className="text-4.5xl select-none">{choice.icon}</span>
-                      <span className="font-black text-xs tracking-tight font-Outfit mt-1">{choice.label}</span>
+                      <span className="font-black text-xs tracking-tight font-Outfit mt-1 text-inherit">{choice.label}</span>
                     </motion.button>
                   );
                 })}
               </div>
               {selectedChoice && (
-                <p className="text-[10px] text-center text-indigo-300 font-extrabold animate-pulse uppercase tracking-wider">
+                <p className="text-[10px] text-center text-indigo-100 font-extrabold animate-pulse uppercase tracking-wider">
                   Boa escolha! Aproveite seu momento de descanso!
                 </p>
               )}
@@ -2972,7 +2972,7 @@ export default function ChildRoutine() {
           </div>
 
           <div className="w-full bg-slate-800/40 backdrop-blur-md border border-slate-700/40 p-5 rounded-3xl shadow-xl flex flex-col gap-4 text-left">
-            <h3 className="font-extrabold text-slate-200 text-xs flex items-center gap-2">
+            <h3 className="font-extrabold text-white text-xs flex items-center gap-2">
               ⭐ {t.routine.badgesTitle} ({completedTasks.length}/{todayTasks.length})
             </h3>
             <div className="flex flex-wrap gap-2 max-h-32 overflow-y-auto pr-1">
@@ -2992,7 +2992,7 @@ export default function ChildRoutine() {
           <button 
             onClick={() => handleAttemptExit('/')}
             onMouseEnter={playBubble}
-            className="mt-2 text-sm text-indigo-300 hover:text-indigo-200 font-bold underline cursor-pointer bg-transparent border-none outline-none transition-all active:scale-95"
+            className="mt-2 text-sm text-indigo-100 hover:text-white font-bold underline cursor-pointer bg-transparent border-none outline-none transition-all active:scale-95"
           >
             {t.common.back} {locale === 'en' ? 'to Home' : locale === 'es' ? 'al Inicio' : 'ao Início'} 🏠
           </button>
@@ -3332,7 +3332,7 @@ export default function ChildRoutine() {
             ) : (
               <div className="my-auto flex flex-col items-center gap-3">
                 <span className="text-6xl">😴</span>
-                <h2 className="text-xl font-black text-slate-350">Hora de descansar!</h2>
+                <h2 className="text-xl font-black text-slate-200">Hora de descansar!</h2>
               </div>
             )}
           </div>
@@ -3348,7 +3348,7 @@ export default function ChildRoutine() {
             <p className="text-[10.5px] text-slate-300 font-semibold leading-normal mt-0.5">
               {firstTask 
                 ? `Vamos fazer primeiro "${firstTask.title}". Concentre-se em concluir apenas esta tarefa!` 
-                : "locale === 'en' ? 'All tasks were completed. Well done! You were excellent!' : locale === 'es' ? 'Todas las tareas fueron completadas. ¡Muy bien! ¡Fuiste excelente!' : 'Todas as tarefas foram concluídas. Muito bem! Você foi excelente!'"}
+                : locale === 'en' ? 'All tasks were completed. Well done! You were excellent!' : locale === 'es' ? 'Todas las tareas fueron completadas. ¡Muy bien! ¡Fuiste excelente!' : 'Todas as tarefas foram concluídas. Muito bem! Você foi excelente!'}
             </p>
           </div>
         </div>
