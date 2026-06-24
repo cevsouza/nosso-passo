@@ -770,7 +770,7 @@ export default function ChildRoutine() {
             setIsWaitTimerActive(false);
             setWaitTimerFinished(true);
             try {
-              playCelebration();
+              playSoftAlert();
             } catch (err) {
               console.error('Erro ao tocar som:', err);
             }
@@ -4480,7 +4480,7 @@ export default function ChildRoutine() {
                               setIsWaitTimerActive(false);
                               setWaitTimerFinished(true);
                               try {
-                                playCelebration();
+                                playSoftAlert();
                               } catch (err) {
                                 console.error('Erro ao tocar som:', err);
                               }
