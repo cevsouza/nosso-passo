@@ -148,7 +148,7 @@ export default function Home() {
       <header className="z-10 w-full max-w-5xl flex items-center justify-between pointer-events-auto">
         <div className="flex items-center gap-2 select-none">
           <span className="text-3xl animate-bounce">🐶</span>
-          <span className="text-xl font-black tracking-tight text-slate-900 font-Outfit">Rotina Animada</span>
+          <span className="text-xl font-black tracking-tight text-slate-900 font-Outfit">TEAcolher</span>
         </div>
         
         <div className="flex items-center gap-4">

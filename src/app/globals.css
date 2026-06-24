@@ -2,15 +2,55 @@
 @import "tailwindcss";
 
 
+@theme {
+  /* Override Indigo to a gorgeous premium Blue */
+  --color-indigo-50: #f0f7ff;
+  --color-indigo-100: #e0effe;
+  --color-indigo-150: #c2e0fc;
+  --color-indigo-200: #bae0fd;
+  --color-indigo-300: #7dd0fc;
+  --color-indigo-400: #38bdf8;
+  --color-indigo-500: #0ea5e9;
+  --color-indigo-600: #0284c7;
+  --color-indigo-650: #0369a1;
+  --color-indigo-700: #0369a1;
+  --color-indigo-750: #075985;
+  --color-indigo-755: #075985;
+  --color-indigo-800: #075985;
+  --color-indigo-850: #0c4a6e;
+  --color-indigo-900: #0c4a6e;
+  --color-indigo-950: #082f49;
+
+  /* Customize Rose/Pink to a premium soft Pink */
+  --color-rose-50: #fff1f2;
+  --color-rose-100: #ffe4e6;
+  --color-rose-150: #fecdd3;
+  --color-rose-200: #fecdd3;
+  --color-rose-300: #fda4af;
+  --color-rose-400: #fb7185;
+  --color-rose-500: #f43f5e;
+  --color-rose-600: #e11d48;
+  --color-rose-700: #be123c;
+  --color-rose-800: #9f1239;
+  --color-rose-900: #881337;
+  --color-rose-950: #4c0519;
+
+  /* Override slate borders and bgs to soft pinks for a blue/pink dual theme */
+  --color-slate-50: #fff5f7;
+  --color-slate-100: #fdf2f8;
+  --color-slate-200: #fbcfe8;
+  --color-slate-250: #f9a8d4;
+}
+
 :root {
-  /* Colors - Modern, High-Contrast & Premium */
-  --bg-color: #f8fafc;
-  --text-primary: #0f172a;
-  --text-secondary: #334155;
+  /* Colors - Modern, High-Contrast & Premium (Blue & Pink) */
+  --bg-color: #fdf2f8;
+  --text-primary: #082f49;
+  --text-secondary: #0f172a;
   
-  --primary: #4f46e5;
-  --primary-light: #e0e7ff;
-  --primary-hover: #4338ca;
+  --primary: #0284c7;
+  --primary-light: #fce7f3;
+  --primary-hover: #0369a1;
   
   --success: #16a34a;
   --success-light: #dcfce7;

@@ -91,7 +91,7 @@ export function GlobalNav() {
           <div className="flex items-center gap-2.5 px-2 select-none">
             <span className="text-3xl animate-bounce">🐶</span>
             <div>
-              <span className="block text-base font-black tracking-tight text-slate-900 font-Outfit leading-none">Rotina Animada</span>
+              <span className="block text-base font-black tracking-tight text-slate-900 font-Outfit leading-none">TEAcolher</span>
               <span className="text-[9px] font-black uppercase tracking-widest text-indigo-600 mt-1 block">Multiversos</span>
             </div>
           </div>

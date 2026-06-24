@@ -194,7 +194,7 @@ const SOCIAL_STORIES = [
 ];
 
 const localizedGeneratorStatuses = [
-  "🤖 IA Rotina Animada iniciando...",
+  "🤖 IA TEAcolher iniciando...",
   "🦖 Analisando seu hiperfoco ativo...",
   "📚 Estruturando parágrafos de previsibilidade...",
   "🎨 Criando ilustrações lúdicas e emojis...",
@@ -701,7 +701,7 @@ export default function ChildRoutine() {
   ];
 
   const localizedGeneratorStatuses = [
-    locale === 'es' ? "🤖 IA Rutina Animada iniciando..." : locale === 'en' ? "🤖 IA Animated Routine starting..." : "🤖 IA Rotina Animada iniciando...",
+    locale === 'es' ? "🤖 IA Rutina Animada iniciando..." : locale === 'en' ? "🤖 IA Animated Routine starting..." : "🤖 IA TEAcolher iniciando...",
     locale === 'es' ? "🦖 Analizando tu hiperfoco activo..." : locale === 'en' ? "🦖 Analyzing your active hyperfocus..." : "🦖 Analizando seu hiperfoco ativo...",
     locale === 'es' ? "📚 Estructurando párrafos de previsibilidad..." : locale === 'en' ? "📚 Structuring predictability paragraphs..." : "📚 Estruturando parágrafos de previsibilidade...",
     locale === 'es' ? "🎨 Creando ilustraciones divertidas y emojis..." : locale === 'en' ? "🎨 Creating fun illustrations and emojis..." : "🎨 Criando ilustrações lúdicas e emojis...",

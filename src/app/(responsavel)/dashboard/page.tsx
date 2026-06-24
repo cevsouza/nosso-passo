@@ -13535,7 +13535,7 @@ function ParentDashboardContent() {
 
                               <div>
 
-                                <h1 className="text-3xl font-black text-indigo-650 tracking-tight">{locale === 'en' ? 'Rotina Animada - Clinical Report' : locale === 'es' ? 'Rotina Animada - Informe Clínico' : 'Rotina Animada - Laudo Clínico'}</h1>
+                                <h1 className="text-3xl font-black text-indigo-650 tracking-tight">{locale === 'en' ? 'TEAcolher - Clinical Report' : locale === 'es' ? 'TEAcolher - Informe Clínico' : 'TEAcolher - Laudo Clínico'}</h1>
 
                                 <p className="text-sm text-slate-500 font-semibold mt-1">SaaS de Predictabilidade de Rotinas no Espectro Autista</p>
 
@@ -14225,7 +14225,7 @@ function ParentDashboardContent() {
 
                 <p className="text-xs text-indigo-200 font-semibold mt-1">
 
-                  {locale === 'en' ? 'Unlock the full potential of Rotina Animada' : locale === 'es' ? 'Desbloquea el potencial máximo de Rotina Animada' : 'Desbloqueie o potencial máximo da Rotina Animada'}
+                  {locale === 'en' ? 'Unlock the full potential of TEAcolher' : locale === 'es' ? 'Desbloquea el potencial máximo de TEAcolher' : 'Desbloqueie o potencial máximo da TEAcolher'}
 
                 </p>
 
