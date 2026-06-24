@@ -4405,7 +4405,7 @@ export default function ChildRoutine() {
                   <div className="w-full bg-slate-100 rounded-full h-6 px-1.5 flex items-center relative my-1 overflow-hidden border border-slate-200/60">
                     <motion.div 
                       className="text-base absolute select-none"
-                      animate={{ x: `${progressRatio * 85}%` }}
+                      animate={{ left: `${progressRatio * 85}%` }}
                       transition={{ duration: 0.5 }}
                     >
                       {mascotInfo.emoji}
