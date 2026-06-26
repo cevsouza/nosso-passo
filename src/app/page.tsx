@@ -93,8 +93,7 @@ export default function Home() {
           <span className="text-xl select-none mr-0.5 hover:rotate-12 transition-transform duration-350 cursor-pointer">🐶</span>
           <span className="text-lg font-bold tracking-tight font-Outfit select-none">
             <span className="text-sky-600">TE</span>
-            <span className="text-indigo-500 font-black">A</span>
-            <span className="text-rose-500">colher</span>
+            <span className="text-rose-500">Acolher</span>
           </span>
         </div>
         

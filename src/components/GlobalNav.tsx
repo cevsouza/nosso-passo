@@ -89,10 +89,13 @@ export function GlobalNav() {
         <div className="flex flex-col gap-8">
           {/* Logo Brand Header */}
           <div className="flex items-center gap-2.5 px-2 select-none">
-            <span className="text-3xl animate-bounce">🐶</span>
+            <span className="text-2xl select-none mr-0.5 hover:rotate-12 transition-transform duration-350 cursor-pointer">🐶</span>
             <div>
-              <span className="block text-base font-black tracking-tight text-slate-900 font-Outfit leading-none">TEAcolher</span>
-              <span className="text-[9px] font-black uppercase tracking-widest text-indigo-600 mt-1 block">Multiversos</span>
+              <span className="block text-base font-bold tracking-tight font-Outfit leading-none">
+                <span className="text-sky-600">TE</span>
+                <span className="text-rose-500">Acolher</span>
+              </span>
+              <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400 mt-1 block">Multiversos</span>
             </div>
           </div>
 

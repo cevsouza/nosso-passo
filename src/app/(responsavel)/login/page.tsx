@@ -58,11 +58,11 @@ export default function ParentAuth() {
   };
 
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center p-6 bg-gradient-to-tr from-[#f8fafc] via-[#eff6ff] to-[#f0fdf4] animate-gradient-flow relative overflow-hidden">
+    <main className="min-h-screen flex flex-col items-center justify-center p-6 bg-slate-50 relative overflow-hidden">
       {/* Background Soft Glows */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-        <div className="absolute top-[-5%] left-[-5%] w-80 h-80 bg-blue-200/40 rounded-full mix-blend-multiply filter blur-3xl opacity-60 animate-pulse"></div>
-        <div className="absolute bottom-[-5%] right-[-5%] w-96 h-96 bg-indigo-200/30 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-pulse" style={{ animationDelay: '2s' }}></div>
+        <div className="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] bg-blue-300/5 rounded-full filter blur-[120px]" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[50vw] h-[50vw] bg-pink-300/5 rounded-full filter blur-[120px]" />
       </div>
 
       {/* Back button and language selector */}
@@ -70,7 +70,7 @@ export default function ParentAuth() {
         <Link 
           href="/" 
           onMouseEnter={playBubble}
-          className="flex items-center gap-2 px-5 py-2.5 bg-white hover:bg-slate-50 text-slate-800 rounded-full border-2 border-slate-300 shadow-premium transition-all text-xs font-black active:scale-95 cursor-pointer"
+          className="flex items-center gap-2 px-4 py-2 bg-white hover:bg-slate-100 text-slate-800 rounded-full border border-slate-200 shadow-sm transition-all text-xs font-bold active:scale-95 cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4 text-slate-600" /> {t.common.back}
         </Link>
@@ -81,7 +81,7 @@ export default function ParentAuth() {
         initial={{ opacity: 0, y: 35 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
-        className="w-full max-w-md bg-white border-2 border-slate-300/80 rounded-[36px] p-8 shadow-[0_30px_60px_rgba(15,23,42,0.06)] z-10 relative mt-24"
+        className="w-full max-w-md bg-white border border-slate-200 rounded-[24px] p-8 shadow-premium-soft z-10 relative mt-24"
       >
         {/* Collie Peek Mascot */}
         <div className="absolute top-[-95px] left-1/2 -translate-x-1/2 z-20 drop-shadow-[0_8px_16px_rgba(0,0,0,0.05)] pointer-events-none">

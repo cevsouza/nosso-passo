@@ -96,14 +96,11 @@ function SchoolPortalContent() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row bg-gradient-to-tr from-[#f8fafc] via-[#eff6ff] to-[#f0fdf4]">
+    <div className="min-h-screen flex flex-col lg:flex-row bg-slate-50">
       <GlobalNav />
       <main className="flex-1 min-h-screen text-slate-800 flex flex-col items-center justify-center p-6 relative overflow-hidden font-Outfit">
-      {/* Background elements */}
-      <div className="absolute top-[-150px] right-[-150px] w-96 h-96 bg-yellow-100/50 rounded-full filter blur-3xl -z-10 animate-pulse"></div>
-      <div className="absolute bottom-[-150px] left-[-150px] w-96 h-96 bg-indigo-100/50 rounded-full filter blur-3xl -z-10 animate-pulse" style={{ animationDelay: '2s' }}></div>
 
-      <div className="w-full max-w-md bg-white border-2 border-slate-200 rounded-[32px] p-6 shadow-premium z-10 flex flex-col gap-6">
+      <div className="w-full max-w-md bg-white border border-slate-200 rounded-[24px] p-6 shadow-premium-soft z-10 flex flex-col gap-6">
         <div className="flex justify-between items-start gap-4">
           <div className="text-left">
             <span className="text-3xl">🏫</span>

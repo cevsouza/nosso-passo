@@ -1861,27 +1861,15 @@ export default function ChildRoutine() {
   // If no active child is selected, show the selection screen
   if (!activeChild) {
     return (
-      <main className="min-h-screen bg-gradient-to-tr from-[#f8fafc] via-[#eff6ff] to-[#f0fdf4] flex flex-col items-center justify-center p-6 text-slate-900 relative overflow-hidden">
-        {offline && (
-          <div className="absolute top-0 inset-x-0 bg-amber-500 text-white py-2 px-4 text-center text-xs font-black select-none z-50 flex items-center justify-center gap-2 font-Outfit shadow-md shrink-0">
-            <span>{locale === 'en' ? '📶 Offline Mode Activated' : locale === 'es' ? '📶 Modo Offline Activado' : '📶 Modo Offline Ativado'}</span>
-            {offlineQueueSize > 0 && (
-              <span className="bg-amber-700/60 px-2 py-0.5 rounded text-[10px]">
-                {offlineQueueSize} {offlineQueueSize === 1 ? (locale === 'en' ? 'pending change' : locale === 'es' ? 'cambio pendiente' : 'alteração pendente') : (locale === 'en' ? 'pending changes' : locale === 'es' ? 'cambios pendientes' : 'alterações pendentes')}
-              </span>
-            )}
-          </div>
-        )}
-        {/* Playful background blobs */}
-        <div className="absolute top-[-100px] left-[-100px] w-[300px] h-[300px] bg-blue-200/50 rounded-full filter blur-3xl -z-10 animate-pulse"></div>
-        <div className="absolute bottom-[-100px] right-[-100px] w-[300px] h-[300px] bg-indigo-200/40 rounded-full filter blur-3xl -z-10 animate-pulse"></div>
+      <main className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6 text-slate-900 relative overflow-hidden">
+        {/* Playful background blobs removed to follow the home page minimal standard */}
 
-        <div className="max-w-2xl w-full text-center flex flex-col items-center gap-8 z-10">
-          <div className="w-24 h-24 bg-indigo-100 text-indigo-700 rounded-3xl flex items-center justify-center font-bold text-4xl shadow-md border-2 border-indigo-200">
+        <div className="max-w-2xl w-full text-center flex flex-col items-center gap-6 z-10">
+          <div className="w-16 h-16 bg-slate-100 text-indigo-500 rounded-2xl flex items-center justify-center font-bold text-3xl shadow-sm border border-slate-200">
             🐶
           </div>
           <div>
-            <h1 className="text-3xl md:text-4xl font-black text-slate-950 tracking-tight font-Outfit">
+            <h1 className="text-2xl md:text-3xl font-extrabold text-slate-800 tracking-tight font-Outfit">
               {locale === 'en' ? 'Who are you today? 🐶' : locale === 'es' ? '¿Quién eres hoy? 🐶' : 'Quem é você hoje? 🐶'}
             </h1>
             <p className="text-sm font-bold text-slate-750 mt-3 font-semibold">
@@ -1931,13 +1919,13 @@ export default function ChildRoutine() {
                     // Redirect to include childId in URL for easy bookmarking
                     router.replace(`/routine?childId=${child.id}`);
                   }}
-                  className="bg-white border-2 border-slate-350 hover:border-indigo-600 rounded-3xl p-6 shadow-md hover:shadow-2xl transition-all hover:-translate-y-1 flex flex-col items-center gap-4 text-center cursor-pointer group"
+                  className="bg-white border border-slate-200 hover:border-indigo-450 rounded-2xl p-6 shadow-premium-soft hover:-translate-y-0.5 transition-all duration-300 flex flex-col items-center gap-4 text-center cursor-pointer group"
                 >
-                  <div className="w-20 h-20 bg-indigo-50 text-indigo-650 group-hover:bg-indigo-100 rounded-2xl flex items-center justify-center text-4xl shadow-inner transition-colors border border-transparent group-hover:border-indigo-200">
+                  <div className="w-16 h-16 bg-slate-100 text-indigo-500 rounded-2xl flex items-center justify-center text-3xl shadow-inner transition-colors border border-transparent group-hover:border-indigo-100">
                     {child.gender === 'Feminino' ? '👧' : child.gender === 'Masculino' ? '👦' : '👶'}
                   </div>
                   <div>
-                    <h3 className="text-lg font-black text-slate-900 group-hover:text-indigo-900 transition-colors font-Outfit">{child.name}</h3>
+                    <h3 className="text-base font-bold text-slate-800 group-hover:text-indigo-900 transition-colors font-Outfit">{child.name}</h3>
                     {child.diagnosis && child.diagnosis !== 'Não Informado' && (
                       <span className="inline-block text-[10px] mt-2.5 px-3 py-1 bg-slate-200 group-hover:bg-indigo-100 group-hover:text-indigo-800 rounded-full font-black uppercase tracking-wider text-slate-750">
                         {child.diagnosis}
@@ -3366,7 +3354,7 @@ export default function ChildRoutine() {
     <main className={`min-h-screen transition-colors duration-500 pt-0 px-0 pb-12 flex flex-col items-center relative overflow-hidden ${
       sleepMode 
         ? 'bg-[#040815] text-amber-100/90' 
-        : 'bg-gradient-to-tr from-[#f8fafc] via-[#eff6ff] to-[#f0fdf4] animate-gradient-flow text-[#0f172a]'
+        : 'bg-slate-50 text-[#0f172a]'
     } ${profileClass}`}>
       {offline && (
         <div className="absolute top-0 inset-x-0 bg-amber-500 text-white py-2 px-4 text-center text-xs font-black select-none z-50 flex items-center justify-center gap-2 font-Outfit shadow-md shrink-0">
