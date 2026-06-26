@@ -168,17 +168,7 @@ export default function Home() {
           </MotionLink>
         </motion.div>
 
-        {/* Semantic Note about the overlap of 'A' */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 0.8 }}
-          transition={{ duration: 0.8, delay: 0.3 }}
-          className="mt-6 border-t border-slate-200/60 pt-6 max-w-md w-full"
-        >
-          <p className="text-[10px] md:text-[11px] text-slate-450 font-medium italic leading-relaxed">
-            * O nome <span className="font-bold text-slate-650">TE<span className="text-indigo-500 font-extrabold">A</span>colher</span> une a sigla <span className="font-bold text-slate-650">TEA</span> (Transtorno do Espectro Autista) ao ato de <span className="font-bold text-slate-650">Acolher</span>, utilizando a letra <span className="text-indigo-500 font-extrabold">A</span> como ponto de interseção e acolhimento.
-          </p>
-        </motion.div>
+
 
       </div>
 
