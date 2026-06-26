@@ -175,81 +175,35 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen flex flex-col items-center justify-between p-4 md:p-8 bg-gradient-to-tr from-[#fff1f2] via-[#e2f1ff] to-[#fef9c3] animate-gradient-flow relative overflow-hidden font-sans">
+    <main className="min-h-screen flex flex-col items-center justify-between p-4 md:p-8 bg-slate-50 relative overflow-hidden font-sans select-none">
       
-      {/* Decorative slow floating SVGs clouds for sensory calmness */}
+      {/* Subtle desaturated aurora background glows */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-        {/* Soft Cloud 1 */}
-        <motion.div
-          className="absolute opacity-40"
-          style={{ top: "8%", left: "-15%", width: 180 }}
-          animate={{ x: ["-10vw", "110vw"] }}
-          transition={{ duration: 110, repeat: Infinity, ease: "linear" }}
-        >
-          <svg viewBox="0 0 100 100" fill="#ffffff">
-            <path d="M 20 60 C 20 48, 32 38, 48 38 C 55 28, 75 28, 80 38 C 92 38, 98 48, 98 60 C 98 72, 88 82, 50 82 C 22 82, 20 72, 20 60 Z" />
-          </svg>
-        </motion.div>
-
-        {/* Soft Cloud 2 */}
-        <motion.div
-          className="absolute opacity-30"
-          style={{ top: "38%", left: "-25%", width: 240 }}
-          animate={{ x: ["-20vw", "110vw"] }}
-          transition={{ duration: 150, repeat: Infinity, ease: "linear", delay: 20 }}
-        >
-          <svg viewBox="0 0 100 100" fill="#ffffff">
-            <path d="M 20 60 C 20 48, 32 38, 48 38 C 55 28, 75 28, 80 38 C 92 38, 98 48, 98 60 C 98 72, 88 82, 50 82 C 22 82, 20 72, 20 60 Z" />
-          </svg>
-        </motion.div>
-      </div>
-
-      {/* Floating Calming Particles / Bubbles */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-        {bubbles.map(b => (
-          <motion.div
-            key={b.id}
-            className={`absolute bottom-[-10%] rounded-full border backdrop-blur-[0.5px] ${b.color}`}
-            style={{
-              width: b.size,
-              height: b.size,
-              left: b.left,
-            }}
-            animate={{
-              y: ["0vh", "-115vh"],
-              x: [0, Math.sin(b.id) * 40, 0],
-              opacity: [0, 0.65, 0.65, 0]
-            }}
-            transition={{
-              duration: b.duration,
-              delay: b.delay,
-              repeat: Infinity,
-              ease: "linear"
-            }}
-          />
-        ))}
+        <div className="absolute top-[-15%] left-[-15%] w-[60vw] h-[60vw] bg-blue-300/10 rounded-full filter blur-[150px]" />
+        <div className="absolute bottom-[-15%] right-[-15%] w-[60vw] h-[60vw] bg-pink-300/10 rounded-full filter blur-[150px]" />
       </div>
 
       {/* Header Info */}
-      <header className="z-10 w-full max-w-6xl flex items-center justify-between pointer-events-auto select-none py-2">
+      <header className="z-10 w-full max-w-6xl flex items-center justify-between pointer-events-auto select-none py-3">
         <div className="flex items-center gap-2 select-none">
-          <span className="text-3xl animate-bounce">🐶</span>
-          <span className="text-2xl font-black tracking-tight font-Outfit">
-            <span className="text-blue-600">TEA</span>
-            <span className="text-pink-500">colher</span>
+          <span className="text-2xl select-none mr-0.5 hover:rotate-12 transition-transform duration-300 cursor-pointer">🐶</span>
+          <span className="text-xl font-extrabold tracking-tight font-Outfit select-none">
+            <span className="text-sky-600">TE</span>
+            <span className="text-indigo-500 font-black">A</span>
+            <span className="text-rose-500">colher</span>
           </span>
         </div>
         
         <div className="flex items-center gap-4">
-          <span className="hidden sm:inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider text-pink-700 bg-pink-50 border-2 border-pink-200 px-4 py-2 rounded-full shadow-sm font-Outfit">
-            <Heart className="w-3.5 h-3.5 fill-pink-500 text-pink-600 animate-pulse" /> {t.landing.badgeNeuro}
+          <span className="hidden sm:inline-flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-wider text-slate-500 bg-white border border-slate-200/60 px-3.5 py-1.5 rounded-full shadow-xxs font-Outfit">
+            <Heart className="w-3 h-3 fill-rose-400 text-rose-450" /> {t.landing.badgeNeuro}
           </span>
           <LanguageSelector />
         </div>
       </header>
 
       {/* Main content Hero container */}
-      <div className="z-10 w-full max-w-6xl my-auto flex flex-col gap-10 py-6">
+      <div className="z-10 w-full max-w-6xl my-auto flex flex-col gap-8 py-6">
         
         {/* Section 1: Welcoming Brand Banner */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
@@ -257,68 +211,57 @@ export default function Home() {
           {/* Left Column: Headline and Definition */}
           <div className="lg:col-span-7 flex flex-col items-center lg:items-start text-center lg:text-left gap-4">
             <motion.div
-              initial={{ opacity: 0, y: -20 }}
+              initial={{ opacity: 0, y: -15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
               className="flex flex-col items-center lg:items-start gap-3"
             >
-              <span className="text-[10px] font-black uppercase tracking-widest text-blue-950 bg-blue-100 border-2 border-blue-200 px-4 py-1.5 rounded-full flex items-center gap-1.5 shadow-sm select-none">
-                <Sun className="w-3.5 h-3.5 text-blue-500 animate-spin-slow" /> {locale === 'en' ? '🌸 Beautiful Life' : locale === 'es' ? '🌸 Hermosa Vida' : '🌸 A Beleza da Vida'}
+              <span className="text-[9px] font-bold uppercase tracking-wider text-slate-500 bg-white border border-slate-200 px-3.5 py-1.5 rounded-full flex items-center gap-1.5 shadow-xxs select-none">
+                <Sun className="w-3 h-3 text-sky-500" /> {locale === 'en' ? '🌸 Beautiful Life' : locale === 'es' ? '🌸 Hermosa Vida' : '🌸 A Beleza da Vida'}
               </span>
               
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tight leading-tight font-Outfit text-slate-900">
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight leading-tight font-Outfit text-slate-800">
                 {info.welcomeTitle}
               </h1>
               
-              <p className="text-slate-700 text-sm md:text-base leading-relaxed font-semibold max-w-xl">
+              <p className="text-slate-500 text-xs md:text-sm font-semibold max-w-xl leading-relaxed">
                 {info.subheadline}
               </p>
             </motion.div>
 
             {/* Explanation box: What is TEAcolher? */}
             <motion.div
-              initial={{ opacity: 0, y: 15 }}
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="mt-2 p-5 md:p-6 bg-white/80 border-2 border-pink-200/60 rounded-3xl shadow-sm max-w-2xl text-left"
+              className="mt-2 p-5 bg-white/60 border border-slate-200/50 backdrop-blur-md rounded-2xl shadow-sm max-w-xl text-left border-l-4 border-l-indigo-400"
             >
-              <h2 className="text-lg font-black text-pink-600 font-Outfit flex items-center gap-2 mb-2">
-                💙 {info.explainTitle}
+              <h2 className="text-sm font-bold text-slate-700 font-Outfit flex items-center gap-1.5 mb-1.5">
+                <span>🦋</span> {info.explainTitle}
               </h2>
-              <p className="text-slate-750 text-xs md:text-sm font-medium leading-relaxed">
+              <p className="text-slate-500 text-[11px] md:text-xs font-semibold leading-relaxed">
                 {info.explainText}
               </p>
             </motion.div>
           </div>
 
           {/* Right Column: Mascot Pedestal */}
-          <div className="lg:col-span-5 flex flex-col items-center justify-center relative select-none min-h-[300px]">
-            {/* Pulsing orbital rings */}
-            <motion.div 
-              className="absolute w-[240px] h-[240px] rounded-full border-2 border-dashed border-pink-400/30 -z-10"
-              animate={{ rotate: 360 }}
-              transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
-            />
-            <motion.div 
-              className="absolute w-[280px] h-[280px] rounded-full border border-dashed border-blue-400/30 -z-10"
-              animate={{ rotate: -360 }}
-              transition={{ duration: 55, repeat: Infinity, ease: "linear" }}
-            />
+          <div className="lg:col-span-5 flex flex-col items-center justify-center relative select-none min-h-[280px]">
+            {/* Ambient glows behind mascot */}
+            <div className="absolute w-[200px] h-[200px] bg-gradient-to-tr from-sky-100/20 to-rose-100/20 rounded-full filter blur-3xl opacity-60 -z-10" />
             
-            <div className="absolute w-[200px] h-[200px] bg-gradient-to-tr from-pink-100 to-blue-150 rounded-full filter blur-2xl opacity-40 -z-10 animate-pulse"></div>
-
             {/* Pedestal Base Glass Circle */}
             <motion.div
-              className="cursor-pointer relative flex flex-col items-center justify-center p-6 bg-white border-2 border-slate-200 rounded-full shadow-[0_20px_45px_rgba(15,23,42,0.04)] hover:scale-[1.03] transition-all"
+              className="cursor-pointer relative flex flex-col items-center justify-center p-5 bg-white/70 backdrop-blur-md border border-slate-200/60 rounded-full shadow-premium-soft hover:scale-[1.02] transition-all"
               onClick={handleMascotClick}
               onMouseEnter={handleHover}
               onMouseLeave={handleHoverLeave}
               whileTap={{ scale: 0.97 }}
               transition={{ type: "spring", stiffness: 350, damping: 20 }}
             >
-              <HyperfocusMascot hyperfocus={childHyperfocus} state={collieState} size={180} />
+              <HyperfocusMascot hyperfocus={childHyperfocus} state={collieState} size={150} />
               
-              <span className="absolute bottom-2 text-[9px] font-black bg-slate-950 text-white px-3.5 py-1.5 rounded-full shadow-md select-none border border-slate-750 uppercase tracking-widest font-Outfit">
+              <span className="absolute bottom-2 text-[8px] font-bold bg-slate-800 text-white px-3 py-1.5 rounded-full shadow-sm select-none border border-slate-700 uppercase tracking-widest font-Outfit">
                 {collieState === 'celebrating' ? getMascotCelebrationText(childHyperfocus) : collieState === 'guiding' ? t.landing.mascotLook : t.landing.mascotTapMe}
               </span>
             </motion.div>
@@ -326,12 +269,12 @@ export default function Home() {
         </div>
 
         {/* Section 2: Portals Grid */}
-        <section className="flex flex-col gap-6 mt-6">
+        <section className="flex flex-col gap-5 mt-6">
           <div className="text-center md:text-left">
-            <h2 className="text-2xl md:text-3xl font-black text-slate-850 font-Outfit">
+            <h2 className="text-xl md:text-2xl font-bold text-slate-700 font-Outfit">
               {info.portalTitle}
             </h2>
-            <p className="text-xs md:text-sm text-slate-500 font-bold mt-1">
+            <p className="text-xs text-slate-400 font-semibold mt-0.5">
               {info.portalSubtitle}
             </p>
           </div>
@@ -340,18 +283,18 @@ export default function Home() {
             
             {/* Portal 1: Paciente (Criança) */}
             <motion.div
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.1 }}
-              className="bg-white border-2 border-blue-200 hover:border-blue-400 p-6 rounded-[32px] text-slate-800 shadow-[0_15px_35px_rgba(15,23,42,0.02)] flex flex-col justify-between min-h-[290px] transform hover:scale-[1.02] hover:shadow-[0_20px_45px_rgba(59,130,246,0.08)] transition-all group"
+              className="bg-white/60 border border-slate-200/40 backdrop-blur-md p-5 rounded-2xl text-slate-700 shadow-sm flex flex-col justify-between min-h-[260px] transform hover:scale-[1.01] hover:shadow-premium-soft transition-all duration-300 group"
             >
-              <div className="flex flex-col gap-3.5">
-                <div className="w-12 h-12 bg-blue-50 border border-blue-150 text-blue-600 rounded-2xl flex items-center justify-center group-hover:scale-105 transition-all select-none">
-                  <Gamepad2 className="w-6 h-6" />
+              <div className="flex flex-col gap-3">
+                <div className="w-10 h-10 bg-slate-100/80 border border-slate-200/50 text-sky-600 rounded-xl flex items-center justify-center select-none">
+                  <Gamepad2 className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-black tracking-tight leading-tight font-Outfit text-slate-900">{info.kidsTitle}</h3>
-                  <p className="text-slate-600 text-[11px] font-semibold leading-relaxed mt-2.5">
+                  <h3 className="text-base font-bold tracking-tight leading-tight font-Outfit text-slate-800">{info.kidsTitle}</h3>
+                  <p className="text-slate-500 text-[10.5px] font-semibold leading-relaxed mt-2">
                     {info.kidsDesc}
                   </p>
                 </div>
@@ -361,26 +304,26 @@ export default function Home() {
                 href="/routine"
                 onMouseEnter={playBubble}
                 onClick={() => playMarimba(261.63, 0.4)}
-                className="mt-5 flex items-center justify-center gap-1.5 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-black text-xs cursor-pointer transition-all active:scale-95 border-none font-Outfit"
+                className="mt-4 flex items-center justify-center gap-1.5 py-2 px-4 border border-sky-200/80 hover:bg-sky-500/10 hover:border-sky-400 text-sky-700 rounded-xl font-bold text-[11px] cursor-pointer transition-all active:scale-95 font-Outfit"
               >
-                {info.kidsBtn} <ArrowRight className="w-3.5 h-3.5 text-blue-100" />
+                {info.kidsBtn} <ArrowRight className="w-3 h-3 text-sky-500" />
               </MotionLink>
             </motion.div>
 
             {/* Portal 2: Responsáveis */}
             <motion.div
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.2 }}
-              className="bg-white border-2 border-pink-200 hover:border-pink-400 p-6 rounded-[32px] text-slate-800 shadow-[0_15px_35px_rgba(15,23,42,0.02)] flex flex-col justify-between min-h-[290px] transform hover:scale-[1.02] hover:shadow-[0_20px_45px_rgba(244,63,94,0.08)] transition-all group"
+              className="bg-white/60 border border-slate-200/40 backdrop-blur-md p-5 rounded-2xl text-slate-700 shadow-sm flex flex-col justify-between min-h-[260px] transform hover:scale-[1.01] hover:shadow-premium-soft transition-all duration-300 group"
             >
-              <div className="flex flex-col gap-3.5">
-                <div className="w-12 h-12 bg-pink-50 border border-pink-150 text-pink-600 rounded-2xl flex items-center justify-center group-hover:scale-105 transition-all select-none">
-                  <Users className="w-6 h-6" />
+              <div className="flex flex-col gap-3">
+                <div className="w-10 h-10 bg-slate-100/80 border border-slate-200/50 text-rose-500 rounded-xl flex items-center justify-center select-none">
+                  <Users className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-black tracking-tight leading-tight font-Outfit text-slate-900">{info.parentsTitle}</h3>
-                  <p className="text-slate-600 text-[11px] font-semibold leading-relaxed mt-2.5">
+                  <h3 className="text-base font-bold tracking-tight leading-tight font-Outfit text-slate-800">{info.parentsTitle}</h3>
+                  <p className="text-slate-500 text-[10.5px] font-semibold leading-relaxed mt-2">
                     {info.parentsDesc}
                   </p>
                 </div>
@@ -390,26 +333,26 @@ export default function Home() {
                 href="/login"
                 onMouseEnter={playBubble}
                 onClick={() => playMarimba(329.63, 0.4)}
-                className="mt-5 flex items-center justify-center gap-1.5 py-3 bg-pink-600 hover:bg-pink-700 text-white rounded-xl font-black text-xs cursor-pointer transition-all active:scale-95 border-none font-Outfit"
+                className="mt-4 flex items-center justify-center gap-1.5 py-2 px-4 border border-rose-200/80 hover:bg-rose-500/10 hover:border-rose-400 text-rose-700 rounded-xl font-bold text-[11px] cursor-pointer transition-all active:scale-95 font-Outfit"
               >
-                {info.parentsBtn} <ArrowRight className="w-3.5 h-3.5 text-pink-100" />
+                {info.parentsBtn} <ArrowRight className="w-3 h-3 text-rose-500" />
               </MotionLink>
             </motion.div>
 
             {/* Portal 3: Terapeutas */}
             <motion.div
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.3 }}
-              className="bg-white border-2 border-blue-200 hover:border-blue-400 p-6 rounded-[32px] text-slate-800 shadow-[0_15px_35px_rgba(15,23,42,0.02)] flex flex-col justify-between min-h-[290px] transform hover:scale-[1.02] hover:shadow-[0_20px_45px_rgba(59,130,246,0.08)] transition-all group"
+              className="bg-white/60 border border-slate-200/40 backdrop-blur-md p-5 rounded-2xl text-slate-700 shadow-sm flex flex-col justify-between min-h-[260px] transform hover:scale-[1.01] hover:shadow-premium-soft transition-all duration-300 group"
             >
-              <div className="flex flex-col gap-3.5">
-                <div className="w-12 h-12 bg-blue-50 border border-blue-150 text-blue-600 rounded-2xl flex items-center justify-center group-hover:scale-105 transition-all select-none">
-                  <Stethoscope className="w-6 h-6" />
+              <div className="flex flex-col gap-3">
+                <div className="w-10 h-10 bg-slate-100/80 border border-slate-200/50 text-sky-600 rounded-xl flex items-center justify-center select-none">
+                  <Stethoscope className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-black tracking-tight leading-tight font-Outfit text-slate-900">{info.therapistsTitle}</h3>
-                  <p className="text-slate-650 text-[11px] font-semibold leading-relaxed mt-2.5">
+                  <h3 className="text-base font-bold tracking-tight leading-tight font-Outfit text-slate-800">{info.therapistsTitle}</h3>
+                  <p className="text-slate-500 text-[10.5px] font-semibold leading-relaxed mt-2">
                     {info.therapistsDesc}
                   </p>
                 </div>
@@ -419,26 +362,26 @@ export default function Home() {
                 href="/therapist"
                 onMouseEnter={playBubble}
                 onClick={() => playMarimba(261.63, 0.4)}
-                className="mt-5 flex items-center justify-center gap-1.5 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-black text-xs cursor-pointer transition-all active:scale-95 border-none font-Outfit"
+                className="mt-4 flex items-center justify-center gap-1.5 py-2 px-4 border border-sky-200/80 hover:bg-sky-500/10 hover:border-sky-400 text-sky-700 rounded-xl font-bold text-[11px] cursor-pointer transition-all active:scale-95 font-Outfit"
               >
-                {info.therapistsBtn} <ArrowRight className="w-3.5 h-3.5 text-blue-100" />
+                {info.therapistsBtn} <ArrowRight className="w-3 h-3 text-sky-500" />
               </MotionLink>
             </motion.div>
 
             {/* Portal 4: Escola */}
             <motion.div
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.4 }}
-              className="bg-white border-2 border-pink-200 hover:border-pink-400 p-6 rounded-[32px] text-slate-800 shadow-[0_15px_35px_rgba(15,23,42,0.02)] flex flex-col justify-between min-h-[290px] transform hover:scale-[1.02] hover:shadow-[0_20px_45px_rgba(244,63,94,0.08)] transition-all group"
+              className="bg-white/60 border border-slate-200/40 backdrop-blur-md p-5 rounded-2xl text-slate-700 shadow-sm flex flex-col justify-between min-h-[260px] transform hover:scale-[1.01] hover:shadow-premium-soft transition-all duration-300 group"
             >
-              <div className="flex flex-col gap-3.5">
-                <div className="w-12 h-12 bg-pink-50 border border-pink-150 text-pink-600 rounded-2xl flex items-center justify-center group-hover:scale-105 transition-all select-none">
-                  <GraduationCap className="w-6 h-6" />
+              <div className="flex flex-col gap-3">
+                <div className="w-10 h-10 bg-slate-100/80 border border-slate-200/50 text-rose-500 rounded-xl flex items-center justify-center select-none">
+                  <GraduationCap className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-black tracking-tight leading-tight font-Outfit text-slate-900">{info.schoolTitle}</h3>
-                  <p className="text-slate-600 text-[11px] font-semibold leading-relaxed mt-2.5">
+                  <h3 className="text-base font-bold tracking-tight leading-tight font-Outfit text-slate-800">{info.schoolTitle}</h3>
+                  <p className="text-slate-500 text-[10.5px] font-semibold leading-relaxed mt-2">
                     {info.schoolDesc}
                   </p>
                 </div>
@@ -448,9 +391,9 @@ export default function Home() {
                 href="/school"
                 onMouseEnter={playBubble}
                 onClick={() => playMarimba(329.63, 0.4)}
-                className="mt-5 flex items-center justify-center gap-1.5 py-3 bg-pink-600 hover:bg-pink-700 text-white rounded-xl font-black text-xs cursor-pointer transition-all active:scale-95 border-none font-Outfit"
+                className="mt-4 flex items-center justify-center gap-1.5 py-2 px-4 border border-rose-200/80 hover:bg-rose-500/10 hover:border-rose-400 text-rose-700 rounded-xl font-bold text-[11px] cursor-pointer transition-all active:scale-95 font-Outfit"
               >
-                {info.schoolBtn} <ArrowRight className="w-3.5 h-3.5 text-pink-100" />
+                {info.schoolBtn} <ArrowRight className="w-3 h-3 text-rose-500" />
               </MotionLink>
             </motion.div>
 
@@ -459,11 +402,11 @@ export default function Home() {
       </div>
 
       {/* Footer Info */}
-      <footer className="z-10 w-full text-center flex flex-col md:flex-row items-center justify-between gap-4 border-t border-slate-300/40 pt-6 pointer-events-auto mt-10">
-        <span className="text-[9px] text-slate-500 font-extrabold uppercase tracking-widest">
+      <footer className="z-10 w-full text-center flex flex-col md:flex-row items-center justify-between gap-4 border-t border-slate-200/60 pt-4 mt-8 pointer-events-auto">
+        <span className="text-[8px] text-slate-400 font-bold tracking-widest uppercase">
           {t.landing.footerFriendly}
         </span>
-        <span className="text-[9px] text-slate-500 font-extrabold uppercase tracking-widest">
+        <span className="text-[8px] text-slate-400 font-bold tracking-widest uppercase">
           {t.landing.footerCopyright}
         </span>
       </footer>
