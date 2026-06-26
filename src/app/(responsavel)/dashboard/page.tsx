@@ -1429,7 +1429,11 @@ function ParentDashboardContent() {
 
 
   const preferencesMenuRef = React.useRef<HTMLDivElement>(null);
+  const batteryPopoverRef = React.useRef<HTMLDivElement>(null);
+  const dailyTrackingPopoverRef = React.useRef<HTMLDivElement>(null);
   const [showPreferencesMenu, setShowPreferencesMenu] = useState(false);
+  const [showBatteryPopover, setShowBatteryPopover] = useState(false);
+  const [showDailyTrackingPopover, setShowDailyTrackingPopover] = useState(false);
   const [activePrefTab, setActivePrefTab] = useState<'conta' | 'sensorial' | 'seguranca' | 'plano'>('conta');
   const [newPassword, setNewPassword] = useState('');
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
@@ -1483,11 +1487,17 @@ function ParentDashboardContent() {
 
   }, []);
 
-  // Close preferences dropdown when clicking outside
+  // Close preferences dropdown and popovers when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (preferencesMenuRef.current && !preferencesMenuRef.current.contains(event.target as Node)) {
         setShowPreferencesMenu(false);
+      }
+      if (batteryPopoverRef.current && !batteryPopoverRef.current.contains(event.target as Node)) {
+        setShowBatteryPopover(false);
+      }
+      if (dailyTrackingPopoverRef.current && !dailyTrackingPopoverRef.current.contains(event.target as Node)) {
+        setShowDailyTrackingPopover(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -6588,24 +6598,193 @@ function ParentDashboardContent() {
 
           {activeChild ? (
 
-            <div className="flex items-center gap-3">
+                        <div className="flex flex-wrap items-center gap-3">
+
+              {/* Emotional Battery Widget */}
+              <div ref={batteryPopoverRef} className="relative z-40">
+                <button
+                  type="button"
+                  onClick={() => { playBubble(); setShowBatteryPopover(!showBatteryPopover); }}
+                  className={`flex items-center gap-2 px-4 py-2.5 border rounded-xl text-xs font-black transition-all cursor-pointer active:scale-95 font-Outfit select-none ${
+                    activeChild.emotionalBattery === 'green'
+                      ? 'bg-emerald-50 hover:bg-emerald-100/60 border-emerald-250 text-emerald-700'
+                      : activeChild.emotionalBattery === 'yellow'
+                      ? 'bg-yellow-50 hover:bg-yellow-100/60 border-yellow-250 text-yellow-800'
+                      : 'bg-red-50 hover:bg-red-100/60 border-red-200 text-red-700 animate-pulse'
+                  }`}
+                >
+                  <span>{activeChild.emotionalBattery === 'green' ? '🔋 100%' : activeChild.emotionalBattery === 'yellow' ? '⚡ 50%' : '🪫 10%'}</span>
+                  <span>{activeChild.emotionalBattery === 'green' ? t.dashboard.emotionalBatteryStatusGreen : activeChild.emotionalBattery === 'yellow' ? t.dashboard.emotionalBatteryStatusYellow : t.dashboard.emotionalBatteryStatusRed}</span>
+                </button>
+
+                <AnimatePresence>
+                  {showBatteryPopover && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                      transition={{ type: "spring", stiffness: 350, damping: 25 }}
+                      className="absolute top-12 right-0 md:left-0 md:right-auto w-72 bg-white border border-slate-200 rounded-2xl shadow-xl p-4 flex flex-col gap-3 z-50 text-left"
+                    >
+                      <div className="flex items-center gap-2 text-indigo-650">
+                        <span className="text-base">🔋</span>
+                        <h3 className="font-bold text-slate-800 text-xs font-Outfit uppercase tracking-wider">{t.dashboard.emotionalBatteryTitle}</h3>
+                      </div>
+                      
+                      <div className="flex items-center justify-center py-2 bg-slate-50 border border-slate-150 rounded-xl">
+                        <span className="text-2xl">
+                          {activeChild.emotionalBattery === 'green' ? '🔋' : activeChild.emotionalBattery === 'yellow' ? '⚡' : '🪫'}
+                        </span>
+                        <span className="text-lg font-black text-slate-800 ml-2 font-Outfit">
+                          {activeChild.emotionalBattery === 'green' ? '100%' : activeChild.emotionalBattery === 'yellow' ? '50%' : '10%'}
+                        </span>
+                      </div>
+
+                      <div className={`p-3 rounded-xl border text-xxs font-semibold leading-relaxed flex flex-col gap-1.5 ${
+                        activeChild.emotionalBattery === 'red'
+                          ? 'bg-red-50 border-red-200 text-red-800'
+                          : activeChild.emotionalBattery === 'yellow'
+                          ? 'bg-yellow-50 border-yellow-250 text-yellow-800'
+                          : 'bg-emerald-50 border-emerald-250 text-emerald-800'
+                      }`}>
+                        <span className="font-black font-Outfit uppercase text-[9px] tracking-widest flex items-center gap-1">
+                          ⚠️ {activeChild.emotionalBattery === 'red' 
+                                ? t.dashboard.emotionalBatteryAlertTitleRed 
+                                : activeChild.emotionalBattery === 'yellow' 
+                                ? t.dashboard.emotionalBatteryAlertTitleYellow 
+                                : (locale === 'en' ? 'Optimal Charge' : locale === 'es' ? 'Carga Óptima' : 'Carga Ideal')}
+                        </span>
+                        <p>
+                          {activeChild.emotionalBattery === 'red' 
+                            ? t.dashboard.emotionalBatteryAlertDescRed.replace('{name}', activeChild.name.split(' ')[0])
+                            : activeChild.emotionalBattery === 'yellow' 
+                            ? t.dashboard.emotionalBatteryAlertDescYellow.replace('{name}', activeChild.name.split(' ')[0])
+                            : (locale === 'en' 
+                                ? `${activeChild.name.split(' ')[0]} is emotionally regulated and ready for activities.` 
+                                : locale === 'es'
+                                ? `${activeChild.name.split(' ')[0]} está regulado emocionalmente y listo para las actividades.`
+                                : `${activeChild.name.split(' ')[0]} está regulado emocionalmente e pronto para as atividades.`)}
+                        </p>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
+              {/* Daily Tracking / Acompanhamento Diário Widget */}
+              <div ref={dailyTrackingPopoverRef} className="relative z-40">
+                <button
+                  type="button"
+                  onClick={() => { playBubble(); setShowDailyTrackingPopover(!showDailyTrackingPopover); }}
+                  className="flex items-center gap-2 px-4 py-2.5 bg-white hover:bg-slate-50 border-2 border-slate-200 text-slate-700 text-xs font-black rounded-xl transition-all cursor-pointer active:scale-95 font-Outfit select-none"
+                >
+                  <span>📅</span>
+                  <span>{locale === 'en' ? 'Daily Status' : locale === 'es' ? 'Acompañamiento' : 'Acompanhamento'}</span>
+                </button>
+
+                <AnimatePresence>
+                  {showDailyTrackingPopover && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                      transition={{ type: "spring", stiffness: 350, damping: 25 }}
+                      className="absolute top-12 right-0 w-80 bg-white border border-slate-200 rounded-2xl shadow-xl p-4 flex flex-col gap-3.5 z-50 text-left"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2 text-indigo-655">
+                          <span className="text-base">📅</span>
+                          <h3 className="font-bold text-slate-800 text-xs font-Outfit uppercase tracking-wider">{t.dashboard.dailyTrackingTitle}</h3>
+                        </div>
+                        <span className="text-[9px] font-black text-slate-400 uppercase">{t.dashboard.dailyTrackingSubtitle}</span>
+                      </div>
+
+                      <div className="flex flex-col gap-2 max-h-[320px] overflow-y-auto pr-1 animate-none">
+                        {(() => {
+                          const days = [];
+                          for (let i = 0; i < 7; i++) {
+                            const d = new Date();
+                            d.setDate(d.getDate() - i);
+                            days.push(d);
+                          }
+
+                          return days.map((dateObj, idx) => {
+                            const isoDate = dateObj.toISOString().split('T')[0];
+                            const dayName = idx === 0 ? 'Hoje' : idx === 1 ? 'Ontem' : dateObj.toLocaleDateString('pt-BR', { weekday: 'short', day: 'numeric', month: 'numeric' });
+                            
+                            // Find school log for this date
+                            const schoolLog = sensoryLogs.find(log => 
+                              log.loggedBy === 'school' && 
+                              new Date(log.timestamp).toISOString().split('T')[0] === isoDate
+                            );
+
+                            // Find clinical checkpoint for this date
+                            const clinicalCp = checkpoints.find(cp => 
+                              cp.date === isoDate && cp.status === 'completed'
+                            );
+
+                            return (
+                              <div key={isoDate} className="flex items-center justify-between p-2.5 bg-slate-50 border border-slate-150 rounded-xl hover:bg-slate-100/50 transition-all text-xxs font-semibold">
+                                <span className="font-bold text-slate-700 capitalize w-20">{dayName}</span>
+                                
+                                <div className="flex items-center gap-3">
+                                  {/* School badge */}
+                                  <div className="flex items-center gap-1" title={schoolLog ? t.dashboard.schoolBadgeLog : t.dashboard.schoolBadgeNoLog}>
+                                    <span className="text-[10px]" title="Escola">🏫</span>
+                                    {schoolLog ? (
+                                      <span className="bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full text-[9px] font-black border border-emerald-250">
+                                        {schoolLog.mood === 'feliz' ? '😊' : schoolLog.mood === 'calmo' ? '😐' : schoolLog.mood === 'triste' ? '😢' : '😫'}
+                                      </span>
+                                    ) : (
+                                      <span className="bg-slate-200 text-slate-500 px-2 py-0.5 rounded-full text-[9px] font-black border border-slate-300">
+                                        Pendente
+                                      </span>
+                                    )}
+                                  </div>
+
+                                  {/* Clinical badge */}
+                                  <div className="flex items-center gap-1" title={clinicalCp ? t.dashboard.clinicalBadgeLog : t.dashboard.clinicalBadgeNoLog}>
+                                    <span className="text-[10px]" title={locale === 'en' ? 'Clinical' : locale === 'es' ? 'Clínico' : 'Clínico'}>🧠</span>
+                                    {clinicalCp ? (
+                                      <span className="bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full text-[9px] font-black border border-emerald-250" title={`${clinicalCp.professionalRole}: ${clinicalCp.feedback}`}>
+                                        OK ✓
+                                      </span>
+                                    ) : (
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          playBubble();
+                                          setActivePanelTab('feedback');
+                                          setActiveFeedbackSubTab('checkpoints');
+                                          setNewCpDate(isoDate);
+                                          setNewCpOpen(true);
+                                          setShowDailyTrackingPopover(false);
+                                        }}
+                                        className="bg-slate-200 hover:bg-indigo-50 hover:text-indigo-650 hover:border-indigo-250 text-slate-500 px-2 py-0.5 rounded-full text-[9px] font-black border border-slate-300 transition-all cursor-pointer outline-none"
+                                      >
+                                        + Add
+                                      </button>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                            );
+                          });
+                        })()}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
 
               <a
-
                 href={`/routine?childId=${activeChild.id}`}
-
                 target="_blank"
-
                 rel="noopener noreferrer"
-
                 className="px-5 py-2.5 bg-indigo-600 text-white hover:bg-indigo-755 text-xs font-black rounded-xl shadow-md border-b-4 border-indigo-900 transition-all active:scale-95 flex items-center gap-2 font-Outfit uppercase tracking-wider"
-
               >
-
                 <span>🚀</span> {t.dashboard.goToChildRoutine} {activeChild.name.split(' ')[0]}
-
               </a>
-
             </div>
 
           ) : (
@@ -6846,370 +7025,10 @@ function ParentDashboardContent() {
 
 
 
-      <div className="max-w-6xl mx-auto px-4 md:px-6 mt-8 grid grid-cols-1 md:grid-cols-12 gap-6 lg:gap-8">
+            <div className="max-w-6xl mx-auto px-4 md:px-6 mt-8 flex flex-col gap-6">
 
-        
-
-        {/* Left Side: Child Settings & Fast Actions */}
-
-        <div className="md:col-span-4 flex flex-col gap-6 md:sticky md:top-[80px] md:max-h-[calc(100vh-120px)] md:overflow-y-auto scrollbar-none">
-
-          
-
-          {/* Active Emotional Battery Card */}
-
-          {activeChild && (
-
-            <div className="bg-white border-2 border-slate-250 rounded-[28px] p-6 shadow-premium flex flex-col gap-4">
-
-              <button
-
-                type="button"
-
-                onClick={() => toggleSection('emotionalBattery')}
-
-                className="w-full flex items-center justify-between text-left cursor-pointer bg-transparent border-none outline-none select-none"
-
-              >
-
-                <div className="flex items-center gap-2.5 text-indigo-655">
-
-                  <span className="text-base">🔋</span>
-
-                  <h2 className="font-bold text-slate-900 text-sm font-Outfit uppercase tracking-wider">{t.dashboard.emotionalBatteryTitle}</h2>
-
-                </div>
-
-                <div className="flex items-center gap-2">
-
-                  <span className={`text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full font-Outfit ${
-
-                    activeChild.emotionalBattery === 'green' 
-
-                      ? 'bg-emerald-100 text-emerald-800' 
-
-                      : activeChild.emotionalBattery === 'yellow'
-
-                      ? 'bg-yellow-100 text-yellow-800'
-
-                      : 'bg-red-100 text-red-805'
-
-                  }`}>
-
-                    {activeChild.emotionalBattery === 'green' 
-
-                      ? t.dashboard.emotionalBatteryStatusGreen 
-
-                      : activeChild.emotionalBattery === 'yellow' 
-
-                      ? t.dashboard.emotionalBatteryStatusYellow 
-
-                      : t.dashboard.emotionalBatteryStatusRed}
-
-                  </span>
-
-                  {collapsedSections.emotionalBattery ? <ChevronDown className="w-4 h-4 text-slate-400 shrink-0" /> : <ChevronUp className="w-4 h-4 text-slate-400 shrink-0" />}
-
-                </div>
-
-              </button>
-
-
-
-              {!collapsedSections.emotionalBattery && (
-
-                <motion.div
-
-                  initial={{ opacity: 0, height: 0 }}
-
-                  animate={{ opacity: 1, height: 'auto' }}
-
-                  exit={{ opacity: 0, height: 0 }}
-
-                  className="flex flex-col gap-4 border-t border-slate-100 pt-4 w-full"
-
-                >
-
-              
-
-              <div className="flex items-center justify-center py-2 bg-slate-50 border border-slate-155 rounded-2xl">
-
-                <span className="text-3xl">
-
-                  {activeChild.emotionalBattery === 'green' ? '🔋' : activeChild.emotionalBattery === 'yellow' ? '⚡' : '🪫'}
-
-                </span>
-
-                <span className="text-xl font-black text-slate-800 ml-2.5 font-Outfit">
-
-                  {activeChild.emotionalBattery === 'green' ? '100%' : activeChild.emotionalBattery === 'yellow' ? '50%' : '10%'}
-
-                </span>
-
-              </div>
-
-
-
-              {activeChild.emotionalBattery !== 'green' && (
-
-                <div className={`p-4 rounded-2xl border text-xxs font-semibold leading-relaxed flex flex-col gap-2 ${
-
-                  activeChild.emotionalBattery === 'red'
-
-                    ? 'bg-red-50 border-red-200 text-red-800'
-
-                    : 'bg-yellow-50 border-yellow-250 text-yellow-800'
-
-                }`}>
-
-                  <span className="font-black font-Outfit uppercase text-[9px] tracking-widest flex items-center gap-1">
-
-                    ⚠️ {activeChild.emotionalBattery === 'red' ? t.dashboard.emotionalBatteryAlertTitleRed : t.dashboard.emotionalBatteryAlertTitleYellow}
-
-                  </span>
-
-                  <p>
-
-                    {activeChild.emotionalBattery === 'red' 
-
-                      ? t.dashboard.emotionalBatteryAlertDescRed.replace('{name}', activeChild.name.split(' ')[0])
-
-                      : t.dashboard.emotionalBatteryAlertDescYellow.replace('{name}', activeChild.name.split(' ')[0])}
-
-                  </p>
-
-                </div>
-
-              )}
-
-                </motion.div>
-
-              )}
-
-            </div>
-
-          )}
-
-
-
-          {/* Daily Status Grid Card */}
-
-          {activeChild && (
-
-            <div className="bg-white border-2 border-slate-250 rounded-[28px] p-6 shadow-premium flex flex-col gap-4">
-
-              <button
-
-                type="button"
-
-                onClick={() => toggleSection('dailyStatus')}
-
-                className="w-full flex items-center justify-between text-left cursor-pointer bg-transparent border-none outline-none select-none"
-
-              >
-
-                <div className="flex items-center gap-2.5 text-indigo-600">
-
-                  <span className="text-base">📅</span>
-
-                  <h2 className="font-bold text-slate-900 text-sm font-Outfit uppercase tracking-wider">{t.dashboard.dailyTrackingTitle}</h2>
-
-                </div>
-
-                <div className="flex items-center gap-2">
-
-                  <span className="text-[9px] font-black text-slate-400 uppercase">{t.dashboard.dailyTrackingSubtitle}</span>
-
-                  {collapsedSections.dailyStatus ? <ChevronDown className="w-4 h-4 text-slate-400 shrink-0" /> : <ChevronUp className="w-4 h-4 text-slate-400 shrink-0" />}
-
-                </div>
-
-              </button>
-
-
-
-              {!collapsedSections.dailyStatus && (
-
-                <motion.div
-
-                  initial={{ opacity: 0, height: 0 }}
-
-                  animate={{ opacity: 1, height: 'auto' }}
-
-                  exit={{ opacity: 0, height: 0 }}
-
-                  className="flex flex-col gap-4 border-t border-slate-100 pt-4 w-full"
-
-                >
-
-
-
-              <div className="flex flex-col gap-3">
-
-                {(() => {
-
-                  const days = [];
-
-                  for (let i = 0; i < 7; i++) {
-
-                    const d = new Date();
-
-                    d.setDate(d.getDate() - i);
-
-                    days.push(d);
-
-                  }
-
-
-
-                  return days.map((dateObj, idx) => {
-
-                    const isoDate = dateObj.toISOString().split('T')[0];
-
-                    const dayName = idx === 0 ? 'Hoje' : idx === 1 ? 'Ontem' : dateObj.toLocaleDateString('pt-BR', { weekday: 'short', day: 'numeric', month: 'numeric' });
-
-                    
-
-                    // Find school log for this date
-
-                    const schoolLog = sensoryLogs.find(log => 
-
-                      log.loggedBy === 'school' && 
-
-                      new Date(log.timestamp).toISOString().split('T')[0] === isoDate
-
-                    );
-
-
-
-                    // Find clinical checkpoint for this date
-
-                    const clinicalCp = checkpoints.find(cp => 
-
-                      cp.date === isoDate && cp.status === 'completed'
-
-                    );
-
-
-
-                    return (
-
-                      <div key={isoDate} className="flex items-center justify-between p-2.5 bg-slate-50 border border-slate-150 rounded-xl hover:bg-slate-100/50 transition-all text-xxs font-semibold">
-
-                        <span className="font-bold text-slate-700 capitalize w-20">{dayName}</span>
-
-                        
-
-                        <div className="flex items-center gap-3">
-
-                          {/* School badge */}
-
-                          <div className="flex items-center gap-1" title={schoolLog ? t.dashboard.schoolBadgeLog : t.dashboard.schoolBadgeNoLog}>
-
-                            <span className="text-[10px]" title="Escola">🏫</span>
-
-                            {schoolLog ? (
-
-                              <span className="bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full text-[9px] font-black border border-emerald-250">
-
-                                {schoolLog.mood === 'feliz' ? '😊' : schoolLog.mood === 'calmo' ? '😐' : schoolLog.mood === 'triste' ? '😢' : '😫'}
-
-                              </span>
-
-                            ) : (
-
-                              <span className="bg-slate-200 text-slate-500 px-2 py-0.5 rounded-full text-[9px] font-black border border-slate-300">
-
-                                Pendente
-
-                              </span>
-
-                            )}
-
-                          </div>
-
-
-
-                          {/* Clinical badge */}
-
-                          <div className="flex items-center gap-1" title={clinicalCp ? t.dashboard.clinicalBadgeLog : t.dashboard.clinicalBadgeNoLog}>
-
-                            <span className="text-[10px]" title={locale === 'en' ? 'Clinical' : locale === 'es' ? 'Clínico' : 'Clínico'}>🧠</span>
-
-                            {clinicalCp ? (
-
-                              <span className="bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full text-[9px] font-black border border-emerald-250" title={`${clinicalCp.professionalRole}: ${clinicalCp.feedback}`}>
-
-                                OK ✓
-
-                              </span>
-
-                            ) : (
-
-                              <button
-
-                                onClick={() => {
-
-                                  playBubble();
-
-                                  setActivePanelTab('feedback');
-                                  setActiveFeedbackSubTab('checkpoints');
-
-                                  setNewCpDate(isoDate);
-
-                                  setNewCpOpen(true);
-
-                                }}
-
-                                className="bg-slate-200 hover:bg-indigo-50 hover:text-indigo-650 hover:border-indigo-250 text-slate-500 px-2 py-0.5 rounded-full text-[9px] font-black border border-slate-300 transition-all cursor-pointer outline-none"
-
-                              >
-
-                                + Add
-
-                              </button>
-
-                            )}
-
-                          </div>
-
-                        </div>
-
-                      </div>
-
-                    );
-
-                  });
-
-                })()}
-
-              </div>
-
-                </motion.div>
-
-              )}
-
-            </div>
-
-          )}
-
-
-
-          
-
-
-
-                    
-
-
-
-        </div>
-
-
-
-        {/* Right Side: Routine Composer / Logs */}
-
-        <div className="md:col-span-8 flex flex-col gap-6">
+        {/* Main Panel Content: Routine Composer / Logs */}
+        <div className="w-full flex flex-col gap-6">
 
           
 
