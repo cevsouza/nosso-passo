@@ -116,13 +116,13 @@ const getTargetMonthYear = (monthParam?: number, yearParam?: number) => {
     let m = monthParam;
     let y = yearParam;
     if (m === undefined && typeof window !== 'undefined') {
-      const storedM = localStorage.getItem('tea_active_month');
+      const storedM = sessionStorage.getItem('tea_active_month');
       m = storedM ? parseInt(storedM, 10) : now.getMonth() + 1;
     } else if (m === undefined) {
       m = now.getMonth() + 1;
     }
     if (y === undefined && typeof window !== 'undefined') {
-      const storedY = localStorage.getItem('tea_active_year');
+      const storedY = sessionStorage.getItem('tea_active_year');
       y = storedY ? parseInt(storedY, 10) : now.getFullYear();
     } else if (y === undefined) {
       y = now.getFullYear();

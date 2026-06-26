@@ -2166,7 +2166,7 @@ function ParentDashboardContent() {
 
     if (typeof window !== 'undefined') {
 
-      const saved = localStorage.getItem('tea_active_month');
+      const saved = sessionStorage.getItem('tea_active_month');
 
       if (saved) return parseInt(saved, 10);
 
@@ -2180,7 +2180,7 @@ function ParentDashboardContent() {
 
     if (typeof window !== 'undefined') {
 
-      const saved = localStorage.getItem('tea_active_year');
+      const saved = sessionStorage.getItem('tea_active_year');
 
       if (saved) return parseInt(saved, 10);
 
@@ -2194,7 +2194,7 @@ function ParentDashboardContent() {
 
     if (typeof window !== 'undefined') {
 
-      const saved = localStorage.getItem('tea_active_day');
+      const saved = sessionStorage.getItem('tea_active_day');
 
       if (saved) return saved;
 
@@ -2210,11 +2210,11 @@ function ParentDashboardContent() {
 
     if (typeof window !== 'undefined') {
 
-      localStorage.setItem('tea_active_month', String(activeMonth));
+      sessionStorage.setItem('tea_active_month', String(activeMonth));
 
-      localStorage.setItem('tea_active_year', String(activeYear));
+      sessionStorage.setItem('tea_active_year', String(activeYear));
 
-      localStorage.setItem('tea_active_day', activeDayFilter);
+      sessionStorage.setItem('tea_active_day', activeDayFilter);
 
     }
 
@@ -3533,13 +3533,15 @@ function ParentDashboardContent() {
   // Handle Log Out
 
   const handleLogout = async () => {
-
     playMarimba(261, 0.3);
-
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('tea_active_day');
+      localStorage.removeItem('tea_active_month');
+      localStorage.removeItem('tea_active_year');
+      sessionStorage.clear();
+    }
     await firebaseBridge.auth.signOut();
-
     router.push('/login');
-
   };
 
 
