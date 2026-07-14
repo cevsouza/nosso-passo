@@ -58,13 +58,7 @@ export default function ParentAuth() {
   };
 
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center p-6 bg-slate-50 relative overflow-hidden">
-      {/* Background Soft Glows */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-        <div className="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] bg-blue-300/5 rounded-full filter blur-[120px]" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[50vw] h-[50vw] bg-pink-300/5 rounded-full filter blur-[120px]" />
-      </div>
-
+    <main className="min-h-screen flex flex-col items-center justify-center p-6 bg-[#f7f7fb] relative overflow-hidden">
       {/* Back button and language selector */}
       <div className="absolute top-6 left-6 right-6 z-10 flex justify-between items-center pointer-events-auto">
         <Link 
@@ -121,7 +115,7 @@ export default function ParentAuth() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder={locale === 'en' ? 'name@example.com' : locale === 'es' ? 'nombre@ejemplo.com' : 'nome@exemplo.com'}
-                className="w-full pl-11 pr-4 py-3.5 bg-white border-2 border-slate-300 focus:border-indigo-600 focus:bg-white rounded-xl text-slate-900 placeholder-slate-400 outline-none transition-all text-xs font-bold shadow-xxs focus:ring-4 focus:ring-indigo-100"
+                className="w-full pl-11 pr-4 py-3 bg-white border border-slate-200 focus:border-indigo-500 rounded-xl text-slate-900 placeholder-slate-400 outline-none transition-all text-sm font-semibold focus:ring-2 focus:ring-indigo-200"
               />
             </div>
           </div>
@@ -138,7 +132,7 @@ export default function ParentAuth() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder={t.login.placeholderPassword}
-                className="w-full pl-11 pr-4 py-3.5 bg-white border-2 border-slate-300 focus:border-indigo-600 focus:bg-white rounded-xl text-slate-900 placeholder-slate-400 outline-none transition-all text-xs font-bold shadow-xxs focus:ring-4 focus:ring-indigo-100"
+                className="w-full pl-11 pr-4 py-3 bg-white border border-slate-200 focus:border-indigo-500 rounded-xl text-slate-900 placeholder-slate-400 outline-none transition-all text-sm font-semibold focus:ring-2 focus:ring-indigo-200"
               />
             </div>
           </div>
@@ -146,7 +140,7 @@ export default function ParentAuth() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full mt-3 py-4 grad-primary hover:brightness-105 active:scale-95 text-white font-black rounded-xl text-xs shadow-glow-indigo transition-all flex items-center justify-center gap-2 cursor-pointer uppercase tracking-widest border-b-4 border-indigo-800 font-Outfit"
+            className="w-full mt-3 py-3.5 grad-primary hover:brightness-105 active:scale-95 text-white font-black rounded-xl text-sm transition-all flex items-center justify-center gap-2 cursor-pointer tracking-wide font-Outfit"
           >
             {loading 
               ? t.login.btnProcessing 
