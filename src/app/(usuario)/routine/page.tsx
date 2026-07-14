@@ -3468,7 +3468,7 @@ export default function ChildRoutine() {
             <button 
               onClick={() => handleAttemptExit('/')}
               onMouseEnter={playBubble}
-              className={`flex items-center gap-1.5 px-5 py-3 sm:px-6 sm:py-3.5 text-xs sm:text-sm font-black rounded-full border shadow-sm transition-all active:scale-95 cursor-pointer shrink-0 whitespace-nowrap ${
+              className={`flex items-center gap-1.5 px-3.5 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm font-black rounded-full border shadow-sm transition-all active:scale-95 cursor-pointer shrink-0 whitespace-nowrap ${
                 sleepMode 
                   ? 'bg-slate-905 border-slate-700 text-amber-200 hover:bg-slate-805' 
                   : 'bg-white hover:bg-slate-50 border-slate-350 text-slate-805'
@@ -3480,7 +3480,7 @@ export default function ChildRoutine() {
             <button 
               onClick={() => handleAttemptExit('/dashboard')}
               onMouseEnter={playBubble}
-              className={`flex items-center gap-1.5 px-5 py-3 sm:px-6 sm:py-3.5 text-xs sm:text-sm font-black rounded-full border shadow-sm transition-all active:scale-95 cursor-pointer shrink-0 whitespace-nowrap ${
+              className={`flex items-center gap-1.5 px-3.5 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm font-black rounded-full border shadow-sm transition-all active:scale-95 cursor-pointer shrink-0 whitespace-nowrap ${
                 sleepMode 
                   ? 'bg-slate-905 border-slate-700 text-amber-200 hover:bg-slate-805' 
                   : 'bg-white hover:bg-slate-50 border-slate-350 text-slate-850'
@@ -3495,7 +3495,7 @@ export default function ChildRoutine() {
               <button
                 onClick={() => { playBubble(); setShowSupportMenu(!showSupportMenu); }}
                 onMouseEnter={playBubble}
-                className={`flex items-center gap-1.5 px-5 py-3 sm:px-6 sm:py-3.5 border text-xs sm:text-sm font-black rounded-full shadow-sm transition-all active:scale-95 cursor-pointer shrink-0 whitespace-nowrap ${
+                className={`flex items-center gap-1.5 px-3.5 py-2 sm:px-4 sm:py-2.5 border text-xs sm:text-sm font-black rounded-full shadow-sm transition-all active:scale-95 cursor-pointer shrink-0 whitespace-nowrap ${
                   sleepMode
                     ? 'bg-amber-950/20 border-amber-900/50 text-amber-300 hover:bg-amber-950/55'
                     : 'bg-white hover:bg-indigo-50 border-indigo-250 text-indigo-700'
@@ -3621,7 +3621,7 @@ export default function ChildRoutine() {
             <button
               onClick={() => { playBubble(); setShowAacModal(true); }}
               onMouseEnter={playBubble}
-              className={`flex items-center gap-1.5 px-5 py-3 sm:px-6 sm:py-3.5 border-2 text-xs sm:text-sm font-black rounded-full shadow-premium transition-all active:scale-95 cursor-pointer shrink-0 whitespace-nowrap ${
+              className={`flex items-center gap-1.5 px-3.5 py-2 sm:px-4 sm:py-2.5 border text-xs sm:text-sm font-black rounded-full shadow-sm transition-all active:scale-95 cursor-pointer shrink-0 whitespace-nowrap ${
                 sleepMode
                   ? 'bg-sky-950/20 border-sky-900/50 text-sky-300 hover:bg-sky-950/55'
                   : 'bg-white hover:bg-sky-50 border-sky-250 text-sky-700'
@@ -3642,7 +3642,7 @@ export default function ChildRoutine() {
                 }
               }}
               onMouseEnter={playBubble}
-              className={`flex items-center gap-1.5 px-5 py-3 sm:px-6 sm:py-3.5 text-xs sm:text-sm font-black rounded-full shadow-premium transition-all active:scale-95 cursor-pointer border-2 shrink-0 whitespace-nowrap ${
+              className={`flex items-center gap-1.5 px-3.5 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm font-black rounded-full shadow-sm transition-all active:scale-95 cursor-pointer border shrink-0 whitespace-nowrap ${
                 sleepMode
                   ? 'bg-amber-950/80 border-amber-600 text-amber-200'
                   : 'bg-white hover:bg-amber-50 border-amber-200 text-amber-700'
@@ -3665,7 +3665,7 @@ export default function ChildRoutine() {
                 }
               }}
               onMouseEnter={playBubble}
-              className={`flex items-center gap-1.5 px-5 py-3 sm:px-6 sm:py-3.5 border-2 text-xs sm:text-sm font-black rounded-full shadow-premium transition-all active:scale-95 cursor-pointer font-Outfit shrink-0 whitespace-nowrap ${
+              className={`flex items-center gap-1.5 px-3.5 py-2 sm:px-4 sm:py-2.5 border text-xs sm:text-sm font-black rounded-full shadow-sm transition-all active:scale-95 cursor-pointer font-Outfit shrink-0 whitespace-nowrap ${
                 localCalmMode
                   ? 'bg-teal-500 border-teal-605 text-white animate-pulse'
                   : sleepMode
@@ -3679,10 +3679,10 @@ export default function ChildRoutine() {
             <button
               onClick={handleTriggerSos}
               onMouseEnter={playBubble}
-              className={`flex items-center gap-1.5 px-5 py-3 sm:px-6 sm:py-3.5 border-2 text-xs sm:text-sm font-black rounded-full shadow-premium transition-all active:scale-95 cursor-pointer shrink-0 whitespace-nowrap ${
+              className={`flex items-center gap-1.5 px-3.5 py-2 sm:px-4 sm:py-2.5 border text-xs sm:text-sm font-black rounded-full shadow-sm transition-all active:scale-95 cursor-pointer shrink-0 whitespace-nowrap ${
                 sleepMode 
                   ? 'bg-red-950/20 border-red-900/50 text-red-300 hover:bg-red-950/50' 
-                  : 'bg-red-50 hover:bg-red-100 border-red-250 text-red-650 animate-pulse font-Outfit'
+                  : 'bg-red-50 hover:bg-red-100 border-red-250 text-red-650 font-Outfit'
               }`}
             >
               🚨 SOS
@@ -3692,7 +3692,7 @@ export default function ChildRoutine() {
               <div className="relative">
                 <button
                   onClick={() => { playBubble(); setShowBatteryMenu(!showBatteryMenu); }}
-                  className={`flex items-center gap-1.5 px-5 py-3 sm:px-6 sm:py-3.5 border-2 text-xs sm:text-sm font-black rounded-full shadow-premium transition-all active:scale-95 cursor-pointer shrink-0 whitespace-nowrap ${
+                  className={`flex items-center gap-1.5 px-3.5 py-2 sm:px-4 sm:py-2.5 border text-xs sm:text-sm font-black rounded-full shadow-sm transition-all active:scale-95 cursor-pointer shrink-0 whitespace-nowrap ${
                     activeChild?.emotionalBattery === 'green'
                       ? 'bg-emerald-50 border-emerald-250 text-emerald-700'
                       : activeChild?.emotionalBattery === 'yellow'
@@ -3755,7 +3755,7 @@ export default function ChildRoutine() {
           </div>
 
           <div className="flex items-center gap-3 justify-between md:justify-end">
-            <h2 className={`text-[10px] sm:text-xs font-black border-2 px-3.5 py-2 sm:px-5 sm:py-2.5 rounded-full shadow-premium uppercase tracking-wider font-Outfit leading-none whitespace-nowrap shrink-0 ${
+            <h2 className={`text-[10px] sm:text-xs font-black border px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-full shadow-sm uppercase tracking-wider font-Outfit leading-none whitespace-nowrap shrink-0 ${
               sleepMode ? 'bg-[#090d1a] border-amber-900/50 text-amber-200' : 'bg-white border-slate-350 text-slate-805'
             }`}>
               {(t.common.dayLabels as any)[currentDay] || (locale === 'es' ? `Día ${currentDay} 📅` : locale === 'en' ? `Day ${currentDay} 📅` : `Dia ${currentDay} 📅`)}
@@ -3765,7 +3765,7 @@ export default function ChildRoutine() {
             <div className="relative">
               <button
                 onClick={() => { playBubble(); setShowAmbientMenu(!showAmbientMenu); }}
-                className={`flex items-center gap-1.5 px-5 py-3 sm:px-6 sm:py-3.5 border-2 text-xs sm:text-sm font-black rounded-full shadow-premium transition-all active:scale-95 cursor-pointer font-Outfit ${
+                className={`flex items-center gap-1.5 px-3.5 py-2 sm:px-4 sm:py-2.5 border text-xs sm:text-sm font-black rounded-full shadow-sm transition-all active:scale-95 cursor-pointer font-Outfit ${
                   activeAmbientType !== 'none'
                     ? sleepMode 
                       ? 'bg-blue-950 border-blue-600 text-blue-200' 
