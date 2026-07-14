@@ -38,6 +38,37 @@ export default function TherapistPortal() {
   const [childData, setChildData] = useState<any | null>(null);
   const [activeTab, setActiveTab] = useState<'checkpoints' | 'routine' | 'analysis'>('checkpoints');
 
+  // --- Unified role-aware guest portal ---
+  const role: string = (childData as any)?._role || 'therapist';
+  const canEdit = role === 'therapist';
+  const [logMood, setLogMood] = useState('calmo');
+  const [logCrisis, setLogCrisis] = useState(false);
+  const [logNoise, setLogNoise] = useState('medio');
+  const [logFood, setLogFood] = useState('boa');
+  const [logNotes, setLogNotes] = useState('');
+  const [logBusy, setLogBusy] = useState(false);
+  const [logOk, setLogOk] = useState(false);
+  const submitLog = async () => {
+    if (!childData) return;
+    setLogBusy(true);
+    try {
+      const res = await fetch('/api/sensory-logs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-share-code': sharingCode.trim() },
+        body: JSON.stringify({
+          childId: childData.id, mood: logMood, crisisOccurred: logCrisis,
+          loggedBy: 'school', location: locale === 'en' ? 'School' : locale === 'es' ? 'Escuela' : 'Escola',
+          schoolNoise: logNoise, foodIntake: logFood,
+          notes: logNotes.trim() || (locale === 'en' ? 'School checkpoint' : locale === 'es' ? 'Checkpoint escolar' : 'Checkpoint escolar'),
+        }),
+      });
+      const d = await res.json();
+      if (!res.ok || d.error) throw new Error(d.error || 'Erro');
+      setLogOk(true); setLogNotes(''); setTimeout(() => setLogOk(false), 2500);
+    } catch (e: any) { alert(e.message || 'Erro'); }
+    finally { setLogBusy(false); }
+  };
+
   // Form states for checkpoints
   const [selectedCheckpoint, setSelectedCheckpoint] = useState<any | null>(null);
   const [feedbackText, setFeedbackText] = useState('');
@@ -515,8 +546,8 @@ export default function TherapistPortal() {
                 {childData.gender === 'Feminino' ? '👧' : childData.gender === 'Masculino' ? '👦' : '👶'}
               </div>
               <div className="text-left">
-                <span className="text-[9px] font-black uppercase bg-teal-50 border border-teal-150 text-teal-700 px-3 py-1 rounded-full tracking-wider">
-                  {locale === 'en' ? 'Active Clinical Chart' : locale === 'es' ? 'Historial Clínico Activo' : 'Prontuário Clínico Ativo'}
+                <span className="text-[9px] font-black uppercase bg-indigo-50 border border-indigo-100 text-indigo-700 px-3 py-1 rounded-full tracking-wider">
+                  {role === 'school' ? (locale === 'en' ? 'School access' : locale === 'es' ? 'Acceso escolar' : 'Acesso Escolar') : role === 'readonly' ? (locale === 'en' ? 'Read-only' : locale === 'es' ? 'Solo lectura' : 'Somente Leitura') : (locale === 'en' ? 'Active Clinical Chart' : locale === 'es' ? 'Historial Clínico Activo' : 'Prontuário Clínico Ativo')}
                 </span>
                 <div className="flex items-center gap-2 mt-1">
                   <h1 className="text-2xl font-black text-slate-900 font-Outfit">{childData.name}</h1>
@@ -556,6 +587,63 @@ export default function TherapistPortal() {
               </button>
             </div>
           </div>
+
+          {/* Role banner + school logging (unified portal) */}
+          {role !== 'therapist' && (
+            <div className="bg-white border border-slate-200 rounded-2xl p-4 flex items-center gap-3 print:hidden">
+              <span className="text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-100 shrink-0">
+                {role === 'school' ? (locale === 'en' ? 'School' : locale === 'es' ? 'Escuela' : 'Escola') : (locale === 'en' ? 'Read-only' : locale === 'es' ? 'Solo lectura' : 'Somente leitura')}
+              </span>
+              <span className="text-xs text-slate-500 font-semibold">
+                {role === 'school'
+                  ? (locale === 'en' ? 'View the routine and log observations below. You cannot edit the routine.' : locale === 'es' ? 'Ve la rutina y registra observaciones abajo. No puedes editar la rutina.' : 'Veja a rotina e registre observações abaixo. Você não edita a rotina.')
+                  : (locale === 'en' ? 'View-only access to this chart.' : locale === 'es' ? 'Acceso solo de lectura.' : 'Acesso somente de leitura a este prontuário.')}
+              </span>
+            </div>
+          )}
+
+          {role === 'school' && (
+            <div className="bg-white border border-slate-200 rounded-2xl p-5 flex flex-col gap-4 print:hidden">
+              <h3 className="text-sm font-black text-slate-800 font-Outfit flex items-center gap-2">
+                <ClipboardCheck className="w-4.5 h-4.5 text-indigo-600" /> {locale === 'en' ? 'Sensory log' : locale === 'es' ? 'Registro sensorial' : 'Registro sensorial'}
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <label className="flex flex-col gap-1.5 text-[10px] font-black text-slate-400 uppercase tracking-wider">
+                  {locale === 'en' ? 'Mood' : locale === 'es' ? 'Ánimo' : 'Humor'}
+                  <select value={logMood} onChange={e => setLogMood(e.target.value)} className="px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm font-semibold text-slate-700 outline-none focus:border-indigo-500 cursor-pointer normal-case">
+                    <option value="feliz">😀 {locale === 'en' ? 'Happy' : 'Feliz'}</option>
+                    <option value="calmo">😌 {locale === 'en' ? 'Calm' : locale === 'es' ? 'Tranquilo' : 'Calmo'}</option>
+                    <option value="agitado">😣 {locale === 'en' ? 'Agitated' : 'Agitado'}</option>
+                    <option value="triste">😢 {locale === 'en' ? 'Sad' : locale === 'es' ? 'Triste' : 'Triste'}</option>
+                  </select>
+                </label>
+                <label className="flex flex-col gap-1.5 text-[10px] font-black text-slate-400 uppercase tracking-wider">
+                  {locale === 'en' ? 'Noise' : locale === 'es' ? 'Ruido' : 'Ruído'}
+                  <select value={logNoise} onChange={e => setLogNoise(e.target.value)} className="px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm font-semibold text-slate-700 outline-none focus:border-indigo-500 cursor-pointer normal-case">
+                    <option value="baixo">{locale === 'en' ? 'Low' : locale === 'es' ? 'Bajo' : 'Baixo'}</option>
+                    <option value="medio">{locale === 'en' ? 'Medium' : locale === 'es' ? 'Medio' : 'Médio'}</option>
+                    <option value="alto">{locale === 'en' ? 'High' : locale === 'es' ? 'Alto' : 'Alto'}</option>
+                  </select>
+                </label>
+                <label className="flex flex-col gap-1.5 text-[10px] font-black text-slate-400 uppercase tracking-wider">
+                  {locale === 'en' ? 'Food' : locale === 'es' ? 'Comida' : 'Alimentação'}
+                  <select value={logFood} onChange={e => setLogFood(e.target.value)} className="px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm font-semibold text-slate-700 outline-none focus:border-indigo-500 cursor-pointer normal-case">
+                    <option value="boa">{locale === 'en' ? 'Good' : locale === 'es' ? 'Buena' : 'Boa'}</option>
+                    <option value="parcial">{locale === 'en' ? 'Partial' : 'Parcial'}</option>
+                    <option value="recusou">{locale === 'en' ? 'Refused' : locale === 'es' ? 'Rechazó' : 'Recusou'}</option>
+                  </select>
+                </label>
+              </div>
+              <label className="flex items-center gap-2 text-xs font-bold text-slate-600">
+                <input type="checkbox" checked={logCrisis} onChange={e => setLogCrisis(e.target.checked)} className="w-4 h-4 accent-indigo-600" />
+                {locale === 'en' ? 'A crisis occurred today' : locale === 'es' ? 'Hubo una crisis hoy' : 'Houve uma crise hoje'}
+              </label>
+              <textarea value={logNotes} onChange={e => setLogNotes(e.target.value)} rows={2} placeholder={locale === 'en' ? 'Notes (optional)' : locale === 'es' ? 'Notas (opcional)' : 'Observações (opcional)'} className="px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm text-slate-700 outline-none focus:border-indigo-500 resize-none" />
+              <button onClick={submitLog} disabled={logBusy} className="self-start inline-flex items-center gap-2 px-4 py-2.5 grad-primary text-white text-sm font-black rounded-lg cursor-pointer active:scale-95 disabled:opacity-50 transition-all font-Outfit">
+                {logBusy ? '...' : logOk ? (locale === 'en' ? 'Saved ✓' : locale === 'es' ? 'Guardado ✓' : 'Registrado ✓') : (locale === 'en' ? 'Log observation' : locale === 'es' ? 'Registrar' : 'Registrar')}
+              </button>
+            </div>
+          )}
 
           {/* Sticky Tab Bar Container for Therapist Portal */}
           <div className="sticky top-[130px] md:top-[80px] z-20 bg-[#f2f0fc]/95 backdrop-blur-md py-3 -mx-2 px-2 print:hidden">
