@@ -3,94 +3,143 @@
 
 
 @theme {
-  /* Override Indigo to a gorgeous premium Blue */
-  --color-indigo-50: #f0f7ff;
-  --color-indigo-100: #e0effe;
-  --color-indigo-150: #c2e0fc;
-  --color-indigo-200: #bae0fd;
-  --color-indigo-300: #7dd0fc;
-  --color-indigo-400: #38bdf8;
-  --color-indigo-500: #0ea5e9;
-  --color-indigo-600: #0284c7;
-  --color-indigo-650: #0369a1;
-  --color-indigo-700: #0369a1;
-  --color-indigo-750: #075985;
-  --color-indigo-755: #075985;
-  --color-indigo-800: #075985;
-  --color-indigo-850: #0c4a6e;
-  --color-indigo-900: #0c4a6e;
-  --color-indigo-950: #082f49;
+  /* ===== Calm & Minimalist palette =====
+     Token names kept stable (slate/indigo/rose) so thousands of existing
+     classNames map to the new calm colors. Values retuned for low arousal. */
 
-  /* Customize Rose/Pink to a premium soft Pink */
-  --color-rose-50: #fff1f2;
-  --color-rose-100: #ffe4e6;
-  --color-rose-150: #fecdd3;
-  --color-rose-200: #fecdd3;
-  --color-rose-300: #fda4af;
-  --color-rose-400: #fb7185;
-  --color-rose-500: #f43f5e;
-  --color-rose-600: #e11d48;
-  --color-rose-700: #be123c;
-  --color-rose-800: #9f1239;
-  --color-rose-900: #881337;
-  --color-rose-950: #4c0519;
+  /* Neutrals — true cool grays (de-pinked). Base of the whole app. */
+  --color-slate-50:  #f8fafc;
+  --color-slate-100: #f1f5f9;
+  --color-slate-105: #f1f5f9;
+  --color-slate-150: #eaeff4;
+  --color-slate-200: #e3e8ee;
+  --color-slate-205: #e3e8ee;
+  --color-slate-250: #d8dee6;
+  --color-slate-255: #d8dee6;
+  --color-slate-300: #cbd5e1;
+  --color-slate-350: #b7c2ce;
+  --color-slate-355: #b7c2ce;
+  --color-slate-400: #94a3b8;
+  --color-slate-405: #94a3b8;
+  --color-slate-450: #7d8b9c;
+  --color-slate-455: #7d8b9c;
+  --color-slate-500: #64748b;
+  --color-slate-505: #64748b;
+  --color-slate-550: #576373;
+  --color-slate-600: #475569;
+  --color-slate-605: #475569;
+  --color-slate-650: #3d4859;
+  --color-slate-655: #3d4859;
+  --color-slate-700: #334155;
+  --color-slate-705: #334155;
+  --color-slate-707: #334155;
+  --color-slate-750: #2b3648;
+  --color-slate-755: #2b3648;
+  --color-slate-800: #1e293b;
+  --color-slate-805: #1e293b;
+  --color-slate-850: #172033;
+  --color-slate-855: #172033;
+  --color-slate-900: #0f172a;
+  --color-slate-905: #0f172a;
+  --color-slate-950: #020617;
+  --color-slate-955: #020617;
 
-  /* Override slate borders and bgs to soft pinks for a blue/pink dual theme */
-  --color-slate-50: #fff5f7;
-  --color-slate-100: #fdf2f8;
-  --color-slate-200: #fbcfe8;
-  --color-slate-250: #f9a8d4;
+  /* Primary — calm, desaturated teal-blue (petrol). Replaces the loud sky. */
+  --color-indigo-50:  #eef5f5;
+  --color-indigo-100: #dcebeb;
+  --color-indigo-150: #c6dedd;
+  --color-indigo-200: #aecfce;
+  --color-indigo-250: #93bdbc;
+  --color-indigo-300: #78acab;
+  --color-indigo-305: #78acab;
+  --color-indigo-400: #4f918f;
+  --color-indigo-500: #367d7b;
+  --color-indigo-600: #2c6a68;
+  --color-indigo-650: #276160;
+  --color-indigo-655: #276160;
+  --color-indigo-700: #23504f;
+  --color-indigo-750: #1e4443;
+  --color-indigo-755: #1e4443;
+  --color-indigo-800: #193a39;
+  --color-indigo-805: #193a39;
+  --color-indigo-850: #142f2e;
+  --color-indigo-900: #102625;
+  --color-indigo-950: #0b1a19;
+  --color-indigo-955: #0b1a19;
+
+  /* Accent / alerts — soft muted coral (used sparingly). */
+  --color-rose-50:  #fbf3f1;
+  --color-rose-100: #f6e3de;
+  --color-rose-200: #ecc6bd;
+  --color-rose-300: #e0a99c;
+  --color-rose-355: #d99789;
+  --color-rose-400: #d4897a;
+  --color-rose-455: #cd7a69;
+  --color-rose-500: #c56a58;
+  --color-rose-600: #b05646;
+  --color-rose-655: #9c4c3e;
+  --color-rose-700: #934838;
+  --color-rose-750: #7e3d30;
+  --color-rose-900: #5a2a22;
+  --color-rose-950: #3f1d17;
+  --color-rose-955: #3f1d17;
 }
 
 :root {
-  /* Colors - Modern, High-Contrast & Premium (Blue & Pink) */
-  --bg-color: #fdf2f8;
-  --text-primary: #082f49;
-  --text-secondary: #0f172a;
-  
-  --primary: #0284c7;
-  --primary-light: #fce7f3;
-  --primary-hover: #0369a1;
-  
-  --success: #16a34a;
-  --success-light: #dcfce7;
-  --success-hover: #15803d;
-  
-  --warning: #d97706;
-  --warning-light: #fef3c7;
-  
-  --danger: #dc2626;
-  --danger-light: #fee2e2;
-  
-  --card-bg: rgba(255, 255, 255, 0.95);
-  --card-border: rgba(148, 163, 184, 0.35);
-  --card-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.06), 0 4px 12px -2px rgba(15, 23, 42, 0.03);
-  
+  /* Semantic tokens — calm, high-legibility */
+  --bg-color: #f6f8f9;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+
+  --primary: #2c6a68;
+  --primary-light: #e4eeee;
+  --primary-hover: #23504f;
+
+  --success: #4b8b6f;
+  --success-light: #e0efe7;
+  --success-hover: #3e7760;
+
+  --warning: #b5822f;
+  --warning-light: #f3e8d2;
+
+  --danger: #c15a4e;
+  --danger-light: #f2ddd8;
+
+  --card-bg: #ffffff;
+  --card-border: rgba(15, 23, 42, 0.08);
+  --card-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 8px 24px -12px rgba(15, 23, 42, 0.10);
+
   --radius-sm: 10px;
-  --radius-md: 20px;
-  --radius-lg: 32px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
   --radius-full: 9999px;
-  
-  --transition-fast: 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-  --transition-normal: 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* Gentle, non-overshooting motion */
+  --transition-fast: 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 0.28s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .dark {
-  --bg-color: #0c0a12;
-  --text-primary: #f8fafc;
-  --text-secondary: #cbd5e1;
-  --card-bg: rgba(23, 19, 35, 0.85);
-  --card-border: rgba(249, 168, 212, 0.15);
-  --card-shadow: 0 10px 35px -5px rgba(0, 0, 0, 0.6);
+  --bg-color: #0f1317;
+  --text-primary: #f1f5f9;
+  --text-secondary: #b7c2ce;
+  --card-bg: rgba(24, 30, 38, 0.92);
+  --card-border: rgba(148, 163, 184, 0.14);
+  --card-shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 10px 30px -14px rgba(0, 0, 0, 0.6);
 
-  --primary: #38bdf8;
-  --primary-light: #2c1a35;
-  --primary-hover: #0ea5e9;
+  --primary: #4f918f;
+  --primary-light: #17302f;
+  --primary-hover: #367d7b;
 
-  --color-slate-50: #1b1626;
-  --color-slate-100: #1e182b;
-  --color-slate-200: #392c4f;
-  --color-slate-250: #4a3a63;
+  /* Dark neutrals for the overridden light slate steps */
+  --color-slate-50:  #171b21;
+  --color-slate-100: #1b2028;
+  --color-slate-105: #1b2028;
+  --color-slate-150: #202631;
+  --color-slate-200: #2a313d;
+  --color-slate-205: #2a313d;
+  --color-slate-250: #333c49;
+  --color-slate-255: #333c49;
 }
 
 * {
@@ -113,16 +162,14 @@ body {
 h1, h2, h3, h4, h5, h6 {
   font-family: 'Outfit', sans-serif;
   font-weight: 800;
-  letter-spacing: -0.025em;
+  letter-spacing: -0.02em;
   color: var(--text-primary);
 }
 
-/* Glassmorphism utility */
+/* Card surface (flat, calm — no glass blur) */
 .glass {
   background: var(--card-bg);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 2px solid var(--card-border);
+  border: 1px solid var(--card-border);
   box-shadow: var(--card-shadow);
   border-radius: var(--radius-md);
 }
@@ -136,7 +183,7 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: 800;
   font-family: 'Outfit', sans-serif;
   border-radius: var(--radius-full);
-  border: 2px solid transparent;
+  border: 1px solid transparent;
   cursor: pointer;
   transition: all var(--transition-fast);
   text-decoration: none;
@@ -144,51 +191,49 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .btn:active {
-  transform: scale(0.96);
+  transform: scale(0.97);
 }
 
 .btn-primary {
   background-color: var(--primary);
   color: white;
-  box-shadow: 0 4px 14px rgba(79, 70, 229, 0.3);
+  box-shadow: 0 2px 8px rgba(44, 106, 104, 0.18);
 }
 
 .btn-primary:hover {
   background-color: var(--primary-hover);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(79, 70, 229, 0.4);
+  box-shadow: 0 4px 12px rgba(44, 106, 104, 0.22);
 }
 
 .btn-success {
   background-color: var(--success);
   color: white;
-  box-shadow: 0 4px 14px rgba(22, 163, 74, 0.3);
+  box-shadow: 0 2px 8px rgba(75, 139, 111, 0.18);
 }
 
 .btn-success:hover {
   background-color: var(--success-hover);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(22, 163, 74, 0.4);
+  box-shadow: 0 4px 12px rgba(75, 139, 111, 0.22);
 }
 
-/* Animations */
+/* Animations — restrained. Entrance pop kept subtle; ambient loops disabled. */
 @keyframes pop {
-  0% { transform: scale(0.8); opacity: 0; }
+  0% { transform: scale(0.96); opacity: 0; }
   100% { transform: scale(1); opacity: 1; }
 }
 
-@keyframes float {
-  0% { transform: translateY(0px); }
-  50% { transform: translateY(-10px); }
-  100% { transform: translateY(0px); }
-}
-
 .animate-pop {
-  animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  animation: pop 0.28s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
+/* Ambient loops removed for a low-arousal experience */
 .animate-float {
-  animation: float 3s ease-in-out infinite;
+  animation: none;
+}
+
+.animate-gradient-flow {
+  background-size: 200% 200%;
+  animation: none;
 }
 
 /* Layout Utilities */
@@ -205,33 +250,33 @@ h1, h2, h3, h4, h5, h6 {
   flex-direction: column;
 }
 
-/* Shifting animated ambient background */
-@keyframes gradient-flow {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-.animate-gradient-flow {
-  background-size: 300% 300%;
-  animation: gradient-flow 16s ease infinite;
-}
-
-/* Modern tactile drop shadows */
+/* Calm, subtle depth (glows softened to neutral shadows) */
 .shadow-premium {
-  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.03), 0 1px 3px rgba(0, 0, 0, 0.01);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 10px 28px -16px rgba(15, 23, 42, 0.12);
 }
 
 .shadow-glow-blue {
-  box-shadow: 0 20px 35px -10px rgba(59, 130, 246, 0.18);
+  box-shadow: 0 10px 26px -14px rgba(44, 106, 104, 0.22);
 }
 
 .shadow-glow-green {
-  box-shadow: 0 20px 35px -10px rgba(16, 185, 129, 0.22);
+  box-shadow: 0 10px 26px -14px rgba(75, 139, 111, 0.22);
 }
 
 .shadow-glow-indigo {
-  box-shadow: 0 20px 35px -10px rgba(99, 102, 241, 0.18);
+  box-shadow: 0 10px 26px -14px rgba(44, 106, 104, 0.20);
+}
+
+/* Respect reduced-motion: kill all animation/transition (sensory safety) */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 /* Print stylesheets for PECS and Therapist Clinical Reports */
@@ -246,7 +291,7 @@ h1, h2, h3, h4, h5, h6 {
   nav {
     display: none !important;
   }
-  
+
   body, html {
     background: white !important;
     color: black !important;
