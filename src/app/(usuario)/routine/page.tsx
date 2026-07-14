@@ -3882,20 +3882,20 @@ export default function ChildRoutine() {
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.97 }}
                     transition={transitionConfig}
-                    className={`bg-white border border-slate-200/70 rounded-[28px] p-8 shadow-premium flex flex-col lg:grid lg:grid-cols-12 lg:gap-8 items-center justify-center text-center gap-6 relative overflow-hidden transition-all duration-500 border-t-4 border-t-transparent md:col-span-${showWaitTimer ? '8' : '12'} ${category.shadow}`}
+                    className={`bg-white border border-slate-200/70 rounded-[32px] p-8 shadow-premium flex flex-col lg:grid lg:grid-cols-12 lg:gap-8 items-center justify-center text-center gap-6 relative overflow-hidden transition-all duration-500 border-t-4 border-t-transparent md:col-span-${showWaitTimer ? '8' : '12'} ${category.shadow}`}
                   >
                     {/* Glowing outer soft neon reflection underneath */}
                     {effectiveVisuals === 'rich' && (
                       <div className={`absolute -inset-4 bg-gradient-to-tr ${category.gradient} opacity-5 filter blur-3xl -z-10`}></div>
                     )}
 
-                    {/* Dynamic gradient background hint underlay */}
-                    <div className={`absolute top-0 inset-x-0 h-2 bg-gradient-to-r ${category.gradient}`}></div>
+                    {/* Signature gradient accent bar */}
+                    <div className="absolute top-0 inset-x-0 h-1.5 grad-primary"></div>
 
                     {/* Left Column: Task Illustration, Details, Timer */}
                     <div className="flex flex-col items-center gap-5 w-full lg:col-span-6">
                       <div className="flex flex-col items-center gap-2">
-                      <div className="relative">
+                      <div className="relative grad-soft rounded-[30px] p-3 shadow-xxs">
                         <RoutineIllustration category={activeTask.title} size={150} hyperfocus={childHyperfocus} />
                         {(activeTask.customIcon || activeTask.icon) && (
                           <div className="absolute top-0 right-0 w-14 h-14 bg-white border-4 border-indigo-100 text-slate-700 rounded-2xl flex items-center justify-center text-4xl shadow-md overflow-hidden select-none transform rotate-12">
@@ -3909,8 +3909,8 @@ export default function ChildRoutine() {
                       </div>
                       
                       <div className="flex gap-2 items-center flex-wrap justify-center mt-2">
-                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-800 bg-slate-100 border border-slate-200/60 px-3.5 py-1.5 rounded-full shadow-xxs flex items-center gap-1">
-                          🚀 {locale === 'en' ? 'Current Mission' : locale === 'es' ? 'Misión Actual' : 'Missão Atual'}
+                        <span className="text-[10px] font-black uppercase tracking-widest text-rose-700 bg-rose-100 border border-rose-200 px-3.5 py-1.5 rounded-full shadow-xxs flex items-center gap-1">
+                          ✨ {locale === 'en' ? 'Current Mission' : locale === 'es' ? 'Misión Actual' : 'Missão Atual'}
                         </span>
                         <span className={`text-[10px] font-black uppercase tracking-widest px-3.5 py-1.5 rounded-full border shadow-xxs ${category.tagClass}`}>
                           {category.label}
