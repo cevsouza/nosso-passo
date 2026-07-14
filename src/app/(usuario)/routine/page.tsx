@@ -3718,8 +3718,8 @@ export default function ChildRoutine() {
 
       <div className="w-full max-w-2xl md:max-w-5xl flex flex-col md:grid md:grid-cols-12 gap-6 z-10 px-4 md:px-6">
         
-        {/* Token Economy Stars Row */}
-        {activeChild && !sleepMode && showTokensHeader && (
+        {/* Token Economy Stars Row — moved to the optional Rewards layer, off the main routine screen */}
+        {false && activeChild && !sleepMode && showTokensHeader && (
           <div className="bg-white border border-slate-200 p-4 rounded-[20px] shadow-sm flex flex-col sm:flex-row items-center justify-between gap-3 w-full md:col-span-12 order-last">
             <div className="flex items-center gap-2">
               <span className="text-xl">🪙</span>

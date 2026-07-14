@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Plus_Jakarta_Sans, Fredoka } from "next/font/google";
+import { Plus_Jakarta_Sans, Manrope } from "next/font/google";
 import { LanguageProvider } from "@/lib/LanguageContext";
 import "./globals.css";
 
@@ -11,13 +11,13 @@ const jakarta = Plus_Jakarta_Sans({
   display: "swap",
 });
 
-// Display / headings / chrome — rounded, playful but refined.
+// Display / headings / chrome — clean humanist (Workspace-elegant).
 // Kept on the --font-outfit variable so the `font-Outfit` class used across the
-// app keeps working (the variable name is historical; it now holds Fredoka).
-const fredoka = Fredoka({
+// app keeps working (the variable name is historical; it now holds Manrope).
+const manrope = Manrope({
   variable: "--font-outfit",
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+  weight: ["400", "500", "600", "700", "800"],
   display: "swap",
 });
 
@@ -47,7 +47,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR">
-      <body className={`${jakarta.variable} ${fredoka.variable}`}>
+      <body className={`${jakarta.variable} ${manrope.variable}`}>
         <script
           dangerouslySetInnerHTML={{
             __html: `
