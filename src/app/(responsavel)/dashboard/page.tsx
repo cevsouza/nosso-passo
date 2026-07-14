@@ -2420,7 +2420,7 @@ function ParentDashboardContent() {
 
   };
 
-  const [activePanelTab, setActivePanelTab] = useState<'tasks' | 'feedback' | 'tools'>('tasks');
+  const [activePanelTab, setActivePanelTab] = useState<'hoje' | 'tasks' | 'feedback' | 'tools'>('hoje');
   const [activeFeedbackSubTab, setActiveFeedbackSubTab] = useState<'checkpoints' | 'reports'>('checkpoints');
   const [activeToolsSubTab, setActiveToolsSubTab] = useState<'config' | 'logs'>('config');
 
@@ -7076,14 +7076,25 @@ function ParentDashboardContent() {
           <div className="sticky top-[130px] md:top-[80px] z-20 bg-[#f8fafc]/95 backdrop-blur-md py-3 -mx-2 px-2">
             <div className="bg-slate-100 border border-slate-200 p-1 rounded-xl flex gap-1 overflow-x-auto scrollbar-none">
               <button
-                onClick={() => { playBubble(); setActivePanelTab('tasks'); }}
+                onClick={() => { playBubble(); setActivePanelTab('hoje'); }}
                 className={`flex-1 py-2.5 text-xs font-black rounded-xl transition-all flex items-center justify-center gap-2 shrink-0 font-Outfit cursor-pointer select-none active:scale-95 ${
-                  activePanelTab === 'tasks' 
-                    ? 'grad-primary text-white shadow-sm border border-transparent scale-100' 
+                  activePanelTab === 'hoje'
+                    ? 'grad-primary text-white shadow-sm border border-transparent scale-100'
                     : 'text-slate-655 hover:text-slate-900 hover:bg-white/40 border border-transparent'
                 }`}
               >
-                <ListTodo className="w-4.5 h-4.5" /> {locale === 'es' ? 'Agenda 📅' : locale === 'en' ? 'Schedule 📅' : 'Agenda'}
+                <span className="text-sm">🏠</span> {locale === 'es' ? 'Hoy' : locale === 'en' ? 'Today' : 'Hoje'}
+              </button>
+
+              <button
+                onClick={() => { playBubble(); setActivePanelTab('tasks'); }}
+                className={`flex-1 py-2.5 text-xs font-black rounded-xl transition-all flex items-center justify-center gap-2 shrink-0 font-Outfit cursor-pointer select-none active:scale-95 ${
+                  activePanelTab === 'tasks'
+                    ? 'grad-primary text-white shadow-sm border border-transparent scale-100'
+                    : 'text-slate-655 hover:text-slate-900 hover:bg-white/40 border border-transparent'
+                }`}
+              >
+                <ListTodo className="w-4.5 h-4.5" /> {locale === 'es' ? 'Rutina' : locale === 'en' ? 'Routine' : 'Rotina'}
               </button>
 
               <button
@@ -7094,7 +7105,7 @@ function ParentDashboardContent() {
                     : 'text-slate-655 hover:text-slate-900 hover:bg-white/40 border border-transparent'
                 }`}
               >
-                <span className="text-sm">🤝</span> {locale === 'es' ? 'Retorno de la Red' : locale === 'en' ? 'Network Feedback' : 'Retorno da Rede'}
+                <span className="text-sm">📈</span> {locale === 'es' ? 'Seguimiento' : locale === 'en' ? 'Progress' : 'Acompanhamento'}
               </button>
 
               <button
@@ -7105,7 +7116,7 @@ function ParentDashboardContent() {
                     : 'text-slate-655 hover:text-slate-900 hover:bg-white/40 border border-transparent'
                 }`}
               >
-                <Settings className="w-4.5 h-4.5" /> {locale === 'es' ? 'Configuraciones' : locale === 'en' ? 'Settings & Logs' : 'Configurações & Logs'}
+                <Settings className="w-4.5 h-4.5" /> {locale === 'es' ? 'Ajustes' : locale === 'en' ? 'Settings' : 'Config'}
               </button>
             </div>
           </div>
@@ -7165,7 +7176,88 @@ function ParentDashboardContent() {
           )}
 
           <AnimatePresence mode="wait">
-            {activePanelTab === 'tasks' ? (
+            {activePanelTab === 'hoje' ? (
+              <motion.div
+                key="hoje-panel"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+                className="flex flex-col gap-6"
+              >
+                {(() => {
+                  const todayNum = new Date().getDate().toString();
+                  const dayTasks = tasks.filter(t => t.day === todayNum).sort((a, b) => a.time.localeCompare(b.time));
+                  const done = dayTasks.filter(t => t.isCompleted).length;
+                  const total = dayTasks.length;
+                  const nowTask = dayTasks.find(t => !t.isCompleted);
+                  const mood = activeChild?.emotionalBattery === 'green' ? (locale === 'en' ? 'Great' : locale === 'es' ? 'Bien' : 'Ótimo')
+                    : activeChild?.emotionalBattery === 'yellow' ? (locale === 'en' ? 'Tired' : locale === 'es' ? 'Cansado' : 'Cansado')
+                    : activeChild?.emotionalBattery === 'red' ? (locale === 'en' ? 'Overloaded' : locale === 'es' ? 'Sobrecargado' : 'Sobrecarregado')
+                    : '—';
+                  return (
+                    <>
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div>
+                          <h2 className="text-2xl font-black font-Outfit text-slate-900 tracking-tight">{locale === 'en' ? 'Today' : locale === 'es' ? 'Hoy' : 'Hoje'}{activeChild ? ` · ${activeChild.name.split(' ')[0]}` : ''}</h2>
+                          <p className="text-sm text-slate-500 font-medium mt-0.5">{locale === 'en' ? "The day's routine at a glance." : locale === 'es' ? 'La rutina del día de un vistazo.' : 'A rotina do dia num relance.'}</p>
+                        </div>
+                        <button
+                          onClick={() => { playBubble(); router.push('/routine'); }}
+                          className="shrink-0 inline-flex items-center justify-center gap-2 px-5 py-3 grad-primary text-white text-sm font-black rounded-xl cursor-pointer active:scale-95 transition-all font-Outfit"
+                        >
+                          ▶ {locale === 'en' ? 'Open Child Mode' : locale === 'es' ? 'Abrir Modo Niño' : 'Abrir Modo Criança'}
+                        </button>
+                      </div>
+
+                      <div className="grid grid-cols-3 gap-3">
+                        <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4">
+                          <div className="text-[10px] font-black uppercase tracking-wider text-slate-400">{locale === 'en' ? 'Done' : locale === 'es' ? 'Hechas' : 'Feitas'}</div>
+                          <div className="text-2xl font-black text-indigo-700 font-Outfit mt-0.5 tabular-nums">{done}<span className="text-sm text-slate-400"> / {total}</span></div>
+                        </div>
+                        <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4">
+                          <div className="text-[10px] font-black uppercase tracking-wider text-slate-400">{locale === 'en' ? 'Mood' : locale === 'es' ? 'Ánimo' : 'Humor'}</div>
+                          <div className="text-lg font-black text-indigo-700 font-Outfit mt-1">{mood}</div>
+                        </div>
+                        <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4">
+                          <div className="text-[10px] font-black uppercase tracking-wider text-slate-400">{locale === 'en' ? 'Stars' : locale === 'es' ? 'Estrellas' : 'Estrelas'}</div>
+                          <div className="text-2xl font-black text-indigo-700 font-Outfit mt-0.5 tabular-nums">{activeChild?.tokens || 0}</div>
+                        </div>
+                      </div>
+
+                      {nowTask && (
+                        <div className="bg-white border border-slate-200 rounded-2xl p-5 flex items-center gap-4">
+                          <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 min-w-[44px]">{locale === 'en' ? 'Now' : locale === 'es' ? 'Ahora' : 'Agora'}</span>
+                          <span className="text-2xl select-none">{nowTask.icon || '📌'}</span>
+                          <div className="flex-1 min-w-0">
+                            <div className="font-black text-slate-800 truncate font-Outfit">{nowTask.title}</div>
+                            <div className="text-xs text-slate-500 tabular-nums">{nowTask.time}</div>
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="flex flex-col">
+                        <div className="flex items-center justify-between mb-1">
+                          <h3 className="text-sm font-black text-slate-700 font-Outfit">{locale === 'en' ? "Today's routine" : locale === 'es' ? 'Rutina de hoy' : 'Rotina de hoje'}</h3>
+                          <button onClick={() => { playBubble(); setActivePanelTab('tasks'); }} className="text-xs font-black text-indigo-700 hover:text-indigo-900 cursor-pointer bg-transparent border-none">{locale === 'en' ? 'Edit' : locale === 'es' ? 'Editar' : 'Editar'}</button>
+                        </div>
+                        {total === 0 ? (
+                          <p className="text-sm text-slate-400 py-8 text-center">{locale === 'en' ? 'No activities today.' : locale === 'es' ? 'Sin actividades hoy.' : 'Sem atividades para hoje.'}</p>
+                        ) : dayTasks.map(task => (
+                          <div key={task.id} className="flex items-center gap-3 py-3 border-t border-slate-100">
+                            <span className="text-xs text-slate-400 tabular-nums w-11 shrink-0">{task.time}</span>
+                            <span className="text-lg select-none shrink-0">{task.icon || '📌'}</span>
+                            <span className="flex-1 text-sm font-semibold text-slate-700 truncate">{task.title}</span>
+                            {task.isCompleted
+                              ? <span className="text-[10px] font-black text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded shrink-0">{locale === 'en' ? 'done' : locale === 'es' ? 'hecho' : 'feito'}</span>
+                              : <span className="text-slate-300 shrink-0">•</span>}
+                          </div>
+                        ))}
+                      </div>
+                    </>
+                  );
+                })()}
+              </motion.div>
+            ) : activePanelTab === 'tasks' ? (
 
               
 
