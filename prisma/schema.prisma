@@ -65,6 +65,22 @@ model Child {
   tasks           Task[]
   sensoryLogs     SensoryLog[]
   checkpoints     Checkpoint[]
+  accessCodes     AccessCode[]
+}
+
+// Role-scoped, revocable, expiring access codes for the support network.
+// Replaces the single always-on Child.sharingCode (kept for backward compat).
+model AccessCode {
+  id         String    @id @default(cuid())
+  code       String    @unique
+  role       String    @default("therapist") // "therapist" | "school" | "readonly"
+  label      String    @default("")           // professional / school name
+  revoked    Boolean   @default(false)
+  expiresAt  DateTime?
+  lastUsedAt DateTime?
+  createdAt  DateTime  @default(now())
+  childId    String
+  child      Child     @relation(fields: [childId], references: [id], onDelete: Cascade)
 }
 
 model Task {
