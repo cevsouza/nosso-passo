@@ -3617,22 +3617,6 @@ export default function ChildRoutine() {
                         📖 {locale === 'en' ? 'Stories' : locale === 'es' ? 'Historias' : 'Histórias'}
                       </button>
                       )}
-                      {!sleepMode && showMyWorld && (
-                      <button
-                        onClick={() => { playBubble(); setShowHyperfocusModal(true); setShowSupportMenu(false); }}
-                        className="flex items-center gap-2 w-full px-4 py-2 text-left text-xs font-bold rounded-xl transition-colors border-none bg-transparent cursor-pointer hover:bg-slate-50 text-slate-705"
-                      >
-                        🎮 Meu Mundo ({activeChild?.collectedParts || 0}/4)
-                      </button>
-                      )}
-                      {!sleepMode && showShop && (
-                      <button
-                        onClick={() => { playBubble(); setShowShopModal(true); setShowSupportMenu(false); }}
-                        className="flex items-center gap-2 w-full px-4 py-2 text-left text-xs font-bold rounded-xl transition-colors border-none bg-transparent cursor-pointer hover:bg-slate-50 text-slate-705"
-                      >
-                        🛒 {locale === 'en' ? 'Mascot Shop' : locale === 'es' ? 'Tienda del Mascota' : 'Loja do Mascote'}
-                      </button>
-                      )}
                       {!sleepMode && showNoiseMonitor && (
                       <button
                         onClick={() => {
@@ -3666,10 +3650,35 @@ export default function ChildRoutine() {
                     </>
                   )}
 
-                  {/* Ambiente: modo sono + sons */}
+                  {/* Recompensas — camada opcional de gamificacao */}
+                  {!sleepMode && (showMyWorld || showShop) && (
+                    <>
+                      <span className="px-3 pt-2 pb-1 text-[9px] font-black uppercase tracking-wider text-slate-400">
+                        {locale === 'en' ? 'Rewards' : locale === 'es' ? 'Recompensas' : 'Recompensas'}
+                      </span>
+                      {showMyWorld && (
+                      <button
+                        onClick={() => { playBubble(); setShowHyperfocusModal(true); setShowSupportMenu(false); }}
+                        className="flex items-center gap-2 w-full px-4 py-2 text-left text-xs font-bold rounded-xl transition-colors border-none bg-transparent cursor-pointer hover:bg-slate-50 text-slate-705"
+                      >
+                        🎮 Meu Mundo ({activeChild?.collectedParts || 0}/4)
+                      </button>
+                      )}
+                      {showShop && (
+                      <button
+                        onClick={() => { playBubble(); setShowShopModal(true); setShowSupportMenu(false); }}
+                        className="flex items-center gap-2 w-full px-4 py-2 text-left text-xs font-bold rounded-xl transition-colors border-none bg-transparent cursor-pointer hover:bg-slate-50 text-slate-705"
+                      >
+                        🛒 {locale === 'en' ? 'Mascot Shop' : locale === 'es' ? 'Tienda del Mascota' : 'Loja do Mascote'}
+                      </button>
+                      )}
+                    </>
+                  )}
+
+                  {/* Kit calma: modo sono + sons */}
                   {(showSleepMode || (showAmbient && !sleepMode)) && (
                     <span className={`px-3 pt-2 pb-1 text-[9px] font-black uppercase tracking-wider ${sleepMode ? 'text-amber-200/50' : 'text-slate-400'}`}>
-                      {locale === 'en' ? 'Environment' : locale === 'es' ? 'Ambiente' : 'Ambiente'}
+                      {locale === 'en' ? 'Calm kit' : locale === 'es' ? 'Kit calma' : 'Kit calma'}
                     </span>
                   )}
                   {showSleepMode && (
