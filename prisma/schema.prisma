@@ -40,6 +40,7 @@ model Child {
   sensoryVisuals  String      @default("rich")
   sensoryProfile  String      @default("balanced")
   timerStyle      String      @default("circle")
+  interfaceMode   String      @default("completo") // "foco" | "intermediario" | "completo"
   rewardName      String      @default("15 minutos de tablet")
   rewardCost      Int         @default(10)
   tokens          Int         @default(0)

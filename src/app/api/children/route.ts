@@ -35,6 +35,7 @@ export async function GET(req: Request) {
           sensoryVisuals: parent?.sensoryVisuals || 'rich',
           sensoryProfile: parent?.sensoryProfile || 'balanced',
           timerStyle: parent?.timerStyle || 'circle',
+          interfaceMode: 'completo',
           parentUid: userUid,
         }
       });
@@ -83,6 +84,7 @@ export async function POST(req: Request) {
         sensoryVisuals: body.sensoryVisuals || 'rich',
         sensoryProfile: body.sensoryProfile || 'balanced',
         timerStyle: body.timerStyle || 'circle',
+        interfaceMode: body.interfaceMode || 'completo',
         rewardName: body.rewardName || '15 minutos de tablet',
         rewardCost: body.rewardCost !== undefined ? Number(body.rewardCost) : 10,
         tokens: body.tokens !== undefined ? Number(body.tokens) : 0,
@@ -140,6 +142,7 @@ export async function PUT(req: Request) {
         sensoryVisuals: updates.sensoryVisuals,
         sensoryProfile: updates.sensoryProfile,
         timerStyle: updates.timerStyle,
+        interfaceMode: updates.interfaceMode,
         rewardName: updates.rewardName,
         rewardCost: updates.rewardCost !== undefined ? Number(updates.rewardCost) : undefined,
         tokens: updates.tokens !== undefined ? Number(updates.tokens) : undefined,

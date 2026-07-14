@@ -44,6 +44,7 @@ export interface Child {
   sensoryVisuals?: 'rich' | 'minimal';
   sensoryProfile?: 'balanced' | 'hypersensitive' | 'hyposensitive';
   timerStyle?: 'circle' | 'hourglass' | 'droplets';
+  interfaceMode?: 'foco' | 'intermediario' | 'completo';
   rewardName?: string;
   rewardCost?: number;
   tokens?: number;

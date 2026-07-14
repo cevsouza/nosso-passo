@@ -829,6 +829,27 @@ export default function ChildRoutine() {
   const [sensoryProfile, setSensoryProfile] = useState<'balanced' | 'hypersensitive' | 'hyposensitive'>('balanced');
   const effectiveProfile = localCalmMode ? 'hypersensitive' : sensoryProfile;
   const [timerStyle, setTimerStyle] = useState<'circle' | 'hourglass' | 'droplets' | 'hyperfocus'>('circle');
+
+  // Interface complexity level (per-child). Controls how many features the child sees.
+  // 'foco' = essentials only | 'intermediario' = + supports | 'completo' = everything (legacy default)
+  const [interfaceMode, setInterfaceMode] = useState<'foco' | 'intermediario' | 'completo'>('completo');
+  const uiFoco = interfaceMode === 'foco';
+  const uiCompleto = interfaceMode === 'completo';
+  const showStories = interfaceMode !== 'foco';       // histórias sociais (preset)
+  const showAiStories = interfaceMode === 'completo';  // geração por IA
+  const showHourglass = interfaceMode !== 'foco';      // ampulheta de espera
+  const showSleepMode = interfaceMode !== 'foco';      // modo sono
+  const showAmbient = interfaceMode !== 'foco';        // sons ambiente
+  const showSimulator = interfaceMode !== 'foco';      // simulador de eventos
+  const showRewardSpend = interfaceMode !== 'foco';    // recompensa (gastar estrelas)
+  const showTokensHeader = interfaceMode !== 'foco';   // contador de estrelas no topo
+  const showShop = interfaceMode === 'completo';       // loja do mascote
+  const showMyWorld = interfaceMode === 'completo';    // meu mundo / coletar peças
+  const showNoiseMonitor = interfaceMode === 'completo'; // monitor de ruído
+  // Menu "Apoios & Jogos" só aparece se houver ao menos um item nele
+  const hasSupportMenu = showStories || showHourglass || showSimulator || showMyWorld || showShop || showNoiseMonitor;
+  // Sempre visíveis em todos os níveis: humor, SOS/calma, Minha Voz (AAC)
+
   const [showStoriesModal, setShowStoriesModal] = useState(false);
   const [selectedStory, setSelectedStory] = useState<any | null>(null);
   const [currentStoryStep, setCurrentStoryStep] = useState(0);
@@ -1102,6 +1123,7 @@ export default function ChildRoutine() {
           setSensoryVisuals((active.sensoryVisuals || 'rich') as any);
           setSensoryProfile((active.sensoryProfile || 'balanced') as any);
           setTimerStyle((active.timerStyle || 'circle') as any);
+          setInterfaceMode((active.interfaceMode || 'completo') as any);
         }
       } catch (err) {
         console.error('Erro no portal infantil:', err);
@@ -1142,7 +1164,8 @@ export default function ChildRoutine() {
             active.lockType !== activeChild.lockType ||
             active.timerStyle !== activeChild.timerStyle ||
             active.sensoryVisuals !== activeChild.sensoryVisuals ||
-            active.sensoryProfile !== activeChild.sensoryProfile
+            active.sensoryProfile !== activeChild.sensoryProfile ||
+            active.interfaceMode !== activeChild.interfaceMode
           ) {
             setActiveChild(active);
             firebaseBridge.auth.setActiveChild(active);
@@ -1152,6 +1175,7 @@ export default function ChildRoutine() {
             setSensoryVisuals((active.sensoryVisuals || 'rich') as any);
             setSensoryProfile((active.sensoryProfile || 'balanced') as any);
             setTimerStyle((active.timerStyle || 'circle') as any);
+            setInterfaceMode((active.interfaceMode || 'completo') as any);
           }
         }
       } catch (err) {
@@ -1601,7 +1625,7 @@ export default function ChildRoutine() {
           setActiveChild(updatedChild);
           firebaseBridge.auth.setActiveChild(updatedChild);
 
-          if (updatedChild.tokens !== undefined && updatedChild.rewardCost !== undefined && updatedChild.tokens >= updatedChild.rewardCost) {
+          if (showRewardSpend && updatedChild.tokens !== undefined && updatedChild.rewardCost !== undefined && updatedChild.tokens >= updatedChild.rewardCost) {
             playCelebration();
             setShowRewardModal(true);
           }
@@ -2812,6 +2836,7 @@ export default function ChildRoutine() {
               🏠 {locale === 'en' ? 'Home' : locale === 'es' ? 'Inicio' : 'Início'}
             </button>
             
+            {showStories && (
             <button
               onClick={() => { playBubble(); setShowStoriesModal(true); }}
               onMouseEnter={playBubble}
@@ -2819,6 +2844,8 @@ export default function ChildRoutine() {
             >
               📖 {locale === 'en' ? 'Stories' : locale === 'es' ? 'Historias' : 'Histórias'}
             </button>
+            )}
+            {showMyWorld && (
             <button
               onClick={() => { playBubble(); setShowHyperfocusModal(true); }}
               onMouseEnter={playBubble}
@@ -2826,6 +2853,7 @@ export default function ChildRoutine() {
             >
               🎮 Meu Mundo ({activeChild?.collectedParts || 0}/4)
             </button>
+            )}
           </div>
 
           <h2 className="text-xs font-black bg-slate-800 border-2 border-slate-700 text-white px-5 py-2.5 rounded-full shadow-premium uppercase tracking-widest font-Outfit">
@@ -2833,6 +2861,7 @@ export default function ChildRoutine() {
           </h2>
           
           {/* Ambient Sound Selector */}
+          {showAmbient ? (
           <div className="flex bg-slate-800 border-2 border-slate-700 p-1 rounded-full shadow-premium gap-1 items-center z-10">
             <button
               onClick={() => handleAmbientChange('none')}
@@ -2868,6 +2897,7 @@ export default function ChildRoutine() {
               🧠
             </button>
           </div>
+          ) : <div />}
         </div>
 
         <motion.div
@@ -2897,6 +2927,7 @@ export default function ChildRoutine() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
             {/* Badges Gallery Reward */}
+            {uiCompleto && (
             <div className="w-full bg-slate-800/50 border border-slate-700/40 p-5 rounded-3xl flex flex-col gap-4 text-left shadow-2xl">
               <h4 className="font-extrabold text-white text-xs uppercase tracking-widest flex items-center gap-1.5 select-none">
                 🏅 Medalhas conquistadas hoje:
@@ -2915,6 +2946,7 @@ export default function ChildRoutine() {
                 ))}
               </div>
             </div>
+            )}
 
             {/* TEACCH Choice Board (Painel de Escolhas Lúdicas) */}
             <div className="w-full bg-slate-800/50 border border-slate-700/40 p-5 rounded-3xl flex flex-col gap-4 text-left shadow-2xl">
@@ -3387,12 +3419,14 @@ export default function ChildRoutine() {
           ) : (
             <>
               <span>{locale === 'en' ? `Feeling tired? It's okay, ${activeChild.name.split(' ')[0]} can watch a story with you! 📖` : locale === 'es' ? `¿Te sientes cansado? ¡No pasa nada, ${activeChild.name.split(' ')[0]} puede ver una historia contigo! 📖` : `⚡ Sentindo cansaço? Tudo bem, o ${activeChild.name.split(' ')[0]} pode ver uma historinha com você! 📖`}</span>
-              <button 
-                onClick={() => { playBubble(); setShowStoriesModal(true); }} 
+              {showStories && (
+              <button
+                onClick={() => { playBubble(); setShowStoriesModal(true); }}
                 className="bg-slate-950 text-yellow-400 px-2.5 py-1 rounded-full text-[10px] uppercase font-black tracking-wide ml-2 hover:bg-slate-900 active:scale-95 cursor-pointer transition-all shadow-sm border-none font-Outfit"
               >
                 {locale === 'en' ? 'Watch Stories 📖' : locale === 'es' ? 'Ver Historias 📖' : 'Ver Histórias 📖'}
               </button>
+              )}
             </>
           )}
         </div>
@@ -3455,7 +3489,8 @@ export default function ChildRoutine() {
               🔒 <span className="hidden sm:inline">{locale === 'en' ? 'Guardian Panel' : locale === 'es' ? 'Panel del Tutor' : 'Painel do Responsável'}</span><span className="sm:hidden">{locale === 'en' ? 'Panel' : locale === 'es' ? 'Panel' : 'Painel'}</span>
             </button>
             
-            {/* Consolidated Supports Dropdown */}
+            {/* Consolidated Supports Dropdown (hidden entirely in Foco mode) */}
+            {hasSupportMenu && (
             <div className="relative">
               <button
                 onClick={() => { playBubble(); setShowSupportMenu(!showSupportMenu); }}
@@ -3477,11 +3512,12 @@ export default function ChildRoutine() {
                       : 'bg-white border-slate-200 text-slate-800'
                   }`}
                 >
+                  {showStories && (
                   <button
-                    onClick={() => { 
-                      playBubble(); 
-                      setShowStoriesModal(true); 
-                      setShowSupportMenu(false); 
+                    onClick={() => {
+                      playBubble();
+                      setShowStoriesModal(true);
+                      setShowSupportMenu(false);
                     }}
                     className={`flex items-center gap-2 w-full px-4 py-2 text-left text-xs font-bold rounded-xl transition-colors border-none bg-transparent cursor-pointer ${
                       sleepMode ? 'hover:bg-slate-850 text-amber-205' : 'hover:bg-slate-50 text-slate-705'
@@ -3489,14 +3525,16 @@ export default function ChildRoutine() {
                   >
                     📖 {locale === 'en' ? 'Stories' : locale === 'es' ? 'Historias' : 'Histórias'}
                   </button>
-                  
+                  )}
+
                   {!sleepMode && (
                     <>
+                      {showMyWorld && (
                       <button
-                        onClick={() => { 
-                          playBubble(); 
-                          setShowHyperfocusModal(true); 
-                          setShowSupportMenu(false); 
+                        onClick={() => {
+                          playBubble();
+                          setShowHyperfocusModal(true);
+                          setShowSupportMenu(false);
                         }}
                         className={`flex items-center gap-2 w-full px-4 py-2 text-left text-xs font-bold rounded-xl transition-colors border-none bg-transparent cursor-pointer ${
                           sleepMode ? 'hover:bg-slate-850 text-amber-205' : 'hover:bg-slate-50 text-slate-705'
@@ -3504,11 +3542,13 @@ export default function ChildRoutine() {
                       >
                         🎮 Meu Mundo ({activeChild?.collectedParts || 0}/4)
                       </button>
+                      )}
+                      {showShop && (
                       <button
-                        onClick={() => { 
-                          playBubble(); 
-                          setShowShopModal(true); 
-                          setShowSupportMenu(false); 
+                        onClick={() => {
+                          playBubble();
+                          setShowShopModal(true);
+                          setShowSupportMenu(false);
                         }}
                         className={`flex items-center gap-2 w-full px-4 py-2 text-left text-xs font-bold rounded-xl transition-colors border-none bg-transparent cursor-pointer ${
                           sleepMode ? 'hover:bg-slate-850 text-amber-205' : 'hover:bg-slate-50 text-slate-705'
@@ -3516,12 +3556,14 @@ export default function ChildRoutine() {
                       >
                         🛒 Loja do Mascote
                       </button>
+                      )}
+                      {showNoiseMonitor && (
                       <button
-                        onClick={() => { 
-                          playBubble(); 
+                        onClick={() => {
+                          playBubble();
                           const nextVal = !bgNoiseMonitor;
-                          setBgNoiseMonitor(nextVal); 
-                          setShowSupportMenu(false); 
+                          setBgNoiseMonitor(nextVal);
+                          setShowSupportMenu(false);
                           if (nextVal) {
                             speakText(t.routine.noiseMonitorActivated);
                           } else {
@@ -3536,26 +3578,16 @@ export default function ChildRoutine() {
                       >
                         🎤 {bgNoiseMonitor ? (locale === 'en' ? 'Disable Monitor' : locale === 'es' ? 'Desactivar Monitor' : 'Desativar Monitor') : (locale === 'en' ? 'Noise Monitor' : locale === 'es' ? 'Monitor de Ruidos' : 'Monitor de Ruídos')}
                       </button>
+                      )}
+                      {showSimulator && (
                       <button
-                        onClick={() => { 
-                          playBubble(); 
-                          setShowAacModal(true); 
-                          setShowSupportMenu(false); 
-                        }}
-                        className={`flex items-center gap-2 w-full px-4 py-2 text-left text-xs font-bold rounded-xl transition-colors border-none bg-transparent cursor-pointer font-Outfit ${
-                          sleepMode ? 'hover:bg-slate-850 text-amber-205' : 'hover:bg-slate-50 text-slate-705'
-                        }`}
-                      >
-                        🗣️ Minha Voz
-                      </button>
-                      <button
-                        onClick={() => { 
-                          playBubble(); 
-                          setShowSimulatorModal(true); 
-                          setSelectedScenario(null); 
-                          setSimulatorStep(0); 
-                          setSimulatorFinished(false); 
-                          setShowSupportMenu(false); 
+                        onClick={() => {
+                          playBubble();
+                          setShowSimulatorModal(true);
+                          setSelectedScenario(null);
+                          setSimulatorStep(0);
+                          setSimulatorFinished(false);
+                          setShowSupportMenu(false);
                         }}
                         className={`flex items-center gap-2 w-full px-4 py-2 text-left text-xs font-bold rounded-xl transition-colors border-none bg-transparent cursor-pointer font-Outfit ${
                           sleepMode ? 'hover:bg-slate-850 text-amber-205' : 'hover:bg-slate-50 text-slate-705'
@@ -3563,11 +3595,13 @@ export default function ChildRoutine() {
                       >
                         🎮 Simulador
                       </button>
+                      )}
+                      {showHourglass && (
                       <button
-                        onClick={() => { 
-                          playBubble(); 
-                          setShowWaitTimer(!showWaitTimer); 
-                          setShowSupportMenu(false); 
+                        onClick={() => {
+                          playBubble();
+                          setShowWaitTimer(!showWaitTimer);
+                          setShowSupportMenu(false);
                         }}
                         className={`flex items-center gap-2 w-full px-4 py-2 text-left text-xs font-bold rounded-xl transition-colors border-none bg-transparent cursor-pointer font-Outfit ${
                           sleepMode ? 'hover:bg-slate-850 text-amber-205' : 'hover:bg-slate-50 text-slate-705'
@@ -3575,12 +3609,28 @@ export default function ChildRoutine() {
                       >
                         ⏳ {locale === 'en' ? 'Waiting Hourglass' : locale === 'es' ? 'Reloj de Espera' : 'Ampulheta de Espera'}
                       </button>
+                      )}
                     </>
                   )}
                 </div>
               )}
             </div>
+            )}
 
+            {/* Minha Voz (CAA) — comunicação é necessidade básica: sempre disponível */}
+            <button
+              onClick={() => { playBubble(); setShowAacModal(true); }}
+              onMouseEnter={playBubble}
+              className={`flex items-center gap-1.5 px-5 py-3 sm:px-6 sm:py-3.5 border-2 text-xs sm:text-sm font-black rounded-full shadow-premium transition-all active:scale-95 cursor-pointer shrink-0 whitespace-nowrap ${
+                sleepMode
+                  ? 'bg-sky-950/20 border-sky-900/50 text-sky-300 hover:bg-sky-950/55'
+                  : 'bg-white hover:bg-sky-50 border-sky-250 text-sky-700'
+              }`}
+            >
+              🗣️ <span className="hidden sm:inline">Minha Voz</span><span className="sm:hidden">Voz</span>
+            </button>
+
+            {showSleepMode && (
             <button
               onClick={() => {
                 playBubble();
@@ -3593,13 +3643,14 @@ export default function ChildRoutine() {
               }}
               onMouseEnter={playBubble}
               className={`flex items-center gap-1.5 px-5 py-3 sm:px-6 sm:py-3.5 text-xs sm:text-sm font-black rounded-full shadow-premium transition-all active:scale-95 cursor-pointer border-2 shrink-0 whitespace-nowrap ${
-                sleepMode 
-                  ? 'bg-amber-950/80 border-amber-600 text-amber-200' 
+                sleepMode
+                  ? 'bg-amber-950/80 border-amber-600 text-amber-200'
                   : 'bg-white hover:bg-amber-50 border-amber-200 text-amber-700'
               }`}
             >
               🌙 <span className="hidden sm:inline">{sleepMode ? 'Modo Normal' : 'Modo Sono'}</span><span className="sm:hidden">{sleepMode ? 'Normal' : 'Sono'}</span>
             </button>
+            )}
 
             <button
               onClick={() => {

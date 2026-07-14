@@ -1972,7 +1972,9 @@ function ParentDashboardContent() {
 
   const [timerStyle, setTimerStyle] = useState<'circle' | 'hourglass' | 'droplets'>('circle');
 
-  
+  const [interfaceMode, setInterfaceMode] = useState<'foco' | 'intermediario' | 'completo'>('completo');
+
+
 
   // Reward & Transition Timer states
 
@@ -2730,6 +2732,8 @@ function ParentDashboardContent() {
 
           setTimerStyle((active.timerStyle || 'circle') as any);
 
+          setInterfaceMode((active.interfaceMode || 'completo') as any);
+
           
 
           setRewardName(active.rewardName || '15 minutos de tablet');
@@ -3283,6 +3287,8 @@ function ParentDashboardContent() {
     setSensoryProfile(child.sensoryProfile || 'balanced');
 
     setTimerStyle(child.timerStyle || 'circle');
+
+    setInterfaceMode(child.interfaceMode || 'completo');
 
     
 
@@ -3950,6 +3956,8 @@ function ParentDashboardContent() {
 
         timerStyle,
 
+        interfaceMode,
+
         rewardName,
 
         rewardCost,
@@ -3976,7 +3984,7 @@ function ParentDashboardContent() {
 
         'UPDATE_PROFILE', 
 
-        `Atualizou o perfil de ${activeChild.name}: Hiperfoco: "${hyperfocus}", Bloqueio Infantil: "${lockType}" (PIN: ${parentPinCode}), Velocidade Fala: ${sensorySpeed}x, Efeito Sonoro: "${sensorySound}", Visual: "${sensoryVisuals}", Perfil Sensorial: "${sensoryProfile}", Estilo Timer: "${timerStyle}", Reforçador: "${rewardName}" (${rewardCost} estrelas), Alerta de Transição: ${transitionMinutes}min.`,
+        `Atualizou o perfil de ${activeChild.name}: Hiperfoco: "${hyperfocus}", Bloqueio Infantil: "${lockType}" (PIN: ${parentPinCode}), Velocidade Fala: ${sensorySpeed}x, Efeito Sonoro: "${sensorySound}", Visual: "${sensoryVisuals}", Perfil Sensorial: "${sensoryProfile}", Estilo Timer: "${timerStyle}", Nível de Interface: "${interfaceMode}", Reforçador: "${rewardName}" (${rewardCost} estrelas), Alerta de Transição: ${transitionMinutes}min.`,
 
         currentUser?.email
 
@@ -6189,6 +6197,35 @@ function ParentDashboardContent() {
                       <div className="flex flex-col gap-2.5 animate-pop max-h-72 overflow-y-auto pr-1">
                         {activeChild ? (
                           <>
+                            {/* Interface Complexity Level */}
+                            <div className="flex flex-col gap-1 p-2.5 rounded-xl bg-indigo-50/70 dark:bg-indigo-950/30 border border-indigo-200 dark:border-indigo-900">
+                              <span className="text-[8px] font-black text-indigo-500 dark:text-indigo-300 uppercase tracking-wider">
+                                {locale === 'en' ? '🎚️ Interface Level (Complexity)' : locale === 'es' ? '🎚️ Nivel de Interfaz (Complejidad)' : '🎚️ Nível de Interface (Complexidade)'}
+                              </span>
+                              <select
+                                value={interfaceMode}
+                                onChange={async (e) => {
+                                  const val = e.target.value as 'foco' | 'intermediario' | 'completo';
+                                  setInterfaceMode(val);
+                                  const updated = await firebaseBridge.auth.updateChildSettings(activeChild.id, { interfaceMode: val });
+                                  setActiveChild(updated);
+                                  triggerStatus(locale === 'en' ? 'Interface level updated!' : locale === 'es' ? '¡Nivel de interfaz actualizado!' : 'Nível de interface atualizado!');
+                                }}
+                                className="w-full px-2 py-1.5 bg-white dark:bg-slate-800/60 border border-indigo-200 dark:border-indigo-800 text-slate-700 dark:text-slate-200 text-xs font-bold rounded-lg outline-none cursor-pointer"
+                              >
+                                <option value="foco">{locale === 'en' ? 'Focus (Essential) 🎯' : locale === 'es' ? 'Enfoque (Esencial) 🎯' : 'Foco (Essencial) 🎯'}</option>
+                                <option value="intermediario">{locale === 'en' ? 'Intermediate 🌱' : locale === 'es' ? 'Intermedio 🌱' : 'Intermediário 🌱'}</option>
+                                <option value="completo">{locale === 'en' ? 'Complete (All features) 🚀' : locale === 'es' ? 'Completo (Todo) 🚀' : 'Completo (Tudo) 🚀'}</option>
+                              </select>
+                              <p className="text-[9px] font-semibold text-slate-500 dark:text-slate-400 leading-snug mt-0.5">
+                                {interfaceMode === 'foco'
+                                  ? (locale === 'en' ? 'Only the essentials: schedule, current task, timer, calm/SOS, mood and Voice (AAC). No games, shop or extras. Ideal for ASD level 3 / attention deficit.' : locale === 'es' ? 'Solo lo esencial: agenda, tarea actual, temporizador, calma/SOS, ánimo y Voz (CAA). Sin juegos, tienda ni extras. Ideal para TEA nivel 3 / déficit de atención.' : 'Só o essencial: agenda, tarefa atual, cronômetro, calma/SOS, humor e Minha Voz (CAA). Sem jogos, loja ou extras. Ideal para TEA nível 3 / déficit de atenção.')
+                                  : interfaceMode === 'intermediario'
+                                  ? (locale === 'en' ? 'Adds social stories, waiting hourglass, calming sounds, sleep mode, event simulator and star rewards. For children in development.' : locale === 'es' ? 'Agrega historias sociales, reloj de espera, sonidos calmantes, modo sueño, simulador de eventos y recompensas con estrellas. Para niños en desarrollo.' : 'Adiciona histórias sociais, ampulheta de espera, sons calmantes, modo sono, simulador de eventos e recompensas por estrelas. Para crianças em desenvolvimento.')
+                                  : (locale === 'en' ? 'All features enabled: mascot shop, My World, noise monitor, AI stories, accessories and badges. For more mature children.' : locale === 'es' ? 'Todas las funciones: tienda del mascota, Mi Mundo, monitor de ruido, historias con IA, accesorios y medallas. Para niños más maduros.' : 'Todas as funções: Loja do Mascote, Meu Mundo, monitor de ruído, histórias por IA, acessórios e medalhas. Para crianças mais maduras.')}
+                              </p>
+                            </div>
+
                             {/* Sensory Profile */}
                             <div className="flex flex-col gap-1">
                               <span className="text-[8px] font-black text-slate-400 uppercase tracking-wider">
