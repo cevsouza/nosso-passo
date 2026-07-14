@@ -12317,7 +12317,7 @@ function ParentDashboardContent() {
                 <div className="flex flex-col gap-6">
                   {/* Child Hyperfocus Profile Card */}
 
-          <div className="bg-white border-2 border-slate-250 rounded-[28px] p-6 shadow-premium flex flex-col gap-4">
+          <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-premium flex flex-col gap-4">
 
             <button
 
@@ -12381,7 +12381,7 @@ function ParentDashboardContent() {
 
                   onChange={e => setHyperfocus(e.target.value)}
 
-                  className="w-full px-4 py-2.5 bg-white border-2 border-slate-300 focus:border-indigo-600 focus:bg-white rounded-xl text-slate-900 outline-none text-sm transition-all shadow-xxs font-bold cursor-pointer focus:ring-4 focus:ring-indigo-100"
+                  className="w-full px-4 py-2.5 bg-white border border-slate-200 focus:border-indigo-500 focus:bg-white rounded-xl text-slate-900 outline-none text-sm transition-all shadow-xxs font-bold cursor-pointer focus:ring-2 focus:ring-indigo-200"
 
                 >
 
@@ -12417,7 +12417,7 @@ function ParentDashboardContent() {
 
               {activeChild && (
 
-                <div className="bg-gradient-to-tr from-indigo-50/50 to-indigo-100/50 border-2 border-indigo-200 p-4.5 rounded-2xl flex flex-col gap-3 shadow-xxs">
+                <div className="bg-indigo-50 border border-indigo-100 p-4.5 rounded-2xl flex flex-col gap-3 shadow-xxs">
 
                   <div className="flex items-center justify-between">
 
@@ -12501,7 +12501,7 @@ function ParentDashboardContent() {
 
                     placeholder="Ex: 15 min de tablet"
 
-                    className="w-full px-4 py-2.5 bg-white border-2 border-slate-300 focus:border-indigo-650 rounded-xl text-slate-900 outline-none text-xs font-bold focus:ring-4 focus:ring-indigo-100"
+                    className="w-full px-4 py-2.5 bg-white border-2 border-slate-300 focus:border-indigo-650 rounded-xl text-slate-900 outline-none text-xs font-bold focus:ring-2 focus:ring-indigo-200"
 
                   />
 
@@ -12529,7 +12529,7 @@ function ParentDashboardContent() {
 
                       onChange={e => setTokens(parseInt(e.target.value) || 0)}
 
-                      className="w-full px-2.5 py-2.5 bg-white border-2 border-slate-300 focus:border-indigo-650 rounded-xl text-slate-900 outline-none text-xs font-bold focus:ring-4 focus:ring-indigo-100"
+                      className="w-full px-2.5 py-2.5 bg-white border-2 border-slate-300 focus:border-indigo-650 rounded-xl text-slate-900 outline-none text-xs font-bold focus:ring-2 focus:ring-indigo-200"
 
                     />
 
@@ -12555,7 +12555,7 @@ function ParentDashboardContent() {
 
                       onChange={e => setRewardCost(parseInt(e.target.value) || 10)}
 
-                      className="w-full px-2.5 py-2.5 bg-white border-2 border-slate-300 focus:border-indigo-650 rounded-xl text-slate-900 outline-none text-xs font-bold focus:ring-4 focus:ring-indigo-100"
+                      className="w-full px-2.5 py-2.5 bg-white border-2 border-slate-300 focus:border-indigo-650 rounded-xl text-slate-900 outline-none text-xs font-bold focus:ring-2 focus:ring-indigo-200"
 
                     />
 
@@ -12581,7 +12581,7 @@ function ParentDashboardContent() {
 
                       onChange={e => setTransitionMinutes(parseInt(e.target.value) || 5)}
 
-                      className="w-full px-2.5 py-2.5 bg-white border-2 border-slate-300 focus:border-indigo-650 rounded-xl text-slate-900 outline-none text-xs font-bold focus:ring-4 focus:ring-indigo-100"
+                      className="w-full px-2.5 py-2.5 bg-white border-2 border-slate-300 focus:border-indigo-650 rounded-xl text-slate-900 outline-none text-xs font-bold focus:ring-2 focus:ring-indigo-200"
 
                     />
 
