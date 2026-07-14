@@ -4106,7 +4106,7 @@ export default function ChildRoutine() {
                             disabled={celebratingTaskId !== null || isActiveLocked}
                             className={`w-full py-5 text-xl font-black rounded-2xl shadow-lg transform transition-all duration-300 flex items-center justify-center gap-2 border-b-4 border-slate-950/20 ${
                               celebratingTaskId === activeTask.id
-                                ? 'bg-gradient-to-r from-emerald-400 to-emerald-500 text-white animate-pulse border-emerald-600/70 cursor-default'
+                                ? 'bg-gradient-to-r from-emerald-400 to-emerald-500 text-white animate-pulse motion-ok border-emerald-600/70 cursor-default'
                                 : isActiveLocked
                                 ? 'bg-slate-200 border-slate-300 text-slate-400 cursor-not-allowed shadow-none'
                                 : `bg-gradient-to-r ${category.gradient} text-white hover:opacity-95 shadow-md cursor-pointer`
@@ -4327,7 +4327,7 @@ export default function ChildRoutine() {
                     </svg>
                     <div className="absolute inset-0 flex flex-col items-center justify-center font-bold pointer-events-none mt-2">
                       {waitTimerFinished ? (
-                        <span className="text-2xl animate-bounce">🎉</span>
+                        <span className="text-2xl animate-bounce motion-ok">🎉</span>
                       ) : (
                         <>
                           <span className="text-sm font-black text-slate-900 bg-white/70 px-1.5 py-0.5 rounded">
@@ -4682,7 +4682,7 @@ export default function ChildRoutine() {
               {/* Confetti celebration bg hints */}
               <div className="absolute inset-0 bg-gradient-to-tr from-yellow-50 via-white to-indigo-50/50 opacity-60 -z-10" />
               
-              <div className="w-18 h-18 bg-yellow-100 text-yellow-500 rounded-full flex items-center justify-center text-4xl shadow-md animate-bounce select-none">
+              <div className="w-18 h-18 bg-yellow-100 text-yellow-500 rounded-full flex items-center justify-center text-4xl shadow-md animate-bounce motion-ok select-none">
                 🎁
               </div>
 
