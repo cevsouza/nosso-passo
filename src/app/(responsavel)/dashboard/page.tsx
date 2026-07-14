@@ -8291,33 +8291,6 @@ function ParentDashboardContent() {
 
 
 
-                  {/* Day summary */}
-                  {activeChild && (() => {
-                    const dayTasks = tasks.filter(t => t.day === activeDayFilter);
-                    const done = dayTasks.filter(t => t.isCompleted).length;
-                    const total = dayTasks.length;
-                    const mood = activeChild.emotionalBattery === 'green' ? (locale === 'en' ? 'Great' : locale === 'es' ? 'Bien' : 'Ótimo')
-                      : activeChild.emotionalBattery === 'yellow' ? (locale === 'en' ? 'Tired' : locale === 'es' ? 'Cansado' : 'Cansado')
-                      : activeChild.emotionalBattery === 'red' ? (locale === 'en' ? 'Overloaded' : locale === 'es' ? 'Sobrecargado' : 'Sobrecarregado')
-                      : '—';
-                    return (
-                      <div className="grid grid-cols-3 gap-3">
-                        <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4">
-                          <div className="text-[10px] font-black uppercase tracking-wider text-slate-400">{locale === 'en' ? 'Done today' : locale === 'es' ? 'Hechas hoy' : 'Feitas hoje'}</div>
-                          <div className="text-2xl font-black text-indigo-700 font-Outfit mt-0.5">{done}<span className="text-sm text-slate-400"> / {total}</span></div>
-                        </div>
-                        <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4">
-                          <div className="text-[10px] font-black uppercase tracking-wider text-slate-400">{locale === 'en' ? 'Stars' : locale === 'es' ? 'Estrellas' : 'Estrelas'}</div>
-                          <div className="text-2xl font-black text-indigo-700 font-Outfit mt-0.5">{activeChild.tokens || 0}</div>
-                        </div>
-                        <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4">
-                          <div className="text-[10px] font-black uppercase tracking-wider text-slate-400">{locale === 'en' ? 'Mood' : locale === 'es' ? 'Ánimo' : 'Humor'}</div>
-                          <div className="text-lg font-black text-indigo-700 font-Outfit mt-1">{mood}</div>
-                        </div>
-                      </div>
-                    );
-                  })()}
-
                   {/* Tasks Lists divided by Periods */}
 
                   <div className="flex flex-col gap-6">
