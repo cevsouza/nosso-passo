@@ -3463,365 +3463,256 @@ export default function ChildRoutine() {
           ? 'bg-slate-950/85 border-slate-800/60 text-amber-205 shadow-slate-950/50' 
           : 'bg-white/85 border-slate-200/50 text-slate-800 shadow-slate-105/45'
       }`}>
-        <div className="w-full max-w-2xl md:max-w-5xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4 px-4 md:px-6">
-          <div className="flex flex-row flex-wrap items-center gap-2 w-full md:w-auto pb-1.5 md:pb-0 shrink-0">
-            <button 
-              onClick={() => handleAttemptExit('/')}
-              onMouseEnter={playBubble}
-              className={`flex items-center gap-1.5 px-3.5 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm font-black rounded-full border shadow-sm transition-all active:scale-95 cursor-pointer shrink-0 whitespace-nowrap ${
-                sleepMode 
-                  ? 'bg-slate-905 border-slate-700 text-amber-200 hover:bg-slate-805' 
-                  : 'bg-white hover:bg-slate-50 border-slate-350 text-slate-805'
-              }`}
-            >
-              🏠 <span className="hidden sm:inline">{locale === 'en' ? 'Home' : locale === 'es' ? 'Inicio' : 'Início'}</span>
-            </button>
+        <div className="w-full max-w-2xl md:max-w-5xl mx-auto flex items-center justify-between gap-3 px-4 md:px-6">
+          {/* Sair (desafio de adulto) */}
+          <button
+            onClick={() => handleAttemptExit('/')}
+            onMouseEnter={playBubble}
+            className={`flex items-center gap-1.5 px-3.5 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm font-black rounded-full border shadow-sm transition-all active:scale-95 cursor-pointer shrink-0 whitespace-nowrap ${
+              sleepMode
+                ? 'bg-slate-905 border-slate-700 text-amber-200 hover:bg-slate-805'
+                : 'bg-white hover:bg-slate-50 border-slate-350 text-slate-805'
+            }`}
+          >
+            🔒 <span className="hidden sm:inline">{locale === 'en' ? 'Exit' : locale === 'es' ? 'Salir' : 'Sair'}</span>
+          </button>
 
-            <button 
-              onClick={() => handleAttemptExit('/dashboard')}
-              onMouseEnter={playBubble}
-              className={`flex items-center gap-1.5 px-3.5 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm font-black rounded-full border shadow-sm transition-all active:scale-95 cursor-pointer shrink-0 whitespace-nowrap ${
-                sleepMode 
-                  ? 'bg-slate-905 border-slate-700 text-amber-200 hover:bg-slate-805' 
-                  : 'bg-white hover:bg-slate-50 border-slate-350 text-slate-850'
-              }`}
-            >
-              🔒 <span className="hidden sm:inline">{locale === 'en' ? 'Guardian Panel' : locale === 'es' ? 'Panel del Tutor' : 'Painel do Responsável'}</span><span className="sm:hidden">{locale === 'en' ? 'Panel' : locale === 'es' ? 'Panel' : 'Painel'}</span>
-            </button>
-            
-            {/* Consolidated Supports Dropdown (hidden entirely in Foco mode) */}
-            {hasSupportMenu && (
-            <div className="relative">
-              <button
-                onClick={() => { playBubble(); setShowSupportMenu(!showSupportMenu); }}
-                onMouseEnter={playBubble}
-                className={`flex items-center gap-1.5 px-3.5 py-2 sm:px-4 sm:py-2.5 border text-xs sm:text-sm font-black rounded-full shadow-sm transition-all active:scale-95 cursor-pointer shrink-0 whitespace-nowrap ${
-                  sleepMode
-                    ? 'bg-amber-950/20 border-amber-900/50 text-amber-300 hover:bg-amber-950/55'
-                    : 'bg-white hover:bg-indigo-50 border-indigo-250 text-indigo-700'
-                }`}
-              >
-                🎒 <span className="hidden sm:inline">Apoios & Jogos</span><span className="sm:hidden">Apoios</span> {showSupportMenu ? '▲' : '▼'}
-              </button>
+          {/* Identidade: nome + dia (contexto calmo, centralizado) */}
+          <div className="flex-1 flex flex-col items-center leading-tight min-w-0 px-2 text-center">
+            <span className="font-black font-Outfit text-sm sm:text-lg truncate max-w-[42vw]">
+              {activeChild?.name ? activeChild.name.split(' ')[0] : ''}
+            </span>
+            <span className={`text-[10px] sm:text-xs font-bold uppercase tracking-wide ${sleepMode ? 'text-amber-200/70' : 'text-slate-500'}`}>
+              {(t.common.dayLabels as any)[currentDay] || (locale === 'es' ? `Día ${currentDay}` : locale === 'en' ? `Day ${currentDay}` : `Dia ${currentDay}`)}
+            </span>
+          </div>
 
-              {showSupportMenu && (
-                <div 
-                  className={`absolute left-0 mt-2 p-2 rounded-2xl border-2 shadow-2xl flex flex-col gap-1.5 min-w-[200px] z-50 ${
-                    sleepMode 
-                      ? 'bg-[#090d1a] border-amber-900/50 text-amber-200' 
-                      : 'bg-white border-slate-200 text-slate-800'
-                  }`}
-                >
-                  {showStories && (
-                  <button
-                    onClick={() => {
-                      playBubble();
-                      setShowStoriesModal(true);
-                      setShowSupportMenu(false);
-                    }}
-                    className={`flex items-center gap-2 w-full px-4 py-2 text-left text-xs font-bold rounded-xl transition-colors border-none bg-transparent cursor-pointer ${
-                      sleepMode ? 'hover:bg-slate-850 text-amber-205' : 'hover:bg-slate-50 text-slate-705'
-                    }`}
-                  >
-                    📖 {locale === 'en' ? 'Stories' : locale === 'es' ? 'Historias' : 'Histórias'}
-                  </button>
-                  )}
-
-                  {!sleepMode && (
-                    <>
-                      {showMyWorld && (
-                      <button
-                        onClick={() => {
-                          playBubble();
-                          setShowHyperfocusModal(true);
-                          setShowSupportMenu(false);
-                        }}
-                        className={`flex items-center gap-2 w-full px-4 py-2 text-left text-xs font-bold rounded-xl transition-colors border-none bg-transparent cursor-pointer ${
-                          sleepMode ? 'hover:bg-slate-850 text-amber-205' : 'hover:bg-slate-50 text-slate-705'
-                        }`}
-                      >
-                        🎮 Meu Mundo ({activeChild?.collectedParts || 0}/4)
-                      </button>
-                      )}
-                      {showShop && (
-                      <button
-                        onClick={() => {
-                          playBubble();
-                          setShowShopModal(true);
-                          setShowSupportMenu(false);
-                        }}
-                        className={`flex items-center gap-2 w-full px-4 py-2 text-left text-xs font-bold rounded-xl transition-colors border-none bg-transparent cursor-pointer ${
-                          sleepMode ? 'hover:bg-slate-850 text-amber-205' : 'hover:bg-slate-50 text-slate-705'
-                        }`}
-                      >
-                        🛒 Loja do Mascote
-                      </button>
-                      )}
-                      {showNoiseMonitor && (
-                      <button
-                        onClick={() => {
-                          playBubble();
-                          const nextVal = !bgNoiseMonitor;
-                          setBgNoiseMonitor(nextVal);
-                          setShowSupportMenu(false);
-                          if (nextVal) {
-                            speakText(t.routine.noiseMonitorActivated);
-                          } else {
-                            speakText(t.routine.noiseMonitorDeactivated);
-                          }
-                        }}
-                        className={`flex items-center gap-2 w-full px-4 py-2 text-left text-xs font-bold rounded-xl transition-colors border-none bg-transparent cursor-pointer ${
-                          bgNoiseMonitor ? 'text-teal-650 font-extrabold' : ''
-                        } ${
-                          sleepMode ? 'hover:bg-slate-850 text-amber-205' : 'hover:bg-slate-50 text-slate-705'
-                        }`}
-                      >
-                        🎤 {bgNoiseMonitor ? (locale === 'en' ? 'Disable Monitor' : locale === 'es' ? 'Desactivar Monitor' : 'Desativar Monitor') : (locale === 'en' ? 'Noise Monitor' : locale === 'es' ? 'Monitor de Ruidos' : 'Monitor de Ruídos')}
-                      </button>
-                      )}
-                      {showSimulator && (
-                      <button
-                        onClick={() => {
-                          playBubble();
-                          setShowSimulatorModal(true);
-                          setSelectedScenario(null);
-                          setSimulatorStep(0);
-                          setSimulatorFinished(false);
-                          setShowSupportMenu(false);
-                        }}
-                        className={`flex items-center gap-2 w-full px-4 py-2 text-left text-xs font-bold rounded-xl transition-colors border-none bg-transparent cursor-pointer font-Outfit ${
-                          sleepMode ? 'hover:bg-slate-850 text-amber-205' : 'hover:bg-slate-50 text-slate-705'
-                        }`}
-                      >
-                        🎮 Simulador
-                      </button>
-                      )}
-                      {showHourglass && (
-                      <button
-                        onClick={() => {
-                          playBubble();
-                          setShowWaitTimer(!showWaitTimer);
-                          setShowSupportMenu(false);
-                        }}
-                        className={`flex items-center gap-2 w-full px-4 py-2 text-left text-xs font-bold rounded-xl transition-colors border-none bg-transparent cursor-pointer font-Outfit ${
-                          sleepMode ? 'hover:bg-slate-850 text-amber-205' : 'hover:bg-slate-50 text-slate-705'
-                        }`}
-                      >
-                        ⏳ {locale === 'en' ? 'Waiting Hourglass' : locale === 'es' ? 'Reloj de Espera' : 'Ampulheta de Espera'}
-                      </button>
-                      )}
-                    </>
-                  )}
-                </div>
-              )}
-            </div>
-            )}
-
-            {/* Minha Voz (CAA) — comunicação é necessidade básica: sempre disponível */}
+          {/* Essenciais + menu consolidado */}
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+            {/* Minha Voz (CAA) — comunicação é necessidade básica */}
             <button
               onClick={() => { playBubble(); setShowAacModal(true); }}
               onMouseEnter={playBubble}
-              className={`flex items-center gap-1.5 px-3.5 py-2 sm:px-4 sm:py-2.5 border text-xs sm:text-sm font-black rounded-full shadow-sm transition-all active:scale-95 cursor-pointer shrink-0 whitespace-nowrap ${
+              aria-label={locale === 'en' ? 'My Voice' : locale === 'es' ? 'Mi Voz' : 'Minha Voz'}
+              className={`flex items-center gap-1.5 px-3 py-2 sm:px-3.5 sm:py-2.5 border text-sm font-black rounded-full shadow-sm transition-all active:scale-95 cursor-pointer shrink-0 ${
                 sleepMode
                   ? 'bg-sky-950/20 border-sky-900/50 text-sky-300 hover:bg-sky-950/55'
                   : 'bg-white hover:bg-sky-50 border-sky-250 text-sky-700'
               }`}
             >
-              🗣️ <span className="hidden sm:inline">Minha Voz</span><span className="sm:hidden">Voz</span>
+              🗣️ <span className="hidden md:inline">Voz</span>
             </button>
 
-            {showSleepMode && (
-            <button
-              onClick={() => {
-                playBubble();
-                setSleepMode(!sleepMode);
-                if (!sleepMode) {
-                  speakText(t.routine.sleepModeActivated);
-                } else {
-                  speakText(t.routine.sleepModeDeactivated);
-                }
-              }}
-              onMouseEnter={playBubble}
-              className={`flex items-center gap-1.5 px-3.5 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm font-black rounded-full shadow-sm transition-all active:scale-95 cursor-pointer border shrink-0 whitespace-nowrap ${
-                sleepMode
-                  ? 'bg-amber-950/80 border-amber-600 text-amber-200'
-                  : 'bg-white hover:bg-amber-50 border-amber-200 text-amber-700'
-              }`}
-            >
-              🌙 <span className="hidden sm:inline">{sleepMode ? 'Modo Normal' : 'Modo Sono'}</span><span className="sm:hidden">{sleepMode ? 'Normal' : 'Sono'}</span>
-            </button>
-            )}
-
+            {/* Modo Calmo */}
             <button
               onClick={() => {
                 playBubble();
                 const nextVal = !localCalmMode;
                 setLocalCalmMode(nextVal);
                 localStorage.setItem('localCalmMode', nextVal ? 'true' : 'false');
-                if (nextVal) {
-                  speakText(t.routine.calmModeActivated);
-                } else {
-                  speakText(t.routine.calmModeDeactivated);
-                }
+                if (nextVal) { speakText(t.routine.calmModeActivated); } else { speakText(t.routine.calmModeDeactivated); }
               }}
               onMouseEnter={playBubble}
-              className={`flex items-center gap-1.5 px-3.5 py-2 sm:px-4 sm:py-2.5 border text-xs sm:text-sm font-black rounded-full shadow-sm transition-all active:scale-95 cursor-pointer font-Outfit shrink-0 whitespace-nowrap ${
+              aria-label={locale === 'en' ? 'Calm mode' : locale === 'es' ? 'Modo calma' : 'Modo calmo'}
+              className={`flex items-center gap-1.5 px-3 py-2 sm:px-3.5 sm:py-2.5 border text-sm font-black rounded-full shadow-sm transition-all active:scale-95 cursor-pointer font-Outfit shrink-0 ${
                 localCalmMode
-                  ? 'bg-teal-500 border-teal-605 text-white animate-pulse'
+                  ? 'bg-teal-500 border-teal-605 text-white'
                   : sleepMode
                   ? 'bg-slate-905 border-slate-700 text-amber-200 hover:bg-slate-800'
                   : 'bg-white hover:bg-teal-50 border-teal-200 text-teal-700'
               }`}
             >
-              🧘 <span className="hidden sm:inline">{localCalmMode ? 'Modo Calmo Ativo' : 'Modo Calmo'}</span><span className="sm:hidden">{localCalmMode ? 'Calmo Ativo' : 'Calmo'}</span>
+              🧘 <span className="hidden md:inline">Calmo</span>
             </button>
 
+            {/* SOS — sempre acessível */}
             <button
               onClick={handleTriggerSos}
               onMouseEnter={playBubble}
-              className={`flex items-center gap-1.5 px-3.5 py-2 sm:px-4 sm:py-2.5 border text-xs sm:text-sm font-black rounded-full shadow-sm transition-all active:scale-95 cursor-pointer shrink-0 whitespace-nowrap ${
-                sleepMode 
-                  ? 'bg-red-950/20 border-red-900/50 text-red-300 hover:bg-red-950/50' 
+              aria-label="SOS"
+              className={`flex items-center gap-1.5 px-3 py-2 sm:px-3.5 sm:py-2.5 border text-sm font-black rounded-full shadow-sm transition-all active:scale-95 cursor-pointer shrink-0 ${
+                sleepMode
+                  ? 'bg-red-950/20 border-red-900/50 text-red-300 hover:bg-red-950/50'
                   : 'bg-red-50 hover:bg-red-100 border-red-250 text-red-650 font-Outfit'
               }`}
             >
-              🚨 SOS
+              🚨 <span className="hidden md:inline">SOS</span>
             </button>
-            
-            {!sleepMode && (
-              <div className="relative">
-                <button
-                  onClick={() => { playBubble(); setShowBatteryMenu(!showBatteryMenu); }}
-                  className={`flex items-center gap-1.5 px-3.5 py-2 sm:px-4 sm:py-2.5 border text-xs sm:text-sm font-black rounded-full shadow-sm transition-all active:scale-95 cursor-pointer shrink-0 whitespace-nowrap ${
-                    activeChild?.emotionalBattery === 'green'
-                      ? 'bg-emerald-50 border-emerald-250 text-emerald-700'
-                      : activeChild?.emotionalBattery === 'yellow'
-                      ? 'bg-yellow-50 border-yellow-250 text-yellow-755'
-                      : activeChild?.emotionalBattery === 'red'
-                      ? 'bg-red-50 border-red-255 text-red-700'
-                      : 'bg-white border-slate-350 text-slate-700'
-                  }`}
-                >
-                  {activeChild?.emotionalBattery === 'green' ? '🔋 ' : activeChild?.emotionalBattery === 'yellow' ? '⚡ ' : '🪫 '}
-                  <span className="hidden sm:inline">
-                    {activeChild?.emotionalBattery === 'green' 
-                      ? (locale === 'es' ? 'Excelente' : locale === 'en' ? 'Great' : 'Ótimo')
-                      : activeChild?.emotionalBattery === 'yellow'
-                      ? (locale === 'es' ? 'Cansado' : locale === 'en' ? 'Tired' : 'Cansado')
-                      : (locale === 'es' ? 'Sobrecargado' : locale === 'en' ? 'Overloaded' : 'Sobrecarregado')}
-                  </span>
-                  <span className="sm:hidden">
-                    {activeChild?.emotionalBattery === 'green' ? '🔋' : activeChild?.emotionalBattery === 'yellow' ? '⚡' : '🪫'}
-                  </span>
-                  {" "}{showBatteryMenu ? '▲' : '▼'}
-                </button>
 
-                {showBatteryMenu && (
-                  <div className="absolute right-0 mt-2 p-2 rounded-2xl border-2 shadow-2xl flex flex-col gap-1.5 min-w-[180px] z-50 bg-white border-slate-200 text-slate-800">
-                    <button
-                      onClick={() => {
-                        playBubble();
-                        handleUpdateBattery('green');
-                        setShowBatteryMenu(false);
-                      }}
-                      className="flex items-center gap-2 w-full px-4 py-2.5 text-left text-xs font-bold rounded-xl transition-colors hover:bg-slate-50 border-none bg-transparent cursor-pointer text-slate-750"
-                    >
-                      🔋 {locale === 'es' ? 'Excelente' : locale === 'en' ? 'Great' : 'Ótimo'}
-                    </button>
-                    <button
-                      onClick={() => {
-                        playBubble();
-                        handleUpdateBattery('yellow');
-                        setShowBatteryMenu(false);
-                      }}
-                      className="flex items-center gap-2 w-full px-4 py-2.5 text-left text-xs font-bold rounded-xl transition-colors hover:bg-slate-50 border-none bg-transparent cursor-pointer text-slate-750"
-                    >
-                      ⚡ {locale === 'es' ? 'Cansado' : locale === 'en' ? 'Tired' : 'Cansado'}
-                    </button>
-                    <button
-                      onClick={() => {
-                        playBubble();
-                        handleUpdateBattery('red');
-                        setShowBatteryMenu(false);
-                      }}
-                      className="flex items-center gap-2 w-full px-4 py-2.5 text-left text-xs font-bold rounded-xl transition-colors hover:bg-slate-50 border-none bg-transparent cursor-pointer text-slate-750"
-                    >
-                      🪫 {locale === 'es' ? 'Sobrecargado' : locale === 'en' ? 'Overloaded' : 'Sobrecarregado'}
-                    </button>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-
-          <div className="flex items-center gap-3 justify-between md:justify-end">
-            <h2 className={`text-[10px] sm:text-xs font-black border px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-full shadow-sm uppercase tracking-wider font-Outfit leading-none whitespace-nowrap shrink-0 ${
-              sleepMode ? 'bg-[#090d1a] border-amber-900/50 text-amber-200' : 'bg-white border-slate-350 text-slate-805'
-            }`}>
-              {(t.common.dayLabels as any)[currentDay] || (locale === 'es' ? `Día ${currentDay} 📅` : locale === 'en' ? `Day ${currentDay} 📅` : `Dia ${currentDay} 📅`)}
-            </h2>
-            
-            {/* Ambient Sound Selector Dropdown */}
+            {/* ⋯ Mais — menu consolidado (secundários) */}
             <div className="relative">
               <button
-                onClick={() => { playBubble(); setShowAmbientMenu(!showAmbientMenu); }}
-                className={`flex items-center gap-1.5 px-3.5 py-2 sm:px-4 sm:py-2.5 border text-xs sm:text-sm font-black rounded-full shadow-sm transition-all active:scale-95 cursor-pointer font-Outfit ${
-                  activeAmbientType !== 'none'
-                    ? sleepMode 
-                      ? 'bg-blue-950 border-blue-600 text-blue-200' 
-                      : 'bg-blue-50 border-blue-250 text-blue-750'
-                    : sleepMode 
-                      ? 'bg-[#090d1a] border-amber-900/50 text-amber-205' 
-                      : 'bg-white border-slate-350 text-slate-705'
+                onClick={() => { playBubble(); setShowSupportMenu(!showSupportMenu); }}
+                onMouseEnter={playBubble}
+                aria-label={locale === 'en' ? 'More' : locale === 'es' ? 'Más' : 'Mais'}
+                className={`flex items-center gap-1 px-3 py-2 sm:px-3.5 sm:py-2.5 border text-sm font-black rounded-full shadow-sm transition-all active:scale-95 cursor-pointer shrink-0 ${
+                  sleepMode
+                    ? 'bg-amber-950/20 border-amber-900/50 text-amber-300 hover:bg-amber-950/55'
+                    : 'bg-white hover:bg-indigo-50 border-indigo-250 text-indigo-700'
                 }`}
               >
-                📻{" "}
-                {activeAmbientType === 'rain' && '🌧️ '}
-                {activeAmbientType === 'white' && '🤍 '}
-                {activeAmbientType === 'pink' && '💗 '}
-                {activeAmbientType === 'binaural' && '🧠 '}
-                <span className="hidden sm:inline">{t.routine.ambientSoundTitle.split(' ')[0]} {t.routine.ambientSoundTitle.split(' ')[1]}</span>
-                <span className="sm:hidden">{t.routine.ambientSoundTitle.split(' ')[0]}</span>{" "}
-                {showAmbientMenu ? '▲' : '▼'}
+                <span className="text-lg leading-none -mt-1">⋯</span>
+                <span className="hidden md:inline">{locale === 'en' ? 'More' : locale === 'es' ? 'Más' : 'Mais'}</span>
               </button>
 
-              {showAmbientMenu && (
-                <div 
-                  className={`absolute right-0 mt-2 p-2 rounded-2xl border-2 shadow-2xl flex flex-col gap-1.5 min-w-[200px] z-50 ${
-                    sleepMode 
-                      ? 'bg-[#090d1a] border-amber-900/50 text-amber-205' 
-                      : 'bg-white border-slate-200 text-slate-850'
+              {showSupportMenu && (
+                <div
+                  className={`absolute right-0 mt-2 p-2 rounded-2xl border shadow-2xl flex flex-col gap-0.5 min-w-[240px] max-h-[72vh] overflow-y-auto z-50 ${
+                    sleepMode
+                      ? 'bg-[#090d1a] border-amber-900/50 text-amber-200'
+                      : 'bg-white border-slate-200 text-slate-800'
                   }`}
                 >
-                  {[
-                    { type: 'none', label: locale === 'es' ? '🔈 Silencioso' : locale === 'en' ? '🔈 Silent' : '🔈 Silencioso', title: locale === 'es' ? 'Silencioso' : locale === 'en' ? 'Silent' : 'Silencioso', activeClass: sleepMode ? 'bg-slate-800 text-slate-100' : 'bg-slate-100 text-slate-805', inactiveClass: sleepMode ? 'hover:bg-slate-850 text-amber-200' : 'hover:bg-slate-50 text-slate-705' },
-                    { type: 'rain', label: locale === 'es' ? '🌧️ Lluvia' : locale === 'en' ? '🌧️ Rain' : '🌧️ Chuva', title: locale === 'es' ? 'Sonido de Lluvia' : locale === 'en' ? 'Rain Sound' : 'Som de Chuva', activeClass: sleepMode ? 'bg-blue-950 text-blue-300' : 'bg-blue-50 text-blue-805 border border-blue-200', inactiveClass: sleepMode ? 'hover:bg-slate-850 text-amber-200 hover:text-blue-300' : 'hover:bg-slate-50 text-slate-705 hover:text-blue-500' },
-                    { type: 'white', label: locale === 'es' ? '🤍 Ruido Blanco' : locale === 'en' ? '🤍 White Noise' : '🤍 Ruído Branco', title: locale === 'es' ? 'Ruido Blanco' : locale === 'en' ? 'White Noise' : 'Ruído Branco', activeClass: sleepMode ? 'bg-slate-800 text-slate-100' : 'bg-slate-100 text-slate-805 border border-slate-200', inactiveClass: sleepMode ? 'hover:bg-slate-850 text-amber-200' : 'hover:bg-slate-50 text-slate-705' },
-                    { type: 'pink', label: locale === 'es' ? '💗 Ruido Rosa' : locale === 'en' ? '💗 Pink Noise' : '💗 Ruído Rosa', title: locale === 'es' ? 'Ruido Rosa' : locale === 'en' ? 'Pink Noise' : 'Ruído Rosa', activeClass: sleepMode ? 'bg-pink-950 text-pink-305' : 'bg-pink-50 text-pink-850 border border-pink-200', inactiveClass: sleepMode ? 'hover:bg-slate-850 text-amber-200 hover:text-pink-300' : 'hover:bg-slate-50 text-slate-705 hover:text-pink-505' },
-                    { type: 'binaural', label: locale === 'es' ? '🧠 Foco Binaural' : locale === 'en' ? '🧠 Binaural Focus' : '🧠 Foco Binaural', title: locale === 'es' ? 'Foco Binaural' : locale === 'en' ? 'Binaural Focus' : 'Foco Binaural', activeClass: sleepMode ? 'bg-indigo-950 text-indigo-305' : 'bg-indigo-50 text-indigo-805 border border-indigo-200', inactiveClass: sleepMode ? 'hover:bg-slate-850 text-amber-200 hover:text-indigo-300' : 'hover:bg-slate-50 text-slate-705 hover:text-indigo-550' }
+                  {/* Responsável */}
+                  <span className={`px-3 pt-1.5 pb-1 text-[9px] font-black uppercase tracking-wider ${sleepMode ? 'text-amber-200/50' : 'text-slate-400'}`}>
+                    {locale === 'en' ? 'Guardian' : locale === 'es' ? 'Tutor' : 'Responsável'}
+                  </span>
+                  <button
+                    onClick={() => { playBubble(); setShowSupportMenu(false); handleAttemptExit('/dashboard'); }}
+                    className={`flex items-center gap-2 w-full px-4 py-2 text-left text-xs font-bold rounded-xl transition-colors border-none bg-transparent cursor-pointer ${sleepMode ? 'hover:bg-slate-850 text-amber-205' : 'hover:bg-slate-50 text-slate-705'}`}
+                  >
+                    🔒 {locale === 'en' ? 'Guardian Panel' : locale === 'es' ? 'Panel del Tutor' : 'Painel do Responsável'}
+                  </button>
+
+                  {/* Como está se sentindo (humor) */}
+                  {!sleepMode && (
+                    <>
+                      <span className={`px-3 pt-2 pb-1 text-[9px] font-black uppercase tracking-wider ${sleepMode ? 'text-amber-200/50' : 'text-slate-400'}`}>
+                        {locale === 'en' ? 'How I feel' : locale === 'es' ? 'Cómo me siento' : 'Como me sinto'}
+                      </span>
+                      <div className="flex gap-1.5 px-2 pb-1">
+                        <button
+                          onClick={() => { playBubble(); handleUpdateBattery('green'); setShowSupportMenu(false); }}
+                          className={`flex-1 flex flex-col items-center gap-0.5 py-2 rounded-xl text-[10px] font-black border transition-all cursor-pointer ${activeChild?.emotionalBattery === 'green' ? 'bg-emerald-50 border-emerald-250 text-emerald-700' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'}`}
+                        >
+                          <span className="text-lg">🔋</span>{locale === 'es' ? 'Bien' : locale === 'en' ? 'Great' : 'Ótimo'}
+                        </button>
+                        <button
+                          onClick={() => { playBubble(); handleUpdateBattery('yellow'); setShowSupportMenu(false); }}
+                          className={`flex-1 flex flex-col items-center gap-0.5 py-2 rounded-xl text-[10px] font-black border transition-all cursor-pointer ${activeChild?.emotionalBattery === 'yellow' ? 'bg-yellow-50 border-yellow-250 text-yellow-755' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'}`}
+                        >
+                          <span className="text-lg">⚡</span>{locale === 'es' ? 'Cansado' : locale === 'en' ? 'Tired' : 'Cansado'}
+                        </button>
+                        <button
+                          onClick={() => { playBubble(); handleUpdateBattery('red'); setShowSupportMenu(false); }}
+                          className={`flex-1 flex flex-col items-center gap-0.5 py-2 rounded-xl text-[10px] font-black border transition-all cursor-pointer ${activeChild?.emotionalBattery === 'red' ? 'bg-red-50 border-red-255 text-red-700' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'}`}
+                        >
+                          <span className="text-lg">🪫</span>{locale === 'es' ? 'Mucho' : locale === 'en' ? 'A lot' : 'Demais'}
+                        </button>
+                      </div>
+                    </>
+                  )}
+
+                  {/* Apoios (gated por interfaceMode) */}
+                  {hasSupportMenu && (
+                    <>
+                      <span className={`px-3 pt-2 pb-1 text-[9px] font-black uppercase tracking-wider ${sleepMode ? 'text-amber-200/50' : 'text-slate-400'}`}>
+                        {locale === 'en' ? 'Supports' : locale === 'es' ? 'Apoyos' : 'Apoios'}
+                      </span>
+                      {showStories && (
+                      <button
+                        onClick={() => { playBubble(); setShowStoriesModal(true); setShowSupportMenu(false); }}
+                        className={`flex items-center gap-2 w-full px-4 py-2 text-left text-xs font-bold rounded-xl transition-colors border-none bg-transparent cursor-pointer ${sleepMode ? 'hover:bg-slate-850 text-amber-205' : 'hover:bg-slate-50 text-slate-705'}`}
+                      >
+                        📖 {locale === 'en' ? 'Stories' : locale === 'es' ? 'Historias' : 'Histórias'}
+                      </button>
+                      )}
+                      {!sleepMode && showMyWorld && (
+                      <button
+                        onClick={() => { playBubble(); setShowHyperfocusModal(true); setShowSupportMenu(false); }}
+                        className="flex items-center gap-2 w-full px-4 py-2 text-left text-xs font-bold rounded-xl transition-colors border-none bg-transparent cursor-pointer hover:bg-slate-50 text-slate-705"
+                      >
+                        🎮 Meu Mundo ({activeChild?.collectedParts || 0}/4)
+                      </button>
+                      )}
+                      {!sleepMode && showShop && (
+                      <button
+                        onClick={() => { playBubble(); setShowShopModal(true); setShowSupportMenu(false); }}
+                        className="flex items-center gap-2 w-full px-4 py-2 text-left text-xs font-bold rounded-xl transition-colors border-none bg-transparent cursor-pointer hover:bg-slate-50 text-slate-705"
+                      >
+                        🛒 {locale === 'en' ? 'Mascot Shop' : locale === 'es' ? 'Tienda del Mascota' : 'Loja do Mascote'}
+                      </button>
+                      )}
+                      {!sleepMode && showNoiseMonitor && (
+                      <button
+                        onClick={() => {
+                          playBubble();
+                          const nextVal = !bgNoiseMonitor;
+                          setBgNoiseMonitor(nextVal);
+                          setShowSupportMenu(false);
+                          if (nextVal) { speakText(t.routine.noiseMonitorActivated); } else { speakText(t.routine.noiseMonitorDeactivated); }
+                        }}
+                        className={`flex items-center gap-2 w-full px-4 py-2 text-left text-xs font-bold rounded-xl transition-colors border-none bg-transparent cursor-pointer hover:bg-slate-50 ${bgNoiseMonitor ? 'text-teal-650 font-extrabold' : 'text-slate-705'}`}
+                      >
+                        🎤 {bgNoiseMonitor ? (locale === 'en' ? 'Disable Monitor' : locale === 'es' ? 'Desactivar Monitor' : 'Desativar Monitor') : (locale === 'en' ? 'Noise Monitor' : locale === 'es' ? 'Monitor de Ruidos' : 'Monitor de Ruídos')}
+                      </button>
+                      )}
+                      {!sleepMode && showSimulator && (
+                      <button
+                        onClick={() => { playBubble(); setShowSimulatorModal(true); setSelectedScenario(null); setSimulatorStep(0); setSimulatorFinished(false); setShowSupportMenu(false); }}
+                        className="flex items-center gap-2 w-full px-4 py-2 text-left text-xs font-bold rounded-xl transition-colors border-none bg-transparent cursor-pointer font-Outfit hover:bg-slate-50 text-slate-705"
+                      >
+                        🎮 {locale === 'en' ? 'Simulator' : locale === 'es' ? 'Simulador' : 'Simulador'}
+                      </button>
+                      )}
+                      {!sleepMode && showHourglass && (
+                      <button
+                        onClick={() => { playBubble(); setShowWaitTimer(!showWaitTimer); setShowSupportMenu(false); }}
+                        className="flex items-center gap-2 w-full px-4 py-2 text-left text-xs font-bold rounded-xl transition-colors border-none bg-transparent cursor-pointer font-Outfit hover:bg-slate-50 text-slate-705"
+                      >
+                        ⏳ {locale === 'en' ? 'Waiting Hourglass' : locale === 'es' ? 'Reloj de Espera' : 'Ampulheta de Espera'}
+                      </button>
+                      )}
+                    </>
+                  )}
+
+                  {/* Ambiente: modo sono + sons */}
+                  {(showSleepMode || (showAmbient && !sleepMode)) && (
+                    <span className={`px-3 pt-2 pb-1 text-[9px] font-black uppercase tracking-wider ${sleepMode ? 'text-amber-200/50' : 'text-slate-400'}`}>
+                      {locale === 'en' ? 'Environment' : locale === 'es' ? 'Ambiente' : 'Ambiente'}
+                    </span>
+                  )}
+                  {showSleepMode && (
+                  <button
+                    onClick={() => {
+                      playBubble();
+                      setSleepMode(!sleepMode);
+                      if (!sleepMode) { speakText(t.routine.sleepModeActivated); } else { speakText(t.routine.sleepModeDeactivated); }
+                      setShowSupportMenu(false);
+                    }}
+                    className={`flex items-center gap-2 w-full px-4 py-2 text-left text-xs font-bold rounded-xl transition-colors border-none bg-transparent cursor-pointer ${sleepMode ? 'hover:bg-slate-850 text-amber-205' : 'hover:bg-slate-50 text-slate-705'}`}
+                  >
+                    🌙 {sleepMode ? (locale === 'en' ? 'Normal Mode' : locale === 'es' ? 'Modo Normal' : 'Modo Normal') : (locale === 'en' ? 'Sleep Mode' : locale === 'es' ? 'Modo Sueño' : 'Modo Sono')}
+                  </button>
+                  )}
+                  {showAmbient && !sleepMode && [
+                    { type: 'none', label: locale === 'es' ? '🔈 Silencioso' : locale === 'en' ? '🔈 Silent' : '🔈 Silencioso' },
+                    { type: 'rain', label: locale === 'es' ? '🌧️ Lluvia' : locale === 'en' ? '🌧️ Rain' : '🌧️ Chuva' },
+                    { type: 'white', label: locale === 'es' ? '🤍 Ruido Blanco' : locale === 'en' ? '🤍 White Noise' : '🤍 Ruído Branco' },
+                    { type: 'pink', label: locale === 'es' ? '💗 Ruido Rosa' : locale === 'en' ? '💗 Pink Noise' : '💗 Ruído Rosa' },
+                    { type: 'binaural', label: locale === 'es' ? '🧠 Foco Binaural' : locale === 'en' ? '🧠 Binaural Focus' : '🧠 Foco Binaural' }
                   ].map(btn => (
                     <button
                       key={btn.type}
-                      onClick={() => {
-                        playBubble();
-                        handleAmbientChange(btn.type as any);
-                        setShowAmbientMenu(false);
-                      }}
-                      className={`w-full px-4 py-2 text-left text-xs font-bold rounded-xl transition-all cursor-pointer border-none bg-transparent ${
-                        activeAmbientType === btn.type ? btn.activeClass : btn.inactiveClass
-                      }`}
-                      title={btn.title}
+                      onClick={() => { playBubble(); handleAmbientChange(btn.type as any); setShowSupportMenu(false); }}
+                      className={`flex items-center gap-2 w-full px-4 py-2 text-left text-xs font-bold rounded-xl transition-colors border-none cursor-pointer ${activeAmbientType === btn.type ? 'bg-blue-50 text-blue-805' : 'bg-transparent hover:bg-slate-50 text-slate-705'}`}
                     >
                       {btn.label}
                     </button>
                   ))}
+
+                  {/* Idioma */}
+                  <span className={`px-3 pt-2 pb-1 text-[9px] font-black uppercase tracking-wider ${sleepMode ? 'text-amber-200/50' : 'text-slate-400'}`}>
+                    {locale === 'en' ? 'Language' : locale === 'es' ? 'Idioma' : 'Idioma'}
+                  </span>
+                  <div className="px-3 pb-1">
+                    <LanguageSelector />
+                  </div>
                 </div>
               )}
             </div>
-            <div className="shrink-0">
-              <LanguageSelector />
-            </div>
           </div>
+
         </div>
       </div>
 
