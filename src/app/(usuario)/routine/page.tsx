@@ -3450,8 +3450,8 @@ export default function ChildRoutine() {
             </>
           ) : (
             <>
-              <div className="absolute top-[20%] left-[-15%] w-80 h-80 bg-blue-200/40 rounded-full filter blur-3xl opacity-60 animate-pulse"></div>
-              <div className="absolute bottom-[20%] right-[-15%] w-96 h-96 bg-indigo-200/30 rounded-full filter blur-3xl opacity-50 animate-pulse" style={{ animationDelay: '2s' }}></div>
+              <div className="absolute top-[22%] left-[-18%] w-80 h-80 bg-indigo-100/40 rounded-full filter blur-3xl opacity-40"></div>
+              <div className="absolute bottom-[22%] right-[-18%] w-96 h-96 bg-indigo-100/30 rounded-full filter blur-3xl opacity-30"></div>
             </>
           )}
         </div>
@@ -3468,7 +3468,7 @@ export default function ChildRoutine() {
             <button 
               onClick={() => handleAttemptExit('/')}
               onMouseEnter={playBubble}
-              className={`flex items-center gap-1.5 px-5 py-3 sm:px-6 sm:py-3.5 text-xs sm:text-sm font-black rounded-full border-2 shadow-premium transition-all active:scale-95 cursor-pointer shrink-0 whitespace-nowrap ${
+              className={`flex items-center gap-1.5 px-5 py-3 sm:px-6 sm:py-3.5 text-xs sm:text-sm font-black rounded-full border shadow-sm transition-all active:scale-95 cursor-pointer shrink-0 whitespace-nowrap ${
                 sleepMode 
                   ? 'bg-slate-905 border-slate-700 text-amber-200 hover:bg-slate-805' 
                   : 'bg-white hover:bg-slate-50 border-slate-350 text-slate-805'
@@ -3480,7 +3480,7 @@ export default function ChildRoutine() {
             <button 
               onClick={() => handleAttemptExit('/dashboard')}
               onMouseEnter={playBubble}
-              className={`flex items-center gap-1.5 px-5 py-3 sm:px-6 sm:py-3.5 text-xs sm:text-sm font-black rounded-full border-2 shadow-premium transition-all active:scale-95 cursor-pointer shrink-0 whitespace-nowrap ${
+              className={`flex items-center gap-1.5 px-5 py-3 sm:px-6 sm:py-3.5 text-xs sm:text-sm font-black rounded-full border shadow-sm transition-all active:scale-95 cursor-pointer shrink-0 whitespace-nowrap ${
                 sleepMode 
                   ? 'bg-slate-905 border-slate-700 text-amber-200 hover:bg-slate-805' 
                   : 'bg-white hover:bg-slate-50 border-slate-350 text-slate-850'
@@ -3495,9 +3495,9 @@ export default function ChildRoutine() {
               <button
                 onClick={() => { playBubble(); setShowSupportMenu(!showSupportMenu); }}
                 onMouseEnter={playBubble}
-                className={`flex items-center gap-1.5 px-5 py-3 sm:px-6 sm:py-3.5 border-2 text-xs sm:text-sm font-black rounded-full shadow-premium transition-all active:scale-95 cursor-pointer shrink-0 whitespace-nowrap ${
-                  sleepMode 
-                    ? 'bg-amber-950/20 border-amber-900/50 text-amber-300 hover:bg-amber-950/55' 
+                className={`flex items-center gap-1.5 px-5 py-3 sm:px-6 sm:py-3.5 border text-xs sm:text-sm font-black rounded-full shadow-sm transition-all active:scale-95 cursor-pointer shrink-0 whitespace-nowrap ${
+                  sleepMode
+                    ? 'bg-amber-950/20 border-amber-900/50 text-amber-300 hover:bg-amber-950/55'
                     : 'bg-white hover:bg-indigo-50 border-indigo-250 text-indigo-700'
                 }`}
               >
@@ -3981,7 +3981,7 @@ export default function ChildRoutine() {
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.97 }}
                     transition={transitionConfig}
-                    className={`bg-white border-4 rounded-[36px] p-8 shadow-premium flex flex-col lg:grid lg:grid-cols-12 lg:gap-8 items-center justify-center text-center gap-6 relative overflow-hidden transition-all duration-500 border-t-8 border-t-transparent md:col-span-${showWaitTimer ? '8' : '12'} ${category.shadow}`}
+                    className={`bg-white border border-slate-200/70 rounded-[28px] p-8 shadow-premium flex flex-col lg:grid lg:grid-cols-12 lg:gap-8 items-center justify-center text-center gap-6 relative overflow-hidden transition-all duration-500 border-t-4 border-t-transparent md:col-span-${showWaitTimer ? '8' : '12'} ${category.shadow}`}
                   >
                     {/* Glowing outer soft neon reflection underneath */}
                     {effectiveVisuals === 'rich' && (
@@ -4159,7 +4159,7 @@ export default function ChildRoutine() {
                         {effectiveVisuals === 'rich' && (
                           <div className={`absolute -inset-1 rounded-full bg-gradient-to-tr ${category.gradient} opacity-15 filter blur-md`}></div>
                         )}
-                        <div className={`absolute bottom-2 right-2 w-9 h-9 rounded-full bg-gradient-to-tr ${category.gradient} flex items-center justify-center shadow-md animate-bounce`}>
+                        <div className={`absolute bottom-2 right-2 w-9 h-9 rounded-full bg-gradient-to-tr ${category.gradient} flex items-center justify-center shadow-md`}>
                           <category.icon className="w-5.5 h-5.5 text-white" />
                         </div>
                         <div className="relative">
