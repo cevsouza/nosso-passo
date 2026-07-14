@@ -79,10 +79,10 @@ export default function Home() {
   }, []);
 
   const portals = [
-    { href: '/routine', icon: Gamepad2, title: info.kidsTitle, desc: info.kidsDesc, tint: '#e4eeee', color: '#2c6a68', freq: 261.63 },
-    { href: '/login', icon: Users, title: info.parentsTitle, desc: info.parentsDesc, tint: '#e0efe7', color: '#4b8b6f', freq: 329.63 },
-    { href: '/therapist', icon: Stethoscope, title: info.therapistsTitle, desc: info.therapistsDesc, tint: '#e7eef4', color: '#3f6f8f', freq: 392.0 },
-    { href: '/school', icon: GraduationCap, title: info.schoolTitle, desc: info.schoolDesc, tint: '#f4ebd7', color: '#b5822f', freq: 440.0 },
+    { href: '/routine', icon: Gamepad2, title: info.kidsTitle, desc: info.kidsDesc, tint: '#e4e7fc', color: '#5468e6', freq: 261.63 },
+    { href: '/login', icon: Users, title: info.parentsTitle, desc: info.parentsDesc, tint: '#eee6fb', color: '#8a66d9', freq: 329.63 },
+    { href: '/therapist', icon: Stethoscope, title: info.therapistsTitle, desc: info.therapistsDesc, tint: '#dfe3fb', color: '#4658de', freq: 392.0 },
+    { href: '/school', icon: GraduationCap, title: info.schoolTitle, desc: info.schoolDesc, tint: '#efe6fb', color: '#9c7be6', freq: 440.0 },
   ];
 
   return (
@@ -105,7 +105,7 @@ export default function Home() {
           initial={{ opacity: 0, y: -8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="inline-flex items-center gap-2 text-[11px] md:text-xs font-black uppercase tracking-widest text-[#2c6a68] bg-[#e4eeee] border border-[#cfe0df] px-3.5 py-1.5 rounded-full"
+          className="inline-flex items-center gap-2 text-[11px] md:text-xs font-black uppercase tracking-widest text-[#5468e6] bg-[#e4e7fc] border border-[#d3d9fa] px-3.5 py-1.5 rounded-full"
         >
           🌸 {info.eyebrow}
         </motion.span>
@@ -184,7 +184,7 @@ export default function Home() {
       {/* Footer */}
       <footer className="w-full max-w-5xl mx-auto px-5 md:px-8 py-6 mt-auto border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-[10px] text-slate-400 font-bold tracking-widest uppercase">
         <div className="flex items-center gap-1.5">
-          <Heart className="w-3 h-3 fill-[#c15a4e] text-[#c15a4e]" />
+          <Heart className="w-3 h-3 fill-[#9c7be6] text-[#9c7be6]" />
           <span>{t.landing.badgeNeuro}</span>
         </div>
         <span className="text-center">{t.landing.footerFriendly} | {t.landing.footerCopyright}</span>

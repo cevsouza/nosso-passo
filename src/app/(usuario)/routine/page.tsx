@@ -4109,7 +4109,7 @@ export default function ChildRoutine() {
                                 ? 'bg-gradient-to-r from-emerald-400 to-emerald-500 text-white animate-pulse motion-ok border-emerald-600/70 cursor-default'
                                 : isActiveLocked
                                 ? 'bg-slate-200 border-slate-300 text-slate-400 cursor-not-allowed shadow-none'
-                                : `bg-gradient-to-r ${category.gradient} text-white hover:opacity-95 shadow-md cursor-pointer`
+                                : `grad-primary hover:brightness-105 shadow-md cursor-pointer`
                             }`}
                           >
                             {celebratingTaskId === activeTask.id ? (
