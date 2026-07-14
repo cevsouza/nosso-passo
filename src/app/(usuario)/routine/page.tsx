@@ -4429,72 +4429,22 @@ export default function ChildRoutine() {
               </div>
             ) : (
               /* THE ROUTINE TRAIL - GAMIFIED PROGRESS TRACKER (RICH VISUALS) */
-              <div className="bg-slate-50/70 border border-slate-200 p-4.5 rounded-[28px] shadow-sm flex flex-col gap-3 text-left w-full md:col-span-12 mt-4">
-                <h3 className="font-black text-xs text-slate-655 uppercase tracking-widest flex items-center gap-1.5 select-none font-Outfit">
-                  🚂 {locale === 'en' ? 'My Missions Trail:' : locale === 'es' ? 'Sendero de Mis Misiones:' : 'Trilha das Minhas Missões:'}
-                </h3>
-                
-                <div className="relative flex items-center justify-between px-4 py-6 overflow-x-auto min-h-[100px] gap-6">
-                  
-                  {/* Visual Connector Line */}
-                  <div className="absolute top-[48px] left-[40px] right-[40px] h-2 bg-slate-300 -z-10 rounded-full" />
-                  
-                  {todayTasks.map((task, idx) => {
-                    const taskCat = getTaskCategory(task.title);
-                    const isCompleted = task.isCompleted;
-                    const isActive = activeTask?.id === task.id;
-                    
-                    return (
-                      <div key={task.id} className="flex flex-col items-center gap-2 shrink-0 relative">
-                        
-                        {/* Active Indicator Arrow / Mascot Pointer */}
-                        {isActive && (
-                          <div className="absolute top-[-30px] text-lg pointer-events-none">
-                            🐾
-                          </div>
-                        )}
-
-                        {/* Node circle */}
-                        <motion.div
-                          whileHover={{ scale: 1.08 }}
-                          whileTap={{ scale: 0.95 }}
-                          onClick={() => {
-                            playBubble();
-                            speakText(task.title);
-                          }}
-                          className={`w-12 h-12 rounded-full flex items-center justify-center border-2 transition-all cursor-pointer relative ${
-                            isCompleted
-                              ? 'bg-gradient-to-tr from-emerald-600 to-green-700 text-white border-2 border-white shadow-glow-green scale-95'
-                              : isActive
-                              ? `bg-white text-indigo-900 border-3 border-indigo-650 scale-110 shadow-lg ring-4 ring-indigo-250`
-                              : 'bg-slate-200 text-slate-700 border-2 border-slate-350'
-                          }`}
-                        >
-                          {isCompleted ? (
-                            <Check className="w-5 h-5 text-white" />
-                          ) : task.customIcon ? (
-                            <img src={task.customIcon} alt="" className="w-full h-full object-cover rounded-full" />
-                          ) : task.icon ? (
-                            <span className="text-xl select-none">{task.icon}</span>
-                          ) : (
-                            <taskCat.icon className={`w-5 h-5 ${isActive ? 'text-indigo-600 animate-pulse' : 'text-slate-450'}`} />
-                          )}
-                          
-                          {/* Task Order Number Badge */}
-                          <span className="absolute bottom-[-6px] right-[-6px] bg-slate-800 text-white text-[8px] font-black w-4.5 h-4.5 rounded-full flex items-center justify-center border border-white select-none">
-                            {idx + 1}
-                          </span>
-                        </motion.div>
-
-                        {/* Node Label (Short title) */}
-                        <span className={`text-[10px] font-black max-w-[80px] text-center truncate ${
-                          isActive ? 'text-slate-850 font-black' : 'text-slate-400'
-                        }`}>
-                          {task.title.replace(/🪥|🚿|🍳|🏫|📚|🍱|🛌|🎮|🎒/g, '').trim()}
-                        </span>
-                      </div>
-                    );
-                  })}
+              <div className="w-full md:col-span-12 flex flex-col mt-2">
+                {/* Depois */}
+                {nextTasks.length > 0 && (
+                  <div className="flex items-center gap-3 py-4 border-t border-slate-100">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 min-w-[52px]">{t.routine.then}</span>
+                    <span className="text-lg select-none">{nextTasks[0].icon || '📅'}</span>
+                    <span className="text-base font-black text-slate-700 truncate">{nextTasks[0].title}</span>
+                  </div>
+                )}
+                {/* Dia — progresso */}
+                <div className="flex items-center gap-3 py-4 border-t border-slate-100">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 min-w-[52px]">{locale === 'en' ? 'Day' : locale === 'es' ? 'Día' : 'Dia'}</span>
+                  <span className="text-sm font-black text-slate-500 tabular-nums">{completedTasks.length} / {todayTasks.length}</span>
+                  <span className="flex-1 h-2 rounded-full bg-slate-200 overflow-hidden ml-1">
+                    <span className="block h-full bg-indigo-600 rounded-full transition-all duration-500" style={{ width: `${todayTasks.length ? Math.round((completedTasks.length / todayTasks.length) * 100) : 0}%` }}></span>
+                  </span>
                 </div>
               </div>
             )}
