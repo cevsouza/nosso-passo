@@ -465,6 +465,44 @@ export const firebaseBridge = {
       }
     },
 
+    // ---- Role-scoped access codes (support network) ----
+    listAccessCodes: async (childId: string): Promise<any[]> => {
+      const current = getLocalProfile();
+      if (!current) return [];
+      const res = await safeFetch(`/api/share?childId=${childId}`, {
+        headers: { 'x-user-uid': current.uid }
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      return data;
+    },
+
+    createAccessCode: async (childId: string, role: string, label?: string, expiresInDays?: number): Promise<any> => {
+      const current = getLocalProfile();
+      if (!current) throw new Error('Usuário não está logado');
+      const res = await safeFetch('/api/share', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-user-uid': current.uid },
+        body: JSON.stringify({ childId, role, label, expiresInDays })
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      return data;
+    },
+
+    revokeAccessCode: async (id: string): Promise<any> => {
+      const current = getLocalProfile();
+      if (!current) throw new Error('Usuário não está logado');
+      const res = await safeFetch('/api/share', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', 'x-user-uid': current.uid },
+        body: JSON.stringify({ id, revoked: true })
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      return data;
+    },
+
     getActiveChild: (): Child | null => {
       if (typeof window === 'undefined') return null;
       const stored = localStorage.getItem('tea_active_child');

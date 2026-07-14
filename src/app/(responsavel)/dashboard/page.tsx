@@ -16,6 +16,8 @@ import { useLanguage } from '../../../lib/LanguageContext';
 
 import { LanguageSelector } from '../../../components/LanguageSelector';
 
+import { AccessCodesManager } from '../../../components/AccessCodesManager';
+
 import { getTaskCategory, TaskCategory } from '../../../lib/sensory-standards';
 
 import { CollieState } from '../../../components/ludic/BorderCollie';
@@ -7122,6 +7124,12 @@ function ParentDashboardContent() {
           </div>
 
           {/* Sub-tab menus for Feedback and Tools */}
+          {activePanelTab === 'feedback' && (
+            <div className="mb-5">
+              <AccessCodesManager childId={activeChild?.id} locale={(locale === 'en' || locale === 'es') ? locale : 'pt'} />
+            </div>
+          )}
+
           {activePanelTab === 'feedback' && (
             <div className="bg-slate-100 border border-slate-200 p-1 rounded-xl flex gap-1 mb-4 w-fit">
               <button
