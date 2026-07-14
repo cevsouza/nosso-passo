@@ -6046,7 +6046,7 @@ function ParentDashboardContent() {
 
           <div className="flex items-center gap-2.5">
 
-            <div className="w-9 h-9 md:w-10 md:h-10 bg-indigo-100 text-indigo-850 rounded-xl flex items-center justify-center font-bold text-base md:text-lg shadow-sm border border-indigo-200 shrink-0">
+            <div className="w-9 h-9 md:w-10 md:h-10 grad-primary text-white rounded-xl flex items-center justify-center font-bold text-base md:text-lg shadow-sm shrink-0">
 
               PA
 
@@ -7079,7 +7079,7 @@ function ParentDashboardContent() {
                 onClick={() => { playBubble(); setActivePanelTab('tasks'); }}
                 className={`flex-1 py-2.5 text-xs font-black rounded-xl transition-all flex items-center justify-center gap-2 shrink-0 font-Outfit cursor-pointer select-none active:scale-95 ${
                   activePanelTab === 'tasks' 
-                    ? 'bg-white text-indigo-950 shadow-sm border border-slate-200/50 scale-100' 
+                    ? 'grad-primary text-white shadow-sm border border-transparent scale-100' 
                     : 'text-slate-655 hover:text-slate-900 hover:bg-white/40 border border-transparent'
                 }`}
               >
@@ -7090,7 +7090,7 @@ function ParentDashboardContent() {
                 onClick={() => { playBubble(); setActivePanelTab('feedback'); }}
                 className={`flex-1 py-2.5 text-xs font-black rounded-xl transition-all flex items-center justify-center gap-2 shrink-0 font-Outfit cursor-pointer select-none active:scale-95 ${
                   activePanelTab === 'feedback' 
-                    ? 'bg-white text-indigo-950 shadow-sm border border-slate-200/50 scale-100' 
+                    ? 'grad-primary text-white shadow-sm border border-transparent scale-100' 
                     : 'text-slate-655 hover:text-slate-900 hover:bg-white/40 border border-transparent'
                 }`}
               >
@@ -7101,7 +7101,7 @@ function ParentDashboardContent() {
                 onClick={() => { playBubble(); setActivePanelTab('tools'); }}
                 className={`flex-1 py-2.5 text-xs font-black rounded-xl transition-all flex items-center justify-center gap-2 shrink-0 font-Outfit cursor-pointer select-none active:scale-95 ${
                   activePanelTab === 'tools' 
-                    ? 'bg-white text-indigo-950 shadow-sm border border-slate-200/50 scale-100' 
+                    ? 'grad-primary text-white shadow-sm border border-transparent scale-100' 
                     : 'text-slate-655 hover:text-slate-900 hover:bg-white/40 border border-transparent'
                 }`}
               >
@@ -8210,17 +8210,17 @@ function ParentDashboardContent() {
                       : '—';
                     return (
                       <div className="grid grid-cols-3 gap-3">
-                        <div className="bg-slate-50 border border-slate-200 rounded-xl p-3.5">
+                        <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4">
                           <div className="text-[10px] font-black uppercase tracking-wider text-slate-400">{locale === 'en' ? 'Done today' : locale === 'es' ? 'Hechas hoy' : 'Feitas hoje'}</div>
-                          <div className="text-2xl font-black text-slate-800 font-Outfit mt-0.5">{done}<span className="text-sm text-slate-400"> / {total}</span></div>
+                          <div className="text-2xl font-black text-indigo-700 font-Outfit mt-0.5">{done}<span className="text-sm text-slate-400"> / {total}</span></div>
                         </div>
-                        <div className="bg-slate-50 border border-slate-200 rounded-xl p-3.5">
+                        <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4">
                           <div className="text-[10px] font-black uppercase tracking-wider text-slate-400">{locale === 'en' ? 'Stars' : locale === 'es' ? 'Estrellas' : 'Estrelas'}</div>
-                          <div className="text-2xl font-black text-slate-800 font-Outfit mt-0.5">{activeChild.tokens || 0}</div>
+                          <div className="text-2xl font-black text-indigo-700 font-Outfit mt-0.5">{activeChild.tokens || 0}</div>
                         </div>
-                        <div className="bg-slate-50 border border-slate-200 rounded-xl p-3.5">
+                        <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4">
                           <div className="text-[10px] font-black uppercase tracking-wider text-slate-400">{locale === 'en' ? 'Mood' : locale === 'es' ? 'Ánimo' : 'Humor'}</div>
-                          <div className="text-lg font-black text-slate-800 font-Outfit mt-1">{mood}</div>
+                          <div className="text-lg font-black text-indigo-700 font-Outfit mt-1">{mood}</div>
                         </div>
                       </div>
                     );
