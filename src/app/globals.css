@@ -248,6 +248,20 @@ h1, h2, h3, h4, h5, h6 {
   animation: none;
 }
 
+/* Calm by default: neutralize perpetual attention-grabbing loops across the
+   whole app (moons/badges/emojis that pulse or bounce forever = sensory noise).
+   Loaders (animate-spin) and one-shot entrance (animate-pop) are intentionally
+   kept. Transient feedback that still needs motion can opt back in with the
+   `motion-ok` class. */
+.animate-pulse,
+.animate-bounce,
+.animate-ping {
+  animation: none !important;
+}
+
+.motion-ok.animate-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite !important; }
+.motion-ok.animate-bounce { animation: bounce 1s infinite !important; }
+
 /* Layout Utilities */
 .container {
   width: 100%;
