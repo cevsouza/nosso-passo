@@ -1088,7 +1088,7 @@ function ParentDashboardContent() {
 
     monitoring: false,
 
-    tools: false,
+    tools: true,
 
     actions: true,
 
@@ -2058,7 +2058,7 @@ function ParentDashboardContent() {
 
     dictionary: false,        // Default collapsed
 
-    quickActions: false,      // Default collapsed
+    quickActions: true,       // Advanced — collapsed by default
 
   });
 
@@ -12315,6 +12315,10 @@ function ParentDashboardContent() {
               >
                 {/* Profile Card */}
                 <div className="flex flex-col gap-6">
+                  <div className="flex items-center gap-2 px-1 pt-1">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">{locale === 'en' ? 'Essentials' : locale === 'es' ? 'Esenciales' : 'Essenciais'}</span>
+                    <span className="flex-1 h-px bg-slate-200"></span>
+                  </div>
                   {/* Child Hyperfocus Profile Card */}
 
           <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-premium flex flex-col gap-4">
@@ -12898,9 +12902,13 @@ function ParentDashboardContent() {
 
                 {/* Quick Actions Card */}
                 <div className="flex flex-col gap-6">
+                  <div className="flex items-center gap-2 px-1 pt-1">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">{locale === 'en' ? 'Advanced' : locale === 'es' ? 'Avanzado' : 'Avançado'}</span>
+                    <span className="flex-1 h-px bg-slate-200"></span>
+                  </div>
                   {/* Quick Actions Card */}
 
-          <div className="bg-white border-2 border-slate-250 rounded-3xl p-6 shadow-premium">
+          <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-premium">
 
             <button
 
@@ -13073,7 +13081,7 @@ function ParentDashboardContent() {
 
           {activeChild && (
 
-            <div className="bg-white border-2 border-slate-250 rounded-3xl p-6 shadow-premium">
+            <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-premium">
 
               <button
 
