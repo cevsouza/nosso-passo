@@ -6040,13 +6040,13 @@ function ParentDashboardContent() {
 
       {/* Header bar */}
 
-      <header className="bg-white border-b-2 border-slate-250 sticky top-0 z-30 shadow-premium">
+      <header className="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
 
         <div className="max-w-6xl mx-auto px-4 py-3 md:py-4 flex flex-row items-center justify-between gap-2">
 
           <div className="flex items-center gap-2.5">
 
-            <div className="w-9 h-9 md:w-10 md:h-10 bg-indigo-100 text-indigo-850 rounded-xl flex items-center justify-center font-bold text-base md:text-lg shadow-sm border-2 border-indigo-200 shrink-0">
+            <div className="w-9 h-9 md:w-10 md:h-10 bg-indigo-100 text-indigo-850 rounded-xl flex items-center justify-center font-bold text-base md:text-lg shadow-sm border border-indigo-200 shrink-0">
 
               PA
 
@@ -7074,13 +7074,13 @@ function ParentDashboardContent() {
           {/* Sticky Tab Bar Container for Desktop/Tablet landscape navigation */}
 
           <div className="sticky top-[130px] md:top-[80px] z-20 bg-[#f8fafc]/95 backdrop-blur-md py-3 -mx-2 px-2">
-            <div className="bg-slate-100/80 p-1.5 rounded-2xl flex shadow-inner gap-1 overflow-x-auto scrollbar-none">
+            <div className="bg-slate-100 border border-slate-200 p-1 rounded-xl flex gap-1 overflow-x-auto scrollbar-none">
               <button
                 onClick={() => { playBubble(); setActivePanelTab('tasks'); }}
                 className={`flex-1 py-2.5 text-xs font-black rounded-xl transition-all flex items-center justify-center gap-2 shrink-0 font-Outfit cursor-pointer select-none active:scale-95 ${
                   activePanelTab === 'tasks' 
                     ? 'bg-white text-indigo-950 shadow-sm border border-slate-200/50 scale-100' 
-                    : 'text-slate-655 hover:text-slate-900 hover:bg-white/40 border-2 border-transparent'
+                    : 'text-slate-655 hover:text-slate-900 hover:bg-white/40 border border-transparent'
                 }`}
               >
                 <ListTodo className="w-4.5 h-4.5" /> {locale === 'es' ? 'Agenda 📅' : locale === 'en' ? 'Schedule 📅' : 'Agenda'}
@@ -7091,7 +7091,7 @@ function ParentDashboardContent() {
                 className={`flex-1 py-2.5 text-xs font-black rounded-xl transition-all flex items-center justify-center gap-2 shrink-0 font-Outfit cursor-pointer select-none active:scale-95 ${
                   activePanelTab === 'feedback' 
                     ? 'bg-white text-indigo-950 shadow-sm border border-slate-200/50 scale-100' 
-                    : 'text-slate-655 hover:text-slate-900 hover:bg-white/40 border-2 border-transparent'
+                    : 'text-slate-655 hover:text-slate-900 hover:bg-white/40 border border-transparent'
                 }`}
               >
                 <span className="text-sm">🤝</span> {locale === 'es' ? 'Retorno de la Red' : locale === 'en' ? 'Network Feedback' : 'Retorno da Rede'}
@@ -7102,7 +7102,7 @@ function ParentDashboardContent() {
                 className={`flex-1 py-2.5 text-xs font-black rounded-xl transition-all flex items-center justify-center gap-2 shrink-0 font-Outfit cursor-pointer select-none active:scale-95 ${
                   activePanelTab === 'tools' 
                     ? 'bg-white text-indigo-950 shadow-sm border border-slate-200/50 scale-100' 
-                    : 'text-slate-655 hover:text-slate-900 hover:bg-white/40 border-2 border-transparent'
+                    : 'text-slate-655 hover:text-slate-900 hover:bg-white/40 border border-transparent'
                 }`}
               >
                 <Settings className="w-4.5 h-4.5" /> {locale === 'es' ? 'Configuraciones' : locale === 'en' ? 'Settings & Logs' : 'Configurações & Logs'}
@@ -7112,7 +7112,7 @@ function ParentDashboardContent() {
 
           {/* Sub-tab menus for Feedback and Tools */}
           {activePanelTab === 'feedback' && (
-            <div className="bg-slate-100/80 p-1 rounded-xl flex shadow-inner gap-1 mb-4 w-fit">
+            <div className="bg-slate-100 border border-slate-200 p-1 rounded-xl flex gap-1 mb-4 w-fit">
               <button
                 onClick={() => { playBubble(); setActiveFeedbackSubTab('checkpoints'); }}
                 className={`px-4 py-1.5 text-xs font-black rounded-lg transition-all cursor-pointer ${
@@ -7137,7 +7137,7 @@ function ParentDashboardContent() {
           )}
 
           {activePanelTab === 'tools' && (
-            <div className="bg-slate-100/80 p-1 rounded-xl flex shadow-inner gap-1 mb-4 w-fit">
+            <div className="bg-slate-100 border border-slate-200 p-1 rounded-xl flex gap-1 mb-4 w-fit">
               <button
                 onClick={() => { playBubble(); setActiveToolsSubTab('config'); }}
                 className={`px-4 py-1.5 text-xs font-black rounded-lg transition-all flex items-center gap-1.5 cursor-pointer ${
