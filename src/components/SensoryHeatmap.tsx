@@ -110,7 +110,7 @@ export const SensoryHeatmap: React.FC<SensoryHeatmapProps> = ({ logs }) => {
 
       // Coordinates labels
       ctx.fillStyle = '#94a3b8'; // slate-400
-      ctx.font = '8px Nunito';
+      ctx.font = '600 8px sans-serif';
       ctx.fillText(`Lat: ${minLat.toFixed(4)} ... ${maxLat.toFixed(4)}`, 10, 15);
       ctx.fillText(`Lng: ${minLng.toFixed(4)} ... ${maxLng.toFixed(4)}`, 10, 27);
       ctx.fillText('Mapa de Calor de Desregulação Sensorial (GPS)', width - 180, 15);

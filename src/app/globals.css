@@ -1,8 +1,15 @@
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Outfit:wght@600;800;900&display=swap');
 @import "tailwindcss";
 
 
 @theme {
+  /* ===== Typography =====
+     Fonts are loaded via next/font in layout.tsx and exposed as CSS variables.
+     Mapping them here also generates the utilities the app already uses
+     (font-sans, font-Outfit, font-display). Jakarta = body/UI, Outfit = display. */
+  --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-display: var(--font-outfit), var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+  --font-Outfit: var(--font-outfit), var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+
   /* ===== Calm & Minimalist palette =====
      Token names kept stable (slate/indigo/rose) so thousands of existing
      classNames map to the new calm colors. Values retuned for low arousal. */
@@ -149,20 +156,24 @@
 }
 
 body {
-  font-family: 'Nunito', sans-serif;
+  font-family: var(--font-jakarta), ui-sans-serif, system-ui, -apple-system, sans-serif;
   background-color: var(--bg-color);
   color: var(--text-primary);
-  line-height: 1.5;
+  line-height: 1.55;
+  letter-spacing: -0.006em;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: 'Outfit', sans-serif;
-  font-weight: 800;
-  letter-spacing: -0.02em;
+  font-family: var(--font-outfit), var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
   color: var(--text-primary);
 }
 
@@ -180,8 +191,9 @@ h1, h2, h3, h4, h5, h6 {
   align-items: center;
   justify-content: center;
   padding: 0.85rem 1.75rem;
-  font-weight: 800;
-  font-family: 'Outfit', sans-serif;
+  font-weight: 700;
+  font-family: var(--font-outfit), var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: -0.01em;
   border-radius: var(--radius-full);
   border: 1px solid transparent;
   cursor: pointer;
@@ -335,7 +347,7 @@ h1, h2, h3, h4, h5, h6 {
   .pecs-card-title {
     font-size: 1.25rem !important;
     font-weight: 900 !important;
-    font-family: 'Outfit', sans-serif !important;
+    font-family: var(--font-outfit), sans-serif !important;
     color: #0f172a !important;
   }
 }

@@ -6099,7 +6099,7 @@ function ParentDashboardContent() {
                           key={tab}
                           type="button"
                           onClick={() => { playBubble(); setActivePrefTab(tab); }}
-                          className={`flex-1 py-1 rounded-lg text-[8px] font-black uppercase tracking-wider transition-all cursor-pointer text-center ${
+                          className={`flex-1 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wide transition-all cursor-pointer text-center ${
                             activePrefTab === tab
                               ? 'bg-indigo-100 text-indigo-950 font-black dark:bg-indigo-900/60 dark:text-indigo-200'
                               : 'text-slate-400 hover:text-slate-700 hover:bg-slate-50 dark:text-slate-500 dark:hover:bg-slate-800/40 dark:hover:text-slate-300'
@@ -6198,8 +6198,8 @@ function ParentDashboardContent() {
                         {activeChild ? (
                           <>
                             {/* Interface Complexity Level */}
-                            <div className="flex flex-col gap-1 p-2.5 rounded-xl bg-indigo-50/70 dark:bg-indigo-950/30 border border-indigo-200 dark:border-indigo-900">
-                              <span className="text-[8px] font-black text-indigo-500 dark:text-indigo-300 uppercase tracking-wider">
+                            <div className="flex flex-col gap-1 p-3 rounded-xl bg-indigo-50/70 dark:bg-indigo-950/30 border border-indigo-200 dark:border-indigo-900">
+                              <span className="text-[11px] font-black text-indigo-600 dark:text-indigo-300 uppercase tracking-wide">
                                 {locale === 'en' ? '🎚️ Interface Level (Complexity)' : locale === 'es' ? '🎚️ Nivel de Interfaz (Complejidad)' : '🎚️ Nível de Interface (Complexidade)'}
                               </span>
                               <select

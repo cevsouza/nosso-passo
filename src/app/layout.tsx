@@ -1,12 +1,22 @@
 import type { Metadata, Viewport } from "next";
-import { Nunito } from "next/font/google";
+import { Plus_Jakarta_Sans, Outfit } from "next/font/google";
 import { LanguageProvider } from "@/lib/LanguageContext";
 import "./globals.css";
 
-const nunito = Nunito({
-  variable: "--font-nunito",
+// Body / UI text — warm but refined humanist sans.
+const jakarta = Plus_Jakarta_Sans({
+  variable: "--font-jakarta",
   subsets: ["latin"],
-  weight: ["400", "600", "700", "800"],
+  weight: ["400", "500", "600", "700", "800"],
+  display: "swap",
+});
+
+// Display / headings / chrome — elegant geometric (wired to the `font-Outfit` class used across the app).
+const outfit = Outfit({
+  variable: "--font-outfit",
+  subsets: ["latin"],
+  weight: ["500", "600", "700", "800"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -35,7 +45,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR">
-      <body className={`${nunito.variable}`}>
+      <body className={`${jakarta.variable} ${outfit.variable}`}>
         <script
           dangerouslySetInnerHTML={{
             __html: `
