@@ -508,10 +508,10 @@ export default function TherapistPortal() {
           
           {/* Header Card */}
           <div className="bg-white border-2 border-slate-250 rounded-[28px] p-6 shadow-premium flex flex-col md:flex-row md:items-center justify-between gap-4 relative overflow-hidden">
-            <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-teal-500 to-indigo-500"></div>
+            <div className="absolute top-0 inset-x-0 h-1 grad-primary"></div>
             
             <div className="flex items-center gap-4">
-              <div className="w-16 h-16 bg-gradient-to-tr from-teal-500 to-cyan-600 text-white rounded-2xl flex items-center justify-center text-3xl shadow-md select-none font-Outfit">
+              <div className="w-16 h-16 grad-primary text-white rounded-2xl flex items-center justify-center text-3xl shadow-md select-none font-Outfit">
                 {childData.gender === 'Feminino' ? '👧' : childData.gender === 'Masculino' ? '👦' : '👶'}
               </div>
               <div className="text-left">
@@ -558,7 +558,7 @@ export default function TherapistPortal() {
           </div>
 
           {/* Sticky Tab Bar Container for Therapist Portal */}
-          <div className="sticky top-[130px] md:top-[80px] z-20 bg-[#eff6ff]/95 backdrop-blur-md py-3 -mx-2 px-2 print:hidden">
+          <div className="sticky top-[130px] md:top-[80px] z-20 bg-[#f2f0fc]/95 backdrop-blur-md py-3 -mx-2 px-2 print:hidden">
             <div className="bg-slate-100/80 p-1.5 rounded-2xl flex shadow-inner gap-1 overflow-x-auto scrollbar-none">
               <button
                 type="button"
@@ -1255,7 +1255,7 @@ export default function TherapistPortal() {
           {/* Analysis & Diary Tab Content */}
           <div className={activeTab === 'analysis' ? "w-full flex flex-col gap-6" : "hidden print:flex print:flex-col print:gap-6 print:w-full"}>
           {/* Clinical Correlation & AI Banner */}
-          <div className="bg-gradient-to-r from-teal-50 to-cyan-50 border-2 border-teal-150 p-4.5 rounded-[24px] text-left shadow-sm flex items-start gap-3.5">
+          <div className="grad-soft border border-slate-200 p-4.5 rounded-[24px] text-left shadow-sm flex items-start gap-3.5">
             <div className="w-10 h-10 bg-teal-100 text-teal-700 rounded-xl flex items-center justify-center text-xl shrink-0 shadow-inner border border-teal-150">
               🧠
             </div>

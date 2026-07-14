@@ -146,7 +146,7 @@ export default function ParentAuth() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full mt-3 py-4 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white font-black rounded-xl text-xs shadow-glow-indigo transition-all flex items-center justify-center gap-2 cursor-pointer uppercase tracking-widest border-b-4 border-indigo-900 font-Outfit"
+            className="w-full mt-3 py-4 grad-primary hover:brightness-105 active:scale-95 text-white font-black rounded-xl text-xs shadow-glow-indigo transition-all flex items-center justify-center gap-2 cursor-pointer uppercase tracking-widest border-b-4 border-indigo-800 font-Outfit"
           >
             {loading 
               ? t.login.btnProcessing 
@@ -169,7 +169,7 @@ export default function ParentAuth() {
           <Link
             href="/therapist"
             onMouseEnter={playBubble}
-            className="text-xs font-black text-teal-700 hover:text-teal-950 flex items-center justify-center gap-1 cursor-pointer font-Outfit border-t border-slate-100 pt-3 transition-all"
+            className="text-xs font-black text-indigo-700 hover:text-indigo-900 flex items-center justify-center gap-1 cursor-pointer font-Outfit border-t border-slate-100 pt-3 transition-all"
           >
             {locale === 'en' 
               ? '🩺 Are you a therapist? Access with Patient Code' 

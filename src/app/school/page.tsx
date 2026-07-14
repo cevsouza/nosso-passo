@@ -194,7 +194,7 @@ function SchoolPortalContent() {
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: 'auto' }}
                   exit={{ opacity: 0, height: 0 }}
-                  className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-indigo-150 p-4 rounded-2xl text-left shadow-sm overflow-hidden"
+                  className="grad-soft border border-indigo-150 p-4 rounded-2xl text-left shadow-sm overflow-hidden"
                 >
                   <div className="flex items-start gap-2.5">
                     <span className="text-xl select-none">📊</span>

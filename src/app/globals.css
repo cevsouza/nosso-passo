@@ -91,6 +91,48 @@
   --color-rose-900: #3e2a6e;
   --color-rose-950: #2a1c4c;
   --color-rose-955: #2a1c4c;
+
+  /* teal — folded into the periwinkle blue family (was a clashing accent). */
+  --color-teal-50:  #eef0fd;
+  --color-teal-100: #e4e7fc;
+  --color-teal-150: #d3d9fa;
+  --color-teal-200: #c0c7f6;
+  --color-teal-250: #a8b1f1;
+  --color-teal-300: #8f9bec;
+  --color-teal-350: #7d8ce9;
+  --color-teal-400: #6e7ee8;
+  --color-teal-450: #6272e7;
+  --color-teal-500: #5a6ce7;
+  --color-teal-550: #5062e6;
+  --color-teal-600: #5468e6;
+  --color-teal-605: #5468e6;
+  --color-teal-650: #4658de;
+  --color-teal-700: #3e4ecb;
+  --color-teal-750: #3644b0;
+  --color-teal-800: #2f3b96;
+  --color-teal-850: #28327e;
+  --color-teal-900: #212a69;
+  --color-teal-950: #171c47;
+  --color-teal-955: #131842;
+
+  /* cyan — folded into the lavender-violet accent family. */
+  --color-cyan-50:  #f4effb;
+  --color-cyan-100: #eee6fb;
+  --color-cyan-150: #e6dbf8;
+  --color-cyan-200: #ddccf6;
+  --color-cyan-250: #d0bbf1;
+  --color-cyan-300: #c7afed;
+  --color-cyan-350: #bca2ea;
+  --color-cyan-400: #ad8de6;
+  --color-cyan-450: #a888e3;
+  --color-cyan-500: #9c7be6;
+  --color-cyan-600: #8a66d9;
+  --color-cyan-650: #7b57c9;
+  --color-cyan-700: #6e4cbb;
+  --color-cyan-750: #5e3fa6;
+  --color-cyan-800: #523592;
+  --color-cyan-900: #3e2a6e;
+  --color-cyan-950: #2a1c4c;
 }
 
 :root {
