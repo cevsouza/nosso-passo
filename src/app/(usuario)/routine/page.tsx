@@ -3719,8 +3719,8 @@ export default function ChildRoutine() {
       <div className="w-full max-w-2xl md:max-w-5xl flex flex-col md:grid md:grid-cols-12 gap-6 z-10 px-4 md:px-6">
         
         {/* Token Economy Stars Row */}
-        {activeChild && !sleepMode && (
-          <div className="bg-white border-2 border-slate-300 p-4.5 rounded-[24px] shadow-premium flex flex-col sm:flex-row items-center justify-between gap-3 w-full md:col-span-12">
+        {activeChild && !sleepMode && showTokensHeader && (
+          <div className="bg-white border border-slate-200 p-4 rounded-[20px] shadow-sm flex flex-col sm:flex-row items-center justify-between gap-3 w-full md:col-span-12 order-last">
             <div className="flex items-center gap-2">
               <span className="text-xl">🪙</span>
               <div>
@@ -3861,6 +3861,16 @@ export default function ChildRoutine() {
           </motion.div>
         ) : (
           <>
+            {/* "Agora" section label */}
+            {activeTask && (
+              <div className="md:col-span-12 w-full flex items-center gap-3 -mb-1 order-first">
+                <span className={`text-xs font-black uppercase tracking-widest font-Outfit ${sleepMode ? 'text-amber-200/80' : 'text-slate-500'}`}>
+                  {locale === 'en' ? 'Now' : locale === 'es' ? 'Ahora' : 'Agora'}
+                </span>
+                <span className={`flex-1 h-px ${sleepMode ? 'bg-amber-900/40' : 'bg-slate-200'}`}></span>
+              </div>
+            )}
+
             {/* 1. MAIN CURRENT MISSION CARD */}
             <AnimatePresence mode="wait">
               {activeTask && (() => {
@@ -4500,7 +4510,7 @@ export default function ChildRoutine() {
                 {nextTasks.length > 0 ? (() => {
                   const nextTask = nextTasks[0];
                   return (
-                    <div className="bg-slate-50 border-4 border-dashed border-slate-350 rounded-[32px] p-6 shadow-premium flex flex-col items-center text-center justify-center gap-4 relative overflow-hidden opacity-85">
+                    <div className="bg-slate-50 border-2 border-dashed border-slate-300 rounded-[24px] p-6 shadow-sm flex flex-col items-center text-center justify-center gap-4 relative overflow-hidden opacity-90">
                       <div className="absolute top-3 left-3 bg-slate-500 text-white text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full select-none font-Outfit">
                         {t.routine.then}
                       </div>
@@ -4540,7 +4550,7 @@ export default function ChildRoutine() {
                     </div>
                   );
                 })() : (
-                  <div className="bg-slate-50 border-4 border-dashed border-slate-300 rounded-[32px] p-6 shadow-premium flex flex-col items-center text-center justify-center gap-3 relative min-h-[200px] opacity-60">
+                  <div className="bg-slate-50 border-2 border-dashed border-slate-300 rounded-[24px] p-6 shadow-sm flex flex-col items-center text-center justify-center gap-3 relative min-h-[200px] opacity-60">
                     <div className="absolute top-3 left-3 bg-slate-450 text-white text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full select-none font-Outfit">
                       {t.routine.then}
                     </div>
@@ -4572,13 +4582,9 @@ export default function ChildRoutine() {
                         
                         {/* Active Indicator Arrow / Mascot Pointer */}
                         {isActive && (
-                          <motion.div 
-                            className="absolute top-[-30px] text-lg pointer-events-none"
-                            animate={{ y: [0, -4, 0] }}
-                            transition={{ repeat: Infinity, duration: 1.5 }}
-                          >
+                          <div className="absolute top-[-30px] text-lg pointer-events-none">
                             🐾
-                          </motion.div>
+                          </div>
                         )}
 
                         {/* Node circle */}
