@@ -8199,6 +8199,33 @@ function ParentDashboardContent() {
 
 
 
+                  {/* Day summary */}
+                  {activeChild && (() => {
+                    const dayTasks = tasks.filter(t => t.day === activeDayFilter);
+                    const done = dayTasks.filter(t => t.isCompleted).length;
+                    const total = dayTasks.length;
+                    const mood = activeChild.emotionalBattery === 'green' ? (locale === 'en' ? 'Great' : locale === 'es' ? 'Bien' : 'Ótimo')
+                      : activeChild.emotionalBattery === 'yellow' ? (locale === 'en' ? 'Tired' : locale === 'es' ? 'Cansado' : 'Cansado')
+                      : activeChild.emotionalBattery === 'red' ? (locale === 'en' ? 'Overloaded' : locale === 'es' ? 'Sobrecargado' : 'Sobrecarregado')
+                      : '—';
+                    return (
+                      <div className="grid grid-cols-3 gap-3">
+                        <div className="bg-slate-50 border border-slate-200 rounded-xl p-3.5">
+                          <div className="text-[10px] font-black uppercase tracking-wider text-slate-400">{locale === 'en' ? 'Done today' : locale === 'es' ? 'Hechas hoy' : 'Feitas hoje'}</div>
+                          <div className="text-2xl font-black text-slate-800 font-Outfit mt-0.5">{done}<span className="text-sm text-slate-400"> / {total}</span></div>
+                        </div>
+                        <div className="bg-slate-50 border border-slate-200 rounded-xl p-3.5">
+                          <div className="text-[10px] font-black uppercase tracking-wider text-slate-400">{locale === 'en' ? 'Stars' : locale === 'es' ? 'Estrellas' : 'Estrelas'}</div>
+                          <div className="text-2xl font-black text-slate-800 font-Outfit mt-0.5">{activeChild.tokens || 0}</div>
+                        </div>
+                        <div className="bg-slate-50 border border-slate-200 rounded-xl p-3.5">
+                          <div className="text-[10px] font-black uppercase tracking-wider text-slate-400">{locale === 'en' ? 'Mood' : locale === 'es' ? 'Ánimo' : 'Humor'}</div>
+                          <div className="text-lg font-black text-slate-800 font-Outfit mt-1">{mood}</div>
+                        </div>
+                      </div>
+                    );
+                  })()}
+
                   {/* Tasks Lists divided by Periods */}
 
                   <div className="flex flex-col gap-6">
@@ -8217,7 +8244,7 @@ function ParentDashboardContent() {
 
                         <div key={p.key} className="flex flex-col gap-2.5">
 
-                          <div className={`text-xs font-extrabold px-3.5 py-1.5 rounded-full border w-fit shadow-xxs select-none ${p.color}`}>
+                          <div className={`text-[11px] font-black uppercase tracking-wider px-2.5 py-1 rounded-lg w-fit select-none ${p.color}`}>
 
                             {p.label}
 
@@ -8603,7 +8630,7 @@ function ParentDashboardContent() {
 
                                     key={task.id}
 
-                                    className={`flex flex-col bg-white border-2 rounded-2xl hover:border-slate-350 transition-all group border-l-6 shadow-xxs hover:shadow-sm overflow-hidden`}
+                                    className={`flex flex-col bg-white border border-slate-200 rounded-xl hover:bg-slate-50/60 transition-all group border-l-4 overflow-hidden`}
 
                                     style={{ borderLeftColor: 
 
@@ -8645,7 +8672,7 @@ function ParentDashboardContent() {
 
                                       }}
 
-                                      className="flex items-center justify-between p-4 cursor-pointer select-none"
+                                      className="flex items-center justify-between px-3.5 py-2.5 cursor-pointer select-none"
 
                                     >
 
