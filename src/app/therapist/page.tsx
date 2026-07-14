@@ -700,6 +700,7 @@ export default function TherapistPortal() {
                       {locale === 'en' ? 'Clinical Evolution & Sessions' : locale === 'es' ? 'Evolución Clínica y Sesiones' : 'Evolução Clínica & Sessões Clínicas'}
                     </h3>
                   </div>
+                  {canEdit && (
                   <button
                     type="button"
                     onClick={() => { playBubble(); setNewCpOpen(!newCpOpen); if (!newCpDate) setNewCpDate(new Date().toISOString().split('T')[0]); }}
@@ -707,6 +708,7 @@ export default function TherapistPortal() {
                   >
                     <Plus className="w-4 h-4" /> {newCpOpen ? (locale === 'en' ? 'Close Form' : locale === 'es' ? 'Cerrar Registro' : 'Fechar Cadastro') : (locale === 'en' ? 'New Daily Checkpoint' : locale === 'es' ? 'Nuevo Checkpoint Diario' : 'Novo Checkpoint Diário')}
                   </button>
+                  )}
                 </div>
 
                 <AnimatePresence>
@@ -926,6 +928,7 @@ export default function TherapistPortal() {
                           >
                             {t.common.cancel || 'Cancelar'}
                           </button>
+                          {canEdit && (
                           <button
                             type="submit"
                             disabled={savingCheckpoint}
@@ -933,6 +936,7 @@ export default function TherapistPortal() {
                           >
                             {savingCheckpoint ? (locale === 'en' ? 'Saving...' : locale === 'es' ? 'Guardando...' : 'Gravando...') : (locale === 'en' ? 'Save Evolution' : locale === 'es' ? 'Guardar Evolución' : 'Gravar Evolução')}
                           </button>
+                          )}
                         </div>
 
                       </form>
@@ -956,6 +960,7 @@ export default function TherapistPortal() {
                       {locale === 'en' ? 'Routine Tasks Grid' : locale === 'es' ? 'Cuadrícula de Tareas de la Rutina' : 'Grade de Tarefas da Rotina'}
                     </h3>
                   </div>
+                  {canEdit && (
                   <button
                     type="button"
                     onClick={() => {
@@ -967,6 +972,7 @@ export default function TherapistPortal() {
                   >
                     <Plus className="w-3.5 h-3.5" /> {locale === 'en' ? 'Add Activity' : locale === 'es' ? 'Añadir Actividad' : 'Adicionar Atividade'}
                   </button>
+                  )}
                 </div>
 
                 <div className="flex flex-col gap-2.5 max-h-[400px] overflow-y-auto pr-1">
@@ -1010,17 +1016,19 @@ export default function TherapistPortal() {
                           </div>
                           
                           <div className="flex items-center gap-2 shrink-0">
-                            <span 
-                              onClick={() => handleToggleTaskCompletion(task)}
-                              className={`px-2.5 py-1 rounded-full text-[9px] font-black uppercase border cursor-pointer select-none active:scale-95 transition-all ${
-                                task.isCompleted 
-                                  ? 'bg-emerald-50 text-emerald-800 border-emerald-150 hover:bg-emerald-100' 
+                            <span
+                              onClick={canEdit ? () => handleToggleTaskCompletion(task) : undefined}
+                              className={`px-2.5 py-1 rounded-full text-[9px] font-black uppercase border select-none transition-all ${canEdit ? 'cursor-pointer active:scale-95' : ''} ${
+                                task.isCompleted
+                                  ? 'bg-emerald-50 text-emerald-800 border-emerald-150 hover:bg-emerald-100'
                                   : 'bg-amber-50 text-amber-800 border-amber-150 hover:bg-amber-100'
                               }`}
-                              title={locale === 'en' ? 'Click to toggle completion' : locale === 'es' ? 'Haga clic para alternar finalización' : 'Clique para alternar conclusão'}
+                              title={canEdit ? (locale === 'en' ? 'Click to toggle completion' : locale === 'es' ? 'Haga clic para alternar finalización' : 'Clique para alternar conclusão') : undefined}
                             >
                               {task.isCompleted ? (locale === 'en' ? 'Done' : locale === 'es' ? 'Hecho' : 'Feito') : (locale === 'en' ? 'Pending' : locale === 'es' ? 'Pendiente' : 'Pendente')}
                             </span>
+                            {canEdit && (
+                            <>
                             <button
                               type="button"
                               onClick={() => startEditingTask(task)}
@@ -1037,6 +1045,8 @@ export default function TherapistPortal() {
                             >
                               <Trash2 className="w-3.5 h-3.5" />
                             </button>
+                            </>
+                            )}
                           </div>
                         </div>
                       );
