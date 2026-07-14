@@ -539,7 +539,9 @@ export const firebaseBridge = {
   // --- FIRESTORE DATABASE SERVICE ---
   db: {
     getSensoryLogs: async (childId: string): Promise<SensoryLog[]> => {
-      const res = await safeFetch(`/api/sensory-logs?childId=${childId}`);
+      const res = await safeFetch(`/api/sensory-logs?childId=${childId}`, {
+        headers: { 'x-user-uid': getLocalProfile()?.uid || '' }
+      });
       const data = await res.json();
       if (data.error) throw new Error(data.error);
       return data;
@@ -565,7 +567,7 @@ export const firebaseBridge = {
     }): Promise<SensoryLog> => {
       const res = await safeFetch('/api/sensory-logs', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'x-user-uid': getLocalProfile()?.uid || '' },
         body: JSON.stringify(logData)
       });
       const data = await res.json();

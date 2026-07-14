@@ -58,8 +58,13 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: 'Código de compartilhamento inválido ou inativo.' }, { status: 404 });
     }
 
-    // _role tells the client which actions to enable.
-    return NextResponse.json({ ...full, _role: access.role });
+    // Sanitize secrets before returning to the network. parentPinCode is never
+    // needed here; the legacy sharingCode is only exposed to the therapist role
+    // (which already has full access) so school/read-only can't escalate.
+    const safe: any = { ...full, _role: access.role };
+    delete safe.parentPinCode;
+    if (access.role !== 'therapist') delete safe.sharingCode;
+    return NextResponse.json(safe);
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

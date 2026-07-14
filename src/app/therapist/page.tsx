@@ -79,7 +79,7 @@ export default function TherapistPortal() {
     playMarimba(392, 0.3);
 
     try {
-      const res = await fetch(`/api/therapist?sharingCode=${finalCode.toUpperCase()}`);
+      const res = await fetch('/api/therapist', { headers: { 'x-share-code': finalCode.toUpperCase() } });
       const data = await res.json();
       if (!res.ok) {
         throw new Error(data.error || (locale === 'en' ? 'Invalid code' : locale === 'es' ? 'Código inválido' : 'Código inválido'));

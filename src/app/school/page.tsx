@@ -43,7 +43,7 @@ function SchoolPortalContent() {
     setSubmitSuccess(false);
 
     try {
-      const res = await fetch(`/api/therapist?sharingCode=${codeToVerify.trim()}`);
+      const res = await fetch('/api/therapist', { headers: { 'x-share-code': codeToVerify.trim() } });
       const data = await res.json();
 
       if (!res.ok || data.error) {
@@ -66,7 +66,7 @@ function SchoolPortalContent() {
     try {
       const res = await fetch('/api/sensory-logs', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'x-share-code': sharingCode.trim() },
         body: JSON.stringify({
           childId: childData.id,
           mood,
