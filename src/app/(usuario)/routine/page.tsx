@@ -3874,7 +3874,6 @@ export default function ChildRoutine() {
             {/* 1. MAIN CURRENT MISSION CARD */}
             <AnimatePresence mode="wait">
               {activeTask && (() => {
-                const category = getTaskCategory(activeTask.title);
                 return (
                   <motion.div
                     key={activeTask.id}
@@ -3882,21 +3881,13 @@ export default function ChildRoutine() {
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.97 }}
                     transition={transitionConfig}
-                    className={`bg-white border border-slate-200/70 rounded-[32px] p-8 shadow-premium flex flex-col lg:grid lg:grid-cols-12 lg:gap-8 items-center justify-center text-center gap-6 relative overflow-hidden transition-all duration-500 border-t-4 border-t-transparent md:col-span-${showWaitTimer ? '8' : '12'} ${category.shadow}`}
+                    className={`bg-white border border-slate-200 rounded-2xl px-6 py-12 md:py-16 flex flex-col items-center justify-center text-center gap-7 relative transition-all md:col-span-${showWaitTimer ? '8' : '12'}`}
                   >
-                    {/* Glowing outer soft neon reflection underneath */}
-                    {effectiveVisuals === 'rich' && (
-                      <div className={`absolute -inset-4 bg-gradient-to-tr ${category.gradient} opacity-5 filter blur-3xl -z-10`}></div>
-                    )}
-
-                    {/* Signature gradient accent bar */}
-                    <div className="absolute top-0 inset-x-0 h-1.5 grad-primary"></div>
-
-                    {/* Left Column: Task Illustration, Details, Timer */}
-                    <div className="flex flex-col items-center gap-5 w-full lg:col-span-6">
+                    {/* Task illustration */}
+                    <div className="flex flex-col items-center gap-6 w-full">
                       <div className="flex flex-col items-center gap-2">
-                      <div className="relative grad-soft rounded-[30px] p-3 shadow-xxs">
-                        <RoutineIllustration category={activeTask.title} size={150} hyperfocus={childHyperfocus} />
+                      <div className="relative">
+                        <RoutineIllustration category={activeTask.title} size={120} hyperfocus={childHyperfocus} />
                         {(activeTask.customIcon || activeTask.icon) && (
                           <div className="absolute top-0 right-0 w-14 h-14 bg-white border-4 border-indigo-100 text-slate-700 rounded-2xl flex items-center justify-center text-4xl shadow-md overflow-hidden select-none transform rotate-12">
                             {activeTask.customIcon ? (
@@ -3908,17 +3899,6 @@ export default function ChildRoutine() {
                         )}
                       </div>
                       
-                      <div className="flex gap-2 items-center flex-wrap justify-center mt-2">
-                        <span className="text-[10px] font-black uppercase tracking-widest text-rose-700 bg-rose-100 border border-rose-200 px-3.5 py-1.5 rounded-full shadow-xxs flex items-center gap-1">
-                          ✨ {locale === 'en' ? 'Current Mission' : locale === 'es' ? 'Misión Actual' : 'Missão Atual'}
-                        </span>
-                        <span className={`text-[10px] font-black uppercase tracking-widest px-3.5 py-1.5 rounded-full border shadow-xxs ${category.tagClass}`}>
-                          {category.label}
-                        </span>
-                      </div>
-                      <span className="text-xs font-extrabold text-slate-400 mt-1.5 flex items-center gap-1.5 justify-center">
-                        <Clock className="w-4 h-4 text-slate-400" /> {locale === 'en' ? 'Est. Time:' : locale === 'es' ? 'Previsto:' : 'Previsão:'} {activeTask.time} ({activeTask.period})
-                      </span>
                     </div>
 
                     <div className="flex flex-col items-center gap-3 w-full">
@@ -3930,13 +3910,9 @@ export default function ChildRoutine() {
                         {activeTask.title}
                       </h1>
                       
-                      {/* Big Tactile Audio Speaker Pill */}
-                      <button 
-                        onClick={() => { playBubble(); speakText(activeTask.title + (activeTask.description ? (locale === 'en' ? `. Instructions: ${activeTask.description}` : locale === 'es' ? `. Instrucciones: ${activeTask.description}` : `. Instruções: ${activeTask.description}`) : '')); }}
-                        className="flex items-center gap-1.5 px-5 py-3 bg-indigo-100 hover:bg-indigo-200 border-2 border-indigo-350 text-indigo-950 text-xs font-black rounded-full shadow-xxs cursor-pointer transition-all active:scale-95 hover:scale-[1.03] font-Outfit"
-                      >
-                        🔊 Ouvir Atividade
-                      </button>
+                      <span className="text-sm text-slate-500 font-semibold flex items-center gap-2 justify-center">
+                        <Clock className="w-4 h-4 text-slate-400" /> {activeTask.time}{activeTask.duration ? ` · ${activeTask.duration} min` : ''}
+                      </span>
 
                       {activeTask.description && (
                         <div 
@@ -3951,9 +3927,8 @@ export default function ChildRoutine() {
                       )}
                     </div>
 
-                    {/* Time Timer and Transition Banner */}
-                    <div className="w-full flex flex-col md:flex-row items-center justify-center gap-4 border-t border-b border-slate-100 py-4 my-2">
-                      {/* Time Timer selector */}
+                    {/* Visual timer — kept subtle (predictability), no chrome */}
+                    <div className="w-full flex items-center justify-center pt-1">
                       {timerStyle === 'hourglass' ? (
                         <HourglassTimer progress={timerProgress} minutesLeft={timerMinutesLeft} />
                       ) : timerStyle === 'droplets' ? (
@@ -3961,130 +3936,22 @@ export default function ChildRoutine() {
                       ) : timerStyle === 'hyperfocus' ? (
                         <HyperfocusThemeTimer progress={timerProgress} minutesLeft={timerMinutesLeft} theme={childHyperfocus} />
                       ) : (
-                        <div className="flex flex-col items-center gap-1.5">
-                          <span className="text-[9px] font-black uppercase tracking-widest text-slate-700 flex items-center gap-1 select-none">
-                            ⏱️ Tempo Restante
-                          </span>
-                          <div className="relative w-20 h-20 flex items-center justify-center">
-                            <svg viewBox="0 0 100 100" className="w-full h-full transform -rotate-90">
-                              <circle cx="50" cy="50" r="40" fill="none" stroke="#cbd5e1" strokeWidth="8" />
-                              <circle 
-                                cx="50" 
-                                cy="50" 
-                                r="40" 
-                                fill="none" 
-                                stroke="#dc2626" 
-                                strokeWidth="8" 
-                                strokeDasharray="251.2" 
-                                strokeDashoffset={251.2 * (1 - timerProgress)} 
-                                strokeLinecap="round"
-                                className="transition-all duration-1000 ease-linear"
-                              />
-                            </svg>
-                            <div className="absolute inset-0 flex flex-col items-center justify-center font-bold">
-                              <span className="text-base font-black text-slate-950">{timerMinutesLeft}</span>
-                              <span className="text-[8px] text-slate-700 uppercase tracking-wider font-extrabold">min</span>
-                            </div>
+                        <div className="relative w-16 h-16 flex items-center justify-center">
+                          <svg viewBox="0 0 100 100" className="w-full h-full transform -rotate-90">
+                            <circle cx="50" cy="50" r="40" fill="none" stroke="#e3def3" strokeWidth="7" />
+                            <circle cx="50" cy="50" r="40" fill="none" stroke="#5468e6" strokeWidth="7" strokeDasharray="251.2" strokeDashoffset={251.2 * (1 - timerProgress)} strokeLinecap="round" className="transition-all duration-1000 ease-linear" />
+                          </svg>
+                          <div className="absolute inset-0 flex flex-col items-center justify-center">
+                            <span className="text-sm font-black text-slate-800">{timerMinutesLeft}</span>
+                            <span className="text-[8px] text-slate-400 uppercase tracking-wider font-bold">min</span>
                           </div>
                         </div>
                       )}
-
-                      {/* Transition Warning / Next Task Banner */}
-                      {nextTasks.length > 0 && (
-                        <div className="flex-1 flex flex-col gap-1.5 text-left bg-slate-100 border-2 border-slate-300 p-3 rounded-2xl shadow-xxs">
-                          <span className="text-[9px] font-black uppercase tracking-widest text-slate-500 font-Outfit">{locale === 'en' ? 'Next Activity:' : locale === 'es' ? 'Siguiente Actividad:' : 'Próxima Atividade:'}</span>
-                          <span className="text-sm font-black text-slate-800 flex items-center gap-1.5">
-                            {nextTasks[0].customIcon ? (
-                              <img src={nextTasks[0].customIcon} alt="" className="w-6 h-6 object-cover rounded-md inline-block mr-1.5 align-middle" />
-                            ) : (
-                              <span className="text-base">{nextTasks[0].icon || '📅'}</span>
-                            )}
-                            {" "}{nextTasks[0].title}
-                          </span>
-                          {timerMinutesLeft <= (activeChild?.transitionMinutes || 5) ? (
-                            <span className="text-[10px] text-amber-950 font-black flex items-center gap-1 bg-amber-100 border-2 border-amber-400 px-2.5 py-1 rounded-lg animate-pulse">
-                              ⚠️ {locale === 'en' ? 'Prepare for the transition!' : locale === 'es' ? '¡Prepárate para la transición!' : 'Prepare-se para a transição!'}
-                            </span>
-                          ) : (
-                            <span className="text-[9px] text-slate-500 font-semibold">{locale === 'en' ? 'Next, after finishing the current mission.' : locale === 'es' ? 'A continuación, después de terminar la misión actual.' : 'Em seguida, após terminar a missão atual.'}</span>
-                          )}
-                        </div>
-                      )}
                     </div>
                     </div>
 
-                    {/* Right Column: Mascot Pedestal and Complete Button */}
-                    <div className="flex flex-col items-center gap-6 w-full justify-center lg:col-span-6 lg:border-l lg:border-slate-100 lg:pl-4">
-                      {/* Mascot Collie in Interactive Pedestal with category color background and rewarding stars */}
-                      <div className="relative p-8">
-                      {/* Star particles overlay cascade */}
-                      <AnimatePresence>
-                        {starParticles.map(star => (
-                          <motion.div
-                            key={star.id}
-                            initial={{ opacity: 0, scale: 0, x: 0, y: 0, rotate: 0 }}
-                            animate={{ 
-                              opacity: [0, 1, 1, 0], 
-                              scale: [0, star.scale, star.scale, 0],
-                              x: star.x,
-                              y: star.y,
-                              rotate: star.rotate 
-                            }}
-                            exit={{ opacity: 0 }}
-                            transition={{ duration: 1.8, ease: "easeOut" }}
-                            className="absolute text-yellow-450 text-3xl pointer-events-none select-none z-35"
-                            style={{ left: "45%", top: "45%" }}
-                          >
-                            ⭐
-                          </motion.div>
-                        ))}
-                      </AnimatePresence>
-
-                      {/* Mascot Speech Bubble */}
-                      <div className="absolute top-[-24px] left-1/2 -translate-x-1/2 bg-slate-900 border-2 border-indigo-400 text-white text-[10px] font-extrabold px-3.5 py-1.5 rounded-2xl shadow-premium text-center select-none pointer-events-none animate-bounce font-Outfit whitespace-nowrap z-45">
-                        {collieState === 'celebrating' 
-                          ? 'Excelente! 🎉' 
-                          : sleepMode 
-                          ? 'Hora de dormir... 🌙' 
-                          : localCalmMode 
-                          ? 'Respire fundo... 🧘' 
-                          : 'Toque em mim! 🐾'}
-                        {/* Little triangle arrow pointing down */}
-                        <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-0 h-0 border-l-6 border-l-transparent border-r-6 border-r-transparent border-t-6 border-t-slate-900"></div>
-                      </div>
-
-                      <div 
-                        className="cursor-pointer relative p-5 rounded-full border border-slate-100 bg-slate-50/50 hover:bg-white hover:scale-[1.04] active:scale-95 transition-all shadow-premium"
-                        onClick={handleMascotClick}
-                      >
-                        {effectiveVisuals === 'rich' && (
-                          <div className={`absolute -inset-1 rounded-full bg-gradient-to-tr ${category.gradient} opacity-15 filter blur-md`}></div>
-                        )}
-                        <div className={`absolute bottom-2 right-2 w-9 h-9 rounded-full bg-gradient-to-tr ${category.gradient} flex items-center justify-center shadow-md`}>
-                          <category.icon className="w-5.5 h-5.5 text-white" />
-                        </div>
-                        <div className="relative">
-                          <HyperfocusMascot 
-                            hyperfocus={childHyperfocus}
-                            state={
-                              celebratingTaskId === activeTask.id || collieState === 'celebrating'
-                                ? 'celebrating'
-                                : sleepMode || activeChild?.emotionalBattery === 'red' || activeChild?.emotionalBattery === 'yellow'
-                                ? 'sleeping'
-                                : 'guiding'
-                            } 
-                            size={165} 
-                          />
-                          {/* Equipped Accessories overlay */}
-                          <>
-                            {equippedAccessories.includes('acc_hat') && <span className="absolute -top-3 left-1/2 -translate-x-1/2 text-3xl pointer-events-none select-none z-10">🎩</span>}
-                            {equippedAccessories.includes('acc_glasses') && <span className="absolute top-[26%] left-1/2 -translate-x-1/2 text-2.5xl pointer-events-none select-none z-10">😎</span>}
-                            {equippedAccessories.includes('acc_medal') && <span className="absolute bottom-[20%] left-1/2 -translate-x-1/2 text-2.5xl pointer-events-none select-none z-10">🥇</span>}
-                            {equippedAccessories.includes('acc_cape') && <span className="absolute top-[35%] -left-3 text-3xl pointer-events-none select-none z-10">🦸‍♂️</span>}
-                          </>
-                        </div>
-                      </div>
-                    </div>
+                    {/* Complete action */}
+                    <div className="w-full max-w-sm flex flex-col items-center gap-3">
 
                     {/* LARGE COMPLETE MISSION BUTTON */}
                     {(() => {
@@ -4104,12 +3971,12 @@ export default function ChildRoutine() {
                             whileTap={isActiveLocked ? {} : { scale: 0.92, rotate: -0.5 }}
                             onClick={() => handleCompleteTask(activeTask)}
                             disabled={celebratingTaskId !== null || isActiveLocked}
-                            className={`w-full py-5 text-xl font-black rounded-2xl shadow-lg transform transition-all duration-300 flex items-center justify-center gap-2 border-b-4 border-slate-950/20 ${
+                            className={`w-full py-4 text-lg font-black rounded-xl transition-all duration-300 flex items-center justify-center gap-2 ${
                               celebratingTaskId === activeTask.id
-                                ? 'bg-gradient-to-r from-emerald-400 to-emerald-500 text-white animate-pulse motion-ok border-emerald-600/70 cursor-default'
+                                ? 'bg-emerald-500 text-white animate-pulse motion-ok cursor-default'
                                 : isActiveLocked
-                                ? 'bg-slate-200 border-slate-300 text-slate-400 cursor-not-allowed shadow-none'
-                                : `grad-primary hover:brightness-105 shadow-md cursor-pointer`
+                                ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                                : `grad-primary hover:brightness-105 cursor-pointer`
                             }`}
                           >
                             {celebratingTaskId === activeTask.id ? (
