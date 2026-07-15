@@ -11354,7 +11354,7 @@ function ParentDashboardContent() {
 
                                     <p className="text-xs font-bold leading-normal text-slate-750">
 
-                                      <span className="font-extrabold text-slate-850">Padrão:</span> {alert.trigger}
+                                      <span className="font-extrabold text-slate-850">{locale === 'en' ? 'Pattern:' : locale === 'es' ? 'Patrón:' : 'Padrão:'}</span> {alert.trigger}
 
                                     </p>
 
@@ -11778,15 +11778,15 @@ function ParentDashboardContent() {
 
                                 >
 
-                                  <option value="Casa">Casa 🏠</option>
+                                  <option value="Casa">{locale === 'en' ? 'Home 🏠' : locale === 'es' ? 'Casa 🏠' : 'Casa 🏠'}</option>
 
-                                  <option value="Escola">Escola 🏫</option>
+                                  <option value="Escola">{locale === 'en' ? 'School 🏫' : locale === 'es' ? 'Escuela 🏫' : 'Escola 🏫'}</option>
 
-                                  <option value="Parque">Parque 🌳</option>
+                                  <option value="Parque">{locale === 'en' ? 'Park 🌳' : locale === 'es' ? 'Parque 🌳' : 'Parque 🌳'}</option>
 
-                                  <option value="Consultório">Consultório 🩺</option>
+                                  <option value="Consultório">{locale === 'en' ? 'Clinic 🩺' : locale === 'es' ? 'Consultorio 🩺' : 'Consultório 🩺'}</option>
 
-                                  <option value="Outro">Outro 🌐</option>
+                                  <option value="Outro">{locale === 'en' ? 'Other 🌐' : locale === 'es' ? 'Otro 🌐' : 'Outro 🌐'}</option>
 
                                 </select>
 
@@ -11808,11 +11808,11 @@ function ParentDashboardContent() {
 
                                 >
 
-                                  <option value="Baixa">Baixa (Escuro) 🌑</option>
+                                  <option value="Baixa">{locale === 'en' ? 'Low (Dark) 🌑' : locale === 'es' ? 'Baja (Oscuro) 🌑' : 'Baixa (Escuro) 🌑'}</option>
 
-                                  <option value="Média">Média (Ideal) ⛅</option>
+                                  <option value="Média">{locale === 'en' ? 'Medium (Ideal) ⛅' : locale === 'es' ? 'Media (Ideal) ⛅' : 'Média (Ideal) ⛅'}</option>
 
-                                  <option value="Alta">Alta (Luz Forte) ☀️</option>
+                                  <option value="Alta">{locale === 'en' ? 'High (Bright) ☀️' : locale === 'es' ? 'Alta (Luz Fuerte) ☀️' : 'Alta (Luz Forte) ☀️'}</option>
 
                                 </select>
 
@@ -11862,19 +11862,19 @@ function ParentDashboardContent() {
 
                                 >
 
-                                  <option value="Nenhum">Nenhum / Desconhecido ❓</option>
+                                  <option value="Nenhum">{locale === 'en' ? 'None / Unknown ❓' : locale === 'es' ? 'Ninguno / Desconocido ❓' : 'Nenhum / Desconhecido ❓'}</option>
 
-                                  <option value="Barulho Alto">Barulho Alto 🔊</option>
+                                  <option value="Barulho Alto">{locale === 'en' ? 'Loud Noise 🔊' : locale === 'es' ? 'Ruido Fuerte 🔊' : 'Barulho Alto 🔊'}</option>
 
-                                  <option value="Luz Forte">Luz Forte 💡</option>
+                                  <option value="Luz Forte">{locale === 'en' ? 'Bright Light 💡' : locale === 'es' ? 'Luz Fuerte 💡' : 'Luz Forte 💡'}</option>
 
-                                  <option value="Mudança de Rotina">Mudança de Rotina 🌀</option>
+                                  <option value="Mudança de Rotina">{locale === 'en' ? 'Routine Change 🌀' : locale === 'es' ? 'Cambio de Rutina 🌀' : 'Mudança de Rotina 🌀'}</option>
 
-                                  <option value="Fadiga">Fadiga / Sono 🛌</option>
+                                  <option value="Fadiga">{locale === 'en' ? 'Fatigue / Sleepiness 🛌' : locale === 'es' ? 'Fatiga / Sueño 🛌' : 'Fadiga / Sono 🛌'}</option>
 
-                                  <option value="Frustração">Frustração / Limite 😠</option>
+                                  <option value="Frustração">{locale === 'en' ? 'Frustration / Limit 😠' : locale === 'es' ? 'Frustración / Límite 😠' : 'Frustração / Limite 😠'}</option>
 
-                                  <option value="Telas em Excesso">Telas em Excesso 📱</option>
+                                  <option value="Telas em Excesso">{locale === 'en' ? 'Too Much Screen 📱' : locale === 'es' ? 'Exceso de Pantallas 📱' : 'Telas em Excesso 📱'}</option>
 
                                 </select>
 
@@ -11986,11 +11986,11 @@ function ParentDashboardContent() {
 
                                       <div className="bg-slate-100/60 border border-slate-200/40 p-2 rounded-lg mt-1 text-[10px] text-slate-600 font-bold flex flex-col gap-0.5">
 
-                                        {log.antecedent && <div><strong>A (Antecedente):</strong> {log.antecedent}</div>}
+                                        {log.antecedent && <div><strong>{locale === 'en' ? 'A (Antecedent):' : locale === 'es' ? 'A (Antecedente):' : 'A (Antecedente):'}</strong> {log.antecedent}</div>}
 
-                                        {log.behavior && <div><strong>B (Comportamento):</strong> {log.behavior}</div>}
+                                        {log.behavior && <div><strong>{locale === 'en' ? 'B (Behavior):' : locale === 'es' ? 'B (Comportamiento):' : 'B (Comportamento):'}</strong> {log.behavior}</div>}
 
-                                        {log.consequence && <div><strong>C (Consequência):</strong> {log.consequence}</div>}
+                                        {log.consequence && <div><strong>{locale === 'en' ? 'C (Consequence):' : locale === 'es' ? 'C (Consecuencia):' : 'C (Consequência):'}</strong> {log.consequence}</div>}
 
                                       </div>
 
@@ -12932,7 +12932,7 @@ function ParentDashboardContent() {
 
               <div className="flex items-center gap-2">
 
-                <span className="text-[9px] font-black text-slate-400 uppercase">Restaurar / Modelos</span>
+                <span className="text-[9px] font-black text-slate-400 uppercase">{locale === 'en' ? 'Restore / Templates' : locale === 'es' ? 'Restaurar / Plantillas' : 'Restaurar / Modelos'}</span>
 
                 {collapsedSections.quickActions ? <ChevronDown className="w-4 h-4 text-slate-400 shrink-0" /> : <ChevronUp className="w-4 h-4 text-slate-400 shrink-0" />}
 
@@ -14204,11 +14204,11 @@ function ParentDashboardContent() {
 
                     <option value="Não Informado">{locale === 'en' ? 'Not Informed' : locale === 'es' ? 'No Informado' : 'Não Informado'}</option>
 
-                    <option value="Masculino">Masculino</option>
+                    <option value="Masculino">{locale === 'en' ? 'Male' : locale === 'es' ? 'Masculino' : 'Masculino'}</option>
 
-                    <option value="Feminino">Feminino</option>
+                    <option value="Feminino">{locale === 'en' ? 'Female' : locale === 'es' ? 'Femenino' : 'Feminino'}</option>
 
-                    <option value="Outro">Outro</option>
+                    <option value="Outro">{locale === 'en' ? 'Other' : locale === 'es' ? 'Otro' : 'Outro'}</option>
 
                   </select>
 
@@ -14238,11 +14238,11 @@ function ParentDashboardContent() {
 
                     <option value="TEA Nível 3">{locale === 'en' ? 'ASD Level 3' : locale === 'es' ? 'TEA Nivel 3' : 'TEA Nível 3'}</option>
 
-                    <option value="TDAH">TDAH</option>
+                    <option value="TDAH">{locale === 'en' ? 'ADHD' : 'TDAH'}</option>
 
-                    <option value="TEA + TDAH">TEA + TDAH</option>
+                    <option value="TEA + TDAH">{locale === 'en' ? 'ASD + ADHD' : 'TEA + TDAH'}</option>
 
-                    <option value="Outro">Outro</option>
+                    <option value="Outro">{locale === 'en' ? 'Other' : locale === 'es' ? 'Otro' : 'Outro'}</option>
 
                   </select>
 
@@ -14376,7 +14376,7 @@ function ParentDashboardContent() {
 
               <div className="text-center">
 
-                <span className="text-xxs uppercase tracking-widest text-indigo-300 font-black">Assinatura Mensal</span>
+                <span className="text-xxs uppercase tracking-widest text-indigo-300 font-black">{locale === 'en' ? 'Monthly Subscription' : locale === 'es' ? 'Suscripción Mensual' : 'Assinatura Mensal'}</span>
 
                 <div className="text-4xl font-black text-white mt-0.5">{locale === 'en' ? '$5.90' : locale === 'es' ? '$5.90' : 'R$ 29,90'}<span className="text-sm font-medium text-indigo-300">{locale === 'en' ? '/month' : locale === 'es' ? '/mes' : '/mês'}</span></div>
 
