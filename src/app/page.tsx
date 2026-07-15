@@ -3,7 +3,7 @@ import React, { useEffect } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { playBubble, playMarimba } from '../lib/audio-synth';
-import { Gamepad2, Users, Stethoscope, GraduationCap, Heart, ArrowRight } from 'lucide-react';
+import { Gamepad2, Users, Stethoscope, Heart, ArrowRight } from 'lucide-react';
 import { useLanguage } from '../lib/LanguageContext';
 import { LanguageSelector } from '../components/LanguageSelector';
 
@@ -23,10 +23,8 @@ const localDict = {
     kidsDesc: "A rotina do dia com previsibilidade, foco e calma para a criança.",
     parentsTitle: "Responsáveis",
     parentsDesc: "Monte a agenda, acompanhe o progresso e ajuste tudo num só lugar.",
-    therapistsTitle: "Terapeutas",
-    therapistsDesc: "Acompanhe a evolução e deixe orientações para a família.",
-    schoolTitle: "Escola",
-    schoolDesc: "Alinhe a rotina da escola com a rotina de casa.",
+    professionalTitle: "Profissional",
+    professionalDesc: "Terapeuta ou escola: acompanhe a evolução e deixe observações com um código de acesso.",
   },
   es: {
     eyebrow: "Previsibilidad y acogida para el TEA",
@@ -41,10 +39,8 @@ const localDict = {
     kidsDesc: "La rutina del día con previsibilidad, foco y calma para el niño.",
     parentsTitle: "Responsables",
     parentsDesc: "Arma la agenda, sigue el progreso y ajusta todo en un solo lugar.",
-    therapistsTitle: "Terapeutas",
-    therapistsDesc: "Sigue la evolución y deja orientaciones para la familia.",
-    schoolTitle: "Escuela",
-    schoolDesc: "Alinea la rutina escolar con la de casa.",
+    professionalTitle: "Profesional",
+    professionalDesc: "Terapeuta o escuela: sigue la evolución y deja observaciones con un código de acceso.",
   },
   en: {
     eyebrow: "Predictability & care for autism",
@@ -59,10 +55,8 @@ const localDict = {
     kidsDesc: "The day's routine with predictability, focus and calm for the child.",
     parentsTitle: "Guardians",
     parentsDesc: "Build the schedule, track progress and adjust everything in one place.",
-    therapistsTitle: "Therapists",
-    therapistsDesc: "Follow the child's progress and leave guidance for the family.",
-    schoolTitle: "School",
-    schoolDesc: "Align the school routine with the home routine.",
+    professionalTitle: "Professional",
+    professionalDesc: "Therapist or school: follow progress and leave notes with an access code.",
   }
 };
 
@@ -81,8 +75,7 @@ export default function Home() {
   const portals = [
     { href: '/routine', icon: Gamepad2, title: info.kidsTitle, desc: info.kidsDesc, tint: '#e4e7fc', color: '#5468e6', freq: 261.63 },
     { href: '/login', icon: Users, title: info.parentsTitle, desc: info.parentsDesc, tint: '#eee6fb', color: '#8a66d9', freq: 329.63 },
-    { href: '/therapist', icon: Stethoscope, title: info.therapistsTitle, desc: info.therapistsDesc, tint: '#dfe3fb', color: '#4658de', freq: 392.0 },
-    { href: '/school', icon: GraduationCap, title: info.schoolTitle, desc: info.schoolDesc, tint: '#efe6fb', color: '#9c7be6', freq: 440.0 },
+    { href: '/therapist', icon: Stethoscope, title: info.professionalTitle, desc: info.professionalDesc, tint: '#dfe3fb', color: '#4658de', freq: 392.0 },
   ];
 
   return (
@@ -136,7 +129,7 @@ export default function Home() {
           <p className="text-slate-500 text-xs md:text-sm font-medium max-w-md mx-auto">{info.portalSubtitle}</p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 md:gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 md:gap-4">
           {portals.map(p => {
             const Icon = p.icon;
             return (
