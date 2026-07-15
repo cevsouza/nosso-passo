@@ -481,7 +481,7 @@ export default function TherapistPortal() {
       
       {/* Clinician Entry Verification */}
       {!childData ? (
-        <div className="max-w-md mx-auto my-16 bg-white border border-slate-200 rounded-[24px] p-8 shadow-premium-soft flex flex-col gap-6 relative overflow-hidden">
+        <div className="max-w-md mx-auto my-16 bg-white border border-slate-200 rounded-2xl p-8 shadow-premium-soft flex flex-col gap-6 relative overflow-hidden">
           
           <div className="flex justify-between items-start gap-4">
             <div className="text-left">
@@ -509,7 +509,7 @@ export default function TherapistPortal() {
                 value={sharingCode}
                 onChange={e => setSharingCode(e.target.value)}
                 maxLength={6}
-                className="w-full px-4 py-3 bg-slate-50 border-2 border-slate-200 rounded-xl font-black tracking-widest text-center text-lg uppercase outline-none focus:border-teal-500 focus:bg-white text-slate-800"
+                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl font-black tracking-widest text-center text-lg uppercase outline-none focus:border-teal-500 focus:bg-white text-slate-800"
               />
             </div>
 
@@ -538,7 +538,7 @@ export default function TherapistPortal() {
         <div className="max-w-6xl mx-auto flex flex-col gap-6">
           
           {/* Header Card */}
-          <div className="bg-white border-2 border-slate-250 rounded-[28px] p-6 shadow-premium flex flex-col md:flex-row md:items-center justify-between gap-4 relative overflow-hidden">
+          <div className="bg-white border border-slate-250 rounded-2xl p-6 shadow-premium flex flex-col md:flex-row md:items-center justify-between gap-4 relative overflow-hidden">
             <div className="absolute top-0 inset-x-0 h-1 grad-primary"></div>
             
             <div className="flex items-center gap-4">
@@ -692,7 +692,7 @@ export default function TherapistPortal() {
           {/* Checkpoints Tab Content */}
           <div className={activeTab === 'checkpoints' ? "w-full flex flex-col gap-6" : "hidden print:flex print:flex-col print:gap-6 print:w-full"}>
               {/* Checkpoints Tracker */}
-              <div className="bg-white border border-slate-200 p-6 rounded-[28px] shadow-premium flex flex-col gap-4">
+              <div className="bg-white border border-slate-200 p-6 rounded-2xl shadow-premium flex flex-col gap-4">
                 <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                   <div className="flex items-center gap-2 text-teal-650 text-left">
                     <ClipboardCheck className="w-5 h-5" />
@@ -718,7 +718,7 @@ export default function TherapistPortal() {
                       animate={{ opacity: 1, height: 'auto' }}
                       exit={{ opacity: 0, height: 0 }}
                       onSubmit={handleCreateDailyCheckpoint}
-                      className="bg-slate-50 border-2 border-dashed border-slate-200 p-5 rounded-2xl overflow-hidden flex flex-col gap-4 text-xs text-left"
+                      className="bg-slate-50 border border-dashed border-slate-200 p-5 rounded-2xl overflow-hidden flex flex-col gap-4 text-xs text-left"
                     >
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
@@ -730,7 +730,7 @@ export default function TherapistPortal() {
                             required
                             value={newCpDate}
                             onChange={e => setNewCpDate(e.target.value)}
-                            className="w-full bg-white border-2 border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold focus:border-teal-600 focus:bg-white outline-none"
+                            className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold focus:border-teal-600 focus:bg-white outline-none"
                           />
                         </div>
 
@@ -744,7 +744,7 @@ export default function TherapistPortal() {
                             placeholder={locale === 'en' ? 'e.g. Dr. Carlos Reis' : locale === 'es' ? 'Ej: Dr. Carlos Reis' : 'Ex: Dr. Carlos Reis'}
                             value={newCpName}
                             onChange={e => setNewCpName(e.target.value)}
-                            className="w-full bg-white border-2 border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold focus:border-teal-600 focus:bg-white outline-none"
+                            className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold focus:border-teal-600 focus:bg-white outline-none"
                           />
                         </div>
 
@@ -755,7 +755,7 @@ export default function TherapistPortal() {
                           <select
                             value={newCpRole}
                             onChange={e => setNewCpRole(e.target.value)}
-                            className="w-full bg-white border-2 border-slate-200 rounded-xl px-3 py-2 text-xs font-black focus:border-teal-600 focus:bg-white outline-none cursor-pointer"
+                            className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-black focus:border-teal-600 focus:bg-white outline-none cursor-pointer"
                           >
                             <option value="Psicologia ABA">{locale === 'en' ? 'ABA Psychology' : locale === 'es' ? 'Psicología ABA' : 'Psicologia ABA'} 🧠</option>
                             <option value="Terapia Ocupacional">{locale === 'en' ? 'Occupational Therapy' : locale === 'es' ? 'Terapia Ocupacional' : 'Terapia Ocupacional'} 🧼</option>
@@ -778,7 +778,7 @@ export default function TherapistPortal() {
                             placeholder={locale === 'en' ? 'Describe clinical measures, achievements and recommended guidelines...' : locale === 'es' ? 'Describa las medidas clínicas adoptadas, logros y pautas recomendadas...' : 'Descreva as condutas clínicas adotadas, conquistas e condutas recomendadas...'}
                             value={newCpFeedback}
                             onChange={e => setNewCpFeedback(e.target.value)}
-                            className="w-full p-3 bg-white border-2 border-slate-200 rounded-xl text-xs font-semibold focus:border-teal-600 focus:bg-white outline-none h-20 resize-none"
+                            className="w-full p-3 bg-white border border-slate-200 rounded-xl text-xs font-semibold focus:border-teal-600 focus:bg-white outline-none h-20 resize-none"
                           />
                         </div>
 
@@ -790,7 +790,7 @@ export default function TherapistPortal() {
                             placeholder={locale === 'en' ? 'Any internal note on performance or sensory responses...' : locale === 'es' ? 'Cualquier nota interna sobre rendimiento o respuestas sensoriales...' : 'Alguma anotação interna sobre o desempenho ou respostas sensoriais...'}
                             value={newCpNotes}
                             onChange={e => setNewCpNotes(e.target.value)}
-                            className="w-full p-3 bg-white border-2 border-slate-200 rounded-xl text-xs font-semibold focus:border-teal-600 focus:bg-white outline-none h-20 resize-none"
+                            className="w-full p-3 bg-white border border-slate-200 rounded-xl text-xs font-semibold focus:border-teal-600 focus:bg-white outline-none h-20 resize-none"
                           />
                         </div>
                       </div>
@@ -833,7 +833,7 @@ export default function TherapistPortal() {
                           setProfName(cp.professionalName || '');
                           setProfRole(cp.professionalRole || 'Psicologia ABA');
                         }}
-                        className={`p-4 rounded-2xl border-2 text-center flex flex-col items-center justify-center gap-2 transition-all cursor-pointer ${
+                        className={`p-4 rounded-2xl border text-center flex flex-col items-center justify-center gap-2 transition-all cursor-pointer ${
                           selectedCheckpoint?.id === cp.id
                             ? 'bg-teal-50 border-teal-500 text-teal-950 shadow-md shadow-teal-50'
                             : isCompleted
@@ -876,7 +876,7 @@ export default function TherapistPortal() {
                             value={feedbackText}
                             onChange={e => setFeedbackText(e.target.value)}
                             placeholder={locale === 'en' ? 'Describe behavioral achievements, adopted actions, and recommended regulation strategies for the week...' : locale === 'es' ? 'Describa los logros de comportamiento, conductas adoptadas y estrategias de regulación recomendadas para la semana...' : 'Descreva as conquistas comportamentais, condutas adotadas e estratégias de regulação recomendadas para a semana...'}
-                            className="w-full p-3 bg-slate-50 border-2 border-slate-200 focus:border-teal-500 focus:bg-white rounded-xl text-xs font-semibold outline-none h-24 resize-none transition-all"
+                            className="w-full p-3 bg-slate-50 border border-slate-200 focus:border-teal-500 focus:bg-white rounded-xl text-xs font-semibold outline-none h-24 resize-none transition-all"
                             required
                           />
                         </div>
@@ -890,7 +890,7 @@ export default function TherapistPortal() {
                             value={profName}
                             onChange={e => setProfName(e.target.value)}
                             placeholder={locale === 'en' ? 'e.g. Dra. Ana Beatriz' : locale === 'es' ? 'Ej: Dra. Ana Beatriz' : 'Ex: Dra. Ana Beatriz'}
-                            className="w-full px-3 py-2 bg-slate-50 border-2 border-slate-200 focus:border-teal-500 focus:bg-white rounded-xl text-xs font-bold outline-none transition-all"
+                            className="w-full px-3 py-2 bg-slate-50 border border-slate-200 focus:border-teal-500 focus:bg-white rounded-xl text-xs font-bold outline-none transition-all"
                             required
                           />
                         </div>
@@ -902,7 +902,7 @@ export default function TherapistPortal() {
                           <select
                             value={profRole}
                             onChange={e => setProfRole(e.target.value)}
-                            className="w-full px-3 py-2 bg-slate-50 border-2 border-slate-200 focus:border-teal-500 focus:bg-white rounded-xl text-xs font-bold outline-none cursor-pointer transition-all"
+                            className="w-full px-3 py-2 bg-slate-50 border border-slate-200 focus:border-teal-500 focus:bg-white rounded-xl text-xs font-bold outline-none cursor-pointer transition-all"
                           >
                             <option value="Psicologia ABA">{locale === 'en' ? 'ABA Psychology' : locale === 'es' ? 'Psicología ABA' : 'Psicologia ABA'} 🧠</option>
                             <option value="Terapia Ocupacional">{locale === 'en' ? 'Occupational Therapy' : locale === 'es' ? 'Terapia Ocupacional' : 'Terapia Ocupacional'} 🧼</option>
@@ -952,7 +952,7 @@ export default function TherapistPortal() {
           <div className={activeTab === 'routine' ? "grid grid-cols-1 lg:grid-cols-12 gap-6 items-start w-full" : "hidden print:grid print:grid-cols-1 print:lg:grid-cols-12 print:gap-6 print:items-start print:w-full"}>
             <div className="lg:col-span-8 flex flex-col gap-6">
               {/* Child Routine Inspection */}
-              <div className="bg-white border border-slate-200 p-6 rounded-[28px] shadow-premium flex flex-col gap-4 text-left">
+              <div className="bg-white border border-slate-200 p-6 rounded-2xl shadow-premium flex flex-col gap-4 text-left">
                 <div className="flex items-center justify-between gap-2 text-indigo-650 flex-wrap">
                   <div className="flex items-center gap-2">
                     <FileSpreadsheet className="w-5 h-5" />
@@ -1088,7 +1088,7 @@ export default function TherapistPortal() {
                             value={taskTitle}
                             onChange={e => setTaskTitle(e.target.value)}
                             placeholder={locale === 'en' ? 'e.g. Brush teeth 🪥, Occupational Therapy...' : locale === 'es' ? 'Ej: Cepillarse los dientes 🪥, Terapia Ocupacional...' : 'Ex: Escovar os dentes 🪥, Terapia Ocupacional...'}
-                            className="w-full px-3 py-2 bg-slate-50 border-2 border-slate-200 focus:border-indigo-500 focus:bg-white rounded-xl text-xs font-bold outline-none transition-all"
+                            className="w-full px-3 py-2 bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:bg-white rounded-xl text-xs font-bold outline-none transition-all"
                             required
                           />
                         </div>
@@ -1101,7 +1101,7 @@ export default function TherapistPortal() {
                             type="time"
                             value={taskTime}
                             onChange={e => setTaskTime(e.target.value)}
-                            className="w-full px-3 py-2 bg-slate-50 border-2 border-slate-200 focus:border-indigo-500 focus:bg-white rounded-xl text-xs font-bold outline-none transition-all"
+                            className="w-full px-3 py-2 bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:bg-white rounded-xl text-xs font-bold outline-none transition-all"
                             required
                           />
                         </div>
@@ -1113,7 +1113,7 @@ export default function TherapistPortal() {
                           <select
                             value={taskPeriod}
                             onChange={e => setTaskPeriod(e.target.value as any)}
-                            className="w-full px-3 py-2 bg-slate-50 border-2 border-slate-200 focus:border-indigo-500 focus:bg-white rounded-xl text-xs font-bold outline-none cursor-pointer transition-all"
+                            className="w-full px-3 py-2 bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:bg-white rounded-xl text-xs font-bold outline-none cursor-pointer transition-all"
                           >
                             <option value="manhã">{locale === 'en' ? 'Morning ☀️' : locale === 'es' ? 'Mañana ☀️' : 'Manhã ☀️'}</option>
                             <option value="tarde">{locale === 'en' ? 'Afternoon ⛅' : locale === 'es' ? 'Tarde ⛅' : 'Tarde ⛅'}</option>
@@ -1128,7 +1128,7 @@ export default function TherapistPortal() {
                           <select
                             value={taskDay}
                             onChange={e => setTaskDay(e.target.value)}
-                            className="w-full px-3 py-2 bg-slate-50 border-2 border-slate-200 focus:border-indigo-500 focus:bg-white rounded-xl text-xs font-bold outline-none cursor-pointer transition-all"
+                            className="w-full px-3 py-2 bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:bg-white rounded-xl text-xs font-bold outline-none cursor-pointer transition-all"
                           >
                             {Array.from({ length: 31 }).map((_, i) => (
                               <option key={i + 1} value={String(i + 1)}>{locale === 'en' ? 'Day' : locale === 'es' ? 'Día' : 'Dia'} {i + 1}</option>
@@ -1145,7 +1145,7 @@ export default function TherapistPortal() {
                             value={taskDuration}
                             onChange={e => setTaskDuration(Number(e.target.value))}
                             min={1}
-                            className="w-full px-3 py-2 bg-slate-50 border-2 border-slate-200 focus:border-indigo-500 focus:bg-white rounded-xl text-xs font-bold outline-none transition-all"
+                            className="w-full px-3 py-2 bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:bg-white rounded-xl text-xs font-bold outline-none transition-all"
                             required
                           />
                         </div>
@@ -1157,7 +1157,7 @@ export default function TherapistPortal() {
                           <select
                             value={taskCategory}
                             onChange={e => setTaskCategory(e.target.value as any)}
-                            className="w-full px-3 py-2 bg-slate-50 border-2 border-slate-200 focus:border-indigo-500 focus:bg-white rounded-xl text-xs font-bold outline-none cursor-pointer transition-all"
+                            className="w-full px-3 py-2 bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:bg-white rounded-xl text-xs font-bold outline-none cursor-pointer transition-all"
                           >
                             <option value="AVD">{locale === 'en' ? 'ADL (Activities of Daily Living) 🧼' : locale === 'es' ? 'AVD (Actividades de la Vida Diaria) 🧼' : 'AVD (Ativ. Vida Diária) 🧼'}</option>
                             <option value="Aprendizado">{locale === 'en' ? 'Learning / Session 🧠' : locale === 'es' ? 'Aprendizaje / Sesión 🧠' : 'Aprendizado / Sessão 🧠'}</option>
@@ -1172,7 +1172,7 @@ export default function TherapistPortal() {
                           <select
                             value={taskIcon}
                             onChange={e => setTaskIcon(e.target.value)}
-                            className="w-full px-3 py-2 bg-slate-50 border-2 border-slate-200 focus:border-indigo-500 focus:bg-white rounded-xl text-xs font-bold outline-none cursor-pointer transition-all"
+                            className="w-full px-3 py-2 bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:bg-white rounded-xl text-xs font-bold outline-none cursor-pointer transition-all"
                           >
                             <option value="📅">{locale === 'en' ? 'Calendar 📅' : locale === 'es' ? 'Calendario 📅' : 'Calendário 📅'}</option>
                             <option value="🧼">{locale === 'en' ? 'Hygiene 🧼' : locale === 'es' ? 'Higiene 🧼' : 'Higiene 🧼'}</option>
@@ -1224,7 +1224,7 @@ export default function TherapistPortal() {
                             value={taskDescription}
                             onChange={e => setTaskDescription(e.target.value)}
                             placeholder={locale === 'en' ? 'Describe step-by-step instructions for the child or sensory guidelines...' : locale === 'es' ? 'Describa instrucciones paso a paso para el niño o pautas sensoriales...' : 'Descreva instruções passo a passo para a criança ou orientações sensoriais...'}
-                            className="w-full p-3 bg-slate-50 border-2 border-slate-200 focus:border-indigo-500 focus:bg-white rounded-xl text-xs font-semibold outline-none h-18 resize-none transition-all"
+                            className="w-full p-3 bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:bg-white rounded-xl text-xs font-semibold outline-none h-18 resize-none transition-all"
                           />
                         </div>
 
@@ -1260,7 +1260,7 @@ export default function TherapistPortal() {
             </div>
             <div className="lg:col-span-4 flex flex-col gap-6">
                 {/* Presets Manager Card */}
-                <div className="bg-white border border-slate-200 p-6 rounded-[28px] shadow-premium flex flex-col gap-4 text-left">
+                <div className="bg-white border border-slate-200 p-6 rounded-2xl shadow-premium flex flex-col gap-4 text-left">
                   <div className="flex items-center gap-2 text-teal-650">
                     <Brain className="w-5 h-5 text-indigo-500" />
                     <h3 className="font-black text-slate-900 text-md font-Outfit">
@@ -1353,7 +1353,7 @@ export default function TherapistPortal() {
           {/* Analysis & Diary Tab Content */}
           <div className={activeTab === 'analysis' ? "w-full flex flex-col gap-6" : "hidden print:flex print:flex-col print:gap-6 print:w-full"}>
           {/* Clinical Correlation & AI Banner */}
-          <div className="grad-soft border border-slate-200 p-4.5 rounded-[24px] text-left shadow-sm flex items-start gap-3.5">
+          <div className="grad-soft border border-slate-200 p-4.5 rounded-2xl text-left shadow-sm flex items-start gap-3.5">
             <div className="w-10 h-10 bg-teal-100 text-teal-700 rounded-xl flex items-center justify-center text-xl shrink-0 shadow-inner border border-teal-150">
               🧠
             </div>
@@ -1374,7 +1374,7 @@ export default function TherapistPortal() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-5">
             
             {/* compliance card */}
-            <div className="bg-white border border-slate-200 p-5 rounded-[24px] shadow-xxs flex flex-col justify-between gap-4">
+            <div className="bg-white border border-slate-200 p-5 rounded-2xl shadow-xxs flex flex-col justify-between gap-4">
               <div className="flex justify-between items-start">
                 <div className="text-left">
                   <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block font-Outfit">
@@ -1404,7 +1404,7 @@ export default function TherapistPortal() {
             </div>
 
             {/* stability card */}
-            <div className="bg-white border border-slate-200 p-5 rounded-[24px] shadow-xxs flex flex-col justify-between gap-4">
+            <div className="bg-white border border-slate-200 p-5 rounded-2xl shadow-xxs flex flex-col justify-between gap-4">
               <div className="flex justify-between items-start">
                 <div className="text-left">
                   <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block font-Outfit">
@@ -1435,7 +1435,7 @@ export default function TherapistPortal() {
             </div>
 
             {/* crises card */}
-            <div className="bg-white border border-slate-200 p-5 rounded-[24px] shadow-xxs flex flex-col justify-between gap-4">
+            <div className="bg-white border border-slate-200 p-5 rounded-2xl shadow-xxs flex flex-col justify-between gap-4">
               <div className="flex justify-between items-start">
                 <div className="text-left">
                   <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block font-Outfit">
@@ -1466,7 +1466,7 @@ export default function TherapistPortal() {
             </div>
 
             {/* top trigger card */}
-            <div className="bg-white border border-slate-200 p-5 rounded-[24px] shadow-xxs flex flex-col justify-between gap-4">
+            <div className="bg-white border border-slate-200 p-5 rounded-2xl shadow-xxs flex flex-col justify-between gap-4">
               <div className="flex justify-between items-start">
                 <div className="text-left">
                   <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block font-Outfit">
@@ -1495,7 +1495,7 @@ export default function TherapistPortal() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
               <div className="lg:col-span-8 flex flex-col gap-6">
                 {/* Visual Analytics Card */}
-                <div className="bg-white border border-slate-200 p-6 rounded-[28px] shadow-premium flex flex-col gap-4 text-left">
+                <div className="bg-white border border-slate-200 p-6 rounded-2xl shadow-premium flex flex-col gap-4 text-left">
                   <div className="flex items-center gap-2 text-teal-650">
                     <TrendingUp className="w-5 h-5 text-teal-600" />
                     <h3 className="font-black text-slate-900 text-md font-Outfit">
@@ -1596,7 +1596,7 @@ export default function TherapistPortal() {
               <div className="lg:col-span-4 flex flex-col gap-6 text-left">
               {/* Sensory Heatmap */}
               {sensoryLogs.length > 0 && (
-                <div className="bg-white border border-slate-200 p-5 rounded-[28px] shadow-premium flex flex-col gap-4">
+                <div className="bg-white border border-slate-200 p-5 rounded-2xl shadow-premium flex flex-col gap-4">
                   <div className="flex items-center gap-2 text-indigo-650">
                     <Map className="w-5 h-5 text-indigo-500" />
                     <h3 className="font-black text-slate-900 text-md font-Outfit">
@@ -1610,7 +1610,7 @@ export default function TherapistPortal() {
 
               {/* Patient Behavior Dictionary / Guia de Sinais */}
               {childData && (
-                <div className="bg-white border border-slate-200 p-5 rounded-[28px] shadow-premium flex flex-col gap-4 text-left">
+                <div className="bg-white border border-slate-200 p-5 rounded-2xl shadow-premium flex flex-col gap-4 text-left">
                   <div className="flex items-center gap-2 text-indigo-650">
                     <span className="text-xl">📖</span>
                     <h3 className="font-black text-slate-900 text-md font-Outfit">
@@ -1655,7 +1655,7 @@ export default function TherapistPortal() {
 
 
               {/* Sensory Log / Crises History */}
-              <div className="bg-white border border-slate-200 p-5 rounded-[28px] shadow-premium flex flex-col gap-4">
+              <div className="bg-white border border-slate-200 p-5 rounded-2xl shadow-premium flex flex-col gap-4">
                 <div className="flex items-center gap-2 text-red-650">
                   <AlertTriangle className="w-5 h-5" />
                   <h3 className="font-black text-slate-900 text-md font-Outfit">
@@ -1745,7 +1745,7 @@ export default function TherapistPortal() {
           <div className="p-8 max-w-4xl mx-auto flex flex-col gap-6 text-[#0f172a] text-left">
             
             {/* Header */}
-            <div className="border-b-4 border-teal-650 pb-4 flex justify-between items-center">
+            <div className="border-b border-slate-200 pb-4 flex justify-between items-center">
               <div>
                 <h1 className="text-3xl font-black text-teal-605 tracking-tight font-Outfit">
                   {locale === 'en' ? 'BEHAVIORAL / SENSORY REPORT' : locale === 'es' ? 'INFORME CONDUCTUAL / SENSORIAL' : 'LAUDO COMPORTAMENTAL / SENSORIAL'}
@@ -1875,7 +1875,7 @@ export default function TherapistPortal() {
               ) : (
                 <table className="w-full text-left border-collapse text-xxs mt-2">
                   <thead>
-                    <tr className="border-b-2 border-slate-300 text-[9px] font-black uppercase text-slate-450">
+                    <tr className="border-b border-slate-200 text-[9px] font-black uppercase text-slate-450">
                       <th className="py-2 pr-2">{locale === 'en' ? 'Date/Time' : locale === 'es' ? 'Fecha/Hora' : 'Data/Hora'}</th>
                       <th className="py-2 pr-2">{locale === 'en' ? 'Event' : locale === 'es' ? 'Evento' : 'Evento'}</th>
                       <th className="py-2 pr-2">{locale === 'en' ? 'A (Antecedent)' : locale === 'es' ? 'A (Antecedente)' : 'A (Antecedente)'}</th>
