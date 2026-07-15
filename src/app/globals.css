@@ -215,6 +215,17 @@
 .dark .bg-white { background-color: #1e1e38; }
 .dark .placeholder-slate-400::placeholder { color: #7c7ca0; }
 
+/* Form controls: native rendering (color-scheme) can ignore the .bg-white
+   flip above, so theme inputs/selects/textareas explicitly in dark mode. */
+.dark input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+.dark textarea,
+.dark select {
+  background-color: #1e1e38 !important;
+  color: #ededfb;
+  border-color: #33335a;
+  color-scheme: dark;
+}
+
 /* Headings / strongest text */
 .dark .text-slate-955, .dark .text-slate-950,
 .dark .text-slate-905, .dark .text-slate-900,
