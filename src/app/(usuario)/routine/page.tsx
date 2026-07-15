@@ -2026,11 +2026,11 @@ export default function ChildRoutine() {
 
     if (unexObj && unexObj.cancelledTaskTitle) {
       return (
-        <main className="min-h-screen bg-gradient-to-tr from-[#fef3c7] via-[#fffbeb] to-[#fef3c7] flex flex-col items-center justify-center p-6 text-slate-900 relative overflow-hidden font-Outfit select-none">
+        <main className="min-h-screen bg-[#f7f7fb] flex flex-col items-center justify-center p-6 text-slate-900 relative overflow-hidden font-Outfit select-none">
           {/* Empathetic unexpected change card */}
-          <div className="w-full max-w-lg bg-white border-4 border-amber-400 rounded-[36px] p-8 shadow-2xl z-10 flex flex-col gap-6 text-center">
+          <div className="w-full max-w-lg bg-white border border-amber-200 rounded-2xl p-8 shadow-sm z-10 flex flex-col gap-6 text-center">
             <div>
-              <span className="text-6xl animate-bounce inline-block">⚠️</span>
+              <span className="text-6xl inline-block">⚠️</span>
               <h1 className="text-3xl font-black text-amber-955 tracking-tight mt-3 font-Outfit">
                 {locale === 'en' ? 'Change of Plans!' : locale === 'es' ? '¡Cambio de Planes!' : 'Mudança de Planos!'}
               </h1>
@@ -2041,7 +2041,7 @@ export default function ChildRoutine() {
 
             {/* De -> Para visual explanation */}
             <div className="flex flex-col md:flex-row items-center justify-center gap-4 py-4 border-y border-slate-100 my-2">
-              <div className="flex flex-col items-center p-4 bg-red-50 border-2 border-red-200 rounded-2xl w-full md:w-5/12 opacity-80 relative overflow-hidden">
+              <div className="flex flex-col items-center p-4 bg-red-50 border border-red-200 rounded-2xl w-full md:w-5/12 opacity-80 relative overflow-hidden">
                 <div className="absolute top-1 right-2 text-[8px] font-black text-red-500 uppercase tracking-widest">
                   {locale === 'en' ? 'Cancelled' : locale === 'es' ? 'Cancelada' : 'Cancelada'}
                 </div>
@@ -2049,9 +2049,9 @@ export default function ChildRoutine() {
                 <span className="text-sm font-black text-red-955 line-through mt-2">{unexObj.cancelledTaskTitle}</span>
               </div>
 
-              <div className="text-3xl text-slate-400 animate-pulse">➡️</div>
+              <div className="text-3xl text-slate-400">➡️</div>
 
-              <div className="flex flex-col items-center p-4 bg-emerald-50 border-2 border-emerald-300 rounded-2xl w-full md:w-5/12 relative overflow-hidden">
+              <div className="flex flex-col items-center p-4 bg-emerald-50 border border-emerald-200 rounded-2xl w-full md:w-5/12 relative overflow-hidden">
                 <div className="absolute top-1 right-2 text-[8px] font-black text-emerald-600 uppercase tracking-widest">
                   {locale === 'en' ? 'Replacement' : locale === 'es' ? 'Sustituta' : 'Substituta'}
                 </div>
@@ -2086,7 +2086,7 @@ export default function ChildRoutine() {
             {/* Acknowledge button */}
             <button
               onClick={handleAcknowledgeUnexpectedChange}
-              className="w-full py-4.5 bg-yellow-500 hover:bg-yellow-600 text-slate-950 text-xs font-black rounded-2xl shadow-md border-b-4 border-yellow-755 active:scale-[0.98] transition-all cursor-pointer font-Outfit uppercase tracking-wider"
+              className="w-full py-4 bg-amber-500 hover:bg-amber-600 text-slate-950 text-sm font-black rounded-2xl active:scale-[0.98] transition-all cursor-pointer font-Outfit"
             >
               {locale === 'en' ? 'I understand, okay! 👍' : locale === 'es' ? '¡Entendido, está bien! 👍' : 'Entendi, tudo bem! 👍'}
             </button>
@@ -2118,12 +2118,12 @@ export default function ChildRoutine() {
           {loadingChildren ? (
             <div className="flex flex-col items-center gap-3 py-6">
               <div className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
-              <span className="text-sm font-bold text-slate-700 animate-pulse">
+              <span className="text-sm font-bold text-slate-500">
                 {locale === 'en' ? 'Loading your data...' : locale === 'es' ? 'Cargando sus datos...' : 'Carregando seus dados...'}
               </span>
             </div>
           ) : children.length === 0 ? (
-            <div className="bg-white border-2 border-slate-300 p-8 rounded-2xl shadow-md text-center">
+            <div className="bg-white border border-slate-200 p-8 rounded-2xl shadow-sm text-center">
               <p className="text-sm font-bold text-slate-700">
                 {locale === 'en' ? 'No children registered yet.' : locale === 'es' ? 'Ningún niño registrado aún.' : 'Nenhuma criança cadastrada ainda.'}
               </p>
@@ -2132,7 +2132,7 @@ export default function ChildRoutine() {
               </p>
               <button 
                 onClick={() => router.push('/dashboard')}
-                className="mt-5 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-black rounded-xl shadow-md transition-all cursor-pointer border-none font-Outfit"
+                className="mt-5 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-black rounded-xl shadow-sm transition-all cursor-pointer border-none font-Outfit"
               >
                 {locale === 'en' ? 'Go to Guardian Panel' : locale === 'es' ? 'Ir al Panel del Tutor' : 'Ir para o Painel do Responsável'}
               </button>
