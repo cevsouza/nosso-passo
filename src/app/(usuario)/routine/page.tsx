@@ -27,7 +27,12 @@ import {
   Lock,
   Maximize,
   ShieldCheck,
-  Home
+  Home,
+  LogOut,
+  MessageCircle,
+  Wind,
+  LifeBuoy,
+  MoreHorizontal
 } from 'lucide-react';
 
 const DAYS_PORTUGUESE: { [key: number]: string } = {
@@ -3605,13 +3610,15 @@ export default function ChildRoutine() {
           <button
             onClick={() => handleAttemptExit('/')}
             onMouseEnter={playBubble}
-            className={`flex items-center gap-1.5 px-3.5 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm font-black rounded-full border shadow-sm transition-all active:scale-95 cursor-pointer shrink-0 whitespace-nowrap ${
+            aria-label={locale === 'en' ? 'Exit' : locale === 'es' ? 'Salir' : 'Sair'}
+            title={locale === 'en' ? 'Exit' : locale === 'es' ? 'Salir' : 'Sair'}
+            className={`flex items-center justify-center w-10 h-10 rounded-full transition-all active:scale-90 cursor-pointer shrink-0 ${
               sleepMode
-                ? 'bg-slate-905 border-slate-700 text-amber-200 hover:bg-slate-805'
-                : 'bg-white hover:bg-slate-50 border-slate-350 text-slate-805'
+                ? 'text-amber-200/70 hover:text-amber-100 hover:bg-slate-800/60'
+                : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'
             }`}
           >
-            🔒 <span className="hidden sm:inline">{locale === 'en' ? 'Exit' : locale === 'es' ? 'Salir' : 'Sair'}</span>
+            <LogOut className="w-5 h-5" />
           </button>
 
           {/* Identidade: nome + dia (contexto calmo, centralizado) */}
@@ -3624,20 +3631,21 @@ export default function ChildRoutine() {
             </span>
           </div>
 
-          {/* Essenciais + menu consolidado */}
-          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+          {/* Essenciais — ícones-fantasma (cromo discreto) */}
+          <div className="flex items-center gap-0.5 sm:gap-1 shrink-0">
             {/* Minha Voz (CAA) — comunicação é necessidade básica */}
             <button
               onClick={() => { playBubble(); setShowAacModal(true); }}
               onMouseEnter={playBubble}
               aria-label={locale === 'en' ? 'My Voice' : locale === 'es' ? 'Mi Voz' : 'Minha Voz'}
-              className={`flex items-center gap-1.5 px-3 py-2 sm:px-3.5 sm:py-2.5 border text-sm font-black rounded-full shadow-sm transition-all active:scale-95 cursor-pointer shrink-0 ${
+              title={locale === 'en' ? 'My Voice' : locale === 'es' ? 'Mi Voz' : 'Minha Voz'}
+              className={`flex items-center justify-center w-10 h-10 rounded-full transition-all active:scale-90 cursor-pointer shrink-0 ${
                 sleepMode
-                  ? 'bg-sky-950/20 border-sky-900/50 text-sky-300 hover:bg-sky-950/55'
-                  : 'bg-white hover:bg-sky-50 border-sky-250 text-sky-700'
+                  ? 'text-sky-300/80 hover:text-sky-200 hover:bg-sky-950/40'
+                  : 'text-sky-600 hover:text-sky-700 hover:bg-sky-50'
               }`}
             >
-              🗣️ <span className="hidden md:inline">Voz</span>
+              <MessageCircle className="w-5 h-5" />
             </button>
 
             {/* Modo Calmo */}
@@ -3651,29 +3659,31 @@ export default function ChildRoutine() {
               }}
               onMouseEnter={playBubble}
               aria-label={locale === 'en' ? 'Calm mode' : locale === 'es' ? 'Modo calma' : 'Modo calmo'}
-              className={`flex items-center gap-1.5 px-3 py-2 sm:px-3.5 sm:py-2.5 border text-sm font-black rounded-full shadow-sm transition-all active:scale-95 cursor-pointer font-Outfit shrink-0 ${
+              title={locale === 'en' ? 'Calm mode' : locale === 'es' ? 'Modo calma' : 'Modo calmo'}
+              className={`flex items-center justify-center w-10 h-10 rounded-full transition-all active:scale-90 cursor-pointer shrink-0 ${
                 localCalmMode
-                  ? 'bg-teal-500 border-teal-605 text-white'
+                  ? 'bg-teal-500 text-white hover:bg-teal-600'
                   : sleepMode
-                  ? 'bg-slate-905 border-slate-700 text-amber-200 hover:bg-slate-800'
-                  : 'bg-white hover:bg-teal-50 border-teal-200 text-teal-700'
+                  ? 'text-amber-200/70 hover:text-amber-100 hover:bg-slate-800/60'
+                  : 'text-teal-600 hover:text-teal-700 hover:bg-teal-50'
               }`}
             >
-              🧘 <span className="hidden md:inline">Calmo</span>
+              <Wind className="w-5 h-5" />
             </button>
 
-            {/* SOS — sempre acessível */}
+            {/* SOS — sempre acessível (leve destaque de cor por segurança) */}
             <button
               onClick={handleTriggerSos}
               onMouseEnter={playBubble}
               aria-label="SOS"
-              className={`flex items-center gap-1.5 px-3 py-2 sm:px-3.5 sm:py-2.5 border text-sm font-black rounded-full shadow-sm transition-all active:scale-95 cursor-pointer shrink-0 ${
+              title="SOS"
+              className={`flex items-center justify-center w-10 h-10 rounded-full transition-all active:scale-90 cursor-pointer shrink-0 ${
                 sleepMode
-                  ? 'bg-red-950/20 border-red-900/50 text-red-300 hover:bg-red-950/50'
-                  : 'bg-red-50 hover:bg-red-100 border-red-250 text-red-650 font-Outfit'
+                  ? 'text-red-300/80 hover:text-red-200 hover:bg-red-950/40'
+                  : 'text-red-500 hover:text-red-600 hover:bg-red-50'
               }`}
             >
-              🚨 <span className="hidden md:inline">SOS</span>
+              <LifeBuoy className="w-5 h-5" />
             </button>
 
             {/* ⋯ Mais — menu consolidado (secundários) */}
@@ -3682,14 +3692,16 @@ export default function ChildRoutine() {
                 onClick={() => { playBubble(); setShowSupportMenu(!showSupportMenu); }}
                 onMouseEnter={playBubble}
                 aria-label={locale === 'en' ? 'More' : locale === 'es' ? 'Más' : 'Mais'}
-                className={`flex items-center gap-1 px-3 py-2 sm:px-3.5 sm:py-2.5 border text-sm font-black rounded-full shadow-sm transition-all active:scale-95 cursor-pointer shrink-0 ${
-                  sleepMode
-                    ? 'bg-amber-950/20 border-amber-900/50 text-amber-300 hover:bg-amber-950/55'
-                    : 'bg-white hover:bg-indigo-50 border-indigo-250 text-indigo-700'
+                title={locale === 'en' ? 'More' : locale === 'es' ? 'Más' : 'Mais'}
+                className={`flex items-center justify-center w-10 h-10 rounded-full transition-all active:scale-90 cursor-pointer shrink-0 ${
+                  showSupportMenu
+                    ? (sleepMode ? 'bg-slate-800/70 text-amber-100' : 'bg-slate-100 text-slate-900')
+                    : sleepMode
+                    ? 'text-amber-200/70 hover:text-amber-100 hover:bg-slate-800/60'
+                    : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'
                 }`}
               >
-                <span className="text-lg leading-none -mt-1">⋯</span>
-                <span className="hidden md:inline">{locale === 'en' ? 'More' : locale === 'es' ? 'Más' : 'Mais'}</span>
+                <MoreHorizontal className="w-5 h-5" />
               </button>
 
               {showSupportMenu && (
