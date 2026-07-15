@@ -26,7 +26,8 @@ import {
   Bed,
   Lock,
   Maximize,
-  ShieldCheck
+  ShieldCheck,
+  Home
 } from 'lucide-react';
 
 const DAYS_PORTUGUESE: { [key: number]: string } = {
@@ -2994,7 +2995,7 @@ export default function ChildRoutine() {
       : '';
 
     return (
-      <main className={`min-h-screen flex flex-col items-center p-6 pb-12 bg-gradient-to-b from-[#0b0f19] via-[#1a2035] to-[#2b1f3d] text-white relative overflow-hidden ${profileClass}`}>
+      <main className={`min-h-screen flex flex-col items-center px-5 py-6 pb-12 bg-[#12131f] text-slate-100 relative overflow-hidden ${profileClass}`}>
         {kioskLayer}
         {offline && (
           <div className="absolute top-0 inset-x-0 bg-amber-500 text-white py-2 px-4 text-center text-xs font-black select-none z-50 flex items-center justify-center gap-2 font-Outfit shadow-md shrink-0">
@@ -3006,163 +3007,94 @@ export default function ChildRoutine() {
             )}
           </div>
         )}
-        {/* Twinkling stars in the background */}
-        {effectiveVisuals === 'rich' && (
-          <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-            {twinklingStars.map(star => (
-              <motion.div
-                key={star.id}
-                className="absolute w-1.5 h-1.5 bg-yellow-100 rounded-full"
-                style={{ top: star.top, left: star.left }}
-                animate={{ opacity: [0.2, 1, 0.2] }}
-                transition={{ duration: 3.5, delay: star.delay, repeat: Infinity, ease: "easeInOut" }}
-              />
-            ))}
-          </div>
-        )}
+        {/* One calm, static moon — no twinkling, no float, no pulsing glow */}
+        <div className="absolute top-8 right-8 w-14 h-14 pointer-events-none select-none z-0 hidden md:block opacity-50">
+          <svg viewBox="0 0 100 100" className="w-full h-full">
+            <path d="M 50 15 C 30 15, 30 75, 75 75 C 80 75, 83 72, 85 70 C 65 72, 45 60, 45 40 C 45 28, 52 20, 58 15 C 55 15, 52 15, 50 15 Z" fill="#e6dcb8" />
+          </svg>
+        </div>
 
-        {/* Floating cozy moon */}
-        {effectiveVisuals === 'rich' && (
-          <motion.div 
-            className="absolute top-10 right-10 w-24 h-24 pointer-events-none select-none z-0 hidden md:block"
-            animate={{ y: [0, -4, 0] }}
-            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+        {/* Quiet top bar */}
+        <div className="w-full max-w-md flex items-center justify-between mb-8 z-10">
+          <button
+            onClick={() => handleAttemptExit('/')}
+            onMouseEnter={playBubble}
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 text-xs font-bold transition-all active:scale-95 cursor-pointer"
           >
-            <svg viewBox="0 0 100 100" className="w-full h-full filter drop-shadow-[0_0_20px_rgba(254,240,138,0.25)]">
-              <path d="M 50 15 C 30 15, 30 75, 75 75 C 80 75, 83 72, 85 70 C 65 72, 45 60, 45 40 C 45 28, 52 20, 58 15 C 55 15, 52 15, 50 15 Z" fill="#fef08a" />
-            </svg>
-          </motion.div>
-        )}
+            <Home className="w-3.5 h-3.5" /> {locale === 'en' ? 'Home' : locale === 'es' ? 'Inicio' : 'Início'}
+          </button>
 
-        {/* Top Navigation Header (styled for Dark/Night view) */}
-        <div className="w-full max-w-2xl md:max-w-4xl flex items-center justify-between mb-8 z-10 px-4 md:px-6">
-          <div className="flex gap-2 items-center">
-            <button 
-              onClick={() => handleAttemptExit('/')}
-              onMouseEnter={playBubble}
-              className="flex items-center gap-1.5 px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-xs font-black rounded-full border-2 border-slate-700 shadow-premium transition-all active:scale-95 cursor-pointer text-white"
-            >
-              🏠 {locale === 'en' ? 'Home' : locale === 'es' ? 'Inicio' : 'Início'}
-            </button>
-            
-            {showStories && (
-            <button
-              onClick={() => { playBubble(); setShowStoriesModal(true); }}
-              onMouseEnter={playBubble}
-              className="flex items-center gap-1.5 px-5 py-2.5 bg-indigo-950 hover:bg-indigo-900 border-2 border-indigo-800 text-indigo-100 text-xs font-black rounded-full shadow-premium transition-all active:scale-95 cursor-pointer"
-            >
-              📖 {locale === 'en' ? 'Stories' : locale === 'es' ? 'Historias' : 'Histórias'}
-            </button>
-            )}
-            {showMyWorld && (
-            <button
-              onClick={() => { playBubble(); setShowHyperfocusModal(true); }}
-              onMouseEnter={playBubble}
-              className="flex items-center gap-1.5 px-5 py-2.5 bg-yellow-950 hover:bg-yellow-900 border-2 border-yellow-800 text-yellow-100 text-xs font-black rounded-full shadow-premium transition-all active:scale-95 cursor-pointer"
-            >
-              🎮 Meu Mundo ({activeChild?.collectedParts || 0}/4)
-            </button>
-            )}
-          </div>
+          <span className="text-[11px] font-semibold text-slate-400 tracking-wide">
+            {(t.common.dayLabels as any)[currentDay] || (locale === 'es' ? `Día ${currentDay}` : locale === 'en' ? `Day ${currentDay}` : `Dia ${currentDay}`)}
+          </span>
 
-          <h2 className="text-xs font-black bg-slate-800 border-2 border-slate-700 text-white px-5 py-2.5 rounded-full shadow-premium uppercase tracking-widest font-Outfit">
-            {(t.common.dayLabels as any)[currentDay] || (locale === 'es' ? `Día ${currentDay} 📅` : locale === 'en' ? `Day ${currentDay} 📅` : `Dia ${currentDay} 📅`)}
-          </h2>
-          
-          {/* Ambient Sound Selector */}
+          {/* Ambient sound — calm winding-down helper */}
           {showAmbient ? (
-          <div className="flex bg-slate-800 border-2 border-slate-700 p-1 rounded-full shadow-premium gap-1 items-center z-10">
-            <button
-              onClick={() => handleAmbientChange('none')}
-              className={`px-3 py-1.5 rounded-full text-xs font-black transition-all ${
-                activeAmbientType === 'none'
-                  ? 'bg-slate-700 text-slate-100'
-                  : 'bg-transparent text-slate-400 hover:text-slate-200'
-              }`}
-              title="Silencioso"
-            >
-              🔈
-            </button>
-            <button
-              onClick={() => handleAmbientChange('rain')}
-              className={`px-3 py-1.5 rounded-full text-xs font-black transition-all ${
-                activeAmbientType === 'rain'
-                  ? 'bg-blue-900 text-blue-100'
-                  : 'bg-transparent text-slate-400 hover:text-blue-300'
-              }`}
-              title="Som de Chuva"
-            >
-              🌧️
-            </button>
-            <button
-              onClick={() => handleAmbientChange('binaural')}
-              className={`px-3 py-1.5 rounded-full text-xs font-black transition-all ${
-                activeAmbientType === 'binaural'
-                  ? 'bg-indigo-900 text-indigo-100'
-                  : 'bg-transparent text-slate-400 hover:text-indigo-300'
-              }`}
-              title="Foco Binaural"
-            >
-              🧠
-            </button>
-          </div>
-          ) : <div />}
+            <div className="flex bg-white/5 border border-white/10 p-1 rounded-full gap-0.5 items-center">
+              <button
+                onClick={() => handleAmbientChange('none')}
+                title="Silencioso"
+                className={`px-2.5 py-1 rounded-full text-xs transition-all ${activeAmbientType === 'none' ? 'bg-white/15 text-slate-100' : 'text-slate-400 hover:text-slate-200'}`}
+              >
+                🔈
+              </button>
+              <button
+                onClick={() => handleAmbientChange('rain')}
+                title="Som de Chuva"
+                className={`px-2.5 py-1 rounded-full text-xs transition-all ${activeAmbientType === 'rain' ? 'bg-white/15 text-blue-200' : 'text-slate-400 hover:text-blue-300'}`}
+              >
+                🌧️
+              </button>
+              <button
+                onClick={() => handleAmbientChange('binaural')}
+                title="Foco Binaural"
+                className={`px-2.5 py-1 rounded-full text-xs transition-all ${activeAmbientType === 'binaural' ? 'bg-white/15 text-indigo-200' : 'text-slate-400 hover:text-indigo-300'}`}
+              >
+                🧠
+              </button>
+            </div>
+          ) : <span className="w-9" />}
         </div>
 
         <motion.div
           initial={{ scale: 0.96, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={transitionConfig}
-          className="z-10 w-full max-w-lg md:max-w-4xl text-center flex flex-col items-center gap-6 px-4 md:px-6"
+          className="z-10 w-full max-w-md text-center flex flex-col items-center gap-6"
         >
-          {/* Night indicator */}
-          <span className="text-xs font-black uppercase tracking-wider text-indigo-100 bg-indigo-950/70 px-4.5 py-2 rounded-full border border-indigo-700/50 shadow-inner flex items-center gap-1.5">
-            🌙 Previsibilidade de Fim de Dia
+          {/* End-of-day eyebrow */}
+          <span className="text-[11px] font-bold uppercase tracking-widest text-indigo-300/80 flex items-center gap-1.5">
+            <Moon className="w-3.5 h-3.5" /> {locale === 'en' ? 'End of day' : locale === 'es' ? 'Fin del día' : 'Fim do dia'}
           </span>
 
-          <h1 className="text-4xl md:text-5xl font-black tracking-tight mb-1 text-yellow-300">
-            {locale === 'en' ? 'Missions Completed!' : locale === 'es' ? '¡Misiones Cumplidas!' : 'Missões Cumpridas!'}
-          </h1>
-          <p className="text-slate-50 text-sm max-w-xs leading-relaxed font-semibold">
-            {locale === 'en' ? 'You completed all of today\'s activities. Time to rest!' : locale === 'es' ? 'Completaste todas las actividades de hoy. ¡Hora de descansar!' : 'Você completou todas as atividades de hoje. Hora de descansar!'}
-          </p>
-
-          {/* Sleeping Border Collie Cozy SVG Mascot */}
-          <div className="relative cursor-pointer py-4" onClick={handleMascotClick}>
-            {/* Glowing moon shadow background */}
-            <div className="absolute w-36 h-36 bg-indigo-500/20 rounded-full filter blur-xl -z-10 animate-pulse"></div>
-            <HyperfocusMascot hyperfocus={childHyperfocus} state="sleeping" size={240} />
+          <div className="flex flex-col gap-2">
+            <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-slate-50 font-Outfit">
+              {locale === 'en' ? 'Day complete' : locale === 'es' ? 'Día completo' : 'Dia concluído'}
+            </h1>
+            <p className="text-slate-400 text-sm max-w-xs leading-relaxed mx-auto">
+              {locale === 'en' ? 'Everything done for today. Time to rest.' : locale === 'es' ? 'Todo hecho por hoy. Hora de descansar.' : 'Tudo feito por hoje. Hora de descansar.'}
+            </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
-            {/* Badges Gallery Reward */}
-            {uiCompleto && (
-            <div className="w-full bg-slate-800/50 border border-slate-700/40 p-5 rounded-3xl flex flex-col gap-4 text-left shadow-2xl">
-              <h4 className="font-extrabold text-white text-xs uppercase tracking-widest flex items-center gap-1.5 select-none">
-                🏅 Medalhas conquistadas hoje:
-              </h4>
-              <div className="grid grid-cols-3 gap-3">
-                {localizedBadges.map(badge => (
-                  <motion.div 
-                    key={badge.id}
-                    whileHover={{ scale: 1.05 }}
-                    className="bg-slate-700/40 border border-slate-600/30 p-3 rounded-2xl flex flex-col items-center text-center gap-1 shadow-md"
-                  >
-                    <span className="text-3xl animate-pulse select-none">{badge.icon}</span>
-                    <h5 className="font-black text-white text-[10px] leading-tight mt-1">{badge.label}</h5>
-                    <span className="text-[9px] text-slate-100 leading-tight mt-0.5">{badge.desc}</span>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-            )}
+          {/* Sleeping mascot — static, calm glow */}
+          <div className="relative cursor-pointer py-2" onClick={handleMascotClick}>
+            <div className="absolute inset-0 m-auto w-28 h-28 bg-indigo-500/10 rounded-full blur-2xl -z-10"></div>
+            <HyperfocusMascot hyperfocus={childHyperfocus} state="sleeping" size={200} />
+          </div>
 
-            {/* TEACCH Choice Board (Painel de Escolhas Lúdicas) */}
-            <div className="w-full bg-slate-800/50 border border-slate-700/40 p-5 rounded-3xl flex flex-col gap-4 text-left shadow-2xl">
-              <h4 className="font-extrabold text-white text-xs uppercase tracking-widest flex items-center gap-1.5 select-none font-Outfit">
-                {locale === 'en' ? '🪁 Playful Choices Board (What do you want to do now?):' : locale === 'es' ? '🪁 Panel de Elecciones Lúdicas (¿Qué quieres hacer ahora?):' : '🪁 Painel de Escolhas Lúdicas (O que quer fazer agora?):'}
+          {/* Quiet completed summary */}
+          <div className="flex items-center gap-2 text-xs font-semibold text-slate-400">
+            <Check className="w-4 h-4 text-emerald-400 shrink-0" />
+            {completedTasks.length}/{todayTasks.length} {locale === 'en' ? 'activities done' : locale === 'es' ? 'actividades hechas' : 'atividades feitas'}
+          </div>
+
+          {/* What now? — playful choice board, hidden in Foco */}
+          {showStories && (
+            <div className="w-full bg-white/[0.04] border border-white/10 p-5 rounded-2xl flex flex-col gap-4 text-left">
+              <h4 className="text-xs font-bold text-slate-300 flex items-center gap-1.5 select-none font-Outfit">
+                {locale === 'en' ? 'What would you like to do now?' : locale === 'es' ? '¿Qué te gustaría hacer ahora?' : 'O que você quer fazer agora?'}
               </h4>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-2.5">
                 {[
                   { id: 'draw', label: locale === 'en' ? 'Draw 🎨' : locale === 'es' ? 'Dibujar 🎨' : 'Desenhar 🎨', speech: locale === 'en' ? 'You chose to draw! Have fun with the colors!' : locale === 'es' ? '¡Elegiste dibujar! ¡Diviértete con los colores!' : 'Você escolheu desenhar! Divirta-se com as cores!', icon: '🎨' },
                   { id: 'read', label: locale === 'en' ? 'Read Book 📚' : locale === 'es' ? 'Leer Libro 📚' : 'Ler Livro 📚', speech: locale === 'en' ? 'You chose to read a book! A great story awaits you!' : locale === 'es' ? '¡Elegiste leer un libro! ¡Una gran historia te espera!' : 'Você escolheu ler um livro! Uma ótima história te espera!', icon: '📚' },
@@ -3171,60 +3103,53 @@ export default function ChildRoutine() {
                 ].map(choice => {
                   const isSelected = selectedChoice === choice.id;
                   return (
-                    <motion.button
+                    <button
                       key={choice.id}
-                      whileHover={{ scale: 1.03 }}
-                      whileTap={{ scale: 0.97 }}
                       onClick={() => {
                         playBubble();
                         setSelectedChoice(choice.id);
                         speakText(choice.speech);
                       }}
-                      className={`p-4.5 rounded-2xl flex flex-col items-center justify-center text-center gap-2 border-2 transition-all cursor-pointer ${
+                      className={`p-4 rounded-xl flex flex-col items-center justify-center text-center gap-2 border transition-all cursor-pointer active:scale-95 ${
                         isSelected
-                          ? 'bg-indigo-650/80 border-indigo-500 text-white shadow-lg shadow-indigo-950/50'
-                          : 'bg-slate-700/30 border-slate-600/30 text-slate-50 hover:bg-slate-700/50 hover:text-white'
+                          ? 'bg-indigo-600/25 border-indigo-500/60 text-white'
+                          : 'bg-white/[0.03] border-white/10 text-slate-200 hover:bg-white/[0.06]'
                       }`}
                     >
-                      <span className="text-4.5xl select-none">{choice.icon}</span>
-                      <span className="font-black text-xs tracking-tight font-Outfit mt-1 text-inherit">{choice.label}</span>
-                    </motion.button>
+                      <span className="text-3xl select-none">{choice.icon}</span>
+                      <span className="font-semibold text-xs tracking-tight font-Outfit text-inherit">{choice.label}</span>
+                    </button>
                   );
                 })}
               </div>
               {selectedChoice && (
-                <p className="text-[10px] text-center text-indigo-100 font-extrabold animate-pulse uppercase tracking-wider">
-                  Boa escolha! Aproveite seu momento de descanso!
+                <p className="text-[11px] text-center text-indigo-200 font-semibold">
+                  {locale === 'en' ? 'Nice choice. Enjoy your rest.' : locale === 'es' ? 'Buena elección. Disfruta tu descanso.' : 'Boa escolha. Aproveite seu descanso.'}
                 </p>
               )}
             </div>
-          </div>
+          )}
 
-          <div className="w-full bg-slate-800/40 backdrop-blur-md border border-slate-700/40 p-5 rounded-3xl shadow-xl flex flex-col gap-4 text-left">
-            <h3 className="font-extrabold text-white text-xs flex items-center gap-2">
-              ⭐ {t.routine.badgesTitle} ({completedTasks.length}/{todayTasks.length})
-            </h3>
-            <div className="flex flex-wrap gap-2 max-h-32 overflow-y-auto pr-1">
-              {completedTasks.map(task => (
-                <div 
-                  key={task.id} 
-                  className="bg-slate-700/50 border border-slate-650/40 px-3 py-1.5 rounded-xl text-xs font-bold text-emerald-300 flex items-center gap-1.5"
-                >
-                  <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                  {task.title}
-                </div>
-              ))}
+          {/* Medals — only in Completo */}
+          {uiCompleto && localizedBadges.length > 0 && (
+            <div className="w-full bg-white/[0.04] border border-white/10 p-5 rounded-2xl flex flex-col gap-3 text-left">
+              <h4 className="text-xs font-bold text-slate-300 flex items-center gap-1.5 select-none">
+                🏅 {locale === 'en' ? 'Medals earned today' : locale === 'es' ? 'Medallas de hoy' : 'Medalhas de hoje'}
+              </h4>
+              <div className="grid grid-cols-3 gap-2.5">
+                {localizedBadges.map(badge => (
+                  <div
+                    key={badge.id}
+                    className="bg-white/[0.03] border border-white/10 p-3 rounded-xl flex flex-col items-center text-center gap-1"
+                  >
+                    <span className="text-2xl select-none">{badge.icon}</span>
+                    <h5 className="font-semibold text-slate-100 text-[10px] leading-tight mt-1">{badge.label}</h5>
+                    <span className="text-[9px] text-slate-400 leading-tight mt-0.5">{badge.desc}</span>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
-
-          {/* Home Link */}
-          <button 
-            onClick={() => handleAttemptExit('/')}
-            onMouseEnter={playBubble}
-            className="mt-2 text-sm text-indigo-100 hover:text-white font-bold underline cursor-pointer bg-transparent border-none outline-none transition-all active:scale-95"
-          >
-            {t.common.back} {locale === 'en' ? 'to Home' : locale === 'es' ? 'al Inicio' : 'ao Início'} 🏠
-          </button>
+          )}
         </motion.div>
 
         {/* Parental Lock Modal overlay */}
