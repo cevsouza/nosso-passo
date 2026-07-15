@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect } from 'react';
+import React from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { playBubble, playMarimba } from '../lib/audio-synth';
@@ -65,12 +65,6 @@ export default function Home() {
 
   const curLang = (locale === 'en' || locale === 'es' ? locale : 'pt') as 'pt' | 'es' | 'en';
   const info = localDict[curLang];
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      document.documentElement.classList.remove('dark');
-    }
-  }, []);
 
   const portals = [
     { href: '/routine', icon: Gamepad2, title: info.kidsTitle, desc: info.kidsDesc, tint: '#e4e7fc', color: '#5468e6', freq: 261.63 },

@@ -124,10 +124,9 @@ export function GlobalNav() {
 
         {/* Child Routine Shortcut Pedestal (if childId is available) */}
         {activeChildId && (
-          <div className="flex flex-col gap-3 p-4 bg-gradient-to-br from-indigo-50 to-purple-50 border-2 border-indigo-150 rounded-3xl relative overflow-hidden shadow-premium">
-            <div className="absolute top-0 right-0 w-16 h-16 bg-white/20 rounded-full filter blur-xl"></div>
+          <div className="flex flex-col gap-3 p-4 bg-indigo-50 border border-indigo-100 rounded-2xl relative overflow-hidden shadow-sm">
             <div className="flex items-center gap-2.5">
-              <span className="text-2xl animate-pulse">🧒</span>
+              <span className="text-2xl">🧒</span>
               <div>
                 <span className="block text-[10px] font-black text-indigo-900 uppercase tracking-wider leading-none">{t.common.navQuickShortcut || 'Atalho Rápido'}</span>
                 <span className="text-[8px] font-bold text-indigo-500 block mt-0.5">{t.common.navKidPanel || 'Painel Infantil'}</span>
@@ -140,7 +139,7 @@ export function GlobalNav() {
                 playBubble();
                 playMarimba(392, 0.4);
               }}
-              className="mt-1 w-full py-2.5 bg-indigo-600 hover:bg-indigo-755 text-white font-black text-[10px] rounded-xl text-center shadow-md flex items-center justify-center gap-1 font-Outfit uppercase tracking-wider border-b-4 border-indigo-900 hover:translate-y-0.5 active:translate-y-1 transition-all"
+              className="mt-1 w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-[10px] rounded-xl text-center shadow-sm flex items-center justify-center gap-1 font-Outfit uppercase tracking-wider active:scale-95 transition-all"
             >
               <Baby className="w-3.5 h-3.5" /> {t.common.navGoToRoutine || 'Ir para Rotina'} <ChevronRight className="w-3 h-3" />
             </Link>
