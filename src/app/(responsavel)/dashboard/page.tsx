@@ -7214,17 +7214,9 @@ function ParentDashboardContent() {
                     : '—';
                   return (
                     <>
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                        <div>
-                          <h2 className="text-2xl font-black font-Outfit text-slate-900 tracking-tight">{locale === 'en' ? 'Today' : locale === 'es' ? 'Hoy' : 'Hoje'}{activeChild ? ` · ${activeChild.name.split(' ')[0]}` : ''}</h2>
-                          <p className="text-sm text-slate-500 font-medium mt-0.5">{locale === 'en' ? "The day's routine at a glance." : locale === 'es' ? 'La rutina del día de un vistazo.' : 'A rotina do dia num relance.'}</p>
-                        </div>
-                        <button
-                          onClick={() => { playBubble(); router.push('/routine'); }}
-                          className="shrink-0 inline-flex items-center justify-center gap-2 px-5 py-3 grad-primary text-white text-sm font-black rounded-xl cursor-pointer active:scale-95 transition-all font-Outfit"
-                        >
-                          ▶ {locale === 'en' ? 'Open Child Mode' : locale === 'es' ? 'Abrir Modo Niño' : 'Abrir Modo Criança'}
-                        </button>
+                      <div>
+                        <h2 className="text-2xl font-black font-Outfit text-slate-900 tracking-tight">{locale === 'en' ? 'Today' : locale === 'es' ? 'Hoy' : 'Hoje'}{activeChild ? ` · ${activeChild.name.split(' ')[0]}` : ''}</h2>
+                        <p className="text-sm text-slate-500 font-medium mt-0.5">{locale === 'en' ? "The day's routine at a glance." : locale === 'es' ? 'La rutina del día de un vistazo.' : 'A rotina do dia num relance.'}</p>
                       </div>
 
                       <div className="grid grid-cols-3 gap-3">
@@ -14073,24 +14065,6 @@ function ParentDashboardContent() {
             🖨️ Imprimir PECS
 
           </button>
-
-          <a
-
-            href={`/routine?childId=${activeChild.id}`}
-
-            target="_blank"
-
-            rel="noopener noreferrer"
-
-            className="flex items-center gap-1.5 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 text-xs font-black rounded-xl active:scale-95 transition-all cursor-pointer font-Outfit"
-
-            title="Ver portal do paciente"
-
-          >
-
-            🚀 Ver Portal
-
-          </a>
 
           <button
 
