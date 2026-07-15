@@ -3004,7 +3004,7 @@ export default function ChildRoutine() {
         {kioskLayer}
         {offline && (
           <div className="absolute top-0 inset-x-0 bg-amber-500 text-white py-2 px-4 text-center text-xs font-black select-none z-50 flex items-center justify-center gap-2 font-Outfit shadow-md shrink-0">
-            <span>📶 Modo Offline Ativado</span>
+            <span>📶 {locale === 'en' ? 'Offline Mode Active' : locale === 'es' ? 'Modo Sin Conexión Activo' : 'Modo Offline Ativado'}</span>
             {offlineQueueSize > 0 && (
               <span className="bg-amber-700/60 px-2 py-0.5 rounded text-[10px]">
                 {offlineQueueSize} {offlineQueueSize === 1 ? (locale === 'en' ? 'pending change' : locale === 'es' ? 'cambio pendiente' : 'alteração pendente') : (locale === 'en' ? 'pending changes' : locale === 'es' ? 'cambios pendientes' : 'alterações pendentes')}
@@ -3393,7 +3393,7 @@ export default function ChildRoutine() {
         {kioskLayer}
         {offline && (
           <div className="absolute top-0 inset-x-0 bg-amber-500 text-white py-2 px-4 text-center text-xs font-black select-none z-50 flex items-center justify-center gap-2 font-Outfit shadow-md shrink-0">
-            <span>📶 Modo Offline Ativado</span>
+            <span>📶 {locale === 'en' ? 'Offline Mode Active' : locale === 'es' ? 'Modo Sin Conexión Activo' : 'Modo Offline Ativado'}</span>
           </div>
         )}
 
@@ -3402,7 +3402,7 @@ export default function ChildRoutine() {
           <div className="flex items-center gap-2 bg-white/[0.04] px-3.5 py-1.5 rounded-full border border-white/10">
             <span className="text-xs">🔋</span>
             <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-              Energia: {activeChild.emotionalBattery === 'green' ? '100% 🟢' : activeChild.emotionalBattery === 'yellow' ? '50% 🟡' : '10% 🔴'}
+              {locale === 'en' ? 'Energy' : locale === 'es' ? 'Energía' : 'Energia'}: {activeChild.emotionalBattery === 'green' ? '100% 🟢' : activeChild.emotionalBattery === 'yellow' ? '50% 🟡' : '10% 🔴'}
             </span>
           </div>
 
@@ -3421,7 +3421,7 @@ export default function ChildRoutine() {
         <div className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-6 my-auto z-10">
           {/* FIRST BOARD */}
           <div className="bg-white/[0.04] border border-indigo-500/30 rounded-3xl p-8 flex flex-col justify-between items-center min-h-[380px] relative overflow-hidden text-center">
-            <div className="absolute top-3 left-6 text-xxs font-bold text-indigo-300/80 uppercase tracking-widest">PRIMEIRO</div>
+            <div className="absolute top-3 left-6 text-xxs font-bold text-indigo-300/80 uppercase tracking-widest">{locale === 'en' ? 'FIRST' : locale === 'es' ? 'PRIMERO' : 'PRIMEIRO'}</div>
             
             {firstTask ? (
               <>
@@ -3448,7 +3448,7 @@ export default function ChildRoutine() {
                       ? 'bg-emerald-500 border-white text-white animate-ping'
                       : 'bg-indigo-650 hover:bg-indigo-700 border-indigo-400/50 text-white'
                   }`}
-                  title="Concluir tarefa"
+                  title={locale === 'en' ? 'Complete task' : locale === 'es' ? 'Completar tarea' : 'Concluir tarefa'}
                 >
                   <Check className="w-10 h-10 stroke-[3.5]" />
                 </motion.button>
@@ -3463,7 +3463,7 @@ export default function ChildRoutine() {
 
           {/* THEN BOARD */}
           <div className="bg-white/[0.02] border border-white/10 rounded-3xl p-8 flex flex-col justify-between items-center min-h-[380px] relative overflow-hidden text-center opacity-90">
-            <div className="absolute top-3 left-6 text-xxs font-bold text-slate-400 uppercase tracking-widest">DEPOIS</div>
+            <div className="absolute top-3 left-6 text-xxs font-bold text-slate-400 uppercase tracking-widest">{locale === 'en' ? 'THEN' : locale === 'es' ? 'DESPUÉS' : 'DEPOIS'}</div>
             
             {firstTask && thenTask ? (
               <>
@@ -3496,7 +3496,7 @@ export default function ChildRoutine() {
             ) : (
               <div className="my-auto flex flex-col items-center gap-3">
                 <span className="text-6xl">😴</span>
-                <h2 className="text-xl font-black text-slate-200">Hora de descansar!</h2>
+                <h2 className="text-xl font-black text-slate-200">{locale === 'en' ? 'Time to rest!' : locale === 'es' ? '¡Hora de descansar!' : 'Hora de descansar!'}</h2>
               </div>
             )}
           </div>
@@ -3508,10 +3508,10 @@ export default function ChildRoutine() {
             <HyperfocusMascot hyperfocus={childHyperfocus} state={collieState} size={55} />
           </div>
           <div>
-            <p className="text-[10px] font-bold uppercase text-indigo-300/80 font-Outfit tracking-wide">Foco e Calmaria</p>
+            <p className="text-[10px] font-bold uppercase text-indigo-300/80 font-Outfit tracking-wide">{locale === 'en' ? 'Focus & Calm' : locale === 'es' ? 'Enfoque y Calma' : 'Foco e Calmaria'}</p>
             <p className="text-[10.5px] text-slate-300 font-semibold leading-normal mt-0.5">
               {firstTask 
-                ? `Vamos fazer primeiro "${firstTask.title}". Concentre-se em concluir apenas esta tarefa!` 
+                ? (locale === 'en' ? `Let's do "${firstTask.title}" first. Focus on completing just this task!` : locale === 'es' ? `Primero vamos a hacer "${firstTask.title}". ¡Concéntrate en completar solo esta tarea!` : `Vamos fazer primeiro "${firstTask.title}". Concentre-se em concluir apenas esta tarefa!`)
                 : locale === 'en' ? 'All tasks were completed. Well done! You were excellent!' : locale === 'es' ? 'Todas las tareas fueron completadas. ¡Muy bien! ¡Fuiste excelente!' : 'Todas as tarefas foram concluídas. Muito bem! Você foi excelente!'}
             </p>
           </div>
@@ -3535,7 +3535,7 @@ export default function ChildRoutine() {
       {kioskLayer}
       {offline && (
         <div className="absolute top-0 inset-x-0 bg-amber-500 text-white py-2 px-4 text-center text-xs font-black select-none z-50 flex items-center justify-center gap-2 font-Outfit shadow-md shrink-0">
-          <span>📶 Modo Offline Ativado</span>
+          <span>📶 {locale === 'en' ? 'Offline Mode Active' : locale === 'es' ? 'Modo Sin Conexión Activo' : 'Modo Offline Ativado'}</span>
           {offlineQueueSize > 0 && (
             <span className="bg-amber-700/60 px-2 py-0.5 rounded text-[10px]">
               {offlineQueueSize} {offlineQueueSize === 1 ? (locale === 'en' ? 'pending change' : locale === 'es' ? 'cambio pendiente' : 'alteração pendente') : (locale === 'en' ? 'pending changes' : locale === 'es' ? 'cambios pendientes' : 'alterações pendentes')}
@@ -3553,7 +3553,7 @@ export default function ChildRoutine() {
         }`}>
           {activeChild.emotionalBattery === 'red' ? (
             <>
-              <span>🚨 Alerta de Sobrecarga! Vamos respirar fundo ou ir para um lugar calmo?</span>
+              <span>🚨 {locale === 'en' ? 'Overload Alert! Shall we take a deep breath or go to a calm place?' : locale === 'es' ? '¡Alerta de Sobrecarga! ¿Respiramos hondo o vamos a un lugar tranquilo?' : 'Alerta de Sobrecarga! Vamos respirar fundo ou ir para um lugar calmo?'}</span>
               <button 
                 onClick={handleTriggerSos} 
                 className="bg-white text-red-700 px-2.5 py-1 rounded-full text-[10px] uppercase font-black tracking-wide ml-2 hover:bg-red-50 active:scale-95 cursor-pointer transition-all shadow-sm border-none font-Outfit"
@@ -3805,7 +3805,7 @@ export default function ChildRoutine() {
                         onClick={() => { playBubble(); setShowHyperfocusModal(true); setShowSupportMenu(false); }}
                         className="flex items-center gap-2 w-full px-4 py-2 text-left text-xs font-bold rounded-xl transition-colors border-none bg-transparent cursor-pointer hover:bg-slate-50 text-slate-705"
                       >
-                        🎮 Meu Mundo ({activeChild?.collectedParts || 0}/4)
+                        🎮 {locale === 'en' ? 'My World' : locale === 'es' ? 'Mi Mundo' : 'Meu Mundo'} ({activeChild?.collectedParts || 0}/4)
                       </button>
                       )}
                       {showShop && (
@@ -4007,7 +4007,7 @@ export default function ChildRoutine() {
             className="bg-white/80 border border-white/50 p-12 rounded-[32px] shadow-premium text-center flex flex-col items-center gap-4 md:col-span-12"
           >
             <HyperfocusMascot hyperfocus={childHyperfocus} state="idle" size={170} />
-            <h3 className="text-xl font-extrabold text-slate-700 mt-2">Nenhuma atividade hoje!</h3>
+            <h3 className="text-xl font-extrabold text-slate-700 mt-2">{locale === 'en' ? 'No activities today!' : locale === 'es' ? '¡Sin actividades hoy!' : 'Nenhuma atividade hoje!'}</h3>
             <p className="text-sm text-slate-400 max-w-xs leading-relaxed font-semibold">
               {t.routine.emptyRoutine}
             </p>
@@ -4576,7 +4576,7 @@ export default function ChildRoutine() {
                     </div>
                     <span className="text-3xl select-none">🌙</span>
                     <h4 className="text-lg font-black text-slate-650 font-Outfit">Fim da Trilha</h4>
-                    <p className="text-xs text-slate-450 font-semibold">Sem tarefas pendentes!</p>
+                    <p className="text-xs text-slate-450 font-semibold">{locale === 'en' ? 'No pending tasks!' : locale === 'es' ? '¡Sin tareas pendientes!' : 'Sem tarefas pendentes!'}</p>
                   </div>
                 )}
               </div>
@@ -4742,7 +4742,7 @@ export default function ChildRoutine() {
                 <span className={`text-[10px] font-black uppercase tracking-wider font-Outfit flex items-center justify-between ${
                   sleepMode ? 'text-amber-500' : 'text-slate-500'
                 }`}>
-                  <span>📍 Ambiente Atual</span>
+                  <span>📍 {locale === 'en' ? 'Current Environment' : locale === 'es' ? 'Ambiente Actual' : 'Ambiente Atual'}</span>
                   {isMeasuringNoise ? (
                     <span className="text-emerald-505 animate-pulse font-extrabold">🎙️ Mic Ativo</span>
                   ) : (
