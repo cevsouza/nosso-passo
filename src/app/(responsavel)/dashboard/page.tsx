@@ -7829,7 +7829,7 @@ function ParentDashboardContent() {
 
                                   onChange={e => setTitle(e.target.value)}
 
-                                  placeholder="Ex: Escovar os dentes 🪥"
+                                  placeholder={locale === 'en' ? 'Ex: Brush teeth 🪥' : locale === 'es' ? 'Ej: Cepillarse los dientes 🪥' : 'Ex: Escovar os dentes 🪥'}
 
                                   className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-755 placeholder-slate-400 outline-none text-sm font-semibold"
 
@@ -8049,7 +8049,7 @@ function ParentDashboardContent() {
 
                                   onChange={e => setTaskDescription(e.target.value)}
 
-                                  placeholder="Ex: Escove com movimentos circulares, use pouca pasta..."
+                                  placeholder={locale === 'en' ? 'Ex: Brush in circular motions, use little toothpaste...' : locale === 'es' ? 'Ej: Cepilla con movimientos circulares, usa poca pasta...' : 'Ex: Escove com movimentos circulares, use pouca pasta...'}
 
                                   className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-707 placeholder-slate-400 outline-none text-sm font-semibold"
 
@@ -8135,7 +8135,7 @@ function ParentDashboardContent() {
 
                                     type="text"
 
-                                    placeholder="Ou cole a URL da imagem..."
+                                    placeholder={locale === 'en' ? 'Or paste the image URL...' : locale === 'es' ? 'O pega la URL de la imagen...' : 'Ou cole a URL da imagem...'}
 
                                     value={taskCustomIcon}
 
@@ -8493,7 +8493,7 @@ function ParentDashboardContent() {
 
                                             onChange={e => setEditTaskDescription(e.target.value)}
 
-                                            placeholder="Ex: Escovar com movimentos suaves..."
+                                            placeholder={locale === 'en' ? 'Ex: Brush with gentle motions...' : locale === 'es' ? 'Ej: Cepillar con movimientos suaves...' : 'Ex: Escovar com movimentos suaves...'}
 
                                             className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-slate-700 outline-none text-xs focus:border-indigo-400"
 
@@ -8601,7 +8601,7 @@ function ParentDashboardContent() {
 
                                                 type="text"
 
-                                                placeholder="URL da imagem..."
+                                                placeholder={locale === 'en' ? 'Image URL...' : locale === 'es' ? 'URL de la imagen...' : 'URL da imagem...'}
 
                                                 value={editTaskCustomIcon}
 
@@ -8895,7 +8895,7 @@ function ParentDashboardContent() {
 
                                                 className="flex items-center gap-1 px-3 py-1.5 bg-indigo-50 border border-indigo-150 text-indigo-650 hover:bg-indigo-100/50 rounded-xl text-xxs font-black transition-all active:scale-95 cursor-pointer"
 
-                                                title="Editar Atividade"
+                                                title={locale === 'en' ? 'Edit Activity' : locale === 'es' ? 'Editar Actividad' : 'Editar Atividade'}
 
                                               >
 
@@ -8913,7 +8913,7 @@ function ParentDashboardContent() {
 
                                               className="flex items-center gap-1 px-3 py-1.5 bg-red-50 border border-red-150 text-red-600 hover:bg-red-100/50 rounded-xl text-xxs font-black transition-all active:scale-95 cursor-pointer"
 
-                                              title="Excluir Atividade"
+                                              title={locale === 'en' ? 'Delete Activity' : locale === 'es' ? 'Eliminar Actividad' : 'Excluir Atividade'}
 
                                             >
 
@@ -11728,7 +11728,7 @@ function ParentDashboardContent() {
 
                                   onChange={e => setCrisisBehavior(e.target.value)}
 
-                                  placeholder="Ex: Gritou, tampou os ouvidos, chorou"
+                                  placeholder={locale === 'en' ? 'Ex: Screamed, covered ears, cried' : locale === 'es' ? 'Ej: Gritó, se tapó los oídos, lloró' : 'Ex: Gritou, tampou os ouvidos, chorou'}
 
                                   className="w-full p-2 bg-white border border-slate-200 rounded-lg text-xs font-semibold outline-none focus:border-red-450"
 
@@ -12505,7 +12505,7 @@ function ParentDashboardContent() {
 
                     onChange={e => setRewardName(e.target.value)}
 
-                    placeholder="Ex: 15 min de tablet"
+                    placeholder={locale === 'en' ? 'Ex: 15 min of tablet' : locale === 'es' ? 'Ej: 15 min de tablet' : 'Ex: 15 min de tablet'}
 
                     className="w-full px-4 py-2.5 bg-white border border-slate-300 focus:border-indigo-650 rounded-xl text-slate-900 outline-none text-xs font-bold focus:ring-2 focus:ring-indigo-200"
 
@@ -13690,7 +13690,7 @@ function ParentDashboardContent() {
 
                                 type="text"
 
-                                placeholder="Tema da dificuldade (Ex: Ir tomar vacina, Ir ao dentista)"
+                                placeholder={locale === 'en' ? 'Difficulty topic (Ex: Getting a vaccine, Going to the dentist)' : locale === 'es' ? 'Tema de la dificultad (Ej: Vacunarse, Ir al dentista)' : 'Tema da dificuldade (Ex: Ir tomar vacina, Ir ao dentista)'}
 
                                 value={aiTheme}
 
