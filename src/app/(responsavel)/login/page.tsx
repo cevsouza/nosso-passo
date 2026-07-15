@@ -57,7 +57,7 @@ export default function ParentAuth() {
   };
 
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center p-6 bg-[#f7f7fb] relative overflow-hidden">
+    <main style={{ padding: '1.5rem' }} className="min-h-screen flex flex-col items-center justify-center bg-[#f7f7fb] relative overflow-hidden">
       {/* Back button and language selector */}
       <div className="absolute top-6 left-6 right-6 z-10 flex justify-between items-center pointer-events-auto">
         <Link 
@@ -74,16 +74,17 @@ export default function ParentAuth() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
-        className="w-full max-w-md bg-white border border-slate-200 rounded-[24px] p-8 shadow-premium-soft z-10 relative"
+        style={{ padding: '2rem' }}
+        className="w-full max-w-md bg-white border border-slate-200 rounded-[24px] shadow-premium-soft z-10 relative flex flex-col gap-5"
       >
         {/* Brand avatar — contained, no overlap */}
-        <div className="flex justify-center mb-4">
+        <div className="flex justify-center">
           <div className="w-14 h-14 rounded-2xl grad-primary flex items-center justify-center text-2xl shadow-sm select-none">
             🐶
           </div>
         </div>
 
-        <div className="text-center mb-6">
+        <div className="text-center">
           <h1 className="text-2.5xl font-black text-slate-905 tracking-tight font-Outfit">
             {isRegister ? t.login.titleRegister : t.login.titleLogin}
           </h1>
@@ -104,8 +105,8 @@ export default function ParentAuth() {
         )}
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <div>
-            <label className="block text-[11px] font-black text-slate-700 uppercase tracking-widest mb-2 pl-1 font-Outfit">
+          <div className="flex flex-col gap-1.5">
+            <label className="block text-[11px] font-black text-slate-700 uppercase tracking-widest pl-1 font-Outfit">
               {t.login.labelEmail}
             </label>
             <input
@@ -114,12 +115,13 @@ export default function ParentAuth() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder={locale === 'en' ? 'name@example.com' : locale === 'es' ? 'nombre@ejemplo.com' : 'nome@exemplo.com'}
-              className="w-full px-4 py-3 bg-white border border-slate-200 focus:border-indigo-500 rounded-xl text-slate-900 placeholder-slate-400 outline-none transition-all text-sm font-semibold focus:ring-2 focus:ring-indigo-200"
+              style={{ padding: '0.7rem 1rem' }}
+              className="w-full bg-white border border-slate-200 focus:border-indigo-500 rounded-xl text-slate-900 placeholder-slate-400 outline-none transition-all text-sm font-semibold focus:ring-2 focus:ring-indigo-200"
             />
           </div>
 
-          <div>
-            <label className="block text-[11px] font-black text-slate-700 uppercase tracking-widest mb-2 pl-1 font-Outfit">
+          <div className="flex flex-col gap-1.5">
+            <label className="block text-[11px] font-black text-slate-700 uppercase tracking-widest pl-1 font-Outfit">
               {t.login.labelPassword}
             </label>
             <input
@@ -128,14 +130,16 @@ export default function ParentAuth() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder={t.login.placeholderPassword}
-              className="w-full px-4 py-3 bg-white border border-slate-200 focus:border-indigo-500 rounded-xl text-slate-900 placeholder-slate-400 outline-none transition-all text-sm font-semibold focus:ring-2 focus:ring-indigo-200"
+              style={{ padding: '0.7rem 1rem' }}
+              className="w-full bg-white border border-slate-200 focus:border-indigo-500 rounded-xl text-slate-900 placeholder-slate-400 outline-none transition-all text-sm font-semibold focus:ring-2 focus:ring-indigo-200"
             />
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full mt-3 py-3.5 grad-primary hover:brightness-105 active:scale-95 text-white font-black rounded-xl text-sm transition-all flex items-center justify-center gap-2 cursor-pointer tracking-wide font-Outfit"
+            style={{ padding: '0.85rem 1rem' }}
+            className="w-full mt-1 grad-primary hover:brightness-105 active:scale-95 text-white font-black rounded-xl text-sm transition-all flex items-center justify-center gap-2 cursor-pointer tracking-wide font-Outfit"
           >
             {loading 
               ? t.login.btnProcessing 
