@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+/* Class-based dark mode (Tailwind v4 defaults dark: to prefers-color-scheme;
+   this makes the existing dark: utilities respond to the .dark class toggle). */
+@custom-variant dark (&:where(.dark, .dark *));
+
 
 @theme {
   /* ===== Typography =====
@@ -197,7 +201,45 @@
   --color-slate-205: #2e2e4e;
   --color-slate-250: #37375a;
   --color-slate-255: #37375a;
+  --color-slate-300: #40405f;
+  --color-slate-350: #4d4d6e;
+  --color-slate-355: #4d4d6e;
 }
+
+/* ===== Dark mode surfaces & text =====
+   The slate token remap above turns light neutrals (bg-slate-50..350,
+   border-slate-*) dark. Card surfaces use literal `bg-white`, so flip those
+   too. Text uses text-slate-* which the remap would darken — override the
+   TEXT utilities only (not bg-slate-*), so dark chips/accents that rely on
+   bg-slate-800/900 stay dark. */
+.dark .bg-white { background-color: #1e1e38; }
+.dark .placeholder-slate-400::placeholder { color: #7c7ca0; }
+
+/* Headings / strongest text */
+.dark .text-slate-955, .dark .text-slate-950,
+.dark .text-slate-905, .dark .text-slate-900,
+.dark .text-slate-855, .dark .text-slate-850,
+.dark .text-slate-805, .dark .text-slate-800 { color: #ededfb; }
+
+/* Body text */
+.dark .text-slate-755, .dark .text-slate-750,
+.dark .text-slate-707, .dark .text-slate-705, .dark .text-slate-700,
+.dark .text-slate-655, .dark .text-slate-650,
+.dark .text-slate-605, .dark .text-slate-600 { color: #d2d2ec; }
+
+/* Secondary / muted text */
+.dark .text-slate-550,
+.dark .text-slate-505, .dark .text-slate-500,
+.dark .text-slate-455, .dark .text-slate-450,
+.dark .text-slate-405, .dark .text-slate-400 { color: #a8a8cc; }
+
+/* Already-light text steps (kept light on dark surfaces) */
+.dark .text-slate-355, .dark .text-slate-350,
+.dark .text-slate-300,
+.dark .text-slate-255, .dark .text-slate-250,
+.dark .text-slate-205, .dark .text-slate-200,
+.dark .text-slate-150,
+.dark .text-slate-105, .dark .text-slate-100 { color: #d2d2ec; }
 
 /* NOTE: no universal `padding: 0` here. In Tailwind v4 the utilities live in
    @layer, and an unlayered `* { padding: 0 }` beats them regardless of
