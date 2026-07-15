@@ -7501,21 +7501,21 @@ function ParentDashboardContent() {
 
                         <h3 className="font-black text-slate-850 text-xl leading-tight font-Outfit">
 
-                          {scheduleViewMode === 'daily' && `Agenda para ${DAYS_OF_MONTH.find(d => d.key === activeDayFilter)?.label}`}
+                          {scheduleViewMode === 'daily' && `${locale === 'en' ? 'Schedule for' : locale === 'es' ? 'Agenda para' : 'Agenda para'} ${DAYS_OF_MONTH.find(d => d.key === activeDayFilter)?.label}`}
 
-                          {scheduleViewMode === 'weekly' && `Agenda Semanal (Dias ${weekStart} a ${weekEnd}) 📅`}
+                          {scheduleViewMode === 'weekly' && `${locale === 'en' ? `Weekly Schedule (Days ${weekStart} to ${weekEnd})` : locale === 'es' ? `Agenda Semanal (Días ${weekStart} a ${weekEnd})` : `Agenda Semanal (Dias ${weekStart} a ${weekEnd})`} 📅`}
 
-                          {scheduleViewMode === 'monthly' && `Agenda Mensal Completa 🗓️`}
+                          {scheduleViewMode === 'monthly' && `${locale === 'en' ? 'Full Monthly Schedule' : locale === 'es' ? 'Agenda Mensual Completa' : 'Agenda Mensal Completa'} 🗓️`}
 
                         </h3>
 
                         <p className="text-xs text-slate-400 font-semibold mt-0.5">
 
-                          {scheduleViewMode === 'daily' && `${tasks.filter(t => t.day === activeDayFilter).length} tarefas cadastradas`}
+                          {scheduleViewMode === 'daily' && `${tasks.filter(t => t.day === activeDayFilter).length} ${locale === 'en' ? 'activities registered' : locale === 'es' ? 'actividades registradas' : 'tarefas cadastradas'}`}
 
-                          {scheduleViewMode === 'weekly' && `${tasks.filter(t => parseInt(t.day) >= weekStart && parseInt(t.day) <= weekEnd).length} tarefas cadastradas na semana`}
+                          {scheduleViewMode === 'weekly' && `${tasks.filter(t => parseInt(t.day) >= weekStart && parseInt(t.day) <= weekEnd).length} ${locale === 'en' ? 'activities registered this week' : locale === 'es' ? 'actividades registradas en la semana' : 'tarefas cadastradas na semana'}`}
 
-                          {scheduleViewMode === 'monthly' && `${tasks.length} tarefas cadastradas no total`}
+                          {scheduleViewMode === 'monthly' && `${tasks.length} ${locale === 'en' ? 'activities registered in total' : locale === 'es' ? 'actividades registradas en total' : 'tarefas cadastradas no total'}`}
 
                         </p>
 
@@ -7573,11 +7573,11 @@ function ParentDashboardContent() {
 
                           className="flex items-center gap-1 px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-black rounded-full border border-slate-300 transition-all cursor-pointer font-Outfit"
 
-                          title="Copiar todas as tarefas deste dia"
+                          title={locale === 'en' ? 'Copy all activities of this day' : locale === 'es' ? 'Copiar todas las actividades de este día' : 'Copiar todas as tarefas deste dia'}
 
                         >
 
-                          📋 Copiar
+                          📋 {locale === 'en' ? 'Copy' : locale === 'es' ? 'Copiar' : 'Copiar'}
 
                         </button>
 
@@ -7627,7 +7627,7 @@ function ParentDashboardContent() {
 
                         >
 
-                          <Plus className="w-4 h-4" /> {formOpen ? 'Fechar Form' : 'Adicionar Tarefa'}
+                          <Plus className="w-4 h-4" /> {formOpen ? (locale === 'en' ? 'Close Form' : locale === 'es' ? 'Cerrar Form' : 'Fechar Form') : (locale === 'en' ? 'Add Activity' : locale === 'es' ? 'Agregar Actividad' : 'Adicionar Tarefa')}
 
                         </button>
 
@@ -7667,7 +7667,7 @@ function ParentDashboardContent() {
 
                           <span className="bg-indigo-600 text-white font-black px-2 py-0.5 rounded-md text-[10px] uppercase shadow-xxs">
 
-                            {completedActiveDayTasks.length} de {activeDayTasks.length} feitas ({completionRate}%)
+                            {completedActiveDayTasks.length} {locale === 'en' ? 'of' : locale === 'es' ? 'de' : 'de'} {activeDayTasks.length} {locale === 'en' ? 'done' : locale === 'es' ? 'hechas' : 'feitas'} ({completionRate}%)
 
                           </span>
 
@@ -14038,11 +14038,11 @@ function ParentDashboardContent() {
 
             className="flex items-center gap-1.5 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-black rounded-xl active:scale-95 transition-all cursor-pointer font-Outfit"
 
-            title="Criar nova atividade"
+            title={locale === 'en' ? 'Create new activity' : locale === 'es' ? 'Crear nueva actividad' : 'Criar nova atividade'}
 
           >
 
-            <Plus className="w-4 h-4" /> Criar Atividade
+            <Plus className="w-4 h-4" /> {locale === 'en' ? 'Create Activity' : locale === 'es' ? 'Crear Actividad' : 'Criar Atividade'}
 
           </button>
 
@@ -14062,7 +14062,7 @@ function ParentDashboardContent() {
 
           >
 
-            🖨️ Imprimir PECS
+            🖨️ {locale === 'en' ? 'Print PECS' : locale === 'es' ? 'Imprimir PECS' : 'Imprimir PECS'}
 
           </button>
 
@@ -14078,7 +14078,7 @@ function ParentDashboardContent() {
 
             className="w-10 h-10 bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-600 rounded-xl active:scale-95 transition-all cursor-pointer flex items-center justify-center font-black shrink-0"
 
-            title="Voltar ao Topo"
+            title={locale === 'en' ? 'Back to top' : locale === 'es' ? 'Volver arriba' : 'Voltar ao Topo'}
 
           >
 
