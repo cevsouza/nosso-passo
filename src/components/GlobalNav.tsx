@@ -4,11 +4,10 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { 
-  Home, 
-  LayoutDashboard, 
-  School, 
-  Activity, 
-  Baby, 
+  Home,
+  LayoutDashboard,
+  Activity,
+  Baby,
   ChevronRight
 } from 'lucide-react';
 import { playBubble, playMarimba } from '../lib/audio-synth';
@@ -19,7 +18,7 @@ export function GlobalNav() {
   const pathname = usePathname();
   const router = useRouter();
   const [activeChildId, setActiveChildId] = useState<string | null>(null);
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
 
   // Sync active child on change/load
   useEffect(() => {
@@ -49,17 +48,12 @@ export function GlobalNav() {
       color: 'hover:text-indigo-650',
       activeColor: 'text-indigo-805 bg-indigo-50 border-indigo-200'
     },
-    { 
-      label: t.common.navSchool || 'Escola', 
-      href: '/school', 
-      icon: School, 
-      color: 'hover:text-teal-650',
-      activeColor: 'text-teal-805 bg-teal-50 border-teal-200'
-    },
-    { 
-      label: t.common.navTherapist || 'Terapeuta', 
-      href: '/therapist', 
-      icon: Activity, 
+    {
+      // Single professional portal — therapist and school were merged into one
+      // role-aware portal at /therapist (/school just redirects there).
+      label: locale === 'en' ? 'Professional' : locale === 'es' ? 'Profesional' : 'Profissional',
+      href: '/therapist',
+      icon: Activity,
       color: 'hover:text-emerald-650',
       activeColor: 'text-emerald-805 bg-emerald-50 border-emerald-200'
     },
