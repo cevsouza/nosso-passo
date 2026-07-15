@@ -213,6 +213,14 @@
    TEXT utilities only (not bg-slate-*), so dark chips/accents that rely on
    bg-slate-800/900 stay dark. */
 .dark .bg-white { background-color: #1e1e38; }
+/* High-opacity white surfaces (cards, floating bars, sticky navs) -> dark.
+   Low-opacity ones (bg-white/5..20, /[0.02]..[0.06]) are intentional light
+   tints on dark surfaces, so they are deliberately left untouched. */
+.dark .bg-white\/40, .dark .bg-white\/45, .dark .bg-white\/50,
+.dark .bg-white\/60, .dark .bg-white\/70, .dark .bg-white\/80,
+.dark .bg-white\/85, .dark .bg-white\/90, .dark .bg-white\/95 {
+  background-color: rgba(30, 30, 56, 0.9);
+}
 .dark .placeholder-slate-400::placeholder { color: #7c7ca0; }
 
 /* Form controls: native rendering (color-scheme) can ignore the .bg-white
