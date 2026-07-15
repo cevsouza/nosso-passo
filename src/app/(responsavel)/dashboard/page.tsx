@@ -6470,7 +6470,7 @@ function ParentDashboardContent() {
                                 setShowPreferencesMenu(false);
                                 setShowPaywall(true);
                               }}
-                              className="w-full py-2.5 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white text-xs font-black uppercase rounded-xl transition-all cursor-pointer text-center font-Outfit active:scale-95 border-b-2 border-amber-700/30"
+                              className="w-full py-2.5 bg-amber-500 hover:bg-amber-600 text-white text-xs font-black uppercase rounded-xl transition-all cursor-pointer text-center font-Outfit active:scale-95"
                             >
                               {locale === 'en' ? 'Upgrade to Premium 👑' : locale === 'es' ? 'Mejorar a Premium 👑' : 'Assinar Premium 👑'}
                             </button>
@@ -6507,7 +6507,7 @@ function ParentDashboardContent() {
 
       {/* Child Selector & Management Bar */}
 
-      <section className="bg-white border-b-2 border-slate-250 py-4.5 shadow-sm select-none">
+      <section className="bg-white border-b border-slate-200 py-4.5 shadow-sm select-none">
 
         <div className="max-w-6xl mx-auto px-4 md:px-6 flex flex-wrap items-center justify-between gap-4">
 
@@ -6665,7 +6665,7 @@ function ParentDashboardContent() {
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: -10, scale: 0.95 }}
                       transition={{ type: "spring", stiffness: 350, damping: 25 }}
-                      className="absolute top-12 right-0 md:left-0 md:right-auto w-72 bg-white border border-slate-200 rounded-2xl shadow-xl p-4 flex flex-col gap-3 z-50 text-left"
+                      className="absolute top-12 right-0 md:left-0 md:right-auto w-72 bg-white border border-slate-200 rounded-2xl shadow-lg p-4 flex flex-col gap-3 z-50 text-left"
                     >
                       <div className="flex items-center gap-2 text-indigo-650">
                         <span className="text-base">🔋</span>
@@ -6730,7 +6730,7 @@ function ParentDashboardContent() {
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: -10, scale: 0.95 }}
                       transition={{ type: "spring", stiffness: 350, damping: 25 }}
-                      className="absolute top-12 right-0 w-80 bg-white border border-slate-200 rounded-2xl shadow-xl p-4 flex flex-col gap-3.5 z-50 text-left"
+                      className="absolute top-12 right-0 w-80 bg-white border border-slate-200 rounded-2xl shadow-lg p-4 flex flex-col gap-3.5 z-50 text-left"
                     >
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2 text-indigo-655">
@@ -6822,7 +6822,7 @@ function ParentDashboardContent() {
                 href={`/routine?childId=${activeChild.id}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-5 py-2.5 bg-indigo-600 text-white hover:bg-indigo-755 text-xs font-black rounded-xl shadow-md border-b-4 border-indigo-900 transition-all active:scale-95 flex items-center gap-2 font-Outfit uppercase tracking-wider"
+                className="px-5 py-2.5 bg-indigo-600 text-white hover:bg-indigo-755 text-xs font-black rounded-xl shadow-md transition-all active:scale-95 flex items-center gap-2 font-Outfit uppercase tracking-wider"
               >
                 <span>🚀</span> {t.dashboard.goToChildRoutine} {activeChild.name.split(' ')[0]}
               </a>
@@ -6854,7 +6854,7 @@ function ParentDashboardContent() {
 
             exit={{ opacity: 0, y: -20, scale: 0.9 }}
 
-            className="fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-slate-800 text-white font-semibold text-sm px-6 py-3 rounded-full shadow-xl border border-slate-700 flex items-center gap-2"
+            className="fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-slate-800 text-white font-semibold text-sm px-6 py-3 rounded-full shadow-lg border border-slate-700 flex items-center gap-2"
 
           >
 
@@ -9445,7 +9445,7 @@ function ParentDashboardContent() {
 
                           onClick={handleSaveMonthlyTemplate}
 
-                          className="flex-1 py-2.5 bg-indigo-600 hover:bg-indigo-755 text-white text-xs font-black rounded-xl border-b-2 border-indigo-900 active:scale-95 transition-all cursor-pointer font-Outfit uppercase tracking-wider"
+                          className="flex-1 py-2.5 bg-indigo-600 hover:bg-indigo-755 text-white text-xs font-black rounded-xl active:scale-95 transition-all cursor-pointer font-Outfit uppercase tracking-wider"
 
                         >
 
@@ -9545,7 +9545,7 @@ function ParentDashboardContent() {
 
                             onClick={handleClearUnexpectedChange}
 
-                            className="w-full py-2.5 bg-red-500 hover:bg-red-650 text-white text-xs font-black rounded-xl border-b-2 border-red-750 active:scale-95 transition-all cursor-pointer font-Outfit uppercase tracking-wider"
+                            className="w-full py-2.5 bg-red-500 hover:bg-red-650 text-white text-xs font-black rounded-xl active:scale-95 transition-all cursor-pointer font-Outfit uppercase tracking-wider"
 
                           >
 
@@ -9655,7 +9655,7 @@ function ParentDashboardContent() {
 
                             type="submit"
 
-                            className="w-full py-2 bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-black rounded-xl border-b-2 border-amber-700 active:scale-95 transition-all cursor-pointer font-Outfit uppercase tracking-wider"
+                            className="w-full py-2 bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-black rounded-xl active:scale-95 transition-all cursor-pointer font-Outfit uppercase tracking-wider"
 
                           >
 
@@ -10444,7 +10444,7 @@ function ParentDashboardContent() {
 
                     onClick={() => { playBubble(); setShowPaywall(true); }}
 
-                    className="px-6 py-3 bg-indigo-650 hover:bg-indigo-700 text-white font-extrabold text-sm rounded-xl shadow-md cursor-pointer transition-all active:scale-95 border-b-2 border-indigo-700/50"
+                    className="px-6 py-3 bg-indigo-650 hover:bg-indigo-700 text-white font-extrabold text-sm rounded-xl shadow-md cursor-pointer transition-all active:scale-95"
 
                   >
 
@@ -12042,7 +12042,7 @@ function ParentDashboardContent() {
 
                           <div className="p-12 bg-white max-w-4xl mx-auto rounded-3xl flex flex-col gap-6 text-slate-800 text-left">
 
-                            <div className="border-b-4 border-indigo-650 pb-4 flex justify-between items-center">
+                            <div className="border-b border-slate-200 pb-4 flex justify-between items-center">
 
                               <div>
 
@@ -12644,7 +12644,7 @@ function ParentDashboardContent() {
                         playBubble();
                         setShowPaywall(true);
                       }}
-                      className="px-4 py-2.5 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white text-xs font-black uppercase rounded-xl transition-all cursor-pointer shadow-md shadow-amber-100 shrink-0 self-start sm:self-center font-Outfit active:scale-95 border-b-2 border-amber-700/30"
+                      className="px-4 py-2.5 bg-amber-500 hover:bg-amber-600 text-white text-xs font-black uppercase rounded-xl transition-all cursor-pointer shadow-md shadow-amber-100 shrink-0 self-start sm:self-center font-Outfit active:scale-95"
                     >
                       {locale === 'en' ? 'Upgrade to Premium 👑' : locale === 'es' ? 'Mejorar a Premium 👑' : 'Assinar Premium 👑'}
                     </button>
@@ -12833,7 +12833,7 @@ function ParentDashboardContent() {
 
                 disabled={savingProfile}
 
-                className="w-full py-3 bg-indigo-600 hover:bg-indigo-755 text-white text-sm font-black rounded-xl shadow-md transition-all active:scale-95 flex items-center justify-center gap-2 cursor-pointer border-b-4 border-indigo-900 font-Outfit"
+                className="w-full py-3 bg-indigo-600 hover:bg-indigo-755 text-white text-sm font-black rounded-xl shadow-md transition-all active:scale-95 flex items-center justify-center gap-2 cursor-pointer font-Outfit"
 
               >
 
@@ -13558,7 +13558,7 @@ function ParentDashboardContent() {
 
                           type="submit"
 
-                          className="w-full py-2 bg-indigo-600 hover:bg-indigo-755 text-white text-xs font-black rounded-xl border-b-2 border-indigo-900 active:scale-95 transition-all cursor-pointer font-Outfit uppercase tracking-wider"
+                          className="w-full py-2 bg-indigo-600 hover:bg-indigo-755 text-white text-xs font-black rounded-xl active:scale-95 transition-all cursor-pointer font-Outfit uppercase tracking-wider"
 
                         >
 
@@ -13708,7 +13708,7 @@ function ParentDashboardContent() {
 
                               type="submit"
 
-                              className="w-full py-2 bg-indigo-600 hover:bg-indigo-755 text-white text-xs font-black rounded-xl border-b-2 border-indigo-900 active:scale-95 transition-all cursor-pointer font-Outfit uppercase tracking-wider flex items-center justify-center gap-1"
+                              className="w-full py-2 bg-indigo-600 hover:bg-indigo-755 text-white text-xs font-black rounded-xl active:scale-95 transition-all cursor-pointer font-Outfit uppercase tracking-wider flex items-center justify-center gap-1"
 
                             >
 
@@ -13882,7 +13882,7 @@ function ParentDashboardContent() {
 
                           type="submit"
 
-                          className="w-full py-2 bg-indigo-600 hover:bg-indigo-755 text-white text-xs font-black rounded-xl border-b-2 border-indigo-900 active:scale-95 transition-all cursor-pointer font-Outfit uppercase tracking-wider"
+                          className="w-full py-2 bg-indigo-600 hover:bg-indigo-755 text-white text-xs font-black rounded-xl active:scale-95 transition-all cursor-pointer font-Outfit uppercase tracking-wider"
 
                         >
 
@@ -14010,7 +14010,7 @@ function ParentDashboardContent() {
 
       {activeChild && (
 
-        <div className="fixed bottom-6 right-6 z-40 flex flex-col sm:flex-row items-center gap-2.5 bg-white/90 backdrop-blur-md border border-slate-200/60 p-2.5 rounded-3xl shadow-xl select-none">
+        <div className="fixed bottom-6 right-6 z-40 flex flex-col sm:flex-row items-center gap-2.5 bg-white/90 backdrop-blur-md border border-slate-200/60 p-2.5 rounded-2xl shadow-lg select-none">
 
           <button
 
@@ -14030,7 +14030,7 @@ function ParentDashboardContent() {
 
             }}
 
-            className="flex items-center gap-1.5 px-4.5 py-2.5 bg-indigo-600 hover:bg-indigo-755 border-b-2 border-indigo-900 text-white text-xs font-black rounded-2xl active:scale-95 transition-all cursor-pointer font-Outfit uppercase tracking-wider"
+            className="flex items-center gap-1.5 px-4.5 py-2.5 bg-indigo-600 hover:bg-indigo-755 text-white text-xs font-black rounded-2xl active:scale-95 transition-all cursor-pointer font-Outfit uppercase tracking-wider"
 
             title="Criar nova atividade"
 
@@ -14050,7 +14050,7 @@ function ParentDashboardContent() {
 
             }}
 
-            className="flex items-center gap-1.5 px-4.5 py-2.5 bg-emerald-600 hover:bg-emerald-755 border-b-2 border-emerald-900 text-white text-xs font-black rounded-2xl active:scale-95 transition-all cursor-pointer font-Outfit uppercase tracking-wider"
+            className="flex items-center gap-1.5 px-4.5 py-2.5 bg-emerald-600 hover:bg-emerald-755 text-white text-xs font-black rounded-2xl active:scale-95 transition-all cursor-pointer font-Outfit uppercase tracking-wider"
 
             title={t.dashboard.printPecsCards}
 
@@ -14068,7 +14068,7 @@ function ParentDashboardContent() {
 
             rel="noopener noreferrer"
 
-            className="flex items-center gap-1.5 px-4.5 py-2.5 bg-amber-500 hover:bg-amber-600 border-b-2 border-amber-700 text-slate-950 text-xs font-black rounded-2xl active:scale-95 transition-all cursor-pointer font-Outfit uppercase tracking-wider"
+            className="flex items-center gap-1.5 px-4.5 py-2.5 bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-black rounded-2xl active:scale-95 transition-all cursor-pointer font-Outfit uppercase tracking-wider"
 
             title="Ver portal do paciente"
 
@@ -14322,7 +14322,7 @@ function ParentDashboardContent() {
 
               exit={{ scale: 0.95, y: 15 }}
 
-              className="bg-gradient-to-b from-[#1e1b4b] via-[#311042] to-[#11051b] border border-indigo-500/40 rounded-[36px] p-8 w-full max-w-md shadow-lg flex flex-col items-center text-center gap-6 text-white relative overflow-hidden"
+              className="bg-[#1b1440] border border-indigo-500/30 rounded-2xl p-8 w-full max-w-md shadow-lg flex flex-col items-center text-center gap-6 text-white relative overflow-hidden"
 
             >
 
@@ -14516,7 +14516,7 @@ function ParentDashboardContent() {
 
                     }}
 
-                    className="w-full py-3 bg-gradient-to-r from-amber-450 via-yellow-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-indigo-950 font-black text-sm rounded-xl shadow-lg shadow-amber-300/10 cursor-pointer transition-all active:scale-95 border-b-2 border-amber-700/50"
+                    className="w-full py-3 bg-amber-400 hover:bg-amber-500 text-indigo-950 font-black text-sm rounded-xl shadow-sm cursor-pointer transition-all active:scale-95"
 
                   >
 
@@ -15238,7 +15238,7 @@ function ParentDashboardContent() {
 
                   onClick={() => { playMarimba(523.25, 0.12); handleExecuteReapply(); }}
 
-                  className="flex-1 py-3 bg-indigo-600 hover:bg-indigo-755 text-white font-black text-xs rounded-xl border-b-2 border-indigo-900 active:scale-95 transition-all cursor-pointer uppercase tracking-wider font-Outfit shadow-md shadow-indigo-200"
+                  className="flex-1 py-3 bg-indigo-600 hover:bg-indigo-755 text-white font-black text-xs rounded-xl active:scale-95 transition-all cursor-pointer uppercase tracking-wider font-Outfit shadow-md shadow-indigo-200"
 
                 >
 
