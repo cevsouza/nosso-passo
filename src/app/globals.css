@@ -199,10 +199,13 @@
   --color-slate-255: #37375a;
 }
 
+/* NOTE: no universal `padding: 0` here. In Tailwind v4 the utilities live in
+   @layer, and an unlayered `* { padding: 0 }` beats them regardless of
+   specificity — which silently killed every p-*/px-*/py-* utility app-wide.
+   Preflight already handles box-sizing and element margins. */
 * {
   box-sizing: border-box;
   margin: 0;
-  padding: 0;
 }
 
 body {
