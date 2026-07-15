@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { firebaseBridge, Task, getOfflineQueue } from '../../../lib/firebase-bridge';
@@ -21,8 +22,11 @@ import {
   Sparkles, 
   Utensils, 
   BookOpen, 
-  Gamepad2, 
-  Bed 
+  Gamepad2,
+  Bed,
+  Lock,
+  Maximize,
+  ShieldCheck
 } from 'lucide-react';
 
 const DAYS_PORTUGUESE: { [key: number]: string } = {
@@ -876,6 +880,19 @@ export default function ChildRoutine() {
   const exitTimeout = React.useRef<any>(null);
   const exitInterval = React.useRef<any>(null);
 
+  // Kiosk mode: lock the tablet on the patient screen (fullscreen + wake lock +
+  // escape detection guarded by the existing adult challenge / LockModal).
+  const [kioskArmed, setKioskArmed] = useState(false);        // guardian turned it on
+  const [kioskLocked, setKioskLocked] = useState(false);      // re-entry challenge showing
+  const [kioskFsFallback, setKioskFsFallback] = useState(false); // needs a tap to re-enter fullscreen
+  const [kioskAttempts, setKioskAttempts] = useState(0);      // exit attempts registered this session
+  const [mounted, setMounted] = useState(false);              // portal target only exists on client
+  const wakeLockRef = React.useRef<any>(null);
+  const kioskAwayRef = React.useRef(false);
+  const kioskArmedRef = React.useRef(false);
+  // For the kiosk challenge, 'none' would be unlockable — fall back to math.
+  const kioskLockType: 'pin' | 'math' = lockType === 'pin' ? 'pin' : 'math';
+
   // AI Social Stories States
   const [storiesTab, setStoriesTab] = useState<'preset' | 'ai'>('preset');
   const [aiTheme, setAiTheme] = useState('');
@@ -1531,6 +1548,197 @@ export default function ChildRoutine() {
     if (exitInterval.current) clearInterval(exitInterval.current);
     setExitHoldProgress(0);
   };
+
+  // ─── Kiosk mode ────────────────────────────────────────────────────────────
+  const requestWakeLock = React.useCallback(async () => {
+    try {
+      if (typeof navigator !== 'undefined' && 'wakeLock' in navigator) {
+        wakeLockRef.current = await (navigator as any).wakeLock.request('screen');
+      }
+    } catch { /* ignored — some browsers block it while hidden */ }
+  }, []);
+
+  const releaseWakeLock = React.useCallback(async () => {
+    try { await wakeLockRef.current?.release?.(); } catch {}
+    wakeLockRef.current = null;
+  }, []);
+
+  const enterFullscreen = React.useCallback(async () => {
+    try {
+      const el: any = document.documentElement;
+      if (!document.fullscreenElement && el.requestFullscreen) {
+        await el.requestFullscreen();
+      }
+      setKioskFsFallback(false);
+      return true;
+    } catch {
+      setKioskFsFallback(true); // needs an explicit user gesture
+      return false;
+    }
+  }, []);
+
+  const exitFullscreen = React.useCallback(async () => {
+    try { if (document.fullscreenElement) await document.exitFullscreen(); } catch {}
+  }, []);
+
+  // Turn kiosk ON — called from a user gesture so fullscreen is granted.
+  const armKiosk = React.useCallback(async () => {
+    playBubble();
+    await enterFullscreen();
+    await requestWakeLock();
+    kioskArmedRef.current = true;
+    kioskAwayRef.current = false;
+    setKioskAttempts(0);
+    setKioskArmed(true);
+    try { localStorage.setItem('teacolher_kiosk_armed', '1'); } catch {}
+  }, [enterFullscreen, requestWakeLock]);
+
+  // Turn kiosk OFF — only reached after passing the adult challenge.
+  const disarmKiosk = React.useCallback(async () => {
+    kioskArmedRef.current = false;
+    kioskAwayRef.current = false;
+    setKioskArmed(false);
+    setKioskLocked(false);
+    setKioskFsFallback(false);
+    try { localStorage.removeItem('teacolher_kiosk_armed'); } catch {}
+    await releaseWakeLock();
+    await exitFullscreen();
+  }, [releaseWakeLock, exitFullscreen]);
+
+  // Adult solved the re-entry challenge → resume the locked screen.
+  const resumeKiosk = React.useCallback(async () => {
+    setKioskLocked(false);
+    kioskAwayRef.current = false;
+    await enterFullscreen();
+    await requestWakeLock();
+  }, [enterFullscreen, requestWakeLock]);
+
+  // Restore armed state on mount (page reload / PWA relaunch keeps kiosk on).
+  useEffect(() => {
+    setMounted(true);
+    try {
+      if (localStorage.getItem('teacolher_kiosk_armed') === '1') {
+        kioskArmedRef.current = true;
+        setKioskArmed(true);
+        requestWakeLock();
+        if (!document.fullscreenElement) setKioskFsFallback(true);
+      }
+    } catch {}
+  }, [requestWakeLock]);
+
+  // Escape detection: while armed, leaving the screen (app/tab switch, minimise,
+  // reload, close) re-arms the adult challenge on return.
+  useEffect(() => {
+    if (!kioskArmed) return;
+
+    const registerAway = () => {
+      if (!kioskArmedRef.current) return;
+      kioskAwayRef.current = true;
+      setKioskAttempts(n => n + 1);
+      console.warn('[kiosk] exit attempt detected');
+    };
+
+    const onVisibility = () => {
+      if (document.visibilityState === 'hidden') {
+        registerAway();
+      } else if (document.visibilityState === 'visible' && kioskAwayRef.current) {
+        if (kioskLockType === 'math') generateMathProblem();
+        setKioskLocked(true);
+        requestWakeLock(); // wake lock auto-releases while hidden
+      }
+    };
+
+    const onBeforeUnload = (e: BeforeUnloadEvent) => {
+      registerAway();
+      e.preventDefault();
+      e.returnValue = '';
+    };
+
+    document.addEventListener('visibilitychange', onVisibility);
+    window.addEventListener('pagehide', registerAway);
+    window.addEventListener('beforeunload', onBeforeUnload);
+    return () => {
+      document.removeEventListener('visibilitychange', onVisibility);
+      window.removeEventListener('pagehide', registerAway);
+      window.removeEventListener('beforeunload', onBeforeUnload);
+    };
+  }, [kioskArmed, kioskLockType, generateMathProblem, requestWakeLock]);
+
+  // Keep the fallback flag in sync when the user leaves/enters fullscreen.
+  useEffect(() => {
+    const onFsChange = () => {
+      if (kioskArmedRef.current) setKioskFsFallback(!document.fullscreenElement);
+    };
+    document.addEventListener('fullscreenchange', onFsChange);
+    return () => document.removeEventListener('fullscreenchange', onFsChange);
+  }, []);
+
+  // Kiosk controls + re-entry challenge, portaled to <body> so they show on every
+  // render branch of this screen (day / First-Then board / night).
+  const kioskLayer = mounted ? createPortal(
+    <>
+      {!kioskArmed && !kioskLocked && (
+        <button
+          onClick={armKiosk}
+          title={locale === 'en' ? 'Lock this tablet on the routine' : locale === 'es' ? 'Bloquear la tablet en la rutina' : 'Travar o tablet na rotina'}
+          className="fixed bottom-3 left-3 z-[70] flex items-center gap-1.5 px-3 py-2 rounded-full bg-white/90 backdrop-blur border border-slate-200 text-slate-500 text-[11px] font-bold shadow-premium-soft hover:text-slate-700 active:scale-95 transition-all cursor-pointer"
+        >
+          <Lock className="w-3.5 h-3.5" />
+          {locale === 'en' ? 'Kiosk' : locale === 'es' ? 'Quiosco' : 'Quiosque'}
+        </button>
+      )}
+
+      {kioskArmed && !kioskLocked && (
+        <div className="fixed bottom-3 left-3 z-[70] flex items-center gap-2">
+          <span className="flex items-center gap-1.5 px-3 py-2 rounded-full bg-indigo-600 text-white text-[11px] font-bold shadow-premium-soft select-none">
+            <ShieldCheck className="w-3.5 h-3.5" />
+            {locale === 'en' ? 'Kiosk on' : locale === 'es' ? 'Quiosco activo' : 'Quiosque ativo'}
+          </span>
+          {kioskFsFallback && (
+            <button
+              onClick={() => { playBubble(); enterFullscreen(); requestWakeLock(); }}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-full bg-white border border-indigo-200 text-indigo-700 text-[11px] font-bold shadow-premium-soft active:scale-95 transition-all cursor-pointer"
+            >
+              <Maximize className="w-3.5 h-3.5" />
+              {locale === 'en' ? 'Fullscreen' : locale === 'es' ? 'Pantalla completa' : 'Tela cheia'}
+            </button>
+          )}
+        </div>
+      )}
+
+      <AnimatePresence>
+        {kioskLocked && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-md"
+          >
+            <div className="flex flex-col items-center gap-3 w-full max-w-sm">
+              <ParentalLockOverlay
+                lockType={kioskLockType}
+                parentPinCode={parentPinCode}
+                mathProblem={mathProblem}
+                hideClose
+                title={locale === 'en' ? 'Kiosk locked' : locale === 'es' ? 'Quiosco bloqueado' : 'Quiosque bloqueado'}
+                onSuccess={resumeKiosk}
+                onClose={() => {}}
+                generateMathProblem={generateMathProblem}
+              />
+              <p className="text-[11px] font-semibold text-white/70 text-center">
+                {locale === 'en'
+                  ? `Solve it to return to the routine · exit attempts: ${kioskAttempts}`
+                  : locale === 'es'
+                  ? `Resuelve para volver a la rutina · intentos de salida: ${kioskAttempts}`
+                  : `Resolva para voltar à rotina · tentativas de saída: ${kioskAttempts}`}
+              </p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>,
+    document.body
+  ) : null;
 
   const handleAacClick = async (item: typeof AAC_ITEMS[0]) => {
     speakText(item.speech);
@@ -2787,6 +2995,7 @@ export default function ChildRoutine() {
 
     return (
       <main className={`min-h-screen flex flex-col items-center p-6 pb-12 bg-gradient-to-b from-[#0b0f19] via-[#1a2035] to-[#2b1f3d] text-white relative overflow-hidden ${profileClass}`}>
+        {kioskLayer}
         {offline && (
           <div className="absolute top-0 inset-x-0 bg-amber-500 text-white py-2 px-4 text-center text-xs font-black select-none z-50 flex items-center justify-center gap-2 font-Outfit shadow-md shrink-0">
             <span>📶 Modo Offline Ativado</span>
@@ -3033,6 +3242,7 @@ export default function ChildRoutine() {
                 mathProblem={mathProblem}
                 onSuccess={() => {
                   setShowLockModal(false);
+                  if (kioskArmedRef.current) disarmKiosk();
                   router.push(exitTarget);
                 }}
                 onClose={() => {
@@ -3250,6 +3460,7 @@ export default function ChildRoutine() {
 
     return (
       <main className={`min-h-screen bg-gradient-to-tr from-[#0b0f19] to-[#1e1b4b] p-6 pb-12 flex flex-col items-center justify-between text-white relative overflow-hidden ${profileClass} font-Outfit select-none`}>
+        {kioskLayer}
         {offline && (
           <div className="absolute top-0 inset-x-0 bg-amber-500 text-white py-2 px-4 text-center text-xs font-black select-none z-50 flex items-center justify-center gap-2 font-Outfit shadow-md shrink-0">
             <span>📶 Modo Offline Ativado</span>
@@ -3388,6 +3599,7 @@ export default function ChildRoutine() {
         ? 'bg-[#040815] text-amber-100/90' 
         : 'bg-slate-50 text-[#0f172a]'
     } ${profileClass}`}>
+      {kioskLayer}
       {offline && (
         <div className="absolute top-0 inset-x-0 bg-amber-500 text-white py-2 px-4 text-center text-xs font-black select-none z-50 flex items-center justify-center gap-2 font-Outfit shadow-md shrink-0">
           <span>📶 Modo Offline Ativado</span>
@@ -4478,6 +4690,7 @@ export default function ChildRoutine() {
               mathProblem={mathProblem}
               onSuccess={() => {
                 setShowLockModal(false);
+                if (kioskArmedRef.current) disarmKiosk();
                 router.push(exitTarget);
               }}
               onClose={() => {
@@ -5098,6 +5311,8 @@ interface ParentalLockOverlayProps {
   onSuccess: () => void;
   onClose: () => void;
   generateMathProblem: () => void;
+  hideClose?: boolean;
+  title?: string;
 }
 
 const ParentalLockOverlay: React.FC<ParentalLockOverlayProps> = ({
@@ -5106,7 +5321,9 @@ const ParentalLockOverlay: React.FC<ParentalLockOverlayProps> = ({
   mathProblem,
   onSuccess,
   onClose,
-  generateMathProblem
+  generateMathProblem,
+  hideClose = false,
+  title
 }) => {
   const { t, locale } = useLanguage();
   const [typedPin, setTypedPin] = React.useState('');
@@ -5179,7 +5396,7 @@ const ParentalLockOverlay: React.FC<ParentalLockOverlayProps> = ({
       </div>
 
       <div>
-        <h3 className="text-xl font-black text-slate-800">{locale === 'en' ? 'Parents Area' : locale === 'es' ? 'Área de Padres' : 'Área dos Pais'}</h3>
+        <h3 className="text-xl font-black text-slate-800">{title ?? (locale === 'en' ? 'Parents Area' : locale === 'es' ? 'Área de Padres' : 'Área dos Pais')}</h3>
         <p className="text-xs text-slate-400 font-semibold mt-1">
           {lockType === 'pin' 
             ? t.routine.exitPinPrompt 
@@ -5247,12 +5464,14 @@ const ParentalLockOverlay: React.FC<ParentalLockOverlayProps> = ({
         )}
       </div>
 
-      <button
-        onClick={onClose}
-        className="text-xs font-bold text-slate-450 hover:text-slate-650 underline cursor-pointer mt-1 bg-transparent border-none"
-      >
-        Voltar à Rotina 🐾
-      </button>
+      {!hideClose && (
+        <button
+          onClick={onClose}
+          className="text-xs font-bold text-slate-450 hover:text-slate-650 underline cursor-pointer mt-1 bg-transparent border-none"
+        >
+          Voltar à Rotina 🐾
+        </button>
+      )}
     </motion.div>
   );
 };

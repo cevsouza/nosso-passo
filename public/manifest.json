@@ -1,12 +1,26 @@
 {
-  "name": "TEAcolher SaaS",
-  "short_name": "RotinaAnimada",
-  "description": "Agenda e rotina lúdica semanal estruturada para autismo e neurodiversidade",
-  "start_url": "/login",
+  "name": "TEAcolher",
+  "short_name": "TEAcolher",
+  "description": "Rotina previsível e acolhedora para crianças com TEA",
+  "start_url": "/routine",
+  "scope": "/",
   "display": "standalone",
-  "background_color": "#0f172a",
-  "theme_color": "#4f46e5",
+  "orientation": "any",
+  "background_color": "#f7f7fb",
+  "theme_color": "#5468e6",
   "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-maskable.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    },
     {
       "src": "/favicon.ico",
       "sizes": "64x64 32x32 24x24 16x16",

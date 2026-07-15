@@ -33,10 +33,12 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#2c6a68",
+  themeColor: "#5468e6",
   colorScheme: "light",
   width: "device-width",
   initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
   viewportFit: "cover",
 };
 
@@ -48,24 +50,6 @@ export default function RootLayout({
   return (
     <html lang="pt-BR">
       <body className={`${jakarta.variable} ${manrope.variable}`}>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
-                navigator.serviceWorker.getRegistrations().then(function(registrations) {
-                  for (let registration of registrations) {
-                    registration.unregister().then(function(success) {
-                      if (success) {
-                        console.log('[SW] Unregistered active service worker');
-                        window.location.reload();
-                      }
-                    });
-                  }
-                });
-              }
-            `,
-          }}
-        />
         <LanguageProvider>
           {children}
         </LanguageProvider>
