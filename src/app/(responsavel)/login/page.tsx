@@ -4,8 +4,7 @@ import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { firebaseBridge } from '../../../lib/firebase-bridge';
 import { playBubble, playMarimba } from '../../../lib/audio-synth';
-import { BorderCollie } from '../../../components/ludic/BorderCollie';
-import { Lock, Mail, ArrowLeft, ShieldAlert } from 'lucide-react';
+import { ArrowLeft, ShieldAlert } from 'lucide-react';
 import Link from 'next/link';
 import { useLanguage } from '../../../lib/LanguageContext';
 import { LanguageSelector } from '../../../components/LanguageSelector';
@@ -72,14 +71,16 @@ export default function ParentAuth() {
       </div>
 
       <motion.div
-        initial={{ opacity: 0, y: 35 }}
+        initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: "easeOut" }}
-        className="w-full max-w-md bg-white border border-slate-200 rounded-[24px] p-8 shadow-premium-soft z-10 relative mt-24"
+        transition={{ duration: 0.5, ease: "easeOut" }}
+        className="w-full max-w-md bg-white border border-slate-200 rounded-[24px] p-8 shadow-premium-soft z-10 relative"
       >
-        {/* Collie Peek Mascot */}
-        <div className="absolute top-[-95px] left-1/2 -translate-x-1/2 z-20 drop-shadow-[0_8px_16px_rgba(0,0,0,0.05)] pointer-events-none">
-          <BorderCollie state={loading ? "celebrating" : "idle"} size={135} />
+        {/* Brand avatar — contained, no overlap */}
+        <div className="flex justify-center mb-4">
+          <div className="w-14 h-14 rounded-2xl grad-primary flex items-center justify-center text-2xl shadow-sm select-none">
+            🐶
+          </div>
         </div>
 
         <div className="text-center mb-6">
@@ -107,34 +108,28 @@ export default function ParentAuth() {
             <label className="block text-[11px] font-black text-slate-700 uppercase tracking-widest mb-2 pl-1 font-Outfit">
               {t.login.labelEmail}
             </label>
-            <div className="relative">
-              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-slate-500" />
-              <input
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder={locale === 'en' ? 'name@example.com' : locale === 'es' ? 'nombre@ejemplo.com' : 'nome@exemplo.com'}
-                className="w-full pl-11 pr-4 py-3 bg-white border border-slate-200 focus:border-indigo-500 rounded-xl text-slate-900 placeholder-slate-400 outline-none transition-all text-sm font-semibold focus:ring-2 focus:ring-indigo-200"
-              />
-            </div>
+            <input
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder={locale === 'en' ? 'name@example.com' : locale === 'es' ? 'nombre@ejemplo.com' : 'nome@exemplo.com'}
+              className="w-full px-4 py-3 bg-white border border-slate-200 focus:border-indigo-500 rounded-xl text-slate-900 placeholder-slate-400 outline-none transition-all text-sm font-semibold focus:ring-2 focus:ring-indigo-200"
+            />
           </div>
 
           <div>
             <label className="block text-[11px] font-black text-slate-700 uppercase tracking-widest mb-2 pl-1 font-Outfit">
               {t.login.labelPassword}
             </label>
-            <div className="relative">
-              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-slate-500" />
-              <input
-                type="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder={t.login.placeholderPassword}
-                className="w-full pl-11 pr-4 py-3 bg-white border border-slate-200 focus:border-indigo-500 rounded-xl text-slate-900 placeholder-slate-400 outline-none transition-all text-sm font-semibold focus:ring-2 focus:ring-indigo-200"
-              />
-            </div>
+            <input
+              type="password"
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder={t.login.placeholderPassword}
+              className="w-full px-4 py-3 bg-white border border-slate-200 focus:border-indigo-500 rounded-xl text-slate-900 placeholder-slate-400 outline-none transition-all text-sm font-semibold focus:ring-2 focus:ring-indigo-200"
+            />
           </div>
 
           <button
