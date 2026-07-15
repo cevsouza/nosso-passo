@@ -34,7 +34,7 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: "#5468e6",
-  colorScheme: "light",
+  colorScheme: "light dark",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
@@ -50,6 +50,14 @@ export default function RootLayout({
   return (
     <html lang="pt-BR">
       <body className={`${jakarta.variable} ${manrope.variable}`}>
+        {/* Apply the saved theme before first paint so dark mode is consistent
+            across every page (not only where a component effect runs) and there
+            is no light flash on load. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{if(localStorage.getItem('tea_theme')==='dark'){document.documentElement.classList.add('dark');}}catch(e){}`,
+          }}
+        />
         <LanguageProvider>
           {children}
         </LanguageProvider>
