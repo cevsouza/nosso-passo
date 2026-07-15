@@ -7735,7 +7735,7 @@ function ParentDashboardContent() {
 
                         <option key={idx} value={idx}>
 
-                          {preset.icon || '➕'} {preset.title} ({preset.time} - {preset.period === 'manhã' ? 'Manhã' : preset.period === 'tarde' ? 'Tarde' : 'Noite'})
+                          {preset.icon || '➕'} {preset.title} ({preset.time} - {preset.period === 'manhã' ? (locale === 'en' ? 'Morning' : locale === 'es' ? 'Mañana' : 'Manhã') : preset.period === 'tarde' ? (locale === 'en' ? 'Afternoon' : locale === 'es' ? 'Tarde' : 'Tarde') : (locale === 'en' ? 'Night' : locale === 'es' ? 'Noche' : 'Noite')})
 
                         </option>
 
@@ -7883,11 +7883,11 @@ function ParentDashboardContent() {
 
                                   >
 
-                                    <option value="manhã">Manhã ☀️</option>
+                                    <option value="manhã">{locale === 'en' ? 'Morning ☀️' : locale === 'es' ? 'Mañana ☀️' : 'Manhã ☀️'}</option>
 
-                                    <option value="tarde">Tarde ⛅</option>
+                                    <option value="tarde">{locale === 'en' ? 'Afternoon ⛅' : locale === 'es' ? 'Tarde ⛅' : 'Tarde ⛅'}</option>
 
-                                    <option value="noite">Noite 🌙</option>
+                                    <option value="noite">{locale === 'en' ? 'Night 🌙' : locale === 'es' ? 'Noche 🌙' : 'Noite 🌙'}</option>
 
                                   </select>
 
@@ -8437,11 +8437,11 @@ function ParentDashboardContent() {
 
                                             >
 
-                                              <option value="manhã">Manhã</option>
+                                              <option value="manhã">{locale === 'en' ? 'Morning' : locale === 'es' ? 'Mañana' : 'Manhã'}</option>
 
-                                              <option value="tarde">Tarde</option>
+                                              <option value="tarde">{locale === 'en' ? 'Afternoon' : locale === 'es' ? 'Tarde' : 'Tarde'}</option>
 
-                                              <option value="noite">Noite</option>
+                                              <option value="noite">{locale === 'en' ? 'Night' : locale === 'es' ? 'Noche' : 'Noite'}</option>
 
                                             </select>
 
@@ -8521,11 +8521,11 @@ function ParentDashboardContent() {
 
                                           >
 
-                                            <option value="AVD">AVD (Vida Diária) 🧼</option>
+                                            <option value="AVD">{locale === 'en' ? 'ADL (Daily Life) 🧼' : locale === 'es' ? 'AVD (Vida Diaria) 🧼' : 'AVD (Vida Diária) 🧼'}</option>
 
-                                            <option value="Aprendizado">Aprendizado 📚</option>
+                                            <option value="Aprendizado">{locale === 'en' ? 'Learning 📚' : locale === 'es' ? 'Aprendizaje 📚' : 'Aprendizado 📚'}</option>
 
-                                            <option value="Lazer">Lazer 🧸</option>
+                                            <option value="Lazer">{locale === 'en' ? 'Leisure 🧸' : locale === 'es' ? 'Ocio 🧸' : 'Lazer 🧸'}</option>
 
                                           </select>
 
