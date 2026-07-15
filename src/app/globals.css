@@ -223,6 +223,13 @@
 }
 .dark .placeholder-slate-400::placeholder { color: #7c7ca0; }
 
+/* Hardcoded light page backgrounds (arbitrary hex) that tokens/bg-white don't
+   cover -> flip to the dark app background. */
+.dark .bg-\[\#f8fafc\],
+.dark .bg-\[\#f7f7fb\],
+.dark .bg-\[\#f6f8f9\] { background-color: #16161f; }
+.dark .bg-\[\#f8fafc\]\/95 { background-color: rgba(22, 22, 31, 0.95); }
+
 /* Form controls: native rendering (color-scheme) can ignore the .bg-white
    flip above, so theme inputs/selects/textareas explicitly in dark mode. */
 .dark input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
