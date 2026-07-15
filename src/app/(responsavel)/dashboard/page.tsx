@@ -6172,14 +6172,30 @@ function ParentDashboardContent() {
                           <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider">
                             {locale === 'en' ? 'App Theme' : locale === 'es' ? 'Tema de la Aplicación' : 'Tema do App'}
                           </span>
-                          <button
-                            type="button"
-                            onClick={toggleTheme}
-                            className="w-full flex items-center justify-between px-3 py-2 bg-slate-50 hover:bg-slate-100 dark:bg-slate-800/40 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-bold transition-all cursor-pointer font-Outfit text-slate-750 dark:text-slate-300"
-                          >
-                            <span>{theme === 'light' ? (locale === 'en' ? 'Dark Mode 🌙' : locale === 'es' ? 'Modo Oscuro 🌙' : 'Modo Escuro 🌙') : (locale === 'en' ? 'Light Mode ☀️' : locale === 'es' ? 'Modo Claro ☀️' : 'Modo Claro ☀️')}</span>
-                            <span className="text-[10px] text-slate-400 dark:text-slate-500 font-medium">{locale === 'en' ? 'Toggle' : locale === 'es' ? 'Alternar' : 'Alternar'}</span>
-                          </button>
+                          <div className="flex bg-slate-100 dark:bg-slate-800/50 p-1 rounded-xl gap-1 select-none">
+                            <button
+                              type="button"
+                              onClick={() => { if (theme !== 'light') toggleTheme(); }}
+                              className={`flex-1 py-1.5 rounded-lg text-xs font-black transition-all cursor-pointer flex items-center justify-center gap-1.5 font-Outfit ${
+                                theme === 'light'
+                                  ? 'bg-white text-indigo-700 shadow-sm'
+                                  : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200'
+                              }`}
+                            >
+                              ☀️ {locale === 'en' ? 'Light' : locale === 'es' ? 'Claro' : 'Claro'}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => { if (theme !== 'dark') toggleTheme(); }}
+                              className={`flex-1 py-1.5 rounded-lg text-xs font-black transition-all cursor-pointer flex items-center justify-center gap-1.5 font-Outfit ${
+                                theme === 'dark'
+                                  ? 'bg-white text-indigo-700 shadow-sm dark:bg-slate-900 dark:text-indigo-200'
+                                  : 'text-slate-500 hover:text-slate-800'
+                              }`}
+                            >
+                              🌙 {locale === 'en' ? 'Dark' : locale === 'es' ? 'Oscuro' : 'Escuro'}
+                            </button>
+                          </div>
                         </div>
 
                         {/* Language Selector */}
