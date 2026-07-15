@@ -3389,7 +3389,7 @@ export default function ChildRoutine() {
     const thenTask = nextTasks[0]; // next task in line
 
     return (
-      <main className={`min-h-screen bg-gradient-to-tr from-[#0b0f19] to-[#1e1b4b] p-6 pb-12 flex flex-col items-center justify-between text-white relative overflow-hidden ${profileClass} font-Outfit select-none`}>
+      <main className={`min-h-screen bg-[#12131f] p-6 pb-12 flex flex-col items-center justify-between text-slate-100 relative overflow-hidden ${profileClass} font-Outfit select-none`}>
         {kioskLayer}
         {offline && (
           <div className="absolute top-0 inset-x-0 bg-amber-500 text-white py-2 px-4 text-center text-xs font-black select-none z-50 flex items-center justify-center gap-2 font-Outfit shadow-md shrink-0">
@@ -3399,26 +3399,29 @@ export default function ChildRoutine() {
 
         {/* Top bar with minimal battery & parent exit */}
         <div className="w-full max-w-4xl flex justify-between items-center z-10">
-          <div className="flex items-center gap-2 bg-slate-900/60 backdrop-blur-md px-3.5 py-1.5 rounded-xl border border-slate-700/50">
+          <div className="flex items-center gap-2 bg-white/[0.04] px-3.5 py-1.5 rounded-full border border-white/10">
             <span className="text-xs">🔋</span>
-            <span className="text-[10px] font-black uppercase tracking-wider text-slate-300">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
               Energia: {activeChild.emotionalBattery === 'green' ? '100% 🟢' : activeChild.emotionalBattery === 'yellow' ? '50% 🟡' : '10% 🔴'}
             </span>
           </div>
-          
+
           <button
             onClick={() => handleAttemptExit('/dashboard')}
-            className="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-white text-[10px] font-black rounded-lg border border-slate-600 active:scale-95 transition-all cursor-pointer uppercase tracking-wider"
+            onMouseEnter={playBubble}
+            aria-label={locale === 'en' ? 'Exit' : locale === 'es' ? 'Salir' : 'Sair'}
+            title={locale === 'en' ? 'Exit' : locale === 'es' ? 'Salir' : 'Sair'}
+            className="flex items-center justify-center w-9 h-9 rounded-full text-slate-400 hover:text-slate-100 hover:bg-white/10 active:scale-90 transition-all cursor-pointer"
           >
-            🔒 Sair
+            <LogOut className="w-4.5 h-4.5" />
           </button>
         </div>
 
         {/* Main Board Grid */}
         <div className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-6 my-auto z-10">
           {/* FIRST BOARD */}
-          <div className="bg-slate-900/80 border-4 border-indigo-500 rounded-[40px] p-8 shadow-2xl flex flex-col justify-between items-center min-h-[380px] relative overflow-hidden text-center">
-            <div className="absolute top-3 left-6 text-xxs font-black text-indigo-400 uppercase tracking-widest">PRIMEIRO</div>
+          <div className="bg-white/[0.04] border border-indigo-500/30 rounded-3xl p-8 flex flex-col justify-between items-center min-h-[380px] relative overflow-hidden text-center">
+            <div className="absolute top-3 left-6 text-xxs font-bold text-indigo-300/80 uppercase tracking-widest">PRIMEIRO</div>
             
             {firstTask ? (
               <>
@@ -3440,10 +3443,10 @@ export default function ChildRoutine() {
                   whileTap={{ scale: 0.90, rotate: -1 }}
                   onClick={() => handleCompleteTask(firstTask)}
                   disabled={!!celebratingTaskId}
-                  className={`mt-6 w-20 h-20 rounded-full flex items-center justify-center border-4 cursor-pointer shadow-lg transition-colors duration-300 ${
+                  className={`mt-6 w-20 h-20 rounded-full flex items-center justify-center border-2 cursor-pointer shadow-sm transition-colors duration-300 ${
                     celebratingTaskId === firstTask.id
                       ? 'bg-emerald-500 border-white text-white animate-ping'
-                      : 'bg-indigo-650 hover:bg-indigo-700 border-indigo-400 text-white'
+                      : 'bg-indigo-650 hover:bg-indigo-700 border-indigo-400/50 text-white'
                   }`}
                   title="Concluir tarefa"
                 >
@@ -3459,8 +3462,8 @@ export default function ChildRoutine() {
           </div>
 
           {/* THEN BOARD */}
-          <div className="bg-slate-900/80 border-4 border-slate-700 rounded-[40px] p-8 shadow-2xl flex flex-col justify-between items-center min-h-[380px] relative overflow-hidden text-center opacity-90">
-            <div className="absolute top-3 left-6 text-xxs font-black text-slate-400 uppercase tracking-widest">DEPOIS</div>
+          <div className="bg-white/[0.02] border border-white/10 rounded-3xl p-8 flex flex-col justify-between items-center min-h-[380px] relative overflow-hidden text-center opacity-90">
+            <div className="absolute top-3 left-6 text-xxs font-bold text-slate-400 uppercase tracking-widest">DEPOIS</div>
             
             {firstTask && thenTask ? (
               <>
@@ -3475,7 +3478,7 @@ export default function ChildRoutine() {
                   <h2 className="text-xl font-black text-slate-300">{thenTask.title}</h2>
                   <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">{thenTask.time} • {thenTask.duration || 30} min</span>
                 </div>
-                <div className="w-12 h-12 bg-slate-800 border-2 border-slate-650 rounded-full flex items-center justify-center text-slate-550 mb-4">
+                <div className="w-12 h-12 bg-white/5 border border-white/10 rounded-full flex items-center justify-center text-slate-500 mb-4">
                   🔒
                 </div>
               </>
@@ -3500,12 +3503,12 @@ export default function ChildRoutine() {
         </div>
 
         {/* Bottom Mascot co-regulation widget */}
-        <div className="w-full max-w-4xl flex items-center gap-4 bg-slate-900/60 border border-slate-800 p-4 rounded-3xl z-10 text-left shrink-0">
-          <div className="w-14 h-14 bg-indigo-950 rounded-2xl flex items-center justify-center shrink-0 shadow-inner">
+        <div className="w-full max-w-4xl flex items-center gap-4 bg-white/[0.04] border border-white/10 p-4 rounded-2xl z-10 text-left shrink-0">
+          <div className="w-14 h-14 bg-white/5 rounded-2xl flex items-center justify-center shrink-0">
             <HyperfocusMascot hyperfocus={childHyperfocus} state={collieState} size={55} />
           </div>
           <div>
-            <p className="text-[10px] font-black uppercase text-indigo-400 font-Outfit tracking-wide">Foco e Calmaria</p>
+            <p className="text-[10px] font-bold uppercase text-indigo-300/80 font-Outfit tracking-wide">Foco e Calmaria</p>
             <p className="text-[10.5px] text-slate-300 font-semibold leading-normal mt-0.5">
               {firstTask 
                 ? `Vamos fazer primeiro "${firstTask.title}". Concentre-se em concluir apenas esta tarefa!` 
@@ -3578,17 +3581,9 @@ export default function ChildRoutine() {
         <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
           {sleepMode ? (
             <>
-              {twinklingStars.map(star => (
-                <motion.div
-                  key={star.id}
-                  className="absolute w-1.5 h-1.5 bg-yellow-100/80 rounded-full"
-                  style={{ top: star.top, left: star.left }}
-                  animate={{ opacity: [0.15, 0.85, 0.15] }}
-                  transition={{ duration: 4, delay: star.delay, repeat: Infinity, ease: "easeInOut" }}
-                />
-              ))}
-              <div className="absolute top-[15%] left-[-10%] w-80 h-80 bg-blue-950/25 rounded-full filter blur-3xl opacity-40"></div>
-              <div className="absolute bottom-[20%] right-[-10%] w-96 h-96 bg-amber-950/20 rounded-full filter blur-3xl opacity-35"></div>
+              {/* Calm night: static soft glows, no twinkling */}
+              <div className="absolute top-[15%] left-[-10%] w-80 h-80 bg-blue-950/20 rounded-full filter blur-3xl opacity-30"></div>
+              <div className="absolute bottom-[20%] right-[-10%] w-96 h-96 bg-indigo-950/20 rounded-full filter blur-3xl opacity-25"></div>
             </>
           ) : (
             <>
