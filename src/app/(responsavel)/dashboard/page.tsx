@@ -1438,31 +1438,33 @@ function ParentDashboardContent() {
   const [showDailyTrackingPopover, setShowDailyTrackingPopover] = useState(false);
   const [activePrefTab, setActivePrefTab] = useState<'conta' | 'sensorial' | 'seguranca' | 'plano'>('conta');
   const [newPassword, setNewPassword] = useState('');
-  const [theme, setTheme] = useState<'light' | 'dark'>('light');
+  const [theme, setTheme] = useState<'light' | 'dark' | 'system'>('system');
 
-  // Load and apply theme
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const savedTheme = (localStorage.getItem('tea_theme') || 'light') as 'light' | 'dark';
-      setTheme(savedTheme);
-      if (savedTheme === 'dark') {
-        document.documentElement.classList.add('dark');
-      } else {
-        document.documentElement.classList.remove('dark');
-      }
-    }
+  // Resolve a preference to the actual .dark class (system follows the OS).
+  const applyTheme = React.useCallback((t: 'light' | 'dark' | 'system') => {
+    const isDark = t === 'dark' || (t === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    document.documentElement.classList.toggle('dark', isDark);
   }, []);
 
-  const toggleTheme = () => {
+  // Load saved preference and keep in sync with the OS while on "system".
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const saved = (localStorage.getItem('tea_theme') || 'system') as 'light' | 'dark' | 'system';
+    setTheme(saved);
+    applyTheme(saved);
+    const mq = window.matchMedia('(prefers-color-scheme: dark)');
+    const onChange = () => {
+      if ((localStorage.getItem('tea_theme') || 'system') === 'system') applyTheme('system');
+    };
+    mq.addEventListener('change', onChange);
+    return () => mq.removeEventListener('change', onChange);
+  }, [applyTheme]);
+
+  const chooseTheme = (t: 'light' | 'dark' | 'system') => {
     playBubble();
-    const newTheme = theme === 'light' ? 'dark' : 'light';
-    setTheme(newTheme);
-    localStorage.setItem('tea_theme', newTheme);
-    if (newTheme === 'dark') {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
+    setTheme(t);
+    localStorage.setItem('tea_theme', t);
+    applyTheme(t);
   };
 
   const mediaRecorderRef = React.useRef<MediaRecorder | null>(null);
@@ -6173,28 +6175,24 @@ function ParentDashboardContent() {
                             {locale === 'en' ? 'App Theme' : locale === 'es' ? 'Tema de la Aplicación' : 'Tema do App'}
                           </span>
                           <div className="flex bg-slate-100 dark:bg-slate-800/50 p-1 rounded-xl gap-1 select-none">
-                            <button
-                              type="button"
-                              onClick={() => { if (theme !== 'light') toggleTheme(); }}
-                              className={`flex-1 py-1.5 rounded-lg text-xs font-black transition-all cursor-pointer flex items-center justify-center gap-1.5 font-Outfit ${
-                                theme === 'light'
-                                  ? 'bg-white text-indigo-700 shadow-sm'
-                                  : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200'
-                              }`}
-                            >
-                              ☀️ {locale === 'en' ? 'Light' : locale === 'es' ? 'Claro' : 'Claro'}
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => { if (theme !== 'dark') toggleTheme(); }}
-                              className={`flex-1 py-1.5 rounded-lg text-xs font-black transition-all cursor-pointer flex items-center justify-center gap-1.5 font-Outfit ${
-                                theme === 'dark'
-                                  ? 'bg-white text-indigo-700 shadow-sm dark:bg-slate-900 dark:text-indigo-200'
-                                  : 'text-slate-500 hover:text-slate-800'
-                              }`}
-                            >
-                              🌙 {locale === 'en' ? 'Dark' : locale === 'es' ? 'Oscuro' : 'Escuro'}
-                            </button>
+                            {([
+                              { key: 'light' as const, icon: '☀️', label: locale === 'en' ? 'Light' : locale === 'es' ? 'Claro' : 'Claro' },
+                              { key: 'dark' as const, icon: '🌙', label: locale === 'en' ? 'Dark' : locale === 'es' ? 'Oscuro' : 'Escuro' },
+                              { key: 'system' as const, icon: '💻', label: locale === 'en' ? 'System' : locale === 'es' ? 'Sistema' : 'Sistema' },
+                            ]).map(opt => (
+                              <button
+                                key={opt.key}
+                                type="button"
+                                onClick={() => chooseTheme(opt.key)}
+                                className={`flex-1 py-1.5 rounded-lg text-[11px] font-black transition-all cursor-pointer flex items-center justify-center gap-1 font-Outfit ${
+                                  theme === opt.key
+                                    ? 'bg-white text-indigo-700 shadow-sm dark:bg-slate-900 dark:text-indigo-200'
+                                    : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200'
+                                }`}
+                              >
+                                {opt.icon} {opt.label}
+                              </button>
+                            ))}
                           </div>
                         </div>
 
@@ -14046,7 +14044,7 @@ function ParentDashboardContent() {
 
             }}
 
-            className="flex items-center gap-1.5 px-4.5 py-2.5 bg-indigo-600 hover:bg-indigo-755 text-white text-xs font-black rounded-2xl active:scale-95 transition-all cursor-pointer font-Outfit uppercase tracking-wider"
+            className="flex items-center gap-1.5 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-black rounded-xl active:scale-95 transition-all cursor-pointer font-Outfit"
 
             title="Criar nova atividade"
 
@@ -14066,7 +14064,7 @@ function ParentDashboardContent() {
 
             }}
 
-            className="flex items-center gap-1.5 px-4.5 py-2.5 bg-emerald-600 hover:bg-emerald-755 text-white text-xs font-black rounded-2xl active:scale-95 transition-all cursor-pointer font-Outfit uppercase tracking-wider"
+            className="flex items-center gap-1.5 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 text-xs font-black rounded-xl active:scale-95 transition-all cursor-pointer font-Outfit"
 
             title={t.dashboard.printPecsCards}
 
@@ -14084,7 +14082,7 @@ function ParentDashboardContent() {
 
             rel="noopener noreferrer"
 
-            className="flex items-center gap-1.5 px-4.5 py-2.5 bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-black rounded-2xl active:scale-95 transition-all cursor-pointer font-Outfit uppercase tracking-wider"
+            className="flex items-center gap-1.5 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 text-xs font-black rounded-xl active:scale-95 transition-all cursor-pointer font-Outfit"
 
             title="Ver portal do paciente"
 
@@ -14104,7 +14102,7 @@ function ParentDashboardContent() {
 
             }}
 
-            className="w-10 h-10 bg-slate-105 hover:bg-slate-200 border border-slate-250 text-slate-600 rounded-2xl active:scale-95 transition-all cursor-pointer flex items-center justify-center font-black"
+            className="w-10 h-10 bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-600 rounded-xl active:scale-95 transition-all cursor-pointer flex items-center justify-center font-black shrink-0"
 
             title="Voltar ao Topo"
 
