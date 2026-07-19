@@ -51,13 +51,19 @@ export async function PUT(req: Request) {
       childHyperfocus: updates.childHyperfocus,
       parentPinCode: updates.parentPinCode,
       lockType: updates.lockType,
-      plan: updates.plan,
       sensorySpeed: updates.sensorySpeed,
       sensorySound: updates.sensorySound,
       sensoryVisuals: updates.sensoryVisuals,
       sensoryProfile: updates.sensoryProfile,
       timerStyle: updates.timerStyle,
     };
+
+    // O plano NUNCA sobe pelo cliente — quem promove para premium e o webhook
+    // da Stripe (api/webhook), depois do pagamento confirmado. O cliente so
+    // pode rebaixar a propria conta para free (cancelamento).
+    if (updates.plan === 'free') {
+      dataToUpdate.plan = 'free';
+    }
 
     if (updates.password) {
       dataToUpdate.passwordHash = hashPassword(updates.password);

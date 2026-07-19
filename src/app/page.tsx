@@ -3,7 +3,7 @@ import React from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { playBubble, playMarimba } from '../lib/audio-synth';
-import { Gamepad2, Users, Stethoscope, Heart, ArrowRight } from 'lucide-react';
+import { Gamepad2, Users, Stethoscope, Heart, ArrowRight, Check } from 'lucide-react';
 import { useLanguage } from '../lib/LanguageContext';
 import { LanguageSelector } from '../components/LanguageSelector';
 
@@ -25,6 +25,25 @@ const localDict = {
     parentsDesc: "Monte a agenda, acompanhe o progresso e ajuste tudo num só lugar.",
     professionalTitle: "Profissional",
     professionalDesc: "Terapeuta ou escola: acompanhe a evolução e deixe observações com um código de acesso.",
+    plansTitle: "Comece de graça",
+    plansSubtitle: "Sem cartão para começar. Sem anúncios. Sem vender dados da sua família.",
+    planFreeName: "Gratuito",
+    planFreePrice: "R$ 0",
+    planFreePeriod: "para sempre",
+    planFreeFeatures: ["Rotina visual diária", "Até 3 tarefas por dia", "Níveis de interface Foco e Intermediário", "Modo calma e comunicação por figuras"],
+    planFamilyName: "Família",
+    planFamilyPrice: "R$ 199",
+    planFamilyPeriod: "por ano (R$ 16,58/mês)",
+    planFamilyBadge: "Mais escolhido",
+    planFamilyFeatures: ["Tarefas ilimitadas", "Relatório de aderência em PDF", "Histórico sensorial completo", "Acompanhamento por terapeuta e escola"],
+    planPartnerName: "Terapeuta e Escola",
+    planPartnerPrice: "R$ 0",
+    planPartnerPeriod: "sempre gratuito",
+    planPartnerFeatures: ["Painel do profissional", "Acesso por código, revogável", "Registro de devolutivas", "Sem custo para o profissional"],
+    plansStart: "Começar grátis",
+    plansMonthlyNote: "Também disponível no plano mensal de R$ 29,90. Cancele quando quiser.",
+    footerPrivacy: "Privacidade",
+    footerTerms: "Termos de Uso",
   },
   es: {
     eyebrow: "Previsibilidad y acogida para el TEA",
@@ -41,6 +60,25 @@ const localDict = {
     parentsDesc: "Arma la agenda, sigue el progreso y ajusta todo en un solo lugar.",
     professionalTitle: "Profesional",
     professionalDesc: "Terapeuta o escuela: sigue la evolución y deja observaciones con un código de acceso.",
+    plansTitle: "Empieza gratis",
+    plansSubtitle: "Sin tarjeta para empezar. Sin anuncios. Sin vender los datos de tu familia.",
+    planFreeName: "Gratuito",
+    planFreePrice: "$0",
+    planFreePeriod: "para siempre",
+    planFreeFeatures: ["Rutina visual diaria", "Hasta 3 tareas por día", "Niveles de interfaz Foco e Intermedio", "Modo calma y comunicación por figuras"],
+    planFamilyName: "Familia",
+    planFamilyPrice: "$39",
+    planFamilyPeriod: "por año ($3,25/mes)",
+    planFamilyBadge: "Más elegido",
+    planFamilyFeatures: ["Tareas ilimitadas", "Informe de adherencia en PDF", "Historial sensorial completo", "Seguimiento por terapeuta y escuela"],
+    planPartnerName: "Terapeuta y Escuela",
+    planPartnerPrice: "$0",
+    planPartnerPeriod: "siempre gratis",
+    planPartnerFeatures: ["Panel del profesional", "Acceso por código, revocable", "Registro de devoluciones", "Sin costo para el profesional"],
+    plansStart: "Empezar gratis",
+    plansMonthlyNote: "También disponible en el plan mensual de $5,90. Cancela cuando quieras.",
+    footerPrivacy: "Privacidad",
+    footerTerms: "Términos de Uso",
   },
   en: {
     eyebrow: "Predictability & care for autism",
@@ -57,6 +95,25 @@ const localDict = {
     parentsDesc: "Build the schedule, track progress and adjust everything in one place.",
     professionalTitle: "Professional",
     professionalDesc: "Therapist or school: follow progress and leave notes with an access code.",
+    plansTitle: "Start for free",
+    plansSubtitle: "No card to start. No ads. We never sell your family's data.",
+    planFreeName: "Free",
+    planFreePrice: "$0",
+    planFreePeriod: "forever",
+    planFreeFeatures: ["Daily visual routine", "Up to 3 tasks a day", "Focus and Intermediate interface levels", "Calm mode and picture communication"],
+    planFamilyName: "Family",
+    planFamilyPrice: "$39",
+    planFamilyPeriod: "per year ($3.25/month)",
+    planFamilyBadge: "Most chosen",
+    planFamilyFeatures: ["Unlimited tasks", "Adherence report as PDF", "Full sensory history", "Therapist and school follow-up"],
+    planPartnerName: "Therapist & School",
+    planPartnerPrice: "$0",
+    planPartnerPeriod: "always free",
+    planPartnerFeatures: ["Professional dashboard", "Code-based, revocable access", "Session feedback log", "No cost for the professional"],
+    plansStart: "Start free",
+    plansMonthlyNote: "Also available monthly at $5.90. Cancel anytime.",
+    footerPrivacy: "Privacy",
+    footerTerms: "Terms of Use",
   }
 };
 
@@ -159,6 +216,62 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Planos */}
+      <section className="w-full max-w-5xl mx-auto px-5 md:px-8 pt-10 md:pt-14 flex flex-col gap-5">
+        <div className="text-center flex flex-col gap-1">
+          <h2 className="text-xl md:text-2xl font-black font-Outfit text-slate-900 tracking-tight">{info.plansTitle}</h2>
+          <p className="text-slate-500 text-xs md:text-sm font-medium max-w-md mx-auto">{info.plansSubtitle}</p>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 md:gap-4 items-start">
+          {[
+            { name: info.planFreeName, price: info.planFreePrice, period: info.planFreePeriod, features: info.planFreeFeatures, badge: null, featured: false },
+            { name: info.planFamilyName, price: info.planFamilyPrice, period: info.planFamilyPeriod, features: info.planFamilyFeatures, badge: info.planFamilyBadge, featured: true },
+            { name: info.planPartnerName, price: info.planPartnerPrice, period: info.planPartnerPeriod, features: info.planPartnerFeatures, badge: null, featured: false },
+          ].map(plan => (
+            <div
+              key={plan.name}
+              className={`relative bg-white rounded-2xl p-5 flex flex-col gap-3 transition-all ${plan.featured ? 'border-2 border-[#5468e6] shadow-md sm:-mt-2' : 'border border-slate-200 shadow-sm'}`}
+            >
+              {plan.badge && (
+                <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 whitespace-nowrap bg-[#5468e6] text-white text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full">
+                  {plan.badge}
+                </span>
+              )}
+
+              <h3 className="text-sm font-black font-Outfit text-slate-900 tracking-tight mt-1">{plan.name}</h3>
+
+              <div className="flex flex-col">
+                <span className="text-3xl font-black font-Outfit text-slate-900 tracking-tight">{plan.price}</span>
+                <span className="text-[11px] text-slate-500 font-bold">{plan.period}</span>
+              </div>
+
+              <ul className="flex flex-col gap-1.5 mt-1 flex-1">
+                {plan.features.map((f: string) => (
+                  <li key={f} className="flex gap-2 items-start text-xs text-slate-500 font-medium leading-relaxed">
+                    <Check className="w-3.5 h-3.5 mt-0.5 shrink-0 text-[#5468e6]" />
+                    <span>{f}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+
+        <div className="flex flex-col items-center gap-2">
+          <Link
+            href="/login"
+            onMouseEnter={playBubble}
+            onClick={() => playMarimba(329.63, 0.4)}
+            className="inline-flex items-center gap-1.5 bg-[#5468e6] hover:bg-[#4658de] text-white text-sm font-black font-Outfit px-6 py-3 rounded-xl shadow-sm transition-all active:scale-95"
+          >
+            {info.plansStart}
+            <ArrowRight className="w-4 h-4" />
+          </Link>
+          <p className="text-[11px] text-slate-400 font-semibold text-center">{info.plansMonthlyNote}</p>
+        </div>
+      </section>
+
       {/* Essence */}
       <section className="w-full max-w-3xl mx-auto px-5 md:px-8 py-10 md:py-14">
         <div className="bg-white border border-slate-200 rounded-2xl p-6 md:p-8 flex flex-col gap-3">
@@ -173,6 +286,10 @@ export default function Home() {
         <div className="flex items-center gap-1.5">
           <Heart className="w-3 h-3 fill-[#9c7be6] text-[#9c7be6]" />
           <span>{t.landing.badgeNeuro}</span>
+        </div>
+        <div className="flex items-center gap-4">
+          <Link href="/privacidade" className="hover:text-slate-600 transition-colors">{info.footerPrivacy}</Link>
+          <Link href="/termos" className="hover:text-slate-600 transition-colors">{info.footerTerms}</Link>
         </div>
         <span className="text-center">{t.landing.footerFriendly} | {t.landing.footerCopyright}</span>
       </footer>

@@ -562,3 +562,49 @@ h1, h2, h3, h4, h5, h6 {
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */
 }
+
+/* ---- Paginas legais (privacidade / termos) ---- */
+.legal-prose {
+  color: #475569;
+  font-size: 0.875rem;
+  line-height: 1.75;
+}
+.legal-prose h1 {
+  font-family: var(--font-outfit), sans-serif;
+  font-weight: 900;
+  font-size: 1.75rem;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: #0f172a;
+  margin-bottom: 0.5rem;
+}
+.legal-prose h2 {
+  font-family: var(--font-outfit), sans-serif;
+  font-weight: 900;
+  font-size: 1.05rem;
+  letter-spacing: -0.01em;
+  color: #0f172a;
+  margin-top: 2rem;
+  margin-bottom: 0.5rem;
+}
+.legal-prose p { margin-bottom: 0.85rem; }
+.legal-prose ul { margin: 0 0 0.85rem 1.1rem; list-style: disc; }
+.legal-prose li { margin-bottom: 0.4rem; }
+.legal-prose strong { color: #0f172a; font-weight: 700; }
+.legal-prose a { color: #5468e6; font-weight: 700; }
+.legal-prose .legal-meta {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 1.5rem;
+}
+.legal-prose .legal-callout {
+  background: #f4f6ff;
+  border: 1px solid #d3d9fa;
+  border-radius: 14px;
+  padding: 1rem 1.1rem;
+  margin: 1.25rem 0;
+}
+.legal-prose .legal-callout p:last-child { margin-bottom: 0; }

@@ -2108,6 +2108,10 @@ function ParentDashboardContent() {
 
   const [checkingOut, setCheckingOut] = useState(false);
 
+  const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('annual');
+
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
+
   const [notifications, setNotifications] = useState<{ id: string; message: string; timestamp: Date }[]>([]);
 
   
@@ -14372,15 +14376,74 @@ function ParentDashboardContent() {
 
 
 
-              {/* Price Tag */}
+              {/* Seletor de ciclo + preco */}
 
-              <div className="text-center">
+              <div className="w-full flex flex-col gap-3">
 
-                <span className="text-xxs uppercase tracking-widest text-indigo-300 font-black">{locale === 'en' ? 'Monthly Subscription' : locale === 'es' ? 'Suscripción Mensual' : 'Assinatura Mensal'}</span>
+                <div className="grid grid-cols-2 gap-2 p-1 bg-slate-900/50 border border-slate-700/40 rounded-2xl">
 
-                <div className="text-4xl font-black text-white mt-0.5">{locale === 'en' ? '$5.90' : locale === 'es' ? '$5.90' : 'R$ 29,90'}<span className="text-sm font-medium text-indigo-300">{locale === 'en' ? '/month' : locale === 'es' ? '/mes' : '/mês'}</span></div>
+                  {(['annual', 'monthly'] as const).map((cycle) => {
 
-                <span className="text-[10px] text-slate-400 block mt-1 font-semibold">{locale === 'en' ? '* Free cancellation at any time with a single click.' : locale === 'es' ? '* Cancelación gratuita en cualquier momento con un solo clic.' : '* Cancelamento gratuito a qualquer momento com um único clique.'}</span>
+                    const isActive = billingCycle === cycle;
+
+                    const label = cycle === 'annual'
+                      ? (locale === 'en' ? 'Yearly' : locale === 'es' ? 'Anual' : 'Anual')
+                      : (locale === 'en' ? 'Monthly' : locale === 'es' ? 'Mensual' : 'Mensal');
+
+                    return (
+
+                      <button
+                        key={cycle}
+                        type="button"
+                        onClick={() => { playBubble(); setBillingCycle(cycle); setCheckoutError(null); }}
+                        className={`relative py-2 rounded-xl text-xs font-black transition-all cursor-pointer ${isActive ? 'bg-amber-400 text-indigo-950 shadow-sm' : 'text-indigo-200 hover:text-white'}`}
+                      >
+
+                        {label}
+
+                        {cycle === 'annual' && (
+                          <span className={`block text-[9px] font-black mt-0.5 ${isActive ? 'text-indigo-800' : 'text-amber-300'}`}>
+                            {locale === 'en' ? 'save 44%' : locale === 'es' ? 'ahorra 44%' : 'economize 44%'}
+                          </span>
+                        )}
+
+                      </button>
+
+                    );
+
+                  })}
+
+                </div>
+
+                <div className="text-center">
+
+                  {billingCycle === 'annual' ? (
+
+                    <>
+
+                      <div className="text-4xl font-black text-white mt-0.5">
+                        {locale === 'en' ? '$39' : locale === 'es' ? '$39' : 'R$ 199'}
+                        <span className="text-sm font-medium text-indigo-300">{locale === 'en' ? '/year' : locale === 'es' ? '/año' : '/ano'}</span>
+                      </div>
+
+                      <span className="text-[11px] text-amber-200 block mt-0.5 font-black">
+                        {locale === 'en' ? 'about $3.25 a month' : locale === 'es' ? 'unos $3,25 al mes' : 'equivale a R$ 16,58 por mês'}
+                      </span>
+
+                    </>
+
+                  ) : (
+
+                    <div className="text-4xl font-black text-white mt-0.5">
+                      {locale === 'en' ? '$5.90' : locale === 'es' ? '$5.90' : 'R$ 29,90'}
+                      <span className="text-sm font-medium text-indigo-300">{locale === 'en' ? '/month' : locale === 'es' ? '/mes' : '/mês'}</span>
+                    </div>
+
+                  )}
+
+                  <span className="text-[10px] text-slate-400 block mt-1 font-semibold">{locale === 'en' ? '* Free cancellation at any time with a single click.' : locale === 'es' ? '* Cancelación gratuita en cualquier momento con un solo clic.' : '* Cancelamento gratuito a qualquer momento com um único clique.'}</span>
+
+                </div>
 
               </div>
 
@@ -14406,9 +14469,9 @@ function ParentDashboardContent() {
 
                       playMarimba(392, 0.1);
 
-                      setCheckingOut(true);
+                      setCheckoutError(null);
 
-                      
+                      setCheckingOut(true);
 
                       try {
 
@@ -14428,77 +14491,56 @@ function ParentDashboardContent() {
 
                             email: currentUser?.email,
 
+                            billing: billingCycle,
+
                           }),
 
                         });
 
-                        
+                        const data = await response.json().catch(() => ({}));
 
-                        if (response.ok) {
+                        if (response.ok && data.url) {
 
-                          const data = await response.json();
+                          // Simulacao so existe em dev (o servidor decide); em producao
+                          // quem libera o premium e o webhook da Stripe, apos o pagamento.
 
-                          if (data.url) {
+                          if (data.url.includes('mock_checkout=true')) {
 
-                            if (data.url.includes('mock_checkout=true')) {
+                            playMarimba(523.25, 0.12);
 
-                              setTimeout(async () => {
+                            setCheckingOut(false);
 
-                                playMarimba(523.25, 0.12);
+                            setShowPaywall(false);
 
-                                setTimeout(() => playMarimba(659.25, 0.15), 100);
+                            triggerStatus(t.dashboard.statusPremiumSimulated);
 
-                                
+                          } else {
 
-                                await firebaseBridge.auth.updateProfileSettings({ plan: 'premium' });
-
-                                setPlan('premium');
-
-                                setShowPaywall(false);
-
-                                setCheckingOut(false);
-
-                                triggerStatus(t.dashboard.statusPremiumSimulated);
-
-                              }, 1500);
-
-                            } else {
-
-                              window.location.href = data.url;
-
-                            }
-
-                            return;
+                            window.location.href = data.url;
 
                           }
 
+                          return;
+
                         }
 
-                        throw new Error('Falha ao conectar com o provedor de cobrança');
+                        throw new Error(data.error || 'Falha ao conectar com o provedor de cobrança');
 
                       } catch (err: any) {
 
-                        console.warn("Erro ao iniciar checkout, utilizando simulação local:", err);
+                        console.error('Erro ao iniciar checkout:', err);
 
-                        setTimeout(async () => {
+                        setCheckingOut(false);
 
-                          playMarimba(523.25, 0.12);
+                        setCheckoutError(
 
-                          setTimeout(() => playMarimba(659.25, 0.15), 100);
+                          err?.message
 
-                          
+                            || (locale === 'en' ? 'We could not start the payment. Please try again.'
+                              : locale === 'es' ? 'No pudimos iniciar el pago. Inténtalo de nuevo.'
+                              : 'Não foi possível iniciar o pagamento. Tente novamente.')
 
-                          await firebaseBridge.auth.updateProfileSettings({ plan: 'premium' });
-
-                          setPlan('premium');
-
-                          setShowPaywall(false);
-
-                          setCheckingOut(false);
-
-                          triggerStatus(t.dashboard.statusPremiumSimulatedLocal);
-
-                        }, 1500);
+                        );
 
                       }
 
@@ -14508,9 +14550,19 @@ function ParentDashboardContent() {
 
                   >
 
-                    Confirmar Assinatura Premium 🚀
+                    {billingCycle === 'annual'
+                      ? (locale === 'en' ? 'Subscribe yearly 🚀' : locale === 'es' ? 'Suscribirme anual 🚀' : 'Assinar plano anual 🚀')
+                      : (locale === 'en' ? 'Subscribe monthly 🚀' : locale === 'es' ? 'Suscribirme mensual 🚀' : 'Assinar plano mensal 🚀')}
 
                   </button>
+
+                  {checkoutError && (
+
+                    <p className="text-[11px] font-bold text-rose-300 bg-rose-950/40 border border-rose-500/30 rounded-xl px-3 py-2 text-center">
+                      {checkoutError}
+                    </p>
+
+                  )}
 
                   <button
 

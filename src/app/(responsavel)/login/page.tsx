@@ -17,6 +17,7 @@ export default function ParentAuth() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [consent, setConsent] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,6 +34,15 @@ export default function ParentAuth() {
       }
 
       if (isRegister) {
+        if (!consent) {
+          throw new Error(
+            locale === 'en'
+              ? 'To create an account you must confirm you are the legal guardian and accept the terms.'
+              : locale === 'es'
+              ? 'Para crear una cuenta debes confirmar que eres el responsable legal y aceptar los términos.'
+              : 'Para criar a conta, confirme que você é o responsável legal e aceite os termos.'
+          );
+        }
         await firebaseBridge.auth.signUp(email, password);
         playMarimba(523.25, 0.4); // Success chime
         router.push('/dashboard');
@@ -52,6 +62,7 @@ export default function ParentAuth() {
     playBubble();
     setIsRegister(!isRegister);
     setError('');
+    setConsent(false);
     // Clear passwords but keep email for convenience
     setPassword('');
   };
@@ -135,11 +146,49 @@ export default function ParentAuth() {
             />
           </div>
 
+          {isRegister && (
+            <label className="flex gap-2.5 items-start cursor-pointer bg-slate-50 border border-slate-200 rounded-xl p-3 mt-1">
+              <input
+                type="checkbox"
+                checked={consent}
+                onChange={(e) => setConsent(e.target.checked)}
+                className="mt-0.5 w-4 h-4 shrink-0 accent-indigo-600 cursor-pointer"
+              />
+              <span className="text-[11px] text-slate-600 font-semibold leading-relaxed">
+                {locale === 'en' ? (
+                  <>
+                    I am over 18 and the <strong>legal guardian</strong> of the child I will register. I consent to
+                    the processing of their health data as described in the{' '}
+                    <Link href="/privacidade" target="_blank" className="text-indigo-700 underline font-black">Privacy Policy</Link>
+                    {' '}and I accept the{' '}
+                    <Link href="/termos" target="_blank" className="text-indigo-700 underline font-black">Terms of Use</Link>.
+                  </>
+                ) : locale === 'es' ? (
+                  <>
+                    Soy mayor de 18 años y <strong>responsable legal</strong> del niño que voy a registrar. Consiento
+                    el tratamiento de sus datos de salud según la{' '}
+                    <Link href="/privacidade" target="_blank" className="text-indigo-700 underline font-black">Política de Privacidad</Link>
+                    {' '}y acepto los{' '}
+                    <Link href="/termos" target="_blank" className="text-indigo-700 underline font-black">Términos de Uso</Link>.
+                  </>
+                ) : (
+                  <>
+                    Sou maior de 18 anos e <strong>responsável legal</strong> pela criança que vou cadastrar. Consinto
+                    com o tratamento dos dados de saúde dela conforme a{' '}
+                    <Link href="/privacidade" target="_blank" className="text-indigo-700 underline font-black">Política de Privacidade</Link>
+                    {' '}e aceito os{' '}
+                    <Link href="/termos" target="_blank" className="text-indigo-700 underline font-black">Termos de Uso</Link>.
+                  </>
+                )}
+              </span>
+            </label>
+          )}
+
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || (isRegister && !consent)}
             style={{ padding: '0.85rem 1rem' }}
-            className="w-full mt-1 grad-primary hover:brightness-105 active:scale-95 text-white font-black rounded-xl text-sm transition-all flex items-center justify-center gap-2 cursor-pointer tracking-wide font-Outfit"
+            className="w-full mt-1 grad-primary hover:brightness-105 active:scale-95 text-white font-black rounded-xl text-sm transition-all flex items-center justify-center gap-2 cursor-pointer tracking-wide font-Outfit disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100"
           >
             {loading 
               ? t.login.btnProcessing 
