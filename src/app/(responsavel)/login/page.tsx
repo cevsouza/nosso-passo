@@ -8,6 +8,7 @@ import { ArrowLeft, ShieldAlert } from 'lucide-react';
 import Link from 'next/link';
 import { useLanguage } from '../../../lib/LanguageContext';
 import { LanguageSelector } from '../../../components/LanguageSelector';
+import { DEMO_EMAIL, DEMO_PASSWORD } from '../../../lib/demo-credentials';
 
 export default function ParentAuth() {
   const router = useRouter();
@@ -53,6 +54,29 @@ export default function ParentAuth() {
       }
     } catch (err: any) {
       setError(err.message || t.login.errorGeneric);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Entrada direta na conta de demonstracao: dados ficticios, para quem quer
+  // conhecer o app antes de cadastrar uma crianca de verdade.
+  const handleDemo = async () => {
+    setLoading(true);
+    setError('');
+    playMarimba(392, 0.3);
+    try {
+      await firebaseBridge.auth.signIn(DEMO_EMAIL, DEMO_PASSWORD);
+      playMarimba(523.25, 0.4);
+      router.push('/dashboard');
+    } catch {
+      setError(
+        locale === 'en'
+          ? 'The demo is unavailable right now. Please try again in a moment.'
+          : locale === 'es'
+          ? 'La demostración no está disponible ahora. Inténtelo de nuevo en un momento.'
+          : 'A demonstração está indisponível no momento. Tente de novo em instantes.'
+      );
     } finally {
       setLoading(false);
     }
@@ -206,6 +230,20 @@ export default function ParentAuth() {
             {isRegister 
               ? t.login.toggleToLogin 
               : t.login.toggleToRegister}
+          </button>
+
+          <button
+            type="button"
+            onClick={handleDemo}
+            onMouseEnter={playBubble}
+            disabled={loading}
+            className="text-xs font-black text-slate-600 hover:text-indigo-800 cursor-pointer bg-transparent border-none outline-none font-Outfit disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {locale === 'en'
+              ? '👀 See the demo — no sign-up needed'
+              : locale === 'es'
+              ? '👀 Ver la demostración — sin registro'
+              : '👀 Ver a demonstração — sem cadastro'}
           </button>
 
           <Link
