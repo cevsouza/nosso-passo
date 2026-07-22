@@ -1,10 +1,10 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { firebaseBridge } from '../../../lib/firebase-bridge';
 import { playBubble, playMarimba } from '../../../lib/audio-synth';
-import { ArrowLeft, ShieldAlert } from 'lucide-react';
+import { ArrowLeft, ShieldAlert, Gift } from 'lucide-react';
 import Link from 'next/link';
 import { useLanguage } from '../../../lib/LanguageContext';
 import { LanguageSelector } from '../../../components/LanguageSelector';
@@ -19,6 +19,20 @@ export default function ParentAuth() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [consent, setConsent] = useState(false);
+  const [source, setSource] = useState('');
+  const [sourceDetail, setSourceDetail] = useState('');
+  const [refCode, setRefCode] = useState('');
+
+  // Le o ?ref= do link de indicacao direto da URL, sem useSearchParams: este
+  // e o unico jeito de manter a pagina estatica (useSearchParams exigiria um
+  // limite de Suspense e tornaria a rota dinamica).
+  useEffect(() => {
+    const ref = new URLSearchParams(window.location.search).get('ref');
+    if (ref) {
+      setRefCode(ref.trim().toUpperCase().slice(0, 12));
+      setIsRegister(true);
+    }
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,7 +58,11 @@ export default function ParentAuth() {
               : 'Para criar a conta, confirme que você é o responsável legal e aceite os termos.'
           );
         }
-        await firebaseBridge.auth.signUp(email, password);
+        await firebaseBridge.auth.signUp(email, password, {
+          referralSource: source,
+          referralDetail: source === 'outro' ? sourceDetail : '',
+          referralCode: refCode,
+        });
         playMarimba(523.25, 0.4); // Success chime
         router.push('/dashboard');
       } else {
@@ -87,6 +105,8 @@ export default function ParentAuth() {
     setIsRegister(!isRegister);
     setError('');
     setConsent(false);
+    setSource('');
+    setSourceDetail('');
     // Clear passwords but keep email for convenience
     setPassword('');
   };
@@ -169,6 +189,80 @@ export default function ParentAuth() {
               className="w-full bg-white border border-slate-200 focus:border-indigo-500 rounded-xl text-slate-900 placeholder-slate-400 outline-none transition-all text-sm font-semibold focus:ring-2 focus:ring-indigo-200"
             />
           </div>
+
+          {isRegister && (
+            <div className="flex flex-col gap-1.5">
+              <label className="block text-[11px] font-black text-slate-700 uppercase tracking-widest pl-1 font-Outfit">
+                {locale === 'en'
+                  ? 'How did you hear about TEAcolher?'
+                  : locale === 'es'
+                  ? '¿Cómo conoció TEAcolher?'
+                  : 'Como você conheceu o TEAcolher?'}
+              </label>
+              <select
+                required
+                value={source}
+                onChange={(e) => setSource(e.target.value)}
+                style={{ padding: '0.7rem 1rem' }}
+                className="w-full bg-white border border-slate-200 focus:border-indigo-500 rounded-xl text-slate-900 outline-none transition-all text-sm font-semibold focus:ring-2 focus:ring-indigo-200"
+              >
+                <option value="">
+                  {locale === 'en' ? 'Choose one…' : locale === 'es' ? 'Elija una…' : 'Escolha uma opção…'}
+                </option>
+                <option value="terapeuta">
+                  {locale === 'en' ? 'A therapist recommended it' : locale === 'es' ? 'Recomendación de un terapeuta' : 'Indicação de um terapeuta'}
+                </option>
+                <option value="familia">
+                  {locale === 'en' ? 'Another family recommended it' : locale === 'es' ? 'Recomendación de otra familia' : 'Indicação de outra família'}
+                </option>
+                <option value="grupo">
+                  {locale === 'en' ? 'A WhatsApp or Facebook group' : locale === 'es' ? 'Grupo de WhatsApp o Facebook' : 'Grupo de WhatsApp ou Facebook'}
+                </option>
+                <option value="redes">
+                  {locale === 'en' ? 'Instagram or TikTok' : locale === 'es' ? 'Instagram o TikTok' : 'Instagram ou TikTok'}
+                </option>
+                <option value="busca">
+                  {locale === 'en' ? 'I searched on Google or the app store' : locale === 'es' ? 'Busqué en Google o en la tienda de apps' : 'Busquei no Google ou na loja de apps'}
+                </option>
+                <option value="escola">
+                  {locale === 'en' ? 'Through my child’s school' : locale === 'es' ? 'Por la escuela' : 'Pela escola'}
+                </option>
+                <option value="associacao">
+                  {locale === 'en' ? 'An association or NGO' : locale === 'es' ? 'Asociación u ONG' : 'Associação ou ONG'}
+                </option>
+                <option value="outro">
+                  {locale === 'en' ? 'Other' : locale === 'es' ? 'Otro' : 'Outro'}
+                </option>
+              </select>
+
+              {source === 'outro' && (
+                <input
+                  type="text"
+                  value={sourceDetail}
+                  onChange={(e) => setSourceDetail(e.target.value)}
+                  maxLength={120}
+                  placeholder={locale === 'en' ? 'Where, exactly?' : locale === 'es' ? '¿Dónde, exactamente?' : 'Onde, exatamente?'}
+                  style={{ padding: '0.7rem 1rem' }}
+                  className="w-full bg-white border border-slate-200 focus:border-indigo-500 rounded-xl text-slate-900 placeholder-slate-400 outline-none transition-all text-sm font-semibold focus:ring-2 focus:ring-indigo-200"
+                />
+              )}
+            </div>
+          )}
+
+          {isRegister && refCode && (
+            <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-3 flex items-start gap-2.5">
+              <Gift className="w-4 h-4 shrink-0 mt-0.5 text-emerald-700" />
+              <span className="text-[11px] text-emerald-900 font-semibold leading-relaxed">
+                {locale === 'en' ? (
+                  <>Invite code <strong>{refCode}</strong> applied. You start with <strong>30 days of Premium</strong>, and so does whoever invited you.</>
+                ) : locale === 'es' ? (
+                  <>Código de invitación <strong>{refCode}</strong> aplicado. Empieza con <strong>30 días de Premium</strong>, y quien le invitó también.</>
+                ) : (
+                  <>Código de convite <strong>{refCode}</strong> aplicado. Você começa com <strong>30 dias de Premium</strong> — e quem te convidou ganha os mesmos 30 dias.</>
+                )}
+              </span>
+            </div>
+          )}
 
           {isRegister && (
             <label className="flex gap-2.5 items-start cursor-pointer bg-slate-50 border border-slate-200 rounded-xl p-3 mt-1">

@@ -22,6 +22,14 @@ model UserProfile {
   sensoryProfile  String   @default("balanced")
   timerStyle      String   @default("circle")
   createdAt       DateTime @default(now())
+
+  // Crescimento: de onde veio a familia e quem indicou.
+  referralCode    String?   @unique  // o codigo QUE ESTA pessoa compartilha
+  referredByUid   String?            // quem indicou esta pessoa
+  referralSource  String?            // resposta de "como conheceu"
+  referralDetail  String?            // texto livre quando a resposta e "outro"
+  premiumUntil    DateTime?          // premium ganho por indicacao (nao e assinatura)
+
   tasks           Task[]
   children        Child[]
 }
@@ -54,6 +62,7 @@ model Child {
   audioAlert5     String?
   audioAlert2     String?
   monthlyTemplate String?
+  lastActiveAt    DateTime?  // ultima tarefa concluida: a metrica de uso real
   emergencyFirstThen Boolean @default(false)
   behaviorDictionary String?
   unexpectedChange String?

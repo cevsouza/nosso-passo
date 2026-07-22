@@ -17,6 +17,7 @@ import { useLanguage } from '../../../lib/LanguageContext';
 import { LanguageSelector } from '../../../components/LanguageSelector';
 
 import { AccessCodesManager } from '../../../components/AccessCodesManager';
+import { ReferralCard } from '../../../components/ReferralCard';
 
 import { getTaskCategory, TaskCategory } from '../../../lib/sensory-standards';
 
@@ -12663,6 +12664,8 @@ function ParentDashboardContent() {
 
               </div>
 
+              {/* Indicacao de mao dupla: ao lado do plano, de proposito. */}
+              <ReferralCard />
 
 
               {/* Clinical Sharing Code */}

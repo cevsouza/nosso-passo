@@ -1,10 +1,11 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '../../../lib/prisma';
 import { hashPassword } from '../../../lib/auth-utils';
+import { applyReferral, isSourceKey, publicProfile, uniqueReferralCode } from '../../../lib/growth';
 
 export async function POST(req: Request) {
   try {
-    const { email, password } = await req.json();
+    const { email, password, referralSource, referralDetail, referralCode } = await req.json();
     if (!email || !password) {
       return NextResponse.json({ error: 'E-mail e senha são obrigatórios.' }, { status: 400 });
     }
@@ -26,9 +27,9 @@ export async function POST(req: Request) {
 
     const passwordHash = hashPassword(password);
     const uid = 'user-' + Math.random().toString(36).substring(2, 9);
-    
+
     // Create new profile with standard defaults
-    const profile = await prisma.userProfile.create({
+    await prisma.userProfile.create({
       data: {
         uid,
         email: formattedEmail,
@@ -41,13 +42,19 @@ export async function POST(req: Request) {
         sensorySpeed: 1.0,
         sensorySound: 'marimba',
         sensoryVisuals: 'rich',
+        // Toda conta ja nasce com o proprio codigo para compartilhar.
+        referralCode: await uniqueReferralCode(),
+        referralSource: isSourceKey(referralSource) ? referralSource : null,
+        referralDetail: (referralDetail || '').toString().trim().slice(0, 120) || null,
       },
     });
 
-    // Remove passwordHash from response for security
-    const { passwordHash: _, ...safeProfile } = profile;
+    // Um codigo invalido nao pode barrar o cadastro: a familia entra e apenas
+    // nao ganha o premio.
+    const referral = await applyReferral(uid, referralCode);
 
-    return NextResponse.json(safeProfile);
+    const profile = await prisma.userProfile.findUnique({ where: { uid } });
+    return NextResponse.json({ ...publicProfile(profile!), referralApplied: referral.applied });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

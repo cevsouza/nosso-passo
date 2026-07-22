@@ -236,6 +236,14 @@ export async function PUT(req: Request) {
       data: updateData,
     });
 
+    // Concluir tarefa e o unico sinal confiavel de que a crianca usou o app
+    // hoje. Best-effort: nunca pode derrubar a conclusao da tarefa.
+    if (updates.isCompleted === true && updated.childId) {
+      prisma.child
+        .update({ where: { id: updated.childId }, data: { lastActiveAt: new Date() } })
+        .catch(() => {});
+    }
+
     console.log('[API] PUT /api/tasks task updated successfully:', updated.id);
 
     return NextResponse.json(updated);

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '../../../lib/prisma';
 import { verifyPassword, hashPassword } from '../../../lib/auth-utils';
+import { ensureReferralCode, publicProfile } from '../../../lib/growth';
 
 export async function POST(req: Request) {
   try {
@@ -37,10 +38,11 @@ export async function POST(req: Request) {
       profile.passwordHash = passwordHash;
     }
 
-    // Remove passwordHash from response for security
-    const { passwordHash: _, ...safeProfile } = profile;
+    // Contas criadas antes do programa de indicacao nao tem codigo — gera aqui,
+    // no primeiro login, em vez de exigir migracao.
+    profile.referralCode = await ensureReferralCode(profile.uid, profile.referralCode);
 
-    return NextResponse.json(safeProfile);
+    return NextResponse.json(publicProfile(profile));
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

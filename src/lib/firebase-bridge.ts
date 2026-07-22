@@ -311,11 +311,15 @@ const saveLocalProfile = (profile: UserProfile | null) => {
 export const firebaseBridge = {
   // --- AUTH SERVICE ---
   auth: {
-    signUp: async (email: string, password?: string): Promise<UserProfile> => {
+    signUp: async (
+      email: string,
+      password?: string,
+      growth?: { referralSource?: string; referralDetail?: string; referralCode?: string }
+    ): Promise<UserProfile> => {
       const res = await fetch('/api/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password: password || '123456' })
+        body: JSON.stringify({ email, password: password || '123456', ...(growth || {}) })
       });
       const data = await res.json();
       if (data.error) throw new Error(data.error);
@@ -401,6 +405,24 @@ export const firebaseBridge = {
       if (data.error) throw new Error(data.error);
 
       saveLocalProfile(data);
+    },
+
+    getReferralStatus: async (): Promise<{
+      code: string;
+      total: number;
+      diasGanhos: number;
+      diasPorIndicacao: number;
+      restantes: number;
+      premiumUntil: string | null;
+      premiumAtivo: boolean;
+      assinaturaPaga: boolean;
+    } | null> => {
+      const current = getLocalProfile();
+      if (!current) return null;
+      const res = await safeFetch('/api/referral', { headers: { 'x-user-uid': current.uid } });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      return data;
     },
 
     // --- MULTI-CHILD MANAGEMENT API ---

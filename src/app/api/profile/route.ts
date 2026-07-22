@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '../../../lib/prisma';
 import { hashPassword } from '../../../lib/auth-utils';
+import { ensureReferralCode, publicProfile } from '../../../lib/growth';
 
 export async function POST(req: Request) {
   try {
@@ -34,7 +35,11 @@ export async function POST(req: Request) {
       });
     }
 
-    return NextResponse.json(profile);
+    profile.referralCode = await ensureReferralCode(profile.uid, profile.referralCode);
+
+    // publicProfile tira o passwordHash: este endpoint devolvia o hash para o
+    // navegador, que o guardava no localStorage.
+    return NextResponse.json(publicProfile(profile));
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
@@ -74,7 +79,7 @@ export async function PUT(req: Request) {
       data: dataToUpdate,
     });
 
-    return NextResponse.json(updated);
+    return NextResponse.json(publicProfile(updated));
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
