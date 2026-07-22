@@ -2296,8 +2296,8 @@ export default function ChildRoutine() {
                       <div className="relative w-36 h-36 flex items-center justify-center bg-slate-100/50 rounded-full border-2 border-dashed border-slate-200">
                         <div className="text-6xl animate-bounce">🐶</div>
                         {inventory.includes('acc_hat') && <span className="absolute top-1 text-4xl">🎩</span>}
-                        {inventory.includes('acc_glasses') && <span className="absolute top-10 text-3.5xl">😎</span>}
-                        {inventory.includes('acc_medal') && <span className="absolute bottom-3 text-3.5xl">🥇</span>}
+                        {inventory.includes('acc_glasses') && <span className="absolute top-10 text-[2rem]">😎</span>}
+                        {inventory.includes('acc_medal') && <span className="absolute bottom-3 text-[2rem]">🥇</span>}
                         {inventory.includes('acc_cape') && <span className="absolute -left-1.5 text-4xl">🦸‍♂️</span>}
                       </div>
                     );
@@ -2333,7 +2333,7 @@ export default function ChildRoutine() {
                               : 'bg-slate-50 border-slate-105 text-slate-800'
                           }`}
                         >
-                          <span className="text-2.5xl select-none">{part.icon}</span>
+                          <span className="text-[1.75rem] select-none">{part.icon}</span>
                           <h4 className="font-extrabold text-[10px] leading-tight font-Outfit">{part.name}</h4>
                           {hasIt ? (
                             <span className="text-[9px] font-black text-emerald-600 bg-emerald-100 px-2 py-0.5 rounded-full select-none">
@@ -2542,7 +2542,7 @@ export default function ChildRoutine() {
                         : 'bg-emerald-50/30 border-emerald-200 hover:bg-emerald-50 hover:border-emerald-355 text-emerald-950'
                     }`}
                   >
-                    <span className="text-4.5xl select-none leading-none">
+                    <span className="text-[clamp(2.25rem,1.6rem+2.8vw,3rem)] select-none leading-none">
                       {item.text.match(/\p{Emoji}/gu)?.[0] || '💬'}
                     </span>
                     <span className="text-[11px] font-black tracking-tight leading-snug uppercase font-Outfit">
@@ -4034,10 +4034,10 @@ export default function ChildRoutine() {
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.97 }}
                     transition={transitionConfig}
-                    className={`bg-white border border-slate-200 rounded-2xl px-6 py-12 md:py-16 flex flex-col items-center justify-center text-center gap-7 relative transition-all md:col-span-${showWaitTimer ? '8' : '12'}`}
+                    className={`bg-white border border-slate-200 rounded-2xl px-5 py-7 sm:px-6 sm:py-12 md:py-16 flex flex-col items-center justify-center text-center gap-4 sm:gap-7 relative transition-all md:col-span-${showWaitTimer ? '8' : '12'}`}
                   >
                     {/* Task illustration */}
-                    <div className="flex flex-col items-center gap-6 w-full">
+                    <div className="flex flex-col items-center gap-4 sm:gap-6 w-full">
                       <div className="flex flex-col items-center gap-2">
                       <div className="relative">
                         <RoutineIllustration category={activeTask.title} size={120} hyperfocus={childHyperfocus} />
@@ -4057,7 +4057,7 @@ export default function ChildRoutine() {
                     <div className="flex flex-col items-center gap-3 w-full">
                       <h1 
                         onClick={() => { playBubble(); speakText(activeTask.title); }}
-                        className="text-3.5xl md:text-4.5xl font-black tracking-tight text-slate-950 max-w-md break-words px-2 cursor-pointer hover:text-indigo-700 transition-all select-none hover:scale-[1.01] font-Outfit"
+                        className="text-[clamp(1.875rem,1.1rem+3.3vw,3rem)] leading-[1.12] font-black tracking-tight text-slate-950 max-w-md break-words px-2 cursor-pointer hover:text-indigo-700 transition-all select-none hover:scale-[1.01] font-Outfit"
                         title="Clique para ouvir"
                       >
                         {activeTask.title}

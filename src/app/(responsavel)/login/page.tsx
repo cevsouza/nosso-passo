@@ -140,7 +140,7 @@ export default function ParentAuth() {
         </div>
 
         <div className="text-center">
-          <h1 className="text-2.5xl font-black text-slate-905 tracking-tight font-Outfit">
+          <h1 className="text-[clamp(1.5rem,1.2rem+1.4vw,1.75rem)] leading-tight font-black text-slate-905 tracking-tight font-Outfit">
             {isRegister ? t.login.titleRegister : t.login.titleLogin}
           </h1>
           <p className="text-slate-600 text-xs mt-2.5 leading-relaxed font-semibold max-w-xs mx-auto">

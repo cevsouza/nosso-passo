@@ -14,6 +14,7 @@
   --font-display: var(--font-outfit), var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
   --font-Outfit: var(--font-outfit), var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
 
+
   /* ===== Playful "Soft Structure" palette — lavender & blue =====
      Token names kept stable (slate/indigo/rose) so thousands of existing
      classNames map to the new colors. slate = lavender-tinted neutrals,
