@@ -722,6 +722,18 @@ export default function ChildRoutine() {
   const [offline, setOffline] = useState(false);
   const [offlineQueueSize, setOfflineQueueSize] = useState(0);
   const [currentDay, setCurrentDay] = useState(() => new Date().getDate().toString());
+
+  // Tela estreita (celular): a ilustracao da tarefa e o maior bloco isolado da
+  // tela; encolhe-la de 120 para 88px garante que a tarefa, o cronometro e o
+  // botao "Eu terminei" caibam sem rolar mesmo nos telefones mais curtos.
+  const [isNarrow, setIsNarrow] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 640px)');
+    const sync = () => setIsNarrow(mq.matches);
+    sync();
+    mq.addEventListener('change', sync);
+    return () => mq.removeEventListener('change', sync);
+  }, []);
   const [currentMonth, setCurrentMonth] = useState(() => (new Date().getMonth() + 1).toString());
   const [currentYear, setCurrentYear] = useState(() => new Date().getFullYear().toString());
   const [collieState, setCollieState] = useState<CollieState>('idle');
@@ -4040,7 +4052,7 @@ export default function ChildRoutine() {
                     <div className="flex flex-col items-center gap-4 sm:gap-6 w-full">
                       <div className="flex flex-col items-center gap-2">
                       <div className="relative">
-                        <RoutineIllustration category={activeTask.title} size={120} hyperfocus={childHyperfocus} />
+                        <RoutineIllustration category={activeTask.title} size={isNarrow ? 88 : 120} hyperfocus={childHyperfocus} />
                         {(activeTask.customIcon || activeTask.icon) && (
                           <div className="absolute top-0 right-0 w-14 h-14 bg-white border-4 border-indigo-100 text-slate-700 rounded-2xl flex items-center justify-center text-4xl shadow-md overflow-hidden select-none transform rotate-12">
                             {activeTask.customIcon ? (
@@ -4489,7 +4501,7 @@ export default function ChildRoutine() {
                         {t.routine.first}
                       </div>
                       <div className="mt-4 relative">
-                        <RoutineIllustration category={activeTask.title} size={110} hyperfocus={childHyperfocus} />
+                        <RoutineIllustration category={activeTask.title} size={isNarrow ? 84 : 110} hyperfocus={childHyperfocus} />
                         {(activeTask.customIcon || activeTask.icon) && (
                           <div className="absolute top-0 right-0 w-10 h-10 bg-white border-2 border-indigo-105 text-slate-700 rounded-xl flex items-center justify-center text-2xl shadow overflow-hidden select-none">
                             {activeTask.customIcon ? (
