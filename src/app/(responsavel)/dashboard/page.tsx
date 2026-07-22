@@ -18,6 +18,7 @@ import { LanguageSelector } from '../../../components/LanguageSelector';
 
 import { AccessCodesManager } from '../../../components/AccessCodesManager';
 import { ReferralCard } from '../../../components/ReferralCard';
+import { PrintFooter } from '../../../components/PrintFooter';
 
 import { getTaskCategory, TaskCategory } from '../../../lib/sensory-standards';
 
@@ -12297,6 +12298,9 @@ function ParentDashboardContent() {
 
                           </div>
 
+                        
+                          {/* Rodape de marca: o laudo circula entre profissionais. */}
+                          <PrintFooter variant="familia" />
                         </div>
 
                       </>
@@ -15568,6 +15572,7 @@ function ParentDashboardContent() {
           ))}
 
         </div>
+        <PrintFooter variant="familia" />
 
       </div>
 

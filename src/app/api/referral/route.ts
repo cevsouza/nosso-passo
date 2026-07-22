@@ -6,6 +6,7 @@ import {
   ensureReferralCode,
   hasActivePremiumGrant,
 } from '../../../lib/growth';
+import { publicOrigin, qrSvg } from '../../../lib/qr';
 
 // Situacao do programa de indicacao da conta logada.
 // Auth segue o padrao do app: o uid do responsavel no cabecalho x-user-uid.
@@ -26,8 +27,12 @@ export async function GET(req: Request) {
     const total = await prisma.userProfile.count({ where: { referredByUid: uid } });
     const premiados = Math.min(total, REFERRAL_MAX_GRANTS);
 
+    const link = `${publicOrigin(req)}/login?ref=${code}`;
+
     return NextResponse.json({
       code,
+      link,
+      qrSvg: code ? await qrSvg(link) : null,
       total,
       diasGanhos: premiados * REFERRAL_DAYS,
       diasPorIndicacao: REFERRAL_DAYS,

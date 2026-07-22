@@ -30,6 +30,7 @@ import { LanguageSelector } from '../../components/LanguageSelector';
 import { SensoryHeatmap } from '../../components/SensoryHeatmap';
 import { GlobalNav } from '../../components/GlobalNav';
 import { DEMO_CODES } from '../../lib/demo-credentials';
+import { PrintFooter } from '../../components/PrintFooter';
 
 export default function TherapistPortal() {
   const { t, locale } = useLanguage();
@@ -1955,6 +1956,14 @@ export default function TherapistPortal() {
                 </p>
               </div>
             </div>
+
+            {/* Rodape de marca: o relatorio circula entre profissionais, e quem
+                recebe entra pelo QR sem precisar falar com ninguem. */}
+            <PrintFooter
+              variant="profissional"
+              qrSvg={childData?._portalQrSvg}
+              url={childData?._portalUrl}
+            />
 
           </div>
         </div>

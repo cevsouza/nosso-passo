@@ -552,6 +552,70 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
+/* ---- Rodape de marca dos impressos ----
+   So existe no papel. Discreto de proposito: a rotina impressa vai para a
+   geladeira e e lida por quem passa; se o rodape parecer anuncio, a familia
+   corta com a tesoura. */
+@media screen {
+  .print-footer {
+    display: none !important;
+  }
+}
+
+@media print {
+  .print-footer {
+    display: flex !important;
+    visibility: visible !important;
+    align-items: center !important;
+    gap: 10px !important;
+    margin-top: 16px !important;
+    padding-top: 8px !important;
+    border-top: 1px solid #cbd5e1 !important;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  .print-footer * {
+    visibility: visible !important;
+  }
+
+  .print-footer-qr {
+    width: 17mm !important;
+    height: 17mm !important;
+    flex: 0 0 auto !important;
+  }
+
+  .print-footer-qr svg {
+    width: 100% !important;
+    height: 100% !important;
+    display: block !important;
+    shape-rendering: crispEdges !important;
+  }
+
+  .print-footer-text {
+    display: flex !important;
+    flex-direction: column !important;
+    line-height: 1.35 !important;
+  }
+
+  .print-footer-brand {
+    font-size: 8.5pt !important;
+    font-weight: 700 !important;
+    color: #0f172a !important;
+  }
+
+  .print-footer-url {
+    font-size: 8pt !important;
+    color: #475569 !important;
+  }
+
+  .print-footer-call {
+    font-size: 7.5pt !important;
+    color: #64748b !important;
+    margin-top: 1.5pt !important;
+  }
+}
+
 /* Hide scrollbar for Chrome, Safari and Opera */
 .scrollbar-none::-webkit-scrollbar {
   display: none;

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '../../../lib/prisma';
+import { publicOrigin, qrSvg } from '../../../lib/qr';
 
 // ---- Access resolution (role-scoped codes + legacy sharingCode) ----
 // Code may arrive via the `x-share-code` header (preferred, keeps it out of
@@ -64,6 +65,13 @@ export async function GET(req: Request) {
     const safe: any = { ...full, _role: access.role };
     delete safe.parentPinCode;
     if (access.role !== 'therapist') delete safe.sharingCode;
+
+    // Convite do rodape impresso: o relatorio circula entre profissionais, e
+    // quem recebe entra pelo QR sem falar com ninguem.
+    const portal = `${publicOrigin(req)}/therapist`;
+    safe._portalUrl = portal;
+    safe._portalQrSvg = await qrSvg(portal);
+
     return NextResponse.json(safe);
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
