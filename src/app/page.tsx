@@ -17,8 +17,8 @@ const localDict = {
     portalTitle: "Escolha o seu espaço",
     portalSubtitle: "Cada pessoa da rede de apoio tem um painel feito para o seu papel.",
     enter: "Entrar",
-    explainTitle: "A essência do TEAcolher",
-    explainText: "O nome une o TEA (Transtorno do Espectro Autista) ao ato de acolher. Dar previsibilidade e segurança reduz a sobrecarga e a ansiedade, abrindo espaço para a criança florescer. Conectamos família, escola e terapeutas num só ecossistema, para que o dia a dia seja mais leve, sadio e feliz.",
+    explainTitle: "A essência do Nosso Passo",
+    explainText: "O nome diz o método: cada dia, um passo de cada vez. Dar previsibilidade e segurança reduz a sobrecarga e a ansiedade, abrindo espaço para a criança florescer. Conectamos família, escola e terapeutas num só ecossistema, para que o dia a dia seja mais leve, sadio e feliz.",
     kidsTitle: "Paciente",
     kidsDesc: "A rotina do dia com previsibilidade, foco e calma para a criança.",
     parentsTitle: "Responsáveis",
@@ -52,8 +52,8 @@ const localDict = {
     portalTitle: "Elige tu espacio",
     portalSubtitle: "Cada persona de la red de apoyo tiene un panel hecho para su rol.",
     enter: "Entrar",
-    explainTitle: "La esencia de TEAcolher",
-    explainText: "El nombre une el TEA (Trastorno del Espectro Autista) al acto de acoger. Brindar previsibilidad y seguridad reduce la sobrecarga y la ansiedad, dando espacio para que el niño florezca. Conectamos a la familia, la escuela y los terapeutas en un solo ecosistema, para que el día a día sea más ligero, sano y feliz.",
+    explainTitle: "La esencia de Nosso Passo",
+    explainText: "El nombre dice el método: cada día, un paso a la vez. Brindar previsibilidad y seguridad reduce la sobrecarga y la ansiedad, dando espacio para que el niño florezca. Conectamos a la familia, la escuela y los terapeutas en un solo ecosistema, para que el día a día sea más ligero, sano y feliz.",
     kidsTitle: "Paciente",
     kidsDesc: "La rutina del día con previsibilidad, foco y calma para el niño.",
     parentsTitle: "Responsables",
@@ -87,8 +87,8 @@ const localDict = {
     portalTitle: "Choose your space",
     portalSubtitle: "Everyone in the support network has a panel built for their role.",
     enter: "Enter",
-    explainTitle: "The essence of TEAcolher",
-    explainText: "The name joins ASD (Autism Spectrum Disorder) with the act of welcoming. Predictability and safety reduce overload and anxiety, giving the child space to bloom. We connect family, school and therapists in a single ecosystem, so daily life feels lighter, healthier and happier.",
+    explainTitle: "The essence of Nosso Passo",
+    explainText: "The name says the method: each day, one step at a time. Predictability and safety reduce overload and anxiety, giving the child space to bloom. We connect family, school and therapists in a single ecosystem, so daily life feels lighter, healthier and happier.",
     kidsTitle: "Patient",
     kidsDesc: "The day's routine with predictability, focus and calm for the child.",
     parentsTitle: "Guardians",
@@ -124,7 +124,7 @@ export default function Home() {
   const info = localDict[curLang];
 
   const portals = [
-    { href: '/routine', icon: Gamepad2, title: info.kidsTitle, desc: info.kidsDesc, tint: '#e4e7fc', color: '#5468e6', freq: 261.63 },
+    { href: '/routine', icon: Gamepad2, title: info.kidsTitle, desc: info.kidsDesc, tint: '#e4e7fc', color: '#2f8f86', freq: 261.63 },
     { href: '/login', icon: Users, title: info.parentsTitle, desc: info.parentsDesc, tint: '#eee6fb', color: '#8a66d9', freq: 329.63 },
     { href: '/therapist', icon: Stethoscope, title: info.professionalTitle, desc: info.professionalDesc, tint: '#dfe3fb', color: '#4658de', freq: 392.0 },
   ];
@@ -135,9 +135,9 @@ export default function Home() {
       {/* Header */}
       <header className="w-full max-w-5xl mx-auto px-5 md:px-8 py-5 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <span className="text-2xl select-none">🐶</span>
+          <img src="/icon.svg" alt="" className="w-7 h-7 select-none" />
           <span className="text-lg font-black tracking-tight font-Outfit select-none text-slate-900">
-            TEAcolher
+            Nosso Passo
           </span>
         </div>
         <LanguageSelector />
@@ -149,7 +149,7 @@ export default function Home() {
           initial={{ opacity: 0, y: -8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="hidden sm:inline-flex items-center gap-2 text-[11px] md:text-xs font-black uppercase tracking-widest text-[#5468e6] bg-[#e4e7fc] border border-[#d3d9fa] px-3.5 py-1.5 rounded-full"
+          className="hidden sm:inline-flex items-center gap-2 text-[11px] md:text-xs font-black uppercase tracking-widest text-[#2f8f86] bg-[#e4e7fc] border border-[#d3d9fa] px-3.5 py-1.5 rounded-full"
         >
           🌸 {info.eyebrow}
         </motion.span>
@@ -233,10 +233,10 @@ export default function Home() {
           ].map(plan => (
             <div
               key={plan.name}
-              className={`relative bg-white rounded-2xl p-5 flex flex-col gap-3 transition-all ${plan.featured ? 'border-2 border-[#5468e6] shadow-md sm:-mt-2' : 'border border-slate-200 shadow-sm'}`}
+              className={`relative bg-white rounded-2xl p-5 flex flex-col gap-3 transition-all ${plan.featured ? 'border-2 border-[#2f8f86] shadow-md sm:-mt-2' : 'border border-slate-200 shadow-sm'}`}
             >
               {plan.badge && (
-                <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 whitespace-nowrap bg-[#5468e6] text-white text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full">
+                <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 whitespace-nowrap bg-[#2f8f86] text-white text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full">
                   {plan.badge}
                 </span>
               )}
@@ -251,7 +251,7 @@ export default function Home() {
               <ul className="flex flex-col gap-1.5 mt-1 flex-1">
                 {plan.features.map((f: string) => (
                   <li key={f} className="flex gap-2 items-start text-xs text-slate-500 font-medium leading-relaxed">
-                    <Check className="w-3.5 h-3.5 mt-0.5 shrink-0 text-[#5468e6]" />
+                    <Check className="w-3.5 h-3.5 mt-0.5 shrink-0 text-[#2f8f86]" />
                     <span>{f}</span>
                   </li>
                 ))}
@@ -265,7 +265,7 @@ export default function Home() {
             href="/login"
             onMouseEnter={playBubble}
             onClick={() => playMarimba(329.63, 0.4)}
-            className="inline-flex items-center gap-1.5 bg-[#5468e6] hover:bg-[#4658de] text-white text-sm font-black font-Outfit px-6 py-3 rounded-xl shadow-sm transition-all active:scale-95"
+            className="inline-flex items-center gap-1.5 bg-[#2f8f86] hover:bg-[#4658de] text-white text-sm font-black font-Outfit px-6 py-3 rounded-xl shadow-sm transition-all active:scale-95"
           >
             {info.plansStart}
             <ArrowRight className="w-4 h-4" />

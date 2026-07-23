@@ -2,8 +2,8 @@ import React from 'react';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Termos de Uso — TEAcolher',
-  description: 'Condições de uso do TEAcolher, aplicativo de rotina visual para crianças autistas.',
+  title: 'Termos de Uso — Nosso Passo',
+  description: 'Condições de uso do Nosso Passo, aplicativo de rotina visual para crianças autistas.',
 };
 
 const CONTATO = 'contato@teacolher.online';
@@ -16,21 +16,21 @@ export default function TermosPage() {
       <p className="legal-meta">Última atualização: {ATUALIZADO}</p>
 
       <p>
-        Estes termos regem o uso do TEAcolher, disponível em teacolher.online. Ao criar uma conta,
+        Estes termos regem o uso do Nosso Passo, disponível em teacolher.online. Ao criar uma conta,
         você concorda com eles. Leia com atenção — especialmente os itens 2 e 7.
       </p>
 
-      <h2>1. O que o TEAcolher é</h2>
+      <h2>1. O que o Nosso Passo é</h2>
       <p>
         Um aplicativo de <strong>rotina visual e previsibilidade</strong> para crianças e adolescentes
         autistas, com painéis para a família, para terapeutas e para a escola. Ele organiza o dia,
         registra o que aconteceu e ajuda a compartilhar essa informação com quem cuida.
       </p>
 
-      <h2>2. O que o TEAcolher não é</h2>
+      <h2>2. O que o Nosso Passo não é</h2>
       <div className="legal-callout">
         <p>
-          <strong>O TEAcolher não é um dispositivo médico e não faz diagnóstico, tratamento ou
+          <strong>O Nosso Passo não é um dispositivo médico e não faz diagnóstico, tratamento ou
           prescrição.</strong> Não substitui avaliação, terapia ou acompanhamento de profissional de
           saúde qualificado. Os relatórios são um apoio à observação clínica, não um laudo. Nenhuma
           decisão sobre a saúde da criança deve ser tomada com base apenas no que o aplicativo
@@ -111,7 +111,7 @@ export default function TermosPage() {
 
       <h2>9. Propriedade intelectual</h2>
       <p>
-        O software, a marca e o design do TEAcolher pertencem ao seu criador.{' '}
+        O software, a marca e o design do Nosso Passo pertencem ao seu criador.{' '}
         <strong>O conteúdo que você cadastra — rotinas, registros e anotações — continua sendo seu.</strong>{' '}
         Você nos concede apenas a licença necessária para armazenar e exibir esse conteúdo dentro do
         serviço, e pode exportá-lo ou apagá-lo quando quiser.

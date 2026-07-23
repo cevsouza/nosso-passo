@@ -1,4 +1,4 @@
-// Centralized translations dictionary for TEAcolher (mini-rotina-saas)
+// Centralized translations dictionary for Nosso Passo (mini-rotina-saas)
 
 export type Locale = 'pt' | 'es' | 'en';
 
@@ -75,7 +75,7 @@ export const translations = {
       "cardParentsBtn": "Acessar Painel",
       "footerFriendly": "neurodiversidade amigável • sem arquivos externos",
       "footerTherapist": "🩺 Portal do Terapeuta",
-      "footerCopyright": "© 2026 TEAcolher"
+      "footerCopyright": "© 2026 Nosso Passo"
     },
     "login": {
       "titleLogin": "Portal do Responsável",
@@ -278,7 +278,7 @@ export const translations = {
       "storyFrustrationStep4": "As mudanças acontecem, mas nós somos flexíveis e fortes como super-heróis. Logo o sol volta a brilhar!"
     },
     "dashboard": {
-      "sidebarTitle": "TEAcolher",
+      "sidebarTitle": "Nosso Passo",
       "sidebarDashboard": "Painel Geral 🧭",
       "sidebarMetrics": "Relatórios ABA 📊",
       "sidebarAudit": "Registro Imutável 🔒",
@@ -644,7 +644,7 @@ export const translations = {
       "cardParentsBtn": "Acceder al Panel",
       "footerFriendly": "neurodiversidad amigable • sem arquivos externos",
       "footerTherapist": "🩺 Portal del Terapeuta",
-      "footerCopyright": "© 2026 TEAcolher"
+      "footerCopyright": "© 2026 Nosso Passo"
     },
     "login": {
       "titleLogin": "Portal del Responsable",
@@ -847,7 +847,7 @@ export const translations = {
       "storyFrustrationStep4": "Los cambios ocurren, pero somos flexibles y fuertes como superhéroes. ¡Pronto el sol volverá a brillar!"
     },
     "dashboard": {
-      "sidebarTitle": "TEAcolher",
+      "sidebarTitle": "Nosso Passo",
       "sidebarDashboard": "Panel General 🧭",
       "sidebarMetrics": "Informes ABA 📊",
       "sidebarAudit": "Registro Inmutable 🔒",
@@ -1213,7 +1213,7 @@ export const translations = {
       "cardParentsBtn": "Access Dashboard",
       "footerFriendly": "neurodiversity friendly • no external files",
       "footerTherapist": "🩺 Therapist Portal",
-      "footerCopyright": "© 2026 TEAcolher"
+      "footerCopyright": "© 2026 Nosso Passo"
     },
     "login": {
       "titleLogin": "Guardian Portal",
@@ -1416,7 +1416,7 @@ export const translations = {
       "storyFrustrationStep4": "Changes happen, but we are flexible and strong like superheroes. Soon the sun will shine again!"
     },
     "dashboard": {
-      "sidebarTitle": "TEAcolher",
+      "sidebarTitle": "Nosso Passo",
       "sidebarDashboard": "General Panel 🧭",
       "sidebarMetrics": "ABA Reports 📊",
       "sidebarAudit": "Immutable Log 🔒",

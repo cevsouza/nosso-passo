@@ -81,7 +81,7 @@ export async function resetDemoAccount(): Promise<SeedSummary> {
       sensorySound: 'marimba',
       sensoryVisuals: 'rich',
       sensoryProfile: 'balanced',
-      timerStyle: 'hyperfocus',
+      timerStyle: 'circle',
       interfaceMode: 'completo',
       rewardName: '20 minutos de vídeo de metrô',
       rewardCost: 12,

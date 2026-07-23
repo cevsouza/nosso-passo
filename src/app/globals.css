@@ -58,97 +58,97 @@
   --color-slate-955: #100e1b;
 
   /* Primary — periwinkle blue. */
-  --color-indigo-50:  #eef0fd;
-  --color-indigo-100: #e4e7fc;
-  --color-indigo-150: #d3d9fa;
-  --color-indigo-200: #c0c7f6;
-  --color-indigo-250: #a8b1f1;
-  --color-indigo-300: #8f9bec;
-  --color-indigo-305: #8f9bec;
-  --color-indigo-400: #6e7ee8;
-  --color-indigo-500: #5a6ce7;
-  --color-indigo-600: #5468e6;
-  --color-indigo-650: #4658de;
-  --color-indigo-655: #4658de;
-  --color-indigo-700: #3e4ecb;
-  --color-indigo-750: #3644b0;
-  --color-indigo-755: #3644b0;
-  --color-indigo-800: #2f3b96;
-  --color-indigo-805: #2f3b96;
-  --color-indigo-850: #28327e;
-  --color-indigo-900: #212a69;
-  --color-indigo-950: #171c47;
-  --color-indigo-955: #171c47;
+  --color-indigo-50: #f0f8f6;
+  --color-indigo-100: #deeeec;
+  --color-indigo-150: #cde5e2;
+  --color-indigo-200: #bbdbd7;
+  --color-indigo-250: #aad2cd;
+  --color-indigo-300: #98c8c3;
+  --color-indigo-305: #97c7c2;
+  --color-indigo-400: #75b5af;
+  --color-indigo-500: #52a29a;
+  --color-indigo-600: #2f8f86;
+  --color-indigo-650: #2a8078;
+  --color-indigo-655: #2a7f76;
+  --color-indigo-700: #26716a;
+  --color-indigo-750: #21625c;
+  --color-indigo-755: #20615a;
+  --color-indigo-800: #1c544d;
+  --color-indigo-805: #1c524c;
+  --color-indigo-850: #17453f;
+  --color-indigo-900: #133631;
+  --color-indigo-950: #0e2723;
+  --color-indigo-955: #0e2723;
 
   /* Accent — lavender-violet (playful pop, used with intent). */
-  --color-rose-50:  #f4effb;
-  --color-rose-100: #eee6fb;
-  --color-rose-200: #ddccf6;
-  --color-rose-300: #c7afed;
-  --color-rose-355: #b79ae9;
-  --color-rose-400: #ad8de6;
-  --color-rose-455: #a17ee1;
-  --color-rose-500: #9c7be6;
-  --color-rose-600: #8a66d9;
-  --color-rose-655: #7b57c9;
-  --color-rose-700: #6e4cbb;
-  --color-rose-750: #5e3fa6;
-  --color-rose-900: #3e2a6e;
-  --color-rose-950: #2a1c4c;
-  --color-rose-955: #2a1c4c;
+  --color-rose-50: #fdf3ea;
+  --color-rose-100: #fbe9db;
+  --color-rose-200: #f8d6bc;
+  --color-rose-300: #f5c39e;
+  --color-rose-355: #f4b98d;
+  --color-rose-400: #f2b07f;
+  --color-rose-455: #f0a66f;
+  --color-rose-500: #ef9d61;
+  --color-rose-600: #d28752;
+  --color-rose-655: #c37b49;
+  --color-rose-700: #b67142;
+  --color-rose-750: #a7673b;
+  --color-rose-900: #7c4624;
+  --color-rose-950: #6e3b1c;
+  --color-rose-955: #6e3b1c;
 
   /* teal — folded into the periwinkle blue family (was a clashing accent). */
-  --color-teal-50:  #eef0fd;
-  --color-teal-100: #e4e7fc;
-  --color-teal-150: #d3d9fa;
-  --color-teal-200: #c0c7f6;
-  --color-teal-250: #a8b1f1;
-  --color-teal-300: #8f9bec;
-  --color-teal-350: #7d8ce9;
-  --color-teal-400: #6e7ee8;
-  --color-teal-450: #6272e7;
-  --color-teal-500: #5a6ce7;
-  --color-teal-550: #5062e6;
-  --color-teal-600: #5468e6;
-  --color-teal-605: #5468e6;
-  --color-teal-650: #4658de;
-  --color-teal-700: #3e4ecb;
-  --color-teal-750: #3644b0;
-  --color-teal-800: #2f3b96;
-  --color-teal-850: #28327e;
-  --color-teal-900: #212a69;
-  --color-teal-950: #171c47;
-  --color-teal-955: #131842;
+  --color-teal-50: #f0f8f6;
+  --color-teal-100: #deeeec;
+  --color-teal-150: #cde5e2;
+  --color-teal-200: #bbdbd7;
+  --color-teal-250: #aad2cd;
+  --color-teal-300: #98c8c3;
+  --color-teal-350: #87bfb9;
+  --color-teal-400: #75b5af;
+  --color-teal-450: #64aca5;
+  --color-teal-500: #52a29a;
+  --color-teal-550: #419990;
+  --color-teal-600: #2f8f86;
+  --color-teal-605: #2f8d85;
+  --color-teal-650: #2a8078;
+  --color-teal-700: #26716a;
+  --color-teal-750: #21625c;
+  --color-teal-800: #1c544d;
+  --color-teal-850: #17453f;
+  --color-teal-900: #133631;
+  --color-teal-950: #0e2723;
+  --color-teal-955: #0e2723;
 
   /* cyan — folded into the lavender-violet accent family. */
-  --color-cyan-50:  #f4effb;
-  --color-cyan-100: #eee6fb;
-  --color-cyan-150: #e6dbf8;
-  --color-cyan-200: #ddccf6;
-  --color-cyan-250: #d0bbf1;
-  --color-cyan-300: #c7afed;
-  --color-cyan-350: #bca2ea;
-  --color-cyan-400: #ad8de6;
-  --color-cyan-450: #a888e3;
-  --color-cyan-500: #9c7be6;
-  --color-cyan-600: #8a66d9;
-  --color-cyan-650: #7b57c9;
-  --color-cyan-700: #6e4cbb;
-  --color-cyan-750: #5e3fa6;
-  --color-cyan-800: #523592;
-  --color-cyan-900: #3e2a6e;
-  --color-cyan-950: #2a1c4c;
+  --color-cyan-50: #fdf3ea;
+  --color-cyan-100: #fbe9db;
+  --color-cyan-150: #fae0cc;
+  --color-cyan-200: #f8d6bc;
+  --color-cyan-250: #f7cdad;
+  --color-cyan-300: #f5c39e;
+  --color-cyan-350: #f4ba8f;
+  --color-cyan-400: #f2b07f;
+  --color-cyan-450: #f1a770;
+  --color-cyan-500: #ef9d61;
+  --color-cyan-600: #d28752;
+  --color-cyan-650: #c47c4a;
+  --color-cyan-700: #b67142;
+  --color-cyan-750: #a7673b;
+  --color-cyan-800: #995c33;
+  --color-cyan-900: #7c4624;
+  --color-cyan-950: #6e3b1c;
 }
 
 :root {
   /* Semantic tokens — playful lavender & blue, high-legibility */
-  --bg-color: #f7f7fb;
-  --text-primary: #282844;
-  --text-secondary: #5b5776;
+  --bg-color: #f5f2ec;
+  --text-primary: #213330;
+  --text-secondary: #566360;
 
-  --primary: #5468e6;
-  --primary-light: #e4e7fc;
-  --primary-hover: #4351ce;
+  --primary: #2f8f86;
+  --primary-light: #d6ede9;
+  --primary-hover: #24726b;
 
   --success: #3fa98b;
   --success-light: #dff3ec;
@@ -161,8 +161,8 @@
   --danger-light: #fbe3e7;
 
   /* Signature playful gradient — reserved for the primary action / accents. */
-  --grad: linear-gradient(135deg, #6b7bee 0%, #a98be6 100%);
-  --grad-soft: linear-gradient(135deg, #e7eafd 0%, #f0e7fb 100%);
+  --grad: linear-gradient(135deg, #3aa79c 0%, #2f8f86 100%);
+  --grad-soft: linear-gradient(135deg, #e6f4f1 0%, #fdf1e8 100%);
 
   --card-bg: #ffffff;
   --card-border: rgba(40, 40, 68, 0.08);
@@ -186,12 +186,12 @@
   --card-border: rgba(255, 255, 255, 0.09);
   --card-shadow: 0 1px 2px rgba(0, 0, 0, 0.45), 0 24px 50px -26px rgba(0, 0, 0, 0.7);
 
-  --primary: #8c99f3;
-  --primary-light: #262649;
-  --primary-hover: #6e7ee8;
+  --primary: #5cb3a8;
+  --primary-light: #163f3a;
+  --primary-hover: #46a89c;
 
-  --grad: linear-gradient(135deg, #7c8bf2 0%, #b79bee 100%);
-  --grad-soft: linear-gradient(135deg, #242652 0%, #2c2450 100%);
+  --grad: linear-gradient(135deg, #3fa294 0%, #2a8079 100%);
+  --grad-soft: linear-gradient(135deg, #16332f 0%, #2a2018 100%);
 
   /* Dark lavender neutrals for the overridden light slate steps */
   --color-slate-50:  #1b1b32;
@@ -656,7 +656,7 @@ h1, h2, h3, h4, h5, h6 {
 .legal-prose ul { margin: 0 0 0.85rem 1.1rem; list-style: disc; }
 .legal-prose li { margin-bottom: 0.4rem; }
 .legal-prose strong { color: #0f172a; font-weight: 700; }
-.legal-prose a { color: #5468e6; font-weight: 700; }
+.legal-prose a { color: #2f8f86; font-weight: 700; }
 .legal-prose .legal-meta {
   font-size: 0.75rem;
   font-weight: 700;

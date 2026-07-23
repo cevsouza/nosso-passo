@@ -1766,7 +1766,7 @@ export default function TherapistPortal() {
                   {locale === 'en' ? 'BEHAVIORAL / SENSORY REPORT' : locale === 'es' ? 'INFORME CONDUCTUAL / SENSORIAL' : 'LAUDO COMPORTAMENTAL / SENSORIAL'}
                 </h1>
                 <p className="text-sm text-slate-505 font-semibold mt-1">
-                  {locale === 'en' ? 'TEAcolher SaaS - Clinical Adherence Report' : locale === 'es' ? 'TEAcolher SaaS - Reporte Clínico de Adherencia' : 'TEAcolher SaaS - Relatório Clínico de Aderência'}
+                  {locale === 'en' ? 'Nosso Passo SaaS - Clinical Adherence Report' : locale === 'es' ? 'Nosso Passo SaaS - Reporte Clínico de Adherencia' : 'Nosso Passo SaaS - Relatório Clínico de Aderência'}
                 </p>
               </div>
               <div className="text-right">

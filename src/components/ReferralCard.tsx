@@ -42,10 +42,10 @@ export function ReferralCard() {
 
   const convite =
     locale === 'en'
-      ? `I've been using an app to organize my child's routine at home — it's called TEAcolher. It was built by a father of an autistic child.\n\nIf you sign up through my link, we both get ${status.diasPorIndicacao} days of Premium:\n${link}`
+      ? `I've been using an app to organize my child's routine at home — it's called Nosso Passo. It was built by a father of an autistic child.\n\nIf you sign up through my link, we both get ${status.diasPorIndicacao} days of Premium:\n${link}`
       : locale === 'es'
-      ? `He estado usando una app para organizar la rutina de mi hijo en casa: se llama TEAcolher. La creó el padre de un niño autista.\n\nSi te registras con mi enlace, los dos ganamos ${status.diasPorIndicacao} días de Premium:\n${link}`
-      : `Tenho usado um app para organizar a rotina do meu filho em casa — chama TEAcolher. Foi feito por um pai de criança autista.\n\nSe você entrar pelo meu link, nós dois ganhamos ${status.diasPorIndicacao} dias de Premium:\n${link}`;
+      ? `He estado usando una app para organizar la rutina de mi hijo en casa: se llama Nosso Passo. La creó el padre de un niño autista.\n\nSi te registras con mi enlace, los dos ganamos ${status.diasPorIndicacao} días de Premium:\n${link}`
+      : `Tenho usado um app para organizar a rotina do meu filho em casa — chama Nosso Passo. Foi feito por um pai de criança autista.\n\nSe você entrar pelo meu link, nós dois ganhamos ${status.diasPorIndicacao} dias de Premium:\n${link}`;
 
   const copiar = async (texto: string, tipo: 'link' | 'texto') => {
     try {

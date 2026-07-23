@@ -134,8 +134,13 @@ export default function ParentAuth() {
       >
         {/* Brand avatar — contained, no overlap */}
         <div className="flex justify-center">
-          <div className="w-14 h-14 rounded-2xl grad-primary flex items-center justify-center text-2xl shadow-sm select-none">
-            🐶
+          <div className="w-14 h-14 rounded-2xl grad-primary flex items-center justify-center shadow-sm select-none">
+            <svg viewBox="0 0 40 34" className="w-8 h-7" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <ellipse cx="8" cy="27" rx="6" ry="3.6" fill="#ffffff" />
+              <ellipse cx="17" cy="20" rx="5.2" ry="3.1" fill="#eafbf7" />
+              <ellipse cx="25" cy="13" rx="4.4" ry="2.6" fill="#ffffff" />
+              <ellipse cx="32" cy="7" rx="3.6" ry="2.1" fill="#ef9d61" />
+            </svg>
           </div>
         </div>
 
@@ -194,10 +199,10 @@ export default function ParentAuth() {
             <div className="flex flex-col gap-1.5">
               <label className="block text-[11px] font-black text-slate-700 uppercase tracking-widest pl-1 font-Outfit">
                 {locale === 'en'
-                  ? 'How did you hear about TEAcolher?'
+                  ? 'How did you hear about Nosso Passo?'
                   : locale === 'es'
-                  ? '¿Cómo conoció TEAcolher?'
-                  : 'Como você conheceu o TEAcolher?'}
+                  ? '¿Cómo conoció Nosso Passo?'
+                  : 'Como você conheceu o Nosso Passo?'}
               </label>
               <select
                 required

@@ -22,18 +22,18 @@ const manrope = Manrope({
 });
 
 export const metadata: Metadata = {
-  title: "TEAcolher",
+  title: "Nosso Passo",
   description: "Um app divertido e previsível para rotinas de crianças com TEA",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "TEAcolher",
+    title: "Nosso Passo",
   },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#5468e6",
+  themeColor: "#2f8f86",
   colorScheme: "light dark",
   width: "device-width",
   initialScale: 1,

@@ -204,8 +204,8 @@ const SOCIAL_STORIES = [
 ];
 
 const localizedGeneratorStatuses = [
-  "🤖 IA TEAcolher iniciando...",
-  "🦖 Analisando seu hiperfoco ativo...",
+  "🤖 IA Nosso Passo iniciando...",
+  "â¨ Preparando sua histÃ³ria...",
   "📚 Estruturando parágrafos de previsibilidade...",
   "🎨 Criando ilustrações lúdicas e emojis...",
   "✨ Finalizando seu livro social personalizado!"
@@ -711,8 +711,8 @@ export default function ChildRoutine() {
   ];
 
   const localizedGeneratorStatuses = [
-    locale === 'es' ? "🤖 IA Rutina Animada iniciando..." : locale === 'en' ? "🤖 IA Animated Routine starting..." : "🤖 IA TEAcolher iniciando...",
-    locale === 'es' ? "🦖 Analizando tu hiperfoco activo..." : locale === 'en' ? "🦖 Analyzing your active hyperfocus..." : "🦖 Analizando seu hiperfoco ativo...",
+    locale === 'es' ? "🤖 IA Rutina Animada iniciando..." : locale === 'en' ? "🤖 IA Animated Routine starting..." : "🤖 IA Nosso Passo iniciando...",
+    locale === 'es' ? "â¨ Preparando tu historia..." : locale === 'en' ? "â¨ Preparing your story..." : "â¨ Preparando sua histÃ³ria...",
     locale === 'es' ? "📚 Estructurando párrafos de previsibilidad..." : locale === 'en' ? "📚 Structuring predictability paragraphs..." : "📚 Estruturando parágrafos de previsibilidade...",
     locale === 'es' ? "🎨 Creando ilustraciones divertidas y emojis..." : locale === 'en' ? "🎨 Creating fun illustrations and emojis..." : "🎨 Criando ilustrações lúdicas e emojis...",
     locale === 'es' ? "✨ ¡Finalizando tu libro social personalizado!" : locale === 'en' ? "✨ Finalizing your personalized social book!" : "✨ Finalizando seu livro social personalizado!"
@@ -2192,297 +2192,9 @@ export default function ChildRoutine() {
   }
 
   const renderHyperfocusModals = () => {
-    if (!activeChild) return null;
-
-    let inventory: string[] = [];
-    try {
-      if (activeChild.toyInventory) {
-        inventory = JSON.parse(activeChild.toyInventory);
-      }
-    } catch (e) {}
-
-    const focus = (childHyperfocus || "").toLowerCase();
-
-    return (
-      <>
-        {/* Hyperfocus World Modal */}
-        <AnimatePresence>
-          {showHyperfocusModal && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md"
-            >
-              <motion.div
-                initial={{ scale: 0.9, y: 20 }}
-                animate={{ scale: 1, y: 0 }}
-                exit={{ scale: 0.9, y: 20 }}
-                className={`border-4 rounded-[32px] p-6 w-full max-w-lg shadow-2xl flex flex-col gap-5 relative overflow-hidden transition-colors duration-300 ${
-                  sleepMode 
-                    ? 'bg-[#090d1a] border-amber-900/60 text-amber-100' 
-                    : 'bg-white border-yellow-400 text-slate-800'
-                }`}
-              >
-                {/* Close button at top right */}
-                <button
-                  onClick={() => { playBubble(); setShowHyperfocusModal(false); }}
-                  className={`absolute top-4 right-4 w-9 h-9 border-2 rounded-full flex items-center justify-center font-black transition-all active:scale-90 cursor-pointer text-sm ${
-                    sleepMode 
-                      ? 'bg-[#121827] border-amber-900/40 text-amber-450 hover:bg-amber-950' 
-                      : 'bg-slate-100 border-slate-200 text-slate-500 hover:bg-slate-200'
-                  }`}
-                >
-                  ✕
-                </button>
-
-                <div className="text-center mt-2">
-                  <span className="text-3xl">🎮</span>
-                  <h3 className="text-xl font-black mt-1.5 font-Outfit">{locale === 'en' ? 'My Hyperfocus World' : locale === 'es' ? 'Mi Mundo del Hiperenfoque' : 'Meu Mundo do Hiperfoco'}</h3>
-                  <p className="text-xs text-slate-400 font-semibold mt-1">
-                    locale === 'en' ? 'Earn stars by completing missions and assemble your favorite toy!' : locale === 'es' ? '¡Gana estrellas completando misiones y arma tu juguete favorito!' : 'Ganhe estrelas completando missões e monte seu brinquedo favorito!'
-                  </p>
-                </div>
-
-                {/* Toy preview assembly */}
-                <div className={`p-4 rounded-2xl border-2 flex flex-col items-center justify-center min-h-[160px] ${
-                  sleepMode ? 'bg-[#121827] border-amber-950/40' : 'bg-slate-50 border-slate-105'
-                }`}>
-                  {(() => {
-                    if (focus.includes("dino") || focus.includes("dinossauro") || focus.includes("dinosaur")) {
-                      return (
-                        <svg viewBox="0 0 120 100" className="w-48 h-40">
-                          {/* Skull */}
-                          <rect x="75" y="25" width="22" height="18" rx="5" fill={inventory.includes('dino_skull') ? '#eab308' : '#e2e8f0'} stroke="#94a3b8" strokeWidth="2" />
-                          <circle cx="82" cy="31" r="2" fill={inventory.includes('dino_skull') ? '#1e293b' : '#94a3b8'} />
-                          {/* Ribs */}
-                          <rect x="35" y="35" width="40" height="25" rx="8" fill={inventory.includes('dino_ribs') ? '#eab308' : '#e2e8f0'} stroke="#94a3b8" strokeWidth="2" />
-                          {/* Legs */}
-                          <rect x="42" y="60" width="8" height="20" rx="3" fill={inventory.includes('dino_legs') ? '#eab308' : '#e2e8f0'} stroke="#94a3b8" strokeWidth="2" />
-                          <rect x="62" y="60" width="8" height="20" rx="3" fill={inventory.includes('dino_legs') ? '#eab308' : '#e2e8f0'} stroke="#94a3b8" strokeWidth="2" />
-                          {/* Tail */}
-                          <path d="M 35 45 Q 15 45 10 25 Q 20 55 35 55 Z" fill={inventory.includes('dino_tail') ? '#eab308' : '#e2e8f0'} stroke="#94a3b8" strokeWidth="2" />
-                        </svg>
-                      );
-                    }
-                    if (focus.includes("espaço") || focus.includes("astronauta") || focus.includes("space") || focus.includes("foguete") || focus.includes("rocket")) {
-                      return (
-                        <svg viewBox="0 0 100 120" className="w-40 h-44">
-                          <rect x="20" y="100" width="60" height="8" rx="2" fill="#475569" />
-                          <path d="M 40 85 L 35 98 L 45 98 Z" fill={inventory.includes('space_thrusters') ? '#ef4444' : '#cbd5e1'} />
-                          <path d="M 60 85 L 55 98 L 65 98 Z" fill={inventory.includes('space_thrusters') ? '#ef4444' : '#cbd5e1'} />
-                          <path d="M 30 70 L 18 85 L 35 85 Z" fill={inventory.includes('space_panels') ? '#3b82f6' : '#cbd5e1'} />
-                          <path d="M 70 70 L 82 85 L 65 85 Z" fill={inventory.includes('space_panels') ? '#3b82f6' : '#cbd5e1'} />
-                          <rect x="35" y="40" width="30" height="45" rx="15" fill={inventory.includes('space_capsule') ? '#6366f1' : '#e2e8f0'} stroke="#94a3b8" strokeWidth="2" />
-                          <circle cx="50" cy="55" r="5" fill="#ffffff" stroke="#94a3b8" strokeWidth="1.5" />
-                          {inventory.includes('space_flag') && (
-                            <>
-                              <line x1="65" y1="40" x2="65" y2="20" stroke="#475569" strokeWidth="2" />
-                              <rect x="65" y="20" width="18" height="12" fill="#10b981" />
-                            </>
-                          )}
-                        </svg>
-                      );
-                    }
-                    if (focus.includes("trem") || focus.includes("train") || focus.includes("trilhos")) {
-                      return (
-                        <svg viewBox="0 0 150 80" className="w-56 h-30">
-                          <line x1="10" y1="70" x2="140" y2="70" stroke={inventory.includes('train_tracks') ? '#475569' : '#e2e8f0'} strokeWidth="4" />
-                          <rect x="85" y="25" width="45" height="35" rx="4" fill={inventory.includes('train_engine') ? '#ec4899' : '#e2e8f0'} stroke="#94a3b8" strokeWidth="2" />
-                          <rect x="110" y="10" width="10" height="15" fill={inventory.includes('train_engine') ? '#3b82f6' : '#cbd5e1'} />
-                          <rect x="35" y="30" width="40" height="30" rx="4" fill={inventory.includes('train_passenger') ? '#10b981' : '#e2e8f0'} stroke="#94a3b8" strokeWidth="2" />
-                          <line x1="75" y1="45" x2="85" y2="45" stroke="#94a3b8" strokeWidth="3" />
-                          <rect x="5" y="35" width="25" height="25" rx="2" fill={inventory.includes('train_cargo') ? '#f97316' : '#e2e8f0'} stroke="#94a3b8" strokeWidth="2" />
-                          <line x1="30" y1="45" x2="35" y2="45" stroke="#94a3b8" strokeWidth="3" />
-                          <circle cx="15" cy="65" r="5" fill="#1e293b" />
-                          <circle cx="20" cy="65" r="5" fill="#1e293b" />
-                          <circle cx="45" cy="65" r="5" fill="#1e293b" />
-                          <circle cx="65" cy="65" r="5" fill="#1e293b" />
-                          <circle cx="95" cy="65" r="5" fill="#1e293b" />
-                          <circle cx="120" cy="65" r="5" fill="#1e293b" />
-                        </svg>
-                      );
-                    }
-                    // Fallback Accessories
-                    return (
-                      <div className="relative w-36 h-36 flex items-center justify-center bg-slate-100/50 rounded-full border-2 border-dashed border-slate-200">
-                        <div className="text-6xl animate-bounce">🐶</div>
-                        {inventory.includes('acc_hat') && <span className="absolute top-1 text-4xl">🎩</span>}
-                        {inventory.includes('acc_glasses') && <span className="absolute top-10 text-[2rem]">😎</span>}
-                        {inventory.includes('acc_medal') && <span className="absolute bottom-3 text-[2rem]">🥇</span>}
-                        {inventory.includes('acc_cape') && <span className="absolute -left-1.5 text-4xl">🦸‍♂️</span>}
-                      </div>
-                    );
-                  })()}
-                </div>
-
-                {/* Token Display */}
-                <div className="flex items-center justify-between px-1 text-xs font-black uppercase tracking-wider">
-                  <span className="flex items-center gap-1 text-[#475569]">
-                    ⭐ {locale === 'en' ? 'Stars:' : locale === 'es' ? 'Estrellas:' : 'Estrelas:'} <strong className="text-yellow-500 text-sm font-black">{activeChild.tokens || 0}</strong>
-                  </span>
-                  <span className="text-slate-400">
-                    {locale === 'en' ? 'Progress:' : locale === 'es' ? 'Progreso:' : 'Progresso:'} {activeChild.collectedParts === 4 ? (locale === 'en' ? '100% Complete! 🎉' : locale === 'es' ? '¡100% Completo! 🎉' : '100% Completo! 🎉') : `${activeChild.collectedParts || 0}/4 ${locale === 'en' ? 'Parts' : locale === 'es' ? 'Piezas' : 'Peças'}`}
-                  </span>
-                </div>
-
-                {/* Parts Selection List */}
-                <div className="grid grid-cols-2 gap-3 max-h-[180px] overflow-y-auto pr-1">
-                  {(() => {
-                    const parts = getHyperfocusParts(childHyperfocus);
-                    return parts.map(part => {
-                      const hasIt = inventory.includes(part.id);
-                      const canBuy = (activeChild.tokens || 0) >= part.cost;
-
-                      return (
-                        <div
-                          key={part.id}
-                          className={`p-3 border-2 rounded-2xl flex flex-col items-center text-center justify-between gap-1.5 transition-all ${
-                            hasIt
-                              ? 'bg-emerald-50/45 border-emerald-300 text-slate-800'
-                              : sleepMode
-                              ? 'bg-[#121827] border-amber-950/40 text-amber-100'
-                              : 'bg-slate-50 border-slate-105 text-slate-800'
-                          }`}
-                        >
-                          <span className="text-[1.75rem] select-none">{part.icon}</span>
-                          <h4 className="font-extrabold text-[10px] leading-tight font-Outfit">{part.name}</h4>
-                          {hasIt ? (
-                            <span className="text-[9px] font-black text-emerald-600 bg-emerald-100 px-2 py-0.5 rounded-full select-none">
-                              {locale === 'en' ? 'Unlocked ✅' : locale === 'es' ? 'Desbloqueada ✅' : 'Conquistada ✅'}
-                            </span>
-                          ) : (
-                            <button
-                              disabled={!canBuy}
-                              onClick={() => handleBuyPart(part.id, part.cost)}
-                              className={`w-full py-1.5 rounded-full text-[9px] font-black tracking-tight transition-all active:scale-95 cursor-pointer border-none ${
-                                canBuy
-                                  ? 'bg-yellow-450 text-slate-950 hover:bg-yellow-500 shadow-sm'
-                                  : 'bg-slate-200 text-slate-400 cursor-not-allowed'
-                              }`}
-                            >
-                              {locale === 'en' ? 'Get for' : locale === 'es' ? 'Obtener por' : 'Obter por'} {part.cost} ⭐
-                            </button>
-                          )}
-                        </div>
-                      );
-                    });
-                  })()}
-                </div>
-
-                {/* Launch Action */}
-                {activeChild.collectedParts === 4 && (
-                  <button
-                    onClick={() => {
-                      playCelebration();
-                      setIsToyLaunched(true);
-                      setShowHyperfocusModal(false);
-                      if (focus.includes("space")) speakText(t.routine.spaceLaunch);
-                      else if (focus.includes("dino")) speakText(t.routine.dinoLaunch);
-                      else if (focus.includes("trem")) speakText(t.routine.tremLaunch);
-                      else speakText(t.routine.congratsAllParts);
-                    }}
-                    className="w-full py-3 bg-gradient-to-r from-yellow-450 to-amber-500 hover:from-yellow-500 hover:to-amber-600 text-slate-950 text-xs font-black rounded-2xl shadow-md uppercase tracking-wider select-none animate-bounce font-Outfit border-none cursor-pointer mt-1"
-                  >
-                    🚀 {locale === 'en' ? 'Activate Assembled Toy!' : locale === 'es' ? '¡Activar Juguete Armado!' : 'Ativar Brinquedo Montado!'}
-                  </button>
-                )}
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Toy Launch Full Screen Overlay Animation */}
-        <AnimatePresence>
-          {isToyLaunched && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 z-50 bg-[#070b19] flex flex-col items-center justify-center overflow-hidden"
-            >
-              {/* Twinkling stars */}
-              <div className="absolute inset-0 opacity-40">
-                {twinklingStars.map(star => (
-                  <div
-                    key={star.id}
-                    className="absolute w-2 h-2 bg-white rounded-full animate-ping"
-                    style={{ top: star.top, left: star.left }}
-                  />
-                ))}
-              </div>
-
-              {/* Launch Theme Rendering */}
-              <div className="relative z-10 text-center flex flex-col items-center gap-6">
-                {(() => {
-                  if (focus.includes("space")) {
-                    return (
-                      <motion.div
-                        animate={{ y: [300, -450] }}
-                        transition={{ duration: 4.5, repeat: Infinity, ease: "easeIn" }}
-                        className="text-9xl select-none"
-                      >
-                        🚀
-                      </motion.div>
-                    );
-                  }
-                  if (focus.includes("dino")) {
-                    return (
-                      <motion.div
-                        animate={{ scale: [1, 1.2, 1], rotate: [0, -10, 10, 0] }}
-                        transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-                        className="text-9xl select-none"
-                      >
-                        🦖
-                      </motion.div>
-                    );
-                  }
-                  if (focus.includes("trem")) {
-                    return (
-                      <motion.div
-                        animate={{ x: [-300, 300] }}
-                        transition={{ duration: 5, repeat: Infinity, ease: "linear" }}
-                        className="text-9xl select-none"
-                      >
-                        🚂
-                      </motion.div>
-                    );
-                  }
-                  return (
-                    <motion.div
-                      animate={{ scale: [1, 1.15, 1], y: [0, -20, 0] }}
-                      transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
-                      className="text-9xl select-none"
-                    >
-                      🐾
-                    </motion.div>
-                  );
-                })()}
-
-                <h1 className="text-4xl md:text-5xl font-black text-yellow-100 tracking-tight mt-6 font-Outfit animate-pulse">
-                  {(() => {
-                    if (focus.includes("space")) return locale === 'en' ? "Rocket Launching!" : locale === 'es' ? "¡Cohete Despegando!" : "Foguete Decolando!";
-                    if (focus.includes("dino")) return locale === 'en' ? "T-Rex Came to Life!" : locale === 'es' ? "¡T-Rex Cobró Vida!" : "T-Rex Ganhou Vida!";
-                    if (focus.includes("trem")) return locale === 'en' ? "Train in Motion!" : locale === 'es' ? "¡Tren en Movimiento!" : "Trem em Movimento!";
-                    return locale === 'en' ? "Toy Activated!" : locale === 'es' ? "¡Juguete Activado!" : "Brinquedo Ativado!";
-                  })()}
-                </h1>
-                <p className="text-indigo-200 text-sm max-w-sm font-semibold px-4">
-                  {locale === 'en' ? 'You are amazing! You got all the pieces and assembled the toy yourself!' : locale === 'es' ? '¡Eres increíble! ¡Conseguiste todas las piezas y armaste el juguete tú solo!' : 'Você é incrível! Conseguiu todas as peças e montou o brinquedo sozinho!'}
-                </p>
-
-                <button
-                  onClick={() => { playBubble(); setIsToyLaunched(false); }}
-                  className="px-8 py-3.5 bg-indigo-600 hover:bg-indigo-700 border-2 border-indigo-400 text-white text-xs font-black rounded-full shadow-lg active:scale-95 transition-all cursor-pointer font-Outfit uppercase tracking-widest mt-8"
-                >
-                  {locale === 'en' ? 'Back to Routine 🔙' : locale === 'es' ? 'Volver a la Rutina 🔙' : 'Voltar à Rotina 🔙'}
-                </button>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </>
-    );
+    // Hiperfoco aposentado (23/07/2026): o "Mundo do Hiperfoco" e o
+    // lançamento de brinquedo saíram do produto. Stub para não quebrar as chamadas.
+    return null;
   };
 
   const renderAacModal = () => {
@@ -2755,7 +2467,7 @@ export default function ChildRoutine() {
 
                   <div className="absolute bottom-2 right-4 flex items-center gap-1 bg-white border border-slate-200 px-2 py-1 rounded-full shadow-xxs">
                     <span className="text-xs">🐾</span>
-                    <span className="text-[8px] font-black text-purple-700 uppercase tracking-wider font-Outfit">Mascote {childHyperfocus.split(' ')[0]}</span>
+                    <span className="text-[8px] font-black text-purple-700 uppercase tracking-wider font-Outfit">Mascote {'Nino'}</span>
                   </div>
                 </div>
 
@@ -3239,7 +2951,7 @@ export default function ChildRoutine() {
                             playBubble();
                             setSelectedStory(story);
                             setCurrentStoryStep(0);
-                            speakText(story.steps[0].text.replace('[Mascote]', childHyperfocus.split(' ')[0]));
+                            speakText(story.steps[0].text.replace('[Mascote]', 'Nino'));
                           }}
                           className="p-4 bg-slate-50 hover:bg-indigo-50/40 hover:border-indigo-300 border-2 border-slate-200/80 rounded-2xl transition-all active:scale-98 text-left cursor-pointer flex items-center gap-4 group"
                         >
@@ -3270,7 +2982,7 @@ export default function ChildRoutine() {
                                         playBubble();
                                         setSelectedStory(story);
                                         setCurrentStoryStep(0);
-                                        speakText(story.steps[0].text.replace('[Mascote]', childHyperfocus.split(' ')[0]));
+                                        speakText(story.steps[0].text.replace('[Mascote]', 'Nino'));
                                       }}
                                       className="p-4 bg-slate-50 hover:bg-rose-50/40 hover:border-rose-300 border-2 border-slate-200/80 rounded-2xl transition-all active:scale-98 text-left cursor-pointer flex items-center gap-4 group"
                                     >
@@ -3323,7 +3035,7 @@ export default function ChildRoutine() {
                       {/* Active hyperfocus mascot is guide here */}
                       <div className="absolute bottom-2 right-4 flex items-center gap-1.5 bg-white border border-slate-200 px-2.5 py-1.5 rounded-full shadow-xxs max-w-[80%]">
                         <span className="text-xs">🐾</span>
-                        <span className="text-[9px] font-black text-indigo-700 uppercase tracking-wider font-Outfit">Guia {childHyperfocus.split(' ')[0]}</span>
+                        <span className="text-[9px] font-black text-indigo-700 uppercase tracking-wider font-Outfit">Guia {'Nino'}</span>
                       </div>
                     </div>
 
@@ -3334,7 +3046,7 @@ export default function ChildRoutine() {
                       animate={{ opacity: 1, y: 0 }}
                       className="text-sm text-slate-700 leading-relaxed font-extrabold text-center px-2 min-h-[60px]"
                     >
-                      {selectedStory.steps[currentStoryStep].text.replace('[Mascote]', childHyperfocus.split(' ')[0])}
+                      {selectedStory.steps[currentStoryStep].text.replace('[Mascote]', 'Nino')}
                     </motion.p>
 
                     {/* Navigation Buttons */}
@@ -3345,7 +3057,7 @@ export default function ChildRoutine() {
                             playBubble();
                             const prevStep = currentStoryStep - 1;
                             setCurrentStoryStep(prevStep);
-                            speakText(selectedStory.steps[prevStep].text.replace('[Mascote]', childHyperfocus.split(' ')[0]));
+                            speakText(selectedStory.steps[prevStep].text.replace('[Mascote]', 'Nino'));
                           }}
                           className="flex-1 py-3 bg-slate-100 hover:bg-slate-200 border-2 border-slate-350 text-slate-750 text-xs font-black rounded-2xl active:scale-95 transition-all cursor-pointer font-Outfit flex items-center justify-center gap-1"
                         >
@@ -3359,7 +3071,7 @@ export default function ChildRoutine() {
                             playBubble();
                             const nextStep = currentStoryStep + 1;
                             setCurrentStoryStep(nextStep);
-                            speakText(selectedStory.steps[nextStep].text.replace('[Mascote]', childHyperfocus.split(' ')[0]));
+                            speakText(selectedStory.steps[nextStep].text.replace('[Mascote]', 'Nino'));
                           }}
                           className="flex-1 py-3 bg-indigo-650 hover:bg-indigo-750 text-white text-xs font-black rounded-2xl active:scale-95 transition-all cursor-pointer font-Outfit flex items-center justify-center gap-1"
                         >
@@ -3806,30 +3518,8 @@ export default function ChildRoutine() {
                     </>
                   )}
 
-                  {/* Recompensas — camada opcional de gamificacao */}
-                  {!sleepMode && (showMyWorld || showShop) && (
-                    <>
-                      <span className="px-3 pt-2 pb-1 text-[9px] font-black uppercase tracking-wider text-slate-400">
-                        {locale === 'en' ? 'Rewards' : locale === 'es' ? 'Recompensas' : 'Recompensas'}
-                      </span>
-                      {showMyWorld && (
-                      <button
-                        onClick={() => { playBubble(); setShowHyperfocusModal(true); setShowSupportMenu(false); }}
-                        className="flex items-center gap-2 w-full px-4 py-2 text-left text-xs font-bold rounded-xl transition-colors border-none bg-transparent cursor-pointer hover:bg-slate-50 text-slate-705"
-                      >
-                        🎮 {locale === 'en' ? 'My World' : locale === 'es' ? 'Mi Mundo' : 'Meu Mundo'} ({activeChild?.collectedParts || 0}/4)
-                      </button>
-                      )}
-                      {showShop && (
-                      <button
-                        onClick={() => { playBubble(); setShowShopModal(true); setShowSupportMenu(false); }}
-                        className="flex items-center gap-2 w-full px-4 py-2 text-left text-xs font-bold rounded-xl transition-colors border-none bg-transparent cursor-pointer hover:bg-slate-50 text-slate-705"
-                      >
-                        🛒 {locale === 'en' ? 'Mascot Shop' : locale === 'es' ? 'Tienda del Mascota' : 'Loja do Mascote'}
-                      </button>
-                      )}
-                    </>
-                  )}
+                  {/* Recompensas do mascote/hiperfoco (Meu Mundo + Loja do Mascote)
+                      removidas em 23/07/2026 junto com o mascote. */}
 
                   {/* Kit calma: modo sono + sons */}
                   {(showSleepMode || (showAmbient && !sleepMode)) && (
@@ -3944,7 +3634,7 @@ export default function ChildRoutine() {
                     playBubble();
                     setSelectedStory(localizedBedtimeStories[0]);
                     setCurrentStoryStep(0);
-                    speakText(localizedBedtimeStories[0].steps[0].text.replace('[Mascote]', childHyperfocus.split(' ')[0]));
+                    speakText(localizedBedtimeStories[0].steps[0].text.replace('[Mascote]', 'Nino'));
                     setShowStoriesModal(true);
                   }}
                   className="px-5 py-2.5 bg-amber-950/80 hover:bg-amber-900 border border-amber-700/60 text-amber-200 text-xs font-black rounded-2xl active:scale-95 transition-all cursor-pointer flex items-center gap-1.5"
@@ -3995,7 +3685,7 @@ export default function ChildRoutine() {
                           playBubble();
                           setSelectedStory(story);
                           setCurrentStoryStep(0);
-                          speakText(story.steps[0].text.replace('[Mascote]', childHyperfocus.split(' ')[0]));
+                          speakText(story.steps[0].text.replace('[Mascote]', 'Nino'));
                           setShowStoriesModal(true);
                         }}
                         className="p-3 bg-amber-950/10 hover:bg-amber-950/40 border border-amber-900/40 rounded-xl transition-all text-left cursor-pointer flex items-center gap-3 group"
@@ -4104,7 +3794,7 @@ export default function ChildRoutine() {
                         <div className="relative w-16 h-16 flex items-center justify-center">
                           <svg viewBox="0 0 100 100" className="w-full h-full transform -rotate-90">
                             <circle cx="50" cy="50" r="40" fill="none" stroke="#e3def3" strokeWidth="7" />
-                            <circle cx="50" cy="50" r="40" fill="none" stroke="#5468e6" strokeWidth="7" strokeDasharray="251.2" strokeDashoffset={251.2 * (1 - timerProgress)} strokeLinecap="round" className="transition-all duration-1000 ease-linear" />
+                            <circle cx="50" cy="50" r="40" fill="none" stroke="#2f8f86" strokeWidth="7" strokeDasharray="251.2" strokeDashoffset={251.2 * (1 - timerProgress)} strokeLinecap="round" className="transition-all duration-1000 ease-linear" />
                           </svg>
                           <div className="absolute inset-0 flex flex-col items-center justify-center">
                             <span className="text-sm font-black text-slate-800">{timerMinutesLeft}</span>
@@ -4918,7 +4608,7 @@ export default function ChildRoutine() {
                           playBubble();
                           setSelectedStory(story);
                           setCurrentStoryStep(0);
-                          speakText(story.steps[0].text.replace('[Mascote]', childHyperfocus.split(' ')[0]));
+                          speakText(story.steps[0].text.replace('[Mascote]', 'Nino'));
                         }}
                         className={`p-4 border-2 rounded-2xl transition-all active:scale-98 text-left cursor-pointer flex items-center gap-4 group ${
                           sleepMode 
@@ -4955,7 +4645,7 @@ export default function ChildRoutine() {
                                       playBubble();
                                       setSelectedStory(story);
                                       setCurrentStoryStep(0);
-                                      speakText(story.steps[0].text.replace('[Mascote]', childHyperfocus.split(' ')[0]));
+                                      speakText(story.steps[0].text.replace('[Mascote]', 'Nino'));
                                     }}
                                     className={`p-4 border-2 rounded-2xl transition-all active:scale-98 text-left cursor-pointer flex items-center gap-4 group ${
                                       sleepMode 
@@ -4990,7 +4680,7 @@ export default function ChildRoutine() {
                           playBubble();
                           setSelectedStory(story);
                           setCurrentStoryStep(0);
-                          speakText(story.steps[0].text.replace('[Mascote]', childHyperfocus.split(' ')[0]));
+                          speakText(story.steps[0].text.replace('[Mascote]', 'Nino'));
                         }}
                         className={`p-4 border-2 rounded-2xl transition-all active:scale-98 text-left cursor-pointer flex items-center gap-4 group ${
                           sleepMode 
@@ -5026,7 +4716,7 @@ export default function ChildRoutine() {
                       <div className="p-3.5 bg-indigo-50 border border-indigo-150 rounded-2xl flex items-center justify-between text-xs font-bold text-indigo-955">
                         <span>{locale === 'en' ? 'Active Guide Mascot:' : locale === 'es' ? 'Mascota Guía Activa:' : 'Mascote Guia Ativo:'}</span>
                         <span className="bg-indigo-600 text-white px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider font-Outfit">
-                          {childHyperfocus.split(' ')[0]}
+                          {'Nino'}
                         </span>
                       </div>
 
@@ -5085,7 +4775,7 @@ export default function ChildRoutine() {
                       sleepMode ? 'bg-[#0b0f19] border-amber-900/60 text-amber-400' : 'bg-white border-slate-200 text-indigo-750'
                     }`}>
                       <span className="text-xs">🐾</span>
-                      <span className="text-[9px] font-black uppercase tracking-wider font-Outfit">Guia {childHyperfocus.split(' ')[0]}</span>
+                      <span className="text-[9px] font-black uppercase tracking-wider font-Outfit">Guia {'Nino'}</span>
                     </div>
                   </div>
 
@@ -5096,7 +4786,7 @@ export default function ChildRoutine() {
                     animate={{ opacity: 1, y: 0 }}
                     className={`text-sm leading-relaxed font-extrabold text-center px-2 min-h-[60px] ${sleepMode ? 'text-amber-100' : 'text-slate-700'}`}
                   >
-                    {selectedStory.steps[currentStoryStep].text.replace('[Mascote]', childHyperfocus.split(' ')[0])}
+                    {selectedStory.steps[currentStoryStep].text.replace('[Mascote]', 'Nino')}
                   </motion.p>
 
                   {/* Navigation Buttons */}
@@ -5107,7 +4797,7 @@ export default function ChildRoutine() {
                           playBubble();
                           const prevStep = currentStoryStep - 1;
                           setCurrentStoryStep(prevStep);
-                          speakText(selectedStory.steps[prevStep].text.replace('[Mascote]', childHyperfocus.split(' ')[0]));
+                          speakText(selectedStory.steps[prevStep].text.replace('[Mascote]', 'Nino'));
                         }}
                         className={`flex-1 py-3 border-2 text-xs font-black rounded-2xl active:scale-95 transition-all cursor-pointer font-Outfit flex items-center justify-center gap-1 ${
                           sleepMode 
@@ -5125,7 +4815,7 @@ export default function ChildRoutine() {
                           playBubble();
                           const nextStep = currentStoryStep + 1;
                           setCurrentStoryStep(nextStep);
-                          speakText(selectedStory.steps[nextStep].text.replace('[Mascote]', childHyperfocus.split(' ')[0]));
+                          speakText(selectedStory.steps[nextStep].text.replace('[Mascote]', 'Nino'));
                         }}
                         className={`flex-1 py-3 text-xs font-black rounded-2xl active:scale-95 transition-all cursor-pointer font-Outfit flex items-center justify-center gap-1 ${
                           sleepMode 

@@ -1,13 +1,13 @@
 {
-  "name": "TEAcolher",
-  "short_name": "TEAcolher",
+  "name": "Nosso Passo",
+  "short_name": "Nosso Passo",
   "description": "Rotina previsível e acolhedora para crianças com TEA",
   "start_url": "/routine",
   "scope": "/",
   "display": "standalone",
   "orientation": "any",
-  "background_color": "#f7f7fb",
-  "theme_color": "#5468e6",
+  "background_color": "#f5f2ec",
+  "theme_color": "#2f8f86",
   "icons": [
     {
       "src": "/icon-192.png",

@@ -20,7 +20,7 @@ export const REFERRAL_DAYS = 30;
  */
 export const REFERRAL_MAX_GRANTS = 12;
 
-/** As respostas de "como voce conheceu o TEAcolher?". */
+/** As respostas de "como voce conheceu o Nosso Passo?". */
 export const SOURCE_KEYS = [
   'terapeuta',
   'familia',

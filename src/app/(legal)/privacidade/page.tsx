@@ -2,9 +2,9 @@ import React from 'react';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Política de Privacidade — TEAcolher',
+  title: 'Política de Privacidade — Nosso Passo',
   description:
-    'Como o TEAcolher trata dados pessoais de crianças e adolescentes, em conformidade com a LGPD (Lei 13.709/2018).',
+    'Como o Nosso Passo trata dados pessoais de crianças e adolescentes, em conformidade com a LGPD (Lei 13.709/2018).',
 };
 
 const CONTATO = 'contato@teacolher.online';
@@ -17,7 +17,7 @@ export default function PrivacidadePage() {
       <p className="legal-meta">Última atualização: {ATUALIZADO}</p>
 
       <p>
-        O TEAcolher é um aplicativo de rotina visual para crianças e adolescentes autistas. Ele foi
+        O Nosso Passo é um aplicativo de rotina visual para crianças e adolescentes autistas. Ele foi
         criado por um pai, para o próprio filho, e trata a informação da sua família com esse mesmo
         cuidado.
       </p>
@@ -33,7 +33,7 @@ export default function PrivacidadePage() {
 
       <h2>1. Quem é o controlador dos dados</h2>
       <p>
-        O controlador é o responsável pela operação do TEAcolher, disponível em teacolher.online.
+        O controlador é o responsável pela operação do Nosso Passo, disponível em teacolher.online.
         Contato do encarregado pelo tratamento de dados (DPO), para qualquer solicitação prevista
         nesta política: <a href={`mailto:${CONTATO}`}>{CONTATO}</a>.
       </p>
@@ -47,7 +47,7 @@ export default function PrivacidadePage() {
         <li>Preferências da conta e PIN de proteção do painel adulto.</li>
         <li>
           Dados de cobrança, quando há assinatura paga — processados <strong>integralmente pela
-          Stripe</strong>. O TEAcolher não recebe, não vê e não armazena número de cartão.
+          Stripe</strong>. O Nosso Passo não recebe, não vê e não armazena número de cartão.
         </li>
       </ul>
 
@@ -162,7 +162,7 @@ export default function PrivacidadePage() {
 
       <h2>9. Cookies</h2>
       <p>
-        O TEAcolher não usa cookies de publicidade nem de rastreamento de terceiros. Utilizamos apenas
+        O Nosso Passo não usa cookies de publicidade nem de rastreamento de terceiros. Utilizamos apenas
         armazenamento local no navegador para manter sua sessão iniciada e lembrar preferências como
         idioma e tema.
       </p>
