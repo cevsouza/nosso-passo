@@ -7,7 +7,7 @@ const DEFAULT_SEED_TASKS = [
   { title: 'Tomar café da manhã 🍞', time: '08:30', period: 'manhã', day: 'segunda', order: 2 },
   { title: 'Aulas e Estudo 🏫', time: '09:00', period: 'manhã', day: 'segunda', order: 3 },
   { title: 'Almoço Saudável 🍲', time: '12:30', period: 'tarde', day: 'segunda', order: 4 },
-  { title: 'Brincar com o Collie 🐶', time: '15:00', period: 'tarde', day: 'segunda', order: 5 },
+  { title: 'Montar quebra-cabeca 🧩', time: '15:00', period: 'tarde', day: 'segunda', order: 5 },
   { title: 'Jantar em Família 🍽️', time: '19:00', period: 'noite', day: 'segunda', order: 6 },
   { title: 'Tomar Banho e Dormir 😴', time: '21:00', period: 'noite', day: 'segunda', order: 7 },
 ];
@@ -24,7 +24,7 @@ export async function GET(req: Request) {
         data: {
           uid: userUid,
           email: userUid === 'user-123' ? 'responsavel@exemplo.com' : `${userUid}@demo.com`,
-          childHyperfocus: 'Border Collies 🐕',
+          childHyperfocus: '',
         }
       });
     }

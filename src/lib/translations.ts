@@ -63,7 +63,7 @@ export const translations = {
       "badgeSensory": "100% Sensorialmente Seguro",
       "badgeNeuro": "✨ Neurodiversidade",
       "headline": "Previsibilidade que Diverte!",
-      "subheadline": "Uma agenda semanal e diária estruturada de forma lúdica com reforço positivo do Border Collie para reduzir a sobrecarga cognitiva e a ansiedade.",
+      "subheadline": "Uma agenda semanal e diária estruturada de forma lúdica com reforço positivo lúdico para reduzir a sobrecarga cognitiva e a ansiedade.",
       "mascotTapMe": "Toca em mim! 👋",
       "mascotLook": "Olha lá! 👉",
       "mascotCelebrate": "Au au! 🎉",
@@ -288,7 +288,7 @@ export const translations = {
       "welcomeSubtitle": "Gerencie a rotina pedagógica ABA e regulação sensorial do seu filho.",
       "statusGenerator": [
         "Pesquisando interesses do paciente... 🔍",
-        "Encontrando conexões de hiperfoco... 🧠",
+        "Encontrando conexões de interesse... 🧠",
         "Escrevendo a história pedagógica... ✍️",
         "Ilustrando as cenas com emojis lúdicos... 🎨",
         "Finalizando e revisando pedagogia ABA... ✨"
@@ -297,7 +297,7 @@ export const translations = {
         "Use reforço positivo imediato após a conclusão de uma tarefa difícil.",
         "Dê à criança 10 minutos de previsibilidade antes de transições de atividades.",
         "Evite sobrecarga de tarefas no período da noite para induzir um sono reparador.",
-        "O hiperfoco (ex: trens) é uma ponte excelente para incentivar a higiene diária.",
+        "Os interesses da criança (ex: trens) são uma ponte excelente para incentivar a higiene diária.",
         "Tente manter horários semelhantes para refeições para reduzir a rigidez cognitiva."
       ],
       "presets": [
@@ -375,10 +375,10 @@ export const translations = {
       "sosButtonAlert": "🚨 Botão de Crise / Alerta Visual no SOS",
       "addButton": "➕ Adicionar Botão",
       "aiSocialStoriesTitle": "Histórias Sociais com IA",
-      "aiSocialStoriesDesc": "Crie histórias sociais curtas para preparar seu filho para transições ou consultas. A IA usará o hiperfoco da criança para torná-la cativante.",
+      "aiSocialStoriesDesc": "Crie histórias sociais curtas para preparar seu filho para transições ou consultas. A IA usará os interesses da criança para torná-la cativante.",
       "noStories": "Nenhuma história criada ainda.",
       "deleteStory": "Excluir história",
-      "aiAdaptStoryTip": "A IA vai adaptar a história com o hiperfoco ativo:",
+      "aiAdaptStoryTip": "A IA vai adaptar a história ao perfil da criança.",
       "generateStory": "Gerar História",
       "behaviorDictionaryTitle": "Dicionário Comportamental",
       "behaviorDictionaryDesc": "Mapeie os sinais corporais da criança, seus significados e a conduta recomendada para mediadores escolares e terapeutas.",
@@ -632,7 +632,7 @@ export const translations = {
       "badgeSensory": "100% Sensorialmente Seguro",
       "badgeNeuro": "✨ Neurodiversidad",
       "headline": "¡Previsibilidad que Divierte!",
-      "subheadline": "Una agenda semanal y diaria estructurada de forma lúdica con refuerzo positivo del Border Collie para reducir la sobrecarga cognitiva y la ansiedad.",
+      "subheadline": "Una agenda semanal y diaria estructurada de forma lúdica con refuerzo positivo lúdico para reducir la sobrecarga cognitiva y la ansiedad.",
       "mascotTapMe": "¡Tócame! 👋",
       "mascotLook": "¡Mira allí! 👉",
       "mascotCelebrate": "¡Guau guau! 🎉",
@@ -857,7 +857,7 @@ export const translations = {
       "welcomeSubtitle": "Gestione la rutina pedagógica ABA y la regulación sensorial de su hijo.",
       "statusGenerator": [
         "Buscando intereses del paciente... 🔍",
-        "Encontrando conexiones de hiperfoco... 🧠",
+        "Encontrando conexiones de interés... 🧠",
         "Escribiendo la historia pedagógica... ✍️",
         "Ilustrando las escenas con emojis divertidos... 🎨",
         "Finalizando y revisando pedagogía ABA... ✨"
@@ -866,7 +866,7 @@ export const translations = {
         "Use refuerzo positivo inmediato después de completar una tarea difícil.",
         "Dé al niño 10 minutos de previsibilidad antes de las transiciones de actividad.",
         "Evite la sobrecarga de tareas por la noche para inducir un sueño reparador.",
-        "El hiperfoco (ej. trenes) es un excelente puente para fomentar la higiene diaria.",
+        "Los intereses del niño (ej. trenes) son un excelente puente para fomentar la higiene diaria.",
         "Intente mantener horarios similares para las comidas para reducir la rigidez cognitiva."
       ],
       "presets": [
@@ -944,10 +944,10 @@ export const translations = {
       "sosButtonAlert": "🚨 Botón de Crisis / Alerta Visual en SOS",
       "addButton": "➕ Añadir Botón",
       "aiSocialStoriesTitle": "Historias Sociales con IA",
-      "aiSocialStoriesDesc": "Cree historias sociales cortas para preparar a su hijo para transiciones o consultas. La IA utilizará el hiperenfoque del niño para hacerla atractiva.",
+      "aiSocialStoriesDesc": "Cree historias sociales cortas para preparar a su hijo para transiciones o consultas. La IA utilizará los intereses del niño para hacerla atractiva.",
       "noStories": "Ninguna historia creada aún.",
       "deleteStory": "Eliminar historia",
-      "aiAdaptStoryTip": "La IA adaptará la historia con el hiperenfoque activo:",
+      "aiAdaptStoryTip": "La IA adaptará la historia al perfil del niño.",
       "generateStory": "Generar Historia",
       "behaviorDictionaryTitle": "Diccionario de Comportamiento",
       "behaviorDictionaryDesc": "Mapeie las señales corporales del niño, sus significados y la conducta recomendada para mediadores escolares y terapeutas.",
@@ -1201,7 +1201,7 @@ export const translations = {
       "badgeSensory": "100% Sensorially Safe",
       "badgeNeuro": "✨ Neurodiversity",
       "headline": "Predictability that Entertains!",
-      "subheadline": "A weekly and daily structured routine presented playfully with positive reinforcement from the Border Collie to reduce cognitive overload and anxiety.",
+      "subheadline": "A weekly and daily structured routine presented playfully with playful positive reinforcement to reduce cognitive overload and anxiety.",
       "mascotTapMe": "Tap me! 👋",
       "mascotLook": "Look there! 👉",
       "mascotCelebrate": "Woof woof! 🎉",
@@ -1426,7 +1426,7 @@ export const translations = {
       "welcomeSubtitle": "Manage your child's ABA pedagogical routine and sensory regulation.",
       "statusGenerator": [
         "Researching patient interests... 🔍",
-        "Finding hyperfocus connections... 🧠",
+        "Finding interest connections... 🧠",
         "Writing pedagogical story... ✍️",
         "Illustrating scenes with fun emojis... 🎨",
         "Finalizing and reviewing ABA pedagogy... ✨"
@@ -1435,7 +1435,7 @@ export const translations = {
         "Use immediate positive reinforcement after a difficult task is completed.",
         "Give the child 10 minutes of predictability before activity transitions.",
         "Avoid task overload in the evening to induce restful sleep.",
-        "Hyperfocus (e.g. trains) is an excellent bridge to encourage daily hygiene.",
+        "The child's interests (e.g. trains) are an excellent bridge to encourage daily hygiene.",
         "Try to keep similar meal times to reduce cognitive rigidity."
       ],
       "presets": [
@@ -1513,10 +1513,10 @@ export const translations = {
       "sosButtonAlert": "🚨 Crisis Button / Visual Alert in SOS",
       "addButton": "Add Button",
       "aiSocialStoriesTitle": "AI Social Stories",
-      "aiSocialStoriesDesc": "Create short social stories to prepare your child for transitions or medical visits. The AI will use the child's hyperfocus to make it engaging.",
+      "aiSocialStoriesDesc": "Create short social stories to prepare your child for transitions or medical visits. The AI will use the child's interests to make it engaging.",
       "noStories": "No stories created yet.",
       "deleteStory": "Delete story",
-      "aiAdaptStoryTip": "The AI will adapt the story with active hyperfocus:",
+      "aiAdaptStoryTip": "The AI will adapt the story to the child's profile.",
       "generateStory": "Generate Story",
       "behaviorDictionaryTitle": "Behavioral Dictionary",
       "behaviorDictionaryDesc": "Map the child's body signs, their meanings, and recommended action for school mediators and therapists.",

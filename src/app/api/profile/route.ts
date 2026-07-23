@@ -22,7 +22,7 @@ export async function POST(req: Request) {
           uid,
           email,
           role: role || (email.includes('crianca') || email.includes('child') || email.includes('usuario') ? 'usuario' : 'responsavel'),
-          childHyperfocus: 'Border Collies 🐕',
+          childHyperfocus: '',
           parentPinCode: '1234',
           lockType: 'math',
           plan: 'free',

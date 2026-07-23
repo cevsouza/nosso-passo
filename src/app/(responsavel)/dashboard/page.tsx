@@ -460,7 +460,7 @@ const CLINICAL_TEMPLATES = {
 
       { title: 'Almoço Saudável', time: '12:30', period: 'tarde' as const },
 
-      { title: 'Brincar com o Collie', time: '15:00', period: 'tarde' as const },
+      { title: 'Montar quebra-cabeca', time: '15:00', period: 'tarde' as const },
 
       { title: 'Jantar em Família', time: '19:00', period: 'noite' as const },
 
@@ -844,7 +844,7 @@ function ParentDashboardContent() {
 
         { title: locale === 'es' ? 'Almuerzo saludable' : locale === 'en' ? 'Healthy lunch' : 'Almoço Saudável', time: '12:30', period: 'tarde' as const },
 
-        { title: locale === 'es' ? 'Jugar con el Collie' : locale === 'en' ? 'Play with the Collie' : 'Brincar com o Collie', time: '15:00', period: 'tarde' as const },
+        { title: locale === 'es' ? 'Armar rompecabezas' : locale === 'en' ? 'Do a puzzle' : 'Montar quebra-cabeca', time: '15:00', period: 'tarde' as const },
 
         { title: locale === 'es' ? 'Cena familiar' : locale === 'en' ? 'Family dinner' : 'Jantar em Família', time: '19:00', period: 'noite' as const },
 
@@ -2492,7 +2492,7 @@ function ParentDashboardContent() {
 
   const getMascotLabelInfo = () => {
 
-    const focus = (hyperfocus || activeChild?.childHyperfocus || 'Border Collies 🐕').toLowerCase().trim();
+    const focus = (hyperfocus || activeChild?.childHyperfocus || '').toLowerCase().trim();
 
     if (focus.includes("dino") || focus.includes("dinossauro") || focus.includes("dinosaur")) {
 
@@ -2536,7 +2536,7 @@ function ParentDashboardContent() {
 
         emoji: '🐱',
 
-        text: collieState === 'celebrating' ? 'Miau! 🐾' : 'Mascote (Dicas)'
+        text: collieState === 'celebrating' ? 'Miau! 🐱' : 'Mascote (Dicas)'
 
       };
 
@@ -2616,9 +2616,9 @@ function ParentDashboardContent() {
 
     return {
 
-      emoji: '🐶',
+      emoji: '🌟',
 
-      text: collieState === 'celebrating' ? 'Au Au! 🐾' : 'Companheiro (Dicas)'
+      text: collieState === 'celebrating' ? 'Oba! ✨' : 'Companheiro (Dicas)'
 
     };
 
@@ -4188,7 +4188,7 @@ function ParentDashboardContent() {
 
       
 
-      const childFocus = hyperfocus || activeChild.childHyperfocus || 'Border Collies 🐕';
+      const childFocus = hyperfocus || activeChild.childHyperfocus || '';
 
       
 
@@ -4198,7 +4198,7 @@ function ParentDashboardContent() {
 
       
 
-      let focusEmoji = "🐶";
+      let focusEmoji = "🌟";
 
       if (childFocus.toLowerCase().includes("astronauta") || childFocus.toLowerCase().includes("espaço") || childFocus.toLowerCase().includes("space")) focusEmoji = "🚀";
 
@@ -4218,7 +4218,7 @@ function ParentDashboardContent() {
 
       else if (childFocus.toLowerCase().includes("robô") || childFocus.toLowerCase().includes("robot")) focusEmoji = "🤖";
 
-      else if (childFocus.toLowerCase().includes("border") || childFocus.toLowerCase().includes("collie")) focusEmoji = "🐶";
+      else if (childFocus.toLowerCase().includes("border") || childFocus.toLowerCase().includes("collie")) focusEmoji = "🌟";
 
       else if (childFocus.toLowerCase().includes("dino") || childFocus.toLowerCase().includes("dinossauro")) focusEmoji = "🦖";
 
@@ -10548,10 +10548,6 @@ function ParentDashboardContent() {
 
                             <span className="text-slate-300">|</span>
 
-                            <span>{t.dashboard.activeHyperfocusLabel} <span className="text-sky-600 font-black">{activeChild?.childHyperfocus || (locale === 'en' ? 'Not registered' : locale === 'es' ? 'No registrado' : 'Não cadastrado')}</span></span>
-
-                            <span className="text-slate-300">|</span>
-
                             <span>{t.dashboard.periodLabel} <span className="text-slate-700 font-black">{locale === 'en' ? `Day 1 to ${currentDayNum}` : locale === 'es' ? `Día 1 al ${currentDayNum}` : `Dia 1 ao ${currentDayNum}`}</span></span>
 
                           </div>
@@ -12382,49 +12378,7 @@ function ParentDashboardContent() {
 
             <form onSubmit={handleSaveProfile} className="flex flex-col gap-3">
 
-              <div>
-
-                <label className="block text-xs font-black text-slate-700 uppercase tracking-wider mb-1.5 font-Outfit">
-
-                  {locale === 'en' ? 'User\'s Main Hyperfocus' : locale === 'es' ? 'Hiperenfoque Principal del Usuario' : 'Hiperfoco Principal do Usuário'}
-
-                </label>
-
-                <select
-
-                  value={hyperfocus}
-
-                  onChange={e => setHyperfocus(e.target.value)}
-
-                  className="w-full px-4 py-2.5 bg-white border border-slate-200 focus:border-indigo-500 focus:bg-white rounded-xl text-slate-900 outline-none text-sm transition-all shadow-xxs font-bold cursor-pointer focus:ring-2 focus:ring-indigo-200"
-
-                >
-
-                  <option value="Border Collies 🐕">{locale === 'en' ? 'Border Collie Dog 🐶' : locale === 'es' ? 'Perro Border Collie 🐶' : 'Cachorro Border Collie 🐶'}</option>
-
-                  <option value="Dinossauro 🦖">{locale === 'en' ? 'Dinosaur 🦖' : locale === 'es' ? 'Dinosaurio 🦖' : 'Dinossauro 🦖'}</option>
-
-                  <option value="Astronauta / Espaço 🚀">{locale === 'en' ? 'Space / Astronaut 🚀' : locale === 'es' ? 'Espacio / Astronauta 🚀' : 'Espaço / Astronauta 🚀'}</option>
-
-                  <option value="Minecraft / Blocos 🟩">{locale === 'en' ? 'Minecraft / Blocks 🟩' : locale === 'es' ? 'Minecraft / Bloques 🟩' : 'Minecraft / Blocos 🟩'}</option>
-
-                  <option value="Gato 🐱">{locale === 'en' ? 'Cat 🐱' : locale === 'es' ? 'Gato 🐱' : 'Gato 🐱'}</option>
-
-                  <option value="Carro 🚗">{locale === 'en' ? 'Car 🚗' : locale === 'es' ? 'Coche 🚗' : 'Carro 🚗'}</option>
-
-                  <option value="Trem / Locomotiva 🚂">{locale === 'en' ? 'Train / Locomotive 🚂' : locale === 'es' ? 'Tren / Locomotora 🚂' : 'Trem / Locomotiva 🚂'}</option>
-
-                  <option value="Super-herói 🦸">{locale === 'en' ? 'Superhero 🦸' : locale === 'es' ? 'Superhéroe 🦸' : 'Super-herói 🦸'}</option>
-
-                  <option value="Tubarão / Fundo do Mar 🦈">{locale === 'en' ? 'Shark / Undersea 🦈' : locale === 'es' ? 'Tiburón / Fondo del Mar 🦈' : 'Tubarão / Fundo do Mar 🦈'}</option>
-
-                  <option value="Unicórnio 🦄">{locale === 'en' ? 'Unicorn 🦄' : locale === 'es' ? 'Unicornio 🦄' : 'Unicórnio 🦄'}</option>
-
-                  <option value="Robô / Tecnologia 🤖">{locale === 'en' ? 'Robot / Technology 🤖' : locale === 'es' ? 'Robot / Tecnología 🤖' : 'Robô / Tecnologia 🤖'}</option>
-
-                </select>
-
-              </div>
+              
 
 
 
@@ -12894,7 +12848,7 @@ function ParentDashboardContent() {
 
                 <div className="absolute inset-0 rounded-full bg-indigo-150 opacity-10 filter blur-sm"></div>
 
-                <HyperfocusMascot hyperfocus={hyperfocus || activeChild?.childHyperfocus || 'Border Collies 🐕'} state={collieState} size={110} />
+                <HyperfocusMascot hyperfocus={hyperfocus || activeChild?.childHyperfocus || ''} state={collieState} size={110} />
 
               </div>
 
@@ -13717,7 +13671,7 @@ function ParentDashboardContent() {
 
                             <p className="text-[9px] text-slate-400 leading-normal">
 
-                              {t.dashboard.aiAdaptStoryTip} <strong>{hyperfocus || activeChild.childHyperfocus || 'Border Collies 🐕'}</strong>.
+                              {t.dashboard.aiAdaptStoryTip}
 
                             </p>
 

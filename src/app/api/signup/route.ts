@@ -35,7 +35,7 @@ export async function POST(req: Request) {
         email: formattedEmail,
         passwordHash,
         role: 'responsavel',
-        childHyperfocus: 'Border Collies 🐕',
+        childHyperfocus: '',
         parentPinCode: '1234',
         lockType: 'math',
         plan: 'free',

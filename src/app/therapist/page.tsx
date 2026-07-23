@@ -1195,7 +1195,7 @@ export default function TherapistPortal() {
                             <option value="🍲">{locale === 'en' ? 'Meal 🍲' : locale === 'es' ? 'Alimentación 🍲' : 'Alimentação 🍲'}</option>
                             <option value="🏫">{locale === 'en' ? 'School 🏫' : locale === 'es' ? 'Escuela 🏫' : 'Escola 🏫'}</option>
                             <option value="🎨">{locale === 'en' ? 'Leisure 🎨' : locale === 'es' ? 'Ocio 🎨' : 'Lazer 🎨'}</option>
-                            <option value="🐶">{locale === 'en' ? 'Mascot 🐶' : locale === 'es' ? 'Mascota 🐶' : 'Mascote 🐶'}</option>
+                            <option value="🐶">{locale === 'en' ? 'Pet 🐶' : locale === 'es' ? 'Mascota 🐶' : 'Animal 🐶'}</option>
                             <option value="😴">{locale === 'en' ? 'Sleep 😴' : locale === 'es' ? 'Dormir 😴' : 'Dormir 😴'}</option>
                             <option value="🧸">{locale === 'en' ? 'Toy 🧸' : locale === 'es' ? 'Juguete 🧸' : 'Brinquedo 🧸'}</option>
                             <option value="🧠">{locale === 'en' ? 'ABA Session 🧠' : locale === 'es' ? 'Sesión ABA 🧠' : 'Sessão ABA 🧠'}</option>

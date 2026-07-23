@@ -740,7 +740,7 @@ export const firebaseBridge = {
         { title: 'Café da manhã 🍞', time: '08:30', period: 'manhã', day: 'segunda' },
         { title: 'Terapia Ocupacional 🧠', time: '09:30', period: 'manhã', day: 'segunda' },
         { title: 'Almoço Saudável 🍲', time: '12:30', period: 'tarde', day: 'segunda' },
-        { title: 'Brincar com o Collie 🐶', time: '15:00', period: 'tarde', day: 'segunda' },
+        { title: 'Montar quebra-cabeca 🧩', time: '15:00', period: 'tarde', day: 'segunda' },
         { title: 'Jantar em Família 🍽️', time: '19:00', period: 'noite', day: 'segunda' },
         { title: 'Banho e Dormir 😴', time: '21:00', period: 'noite', day: 'segunda' },
 

@@ -248,7 +248,7 @@ const generateAiStory = (theme: string, focus: string) => {
   else if (focus.toLowerCase().includes("tubarão") || focus.toLowerCase().includes("shark")) focusEmoji = "🦈";
   else if (focus.toLowerCase().includes("unicórnio") || focus.toLowerCase().includes("unicorn")) focusEmoji = "🦄";
   else if (focus.toLowerCase().includes("robô") || focus.toLowerCase().includes("robot")) focusEmoji = "🤖";
-  else if (focus.toLowerCase().includes("border") || focus.toLowerCase().includes("collie")) focusEmoji = "🐶";
+  else if (focus.toLowerCase().includes("border") || focus.toLowerCase().includes("collie")) focusEmoji = "🌟";
   
   steps[0].img = focusEmoji;
   steps[1].img = "🧘";
@@ -400,7 +400,7 @@ const HyperfocusThemeTimer: React.FC<TimerProps & { theme: string }> = ({ progre
   const { locale } = useLanguage();
   const lowerTheme = (theme || "").toLowerCase();
   
-  let timerName = locale === 'en' ? "Hyperfocus: Mascot 🐶" : locale === 'es' ? "Hiperenfoque: Mascota 🐶" : "Hiperfoco: Mascote 🐶";
+  let timerName = locale === 'en' ? "Focus 🌟" : locale === 'es' ? "Enfoque 🌟" : "Foco 🌟";
   let content = null;
 
   if (lowerTheme.includes("dino")) {
@@ -551,7 +551,7 @@ const HyperfocusThemeTimer: React.FC<TimerProps & { theme: string }> = ({ progre
       </svg>
     );
   } else {
-    timerName = locale === 'en' ? "🐶 Mascot Walking" : locale === 'es' ? "🐶 Mascota Caminando" : "🐶 Mascote Caminhando";
+    timerName = locale === 'en' ? "🌟 Focus" : locale === 'es' ? "🌟 Enfoque" : "🌟 Foco";
     const mascotX = (1 - progress) * 65 + 10;
     content = (
       <svg viewBox="0 0 100 100" className="w-full h-full">
@@ -738,7 +738,7 @@ export default function ChildRoutine() {
   const [currentYear, setCurrentYear] = useState(() => new Date().getFullYear().toString());
   const [collieState, setCollieState] = useState<CollieState>('idle');
   const [celebratingTaskId, setCelebratingTaskId] = useState<string | null>(null);
-  const [childHyperfocus, setChildHyperfocus] = useState('Border Collies 🐕');
+  const [childHyperfocus, setChildHyperfocus] = useState('');
   
   // Wait Timer states
   const [waitTimerDuration, setWaitTimerDuration] = useState(300); // default 5m
@@ -2084,7 +2084,7 @@ export default function ChildRoutine() {
 
             {/* Empathy Mascot guidance */}
             <div className="flex items-center gap-3 bg-amber-50 border border-amber-250 p-4.5 rounded-2xl text-left">
-              <span className="text-3xl shrink-0">🐶</span>
+              <span className="text-3xl shrink-0">🌟</span>
               <p className="text-[11px] text-amber-955 font-bold leading-normal">
                 <strong>{locale === 'en' ? 'The Mascot says:' : locale === 'es' ? 'La Mascota dice:' : 'O Mascote diz:'}</strong>{' '}
                 {locale === 'en'
@@ -2116,11 +2116,11 @@ export default function ChildRoutine() {
 
         <div className="max-w-2xl w-full text-center flex flex-col items-center gap-6 z-10">
           <div className="w-16 h-16 bg-slate-100 text-indigo-500 rounded-2xl flex items-center justify-center font-bold text-3xl shadow-sm border border-slate-200">
-            🐶
+            🌟
           </div>
           <div>
             <h1 className="text-2xl md:text-3xl font-extrabold text-slate-800 tracking-tight font-Outfit">
-              {locale === 'en' ? 'Who are you today? 🐶' : locale === 'es' ? '¿Quién eres hoy? 🐶' : 'Quem é você hoje? 🐶'}
+              {locale === 'en' ? 'Who are you today? 🌟' : locale === 'es' ? '¿Quién eres hoy? 🌟' : 'Quem é você hoje? 🌟'}
             </h1>
             <p className="text-sm font-bold text-slate-750 mt-3 font-semibold">
               {locale === 'en' ? 'Choose your profile to load your playful schedule!' : locale === 'es' ? '¡Elige tu perfil para cargar tu agenda lúdica!' : 'Escolha seu perfil para carregar sua agenda lúdica!'}
@@ -2466,7 +2466,7 @@ export default function ChildRoutine() {
                   </motion.div>
 
                   <div className="absolute bottom-2 right-4 flex items-center gap-1 bg-white border border-slate-200 px-2 py-1 rounded-full shadow-xxs">
-                    <span className="text-xs">🐾</span>
+                    <span className="text-xs">🌟</span>
                     <span className="text-[8px] font-black text-purple-700 uppercase tracking-wider font-Outfit">Mascote {'Nino'}</span>
                   </div>
                 </div>
@@ -3034,7 +3034,7 @@ export default function ChildRoutine() {
                       
                       {/* Active hyperfocus mascot is guide here */}
                       <div className="absolute bottom-2 right-4 flex items-center gap-1.5 bg-white border border-slate-200 px-2.5 py-1.5 rounded-full shadow-xxs max-w-[80%]">
-                        <span className="text-xs">🐾</span>
+                        <span className="text-xs">🌟</span>
                         <span className="text-[9px] font-black text-indigo-700 uppercase tracking-wider font-Outfit">Guia {'Nino'}</span>
                       </div>
                     </div>
@@ -3883,7 +3883,7 @@ export default function ChildRoutine() {
                   return {
                     emoji: "🚀",
                     target: "🪐",
-                    stroke: "#6366f1",
+                    stroke: "#2f8f86",
                     bg: "bg-indigo-50",
                     border: "border-indigo-250",
                     text: "text-indigo-700",
@@ -3990,7 +3990,7 @@ export default function ChildRoutine() {
 
                 // Default fallback (Dog / Border Collie)
                 return {
-                  emoji: "🐶",
+                  emoji: "🌟",
                   target: "🏠",
                   stroke: "#3b82f6",
                   bg: "bg-blue-50",
@@ -4374,7 +4374,7 @@ export default function ChildRoutine() {
                   onClick={handleClaimReward}
                   className="w-full py-4 bg-gradient-to-r from-yellow-500 via-amber-500 to-amber-600 text-slate-950 font-black text-sm rounded-2xl shadow-md cursor-pointer transition-all active:scale-95 border-b-4 border-amber-800 font-Outfit"
                 >
-                  {locale === 'en' ? 'CLAIM REWARD! 🐾' : locale === 'es' ? '¡RECLAMAR PREMIO! 🐾' : 'RESGATAR PRÊMIO! 🐾'}
+                  {locale === 'en' ? 'CLAIM REWARD! ⭐' : locale === 'es' ? '¡RECLAMAR PREMIO! ⭐' : 'RESGATAR PRÊMIO! ⭐'}
                 </button>
                 <button
                   onClick={() => setShowRewardModal(false)}
@@ -4774,7 +4774,7 @@ export default function ChildRoutine() {
                     <div className={`absolute bottom-2 right-4 flex items-center gap-1.5 px-2.5 py-1.5 rounded-full shadow-xxs max-w-[80%] border ${
                       sleepMode ? 'bg-[#0b0f19] border-amber-900/60 text-amber-400' : 'bg-white border-slate-200 text-indigo-750'
                     }`}>
-                      <span className="text-xs">🐾</span>
+                      <span className="text-xs">🌟</span>
                       <span className="text-[9px] font-black uppercase tracking-wider font-Outfit">Guia {'Nino'}</span>
                     </div>
                   </div>
@@ -4879,7 +4879,7 @@ export default function ChildRoutine() {
                   if (focus.includes('dino')) return '🦕';
                   if (focus.includes('space')) return '🛸';
                   if (focus.includes('trem')) return '💤🚂';
-                  return '💤🐶';
+                  return '💤🌟';
                 })()}
               </div>
 
@@ -5103,7 +5103,7 @@ const ParentalLockOverlay: React.FC<ParentalLockOverlayProps> = ({
           onClick={onClose}
           className="text-xs font-bold text-slate-450 hover:text-slate-650 underline cursor-pointer mt-1 bg-transparent border-none"
         >
-          Voltar à Rotina 🐾
+          Voltar à Rotina
         </button>
       )}
     </motion.div>

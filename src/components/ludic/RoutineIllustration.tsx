@@ -13,7 +13,7 @@ interface RoutineIllustrationProps {
 export const RoutineIllustration: React.FC<RoutineIllustrationProps> = ({ 
   category, 
   size = 150,
-  hyperfocus = 'Border Collies 🐕'
+  hyperfocus = ''
 }) => {
   // Normalize category key based on the standard sensory-standards task categories
   const getNormCategory = (): 'hygiene' | 'meal' | 'study' | 'rest' | 'play' | 'aba' | 'ocupacional' | 'fono' | 'fisio' | 'psicoterapia' | 'psicomotricidade' => {
@@ -187,8 +187,8 @@ export const RoutineIllustration: React.FC<RoutineIllustrationProps> = ({
 
             {/* Zzz indicators */}
             <motion.text x="135" y="95" fill="#a5b4fc" fontSize="12" fontWeight="extrabold" animate={{ opacity: [0, 0.8, 0], y: [95, 80], x: [135, 140] }} transition={{ duration: 2.8, repeat: Infinity, delay: 0 }} >z</motion.text>
-            <motion.text x="147" y="85" fill="#818cf8" fontSize="16" fontWeight="extrabold" animate={{ opacity: [0, 0.8, 0], y: [85, 65], x: [147, 154] }} transition={{ duration: 2.8, repeat: Infinity, delay: 0.9 }} >Z</motion.text>
-            <motion.text x="160" y="75" fill="#6366f1" fontSize="22" fontWeight="extrabold" animate={{ opacity: [0, 0.8, 0], y: [75, 50], x: [160, 168] }} transition={{ duration: 2.8, repeat: Infinity, delay: 1.8 }} >Z</motion.text>
+            <motion.text x="147" y="85" fill="#5cb3a8" fontSize="16" fontWeight="extrabold" animate={{ opacity: [0, 0.8, 0], y: [85, 65], x: [147, 154] }} transition={{ duration: 2.8, repeat: Infinity, delay: 0.9 }} >Z</motion.text>
+            <motion.text x="160" y="75" fill="#2f8f86" fontSize="22" fontWeight="extrabold" animate={{ opacity: [0, 0.8, 0], y: [75, 50], x: [160, 168] }} transition={{ duration: 2.8, repeat: Infinity, delay: 1.8 }} >Z</motion.text>
 
             {/* COZY BASKET & SLEEPING MASCOT */}
             <motion.g animate={{ scale: [1, 1.02, 1] }} transition={breatheTransition} style={{ originX: 0.5, originY: 0.7 }}>
@@ -274,8 +274,8 @@ export const RoutineIllustration: React.FC<RoutineIllustrationProps> = ({
             </foreignObject>
             {/* Puzzle piece matching */}
             <motion.g animate={{ y: [0, -3, 0] }} transition={floatTransition}>
-              <rect x="55" y="138" width="22" height="22" fill="#818cf8" rx="4" />
-              <circle cx="66" cy="138" r="6" fill="#818cf8" />
+              <rect x="55" y="138" width="22" height="22" fill="#5cb3a8" rx="4" />
+              <circle cx="66" cy="138" r="6" fill="#5cb3a8" />
               <circle cx="77" cy="149" r="6" fill="#f8fafc" />
               
               <rect x="120" y="132" width="22" height="22" fill="#f43f5e" rx="4" />
@@ -359,7 +359,7 @@ export const RoutineIllustration: React.FC<RoutineIllustrationProps> = ({
             </foreignObject>
             {/* Speech bubble with heart */}
             <motion.g animate={{ y: [-2, 2, -2] }} transition={floatTransition}>
-              <path d="M 125 90 C 125 78, 165 78, 165 90 C 165 98, 145 105, 145 110 L 140 115 L 141 109 C 125 109, 125 96, 125 90 Z" fill="#ffffff" stroke="#6366f1" strokeWidth="1.5" />
+              <path d="M 125 90 C 125 78, 165 78, 165 90 C 165 98, 145 105, 145 110 L 140 115 L 141 109 C 125 109, 125 96, 125 90 Z" fill="#ffffff" stroke="#2f8f86" strokeWidth="1.5" />
               {/* Tiny Red Heart */}
               <path d="M 145 88 C 143 85, 140 85, 139 88 L 145 94 L 151 88 C 150 85, 147 85, 145 88 Z" fill="#ef4444" transform="scale(0.85) translate(25, 16)" />
             </motion.g>
