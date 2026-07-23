@@ -149,7 +149,7 @@ export default function Home() {
           initial={{ opacity: 0, y: -8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="inline-flex items-center gap-2 text-[11px] md:text-xs font-black uppercase tracking-widest text-[#5468e6] bg-[#e4e7fc] border border-[#d3d9fa] px-3.5 py-1.5 rounded-full"
+          className="hidden sm:inline-flex items-center gap-2 text-[11px] md:text-xs font-black uppercase tracking-widest text-[#5468e6] bg-[#e4e7fc] border border-[#d3d9fa] px-3.5 py-1.5 rounded-full"
         >
           🌸 {info.eyebrow}
         </motion.span>
@@ -177,7 +177,7 @@ export default function Home() {
       <section className="w-full max-w-5xl mx-auto px-5 md:px-8 pb-6 flex flex-col gap-3.5 sm:gap-5">
         <div className="text-center flex flex-col gap-1">
           <h2 className="text-xl md:text-2xl font-black font-Outfit text-slate-900 tracking-tight">{info.portalTitle}</h2>
-          <p className="text-slate-500 text-xs md:text-sm font-medium max-w-md mx-auto">{info.portalSubtitle}</p>
+          <p className="hidden sm:block text-slate-500 text-xs md:text-sm font-medium max-w-md mx-auto">{info.portalSubtitle}</p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 md:gap-4">
