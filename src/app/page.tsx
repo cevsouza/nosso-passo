@@ -144,7 +144,7 @@ export default function Home() {
       </header>
 
       {/* Hero */}
-      <section className="w-full max-w-3xl mx-auto px-5 md:px-8 pt-10 pb-8 md:pt-16 md:pb-12 flex flex-col items-center text-center gap-5">
+      <section className="w-full max-w-3xl mx-auto px-5 md:px-8 pt-6 pb-5 sm:pt-10 sm:pb-8 md:pt-16 md:pb-12 flex flex-col items-center text-center gap-3 sm:gap-5">
         <motion.span
           initial={{ opacity: 0, y: -8 }}
           animate={{ opacity: 1, y: 0 }}
@@ -174,7 +174,7 @@ export default function Home() {
       </section>
 
       {/* Portals */}
-      <section className="w-full max-w-5xl mx-auto px-5 md:px-8 pb-6 flex flex-col gap-5">
+      <section className="w-full max-w-5xl mx-auto px-5 md:px-8 pb-6 flex flex-col gap-3.5 sm:gap-5">
         <div className="text-center flex flex-col gap-1">
           <h2 className="text-xl md:text-2xl font-black font-Outfit text-slate-900 tracking-tight">{info.portalTitle}</h2>
           <p className="text-slate-500 text-xs md:text-sm font-medium max-w-md mx-auto">{info.portalSubtitle}</p>
@@ -191,20 +191,22 @@ export default function Home() {
                 onClick={() => playMarimba(p.freq, 0.4)}
                 whileHover={{ y: -4 }}
                 whileTap={{ scale: 0.98 }}
-                className="group bg-white border border-slate-200 rounded-2xl p-5 flex flex-col gap-3 shadow-sm hover:shadow-md hover:border-slate-300 transition-all cursor-pointer"
+                className="group bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 flex flex-row sm:flex-col items-center sm:items-stretch gap-3.5 sm:gap-3 shadow-sm hover:shadow-md hover:border-slate-300 transition-all cursor-pointer"
               >
                 <span
-                  className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
+                  className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0"
                   style={{ backgroundColor: p.tint, color: p.color }}
                 >
-                  <Icon className="w-6 h-6" />
+                  <Icon className="w-5 h-5 sm:w-6 sm:h-6" />
                 </span>
-                <div className="flex flex-col gap-1 flex-1">
+                <div className="flex flex-col gap-0.5 sm:gap-1 flex-1 min-w-0">
                   <h3 className="text-base font-black font-Outfit text-slate-900 tracking-tight">{p.title}</h3>
                   <p className="text-xs text-slate-500 font-medium leading-relaxed">{p.desc}</p>
                 </div>
+                {/* No celular a seta basta; o rotulo "Entrar" so aparece a partir do sm. */}
+                <ArrowRight className="w-5 h-5 shrink-0 sm:hidden" style={{ color: p.color }} />
                 <span
-                  className="inline-flex items-center gap-1.5 text-xs font-black font-Outfit mt-1"
+                  className="hidden sm:inline-flex items-center gap-1.5 text-xs font-black font-Outfit mt-1"
                   style={{ color: p.color }}
                 >
                   {info.enter}
