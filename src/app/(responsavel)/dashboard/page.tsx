@@ -8363,7 +8363,7 @@ function ParentDashboardContent() {
 
                                       className="flex flex-col gap-4 p-5 bg-indigo-50/20 border border-indigo-400 rounded-2xl transition-all shadow-sm border-l-6"
 
-                                      style={{ borderLeftColor: '#4338ca' }}
+                                      style={{ borderLeftColor: '#26716a' }}
 
                                     >
 
@@ -8721,9 +8721,9 @@ function ParentDashboardContent() {
 
                                       taskCat.gradient.includes('sky') || taskCat.gradient.includes('blue') ? '#0284c7' : 
 
-                                      taskCat.gradient.includes('indigo') ? '#4338ca' : 
+                                      taskCat.gradient.includes('indigo') ? '#26716a' : 
 
-                                      taskCat.gradient.includes('violet') ? '#7c3aed' : 
+                                      taskCat.gradient.includes('violet') ? '#2f8f86' : 
 
                                       taskCat.gradient.includes('emerald') ? '#059669' : 
 
@@ -9115,9 +9115,9 @@ function ParentDashboardContent() {
 
                                             taskCat.gradient.includes('sky') || taskCat.gradient.includes('blue') ? '#0284c7' : 
 
-                                            taskCat.gradient.includes('indigo') ? '#4338ca' : 
+                                            taskCat.gradient.includes('indigo') ? '#26716a' : 
 
-                                            taskCat.gradient.includes('violet') ? '#7c3aed' : 
+                                            taskCat.gradient.includes('violet') ? '#2f8f86' : 
 
                                             taskCat.gradient.includes('emerald') ? '#059669' : 
 

@@ -124,9 +124,9 @@ export default function Home() {
   const info = localDict[curLang];
 
   const portals = [
-    { href: '/routine', icon: Gamepad2, title: info.kidsTitle, desc: info.kidsDesc, tint: '#e4e7fc', color: '#2f8f86', freq: 261.63 },
-    { href: '/login', icon: Users, title: info.parentsTitle, desc: info.parentsDesc, tint: '#eee6fb', color: '#8a66d9', freq: 329.63 },
-    { href: '/therapist', icon: Stethoscope, title: info.professionalTitle, desc: info.professionalDesc, tint: '#dfe3fb', color: '#4658de', freq: 392.0 },
+    { href: '/routine', icon: Gamepad2, title: info.kidsTitle, desc: info.kidsDesc, tint: '#e2f1ef', color: '#2f8f86', freq: 261.63 },
+    { href: '/login', icon: Users, title: info.parentsTitle, desc: info.parentsDesc, tint: '#fbeee0', color: '#c9743a', freq: 329.63 },
+    { href: '/therapist', icon: Stethoscope, title: info.professionalTitle, desc: info.professionalDesc, tint: '#d8ebe8', color: '#26716a', freq: 392.0 },
   ];
 
   return (
@@ -149,9 +149,9 @@ export default function Home() {
           initial={{ opacity: 0, y: -8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="hidden sm:inline-flex items-center gap-2 text-[11px] md:text-xs font-black uppercase tracking-widest text-[#2f8f86] bg-[#e4e7fc] border border-[#d3d9fa] px-3.5 py-1.5 rounded-full"
+          className="hidden sm:inline-flex items-center gap-2 text-[11px] md:text-xs font-black uppercase tracking-widest text-[#2f8f86] bg-[#e2f1ef] border border-[#bfe0db] px-3.5 py-1.5 rounded-full"
         >
-          🌸 {info.eyebrow}
+          🌿 {info.eyebrow}
         </motion.span>
 
         <motion.h1
@@ -265,7 +265,7 @@ export default function Home() {
             href="/login"
             onMouseEnter={playBubble}
             onClick={() => playMarimba(329.63, 0.4)}
-            className="inline-flex items-center gap-1.5 bg-[#2f8f86] hover:bg-[#4658de] text-white text-sm font-black font-Outfit px-6 py-3 rounded-xl shadow-sm transition-all active:scale-95"
+            className="inline-flex items-center gap-1.5 bg-[#2f8f86] hover:bg-[#26716a] text-white text-sm font-black font-Outfit px-6 py-3 rounded-xl shadow-sm transition-all active:scale-95"
           >
             {info.plansStart}
             <ArrowRight className="w-4 h-4" />
@@ -286,7 +286,7 @@ export default function Home() {
       {/* Footer */}
       <footer className="w-full max-w-5xl mx-auto px-5 md:px-8 py-6 mt-auto border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-[10px] text-slate-400 font-bold tracking-widest uppercase">
         <div className="flex items-center gap-1.5">
-          <Heart className="w-3 h-3 fill-[#9c7be6] text-[#9c7be6]" />
+          <Heart className="w-3 h-3 fill-[#ef9d61] text-[#ef9d61]" />
           <span>{t.landing.badgeNeuro}</span>
         </div>
         <div className="flex items-center gap-4">

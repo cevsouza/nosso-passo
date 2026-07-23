@@ -294,7 +294,7 @@
 .dark .text-blue-600, .dark .text-blue-700, .dark .text-blue-800, .dark .text-blue-900 { color: #93b4fd; }
 
 /* Light accent hex tints (landing) -> dark */
-.dark .bg-\[\#e4e7fc\] { background-color: #23234a; }
+.dark .bg-\[\#e2f1ef\] { background-color: #14332f; }
 .dark .bg-\[\#f2f0fc\] { background-color: #1e1e38; }
 
 /* Accent borders (tint cards, active nav item) -> dark tints of the hue */
@@ -666,8 +666,8 @@ h1, h2, h3, h4, h5, h6 {
   margin-bottom: 1.5rem;
 }
 .legal-prose .legal-callout {
-  background: #f4f6ff;
-  border: 1px solid #d3d9fa;
+  background: #eef7f5;
+  border: 1px solid #bfe0db;
   border-radius: 14px;
   padding: 1rem 1.1rem;
   margin: 1.25rem 0;
