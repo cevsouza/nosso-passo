@@ -8694,7 +8694,7 @@ function ParentDashboardContent() {
 
                     </span>
 
-                    <p className="text-[10px] text-slate-500 font-semibold leading-relaxed">
+                    <p className="text-[10px] text-slate-500 dark:text-slate-300 font-semibold leading-relaxed">
 
                       {t.dashboard.didacticsLegendDesc}
 
@@ -9486,9 +9486,9 @@ function ParentDashboardContent() {
 
                     {/* Template Replication */}
 
-                    <div className="bg-indigo-50/40 border border-indigo-100 p-6 rounded-2xl shadow-sm flex flex-col gap-4 text-left">
+                    <div className="bg-indigo-50/40 dark:bg-indigo-950/30 border border-indigo-100 dark:border-indigo-900 p-6 rounded-2xl shadow-sm flex flex-col gap-4 text-left">
 
-                      <div className="flex items-center gap-2 text-indigo-950">
+                      <div className="flex items-center gap-2 text-indigo-950 dark:text-indigo-100">
 
                         <span className="text-xl">📅</span>
 
@@ -9496,7 +9496,7 @@ function ParentDashboardContent() {
 
                       </div>
 
-                      <p className="text-[10px] text-slate-500 font-semibold leading-relaxed">
+                      <p className="text-[10px] text-slate-500 dark:text-slate-300 font-semibold leading-relaxed">
 
                         {t.dashboard.saveTemplateDesc}
 
@@ -9532,7 +9532,7 @@ function ParentDashboardContent() {
 
                           disabled={!activeChild.monthlyTemplate}
 
-                          className="flex-1 py-2.5 bg-white hover:bg-slate-50 disabled:bg-slate-100 disabled:text-slate-455 disabled:border-slate-200 text-indigo-955 text-xs font-black rounded-xl border border-slate-250 active:scale-95 transition-all cursor-pointer font-Outfit uppercase tracking-wider disabled:shadow-none"
+                          className="flex-1 py-2.5 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:bg-slate-100 dark:disabled:bg-slate-900 disabled:text-slate-455 disabled:border-slate-200 dark:disabled:border-slate-700 text-indigo-955 dark:text-indigo-200 text-xs font-black rounded-xl border border-slate-250 dark:border-slate-600 active:scale-95 transition-all cursor-pointer font-Outfit uppercase tracking-wider disabled:shadow-none"
 
                         >
 
@@ -9572,9 +9572,9 @@ function ParentDashboardContent() {
 
                     {/* Unexpected Change Panel */}
 
-                    <div className="bg-amber-50/40 border border-amber-100 p-6 rounded-2xl shadow-sm flex flex-col gap-4 text-left">
+                    <div className="bg-amber-50/40 dark:bg-amber-950/30 border border-amber-100 dark:border-amber-900 p-6 rounded-2xl shadow-sm flex flex-col gap-4 text-left">
 
-                      <div className="flex items-center gap-2 text-amber-950">
+                      <div className="flex items-center gap-2 text-amber-950 dark:text-amber-100">
 
                         <span className="text-xl">⚠️</span>
 
@@ -9588,7 +9588,7 @@ function ParentDashboardContent() {
 
                         <div className="flex flex-col gap-3">
 
-                          <div className="p-3 bg-white border border-amber-200 rounded-xl text-xxs font-semibold text-slate-700 flex flex-col gap-1.5">
+                          <div className="p-3 bg-white dark:bg-slate-800 border border-amber-200 dark:border-amber-800 rounded-xl text-xxs font-semibold text-slate-700 dark:text-slate-200 flex flex-col gap-1.5">
 
                             <div>
 
@@ -9630,7 +9630,7 @@ function ParentDashboardContent() {
 
                         <form onSubmit={handleDeclareUnexpectedChange} className="flex flex-col gap-2.5">
 
-                          <p className="text-[10px] text-slate-500 font-semibold leading-relaxed">
+                          <p className="text-[10px] text-slate-500 dark:text-slate-300 font-semibold leading-relaxed">
 
                             {t.dashboard.unexpectedChangeDesc}
 
@@ -9640,7 +9640,7 @@ function ParentDashboardContent() {
 
                             <div>
 
-                              <label className="block text-[8px] font-black text-slate-500 uppercase mb-0.5 pl-0.5">{t.dashboard.affectedActivity}</label>
+                              <label className="block text-[8px] font-black text-slate-500 dark:text-slate-300 uppercase mb-0.5 pl-0.5">{t.dashboard.affectedActivity}</label>
 
                               <select
 
@@ -9648,7 +9648,7 @@ function ParentDashboardContent() {
 
                                 onChange={e => setSelectedCancelTaskTitle(e.target.value)}
 
-                                className="w-full px-2.5 py-1.5 bg-white border border-slate-250 rounded-lg text-[10px] font-bold outline-none cursor-pointer"
+                                className="w-full px-2.5 py-1.5 bg-white dark:bg-slate-800 dark:text-slate-100 border border-slate-250 dark:border-slate-600 rounded-lg text-[10px] font-bold outline-none cursor-pointer"
 
                                 required
 
@@ -9676,7 +9676,7 @@ function ParentDashboardContent() {
 
                               <div>
 
-                                <label className="block text-[8px] font-black text-slate-500 uppercase mb-0.5 pl-0.5">{t.dashboard.changeReasonLabel}</label>
+                                <label className="block text-[8px] font-black text-slate-500 dark:text-slate-300 uppercase mb-0.5 pl-0.5">{t.dashboard.changeReasonLabel}</label>
 
                                 <input
 
@@ -9688,7 +9688,7 @@ function ParentDashboardContent() {
 
                                   onChange={e => setChangeReason(e.target.value)}
 
-                                  className="w-full px-2.5 py-1.5 bg-white border border-slate-250 rounded-lg text-xxs font-bold outline-none"
+                                  className="w-full px-2.5 py-1.5 bg-white dark:bg-slate-800 dark:text-slate-100 dark:placeholder-slate-400 border border-slate-250 dark:border-slate-600 rounded-lg text-xxs font-bold outline-none"
 
                                   required
 
@@ -9698,7 +9698,7 @@ function ParentDashboardContent() {
 
                               <div>
 
-                                <label className="block text-[8px] font-black text-slate-500 uppercase mb-0.5 pl-0.5">{t.dashboard.replacementLabel}</label>
+                                <label className="block text-[8px] font-black text-slate-500 dark:text-slate-300 uppercase mb-0.5 pl-0.5">{t.dashboard.replacementLabel}</label>
 
                                   <input
 
@@ -9710,7 +9710,7 @@ function ParentDashboardContent() {
 
                                   onChange={e => setChangeReplacement(e.target.value)}
 
-                                  className="w-full px-2.5 py-1.5 bg-white border border-slate-250 rounded-lg text-xxs font-bold outline-none"
+                                  className="w-full px-2.5 py-1.5 bg-white dark:bg-slate-800 dark:text-slate-100 dark:placeholder-slate-400 border border-slate-250 dark:border-slate-600 rounded-lg text-xxs font-bold outline-none"
 
                                   required
 
@@ -11349,7 +11349,7 @@ function ParentDashboardContent() {
 
                           </h4>
 
-                          <p className="text-[10px] text-slate-500 font-semibold leading-relaxed">
+                          <p className="text-[10px] text-slate-500 dark:text-slate-300 font-semibold leading-relaxed">
 
                             {locale === 'en' ? 'AI analyzes intersections between completed routines and sensory episodes to predict hidden triggers and suggest customized ABA/O.T. interventions.' : locale === 'es' ? 'La IA analiza cruces entre rutinas cumplidas y episodios sensoriales para predecir desencadenantes ocultos y sugerir sugerencias personalizadas de ABA/T.O.' : 'A IA analisa cruzamentos entre rotinas cumpridas e episódios sensoriais para prever gatilhos ocultos e sugerir intervenções personalizadas de ABA/T.O.'}
 
@@ -13394,7 +13394,7 @@ function ParentDashboardContent() {
 
                       </div>
 
-                      <p className="text-[10px] text-slate-500 font-semibold leading-relaxed">
+                      <p className="text-[10px] text-slate-500 dark:text-slate-300 font-semibold leading-relaxed">
 
                         {t.dashboard.familyVoiceDesc}
 
@@ -13572,7 +13572,7 @@ function ParentDashboardContent() {
 
                       </div>
 
-                      <p className="text-[10px] text-slate-500 font-semibold leading-relaxed">
+                      <p className="text-[10px] text-slate-500 dark:text-slate-300 font-semibold leading-relaxed">
 
                         {t.dashboard.customAacDesc}
 
@@ -13796,7 +13796,7 @@ function ParentDashboardContent() {
 
                       </div>
 
-                      <p className="text-[10px] text-slate-500 font-semibold leading-relaxed">
+                      <p className="text-[10px] text-slate-500 dark:text-slate-300 font-semibold leading-relaxed">
 
                         {t.dashboard.aiSocialStoriesDesc}
 
@@ -13950,7 +13950,7 @@ function ParentDashboardContent() {
 
                       </div>
 
-                      <p className="text-[10px] text-slate-500 font-semibold leading-relaxed">
+                      <p className="text-[10px] text-slate-500 dark:text-slate-300 font-semibold leading-relaxed">
 
                         {t.dashboard.behaviorDictionaryDesc}
 
