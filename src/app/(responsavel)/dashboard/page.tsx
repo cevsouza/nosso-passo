@@ -2079,6 +2079,23 @@ function ParentDashboardContent() {
   const [levelHidden, setLevelHidden] = useState(false);
   const [evolutionOpen, setEvolutionOpen] = useState(false);
 
+  // Os cartoes PECS so existem no DOM na hora de imprimir.
+  //
+  // Eram um mes inteiro de cartoes montados o tempo todo e escondidos por CSS:
+  // 94% dos nos da pagina para uma grade que ninguem ve. Com o pictograma no
+  // lugar do emoji o custo triplicou, e o painel da familia roda em celular.
+  const [printingPecs, setPrintingPecs] = useState(false);
+
+  const printPecsCards = () => {
+    setPrintingPecs(true);
+    // dois quadros: um para o React montar a grade, outro para o layout
+    // assentar antes do dialogo de impressao congelar a pagina
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      window.print();
+      setPrintingPecs(false);
+    }));
+  };
+
 
 
   // Reward & Transition Timer states
@@ -7948,7 +7965,7 @@ function ParentDashboardContent() {
 
                         <button
 
-                          onClick={() => { playBubble(); window.print(); }}
+                          onClick={() => { playBubble(); printPecsCards(); }}
 
                           className="flex items-center gap-1.5 px-4 py-2 bg-emerald-50 border border-emerald-250 hover:bg-emerald-100 text-emerald-700 text-xs font-black rounded-full shadow-sm transition-all cursor-pointer font-Outfit"
 
@@ -14433,7 +14450,7 @@ function ParentDashboardContent() {
 
               playBubble();
 
-              window.print();
+              printPecsCards();
 
             }}
 
@@ -15913,9 +15930,9 @@ function ParentDashboardContent() {
 
 
 
-      {/* PECS Printable Grid */}
+      {/* PECS Printable Grid — montada so quando `printPecsCards()` pede */}
 
-      <div className="print-only">
+      {printingPecs && <div className="print-only">
 
         <div className="text-center mb-8">
 
@@ -15952,7 +15969,7 @@ function ParentDashboardContent() {
         </div>
         <PrintFooter variant="familia" />
 
-      </div>
+      </div>}
 
     </main>
 
