@@ -11,7 +11,7 @@ import { useLanguage } from '../../../lib/LanguageContext';
 import { LanguageSelector } from '../../../components/LanguageSelector';
 import { getTaskCategory, TaskCategory } from '../../../lib/sensory-standards';
 import { RoutineIllustration } from '../../../components/ludic/RoutineIllustration';
-import { hasPictogram } from '../../../components/ludic/ActivityPictogram';
+import { hasPictogram, displayTitle } from '../../../components/ludic/ActivityPictogram';
 import { 
   Check, 
   Star, 
@@ -3786,7 +3786,7 @@ export default function ChildRoutine() {
                         className="text-[clamp(1.875rem,1.1rem+3.3vw,3rem)] leading-[1.12] font-black tracking-tight text-slate-950 max-w-md break-words px-2 cursor-pointer hover:text-indigo-700 transition-all select-none hover:scale-[1.01] font-Outfit"
                         title="Clique para ouvir"
                       >
-                        {activeTask.title}
+                        {displayTitle(activeTask.title)}
                       </h1>
                       
                       <span className="text-sm text-slate-500 font-semibold flex items-center gap-2 justify-center">
@@ -4226,7 +4226,7 @@ export default function ChildRoutine() {
                         onClick={() => { playBubble(); speakText(activeTask.title + (activeTask.description ? (locale === 'en' ? `. Instructions: ${activeTask.description}` : locale === 'es' ? `. Instrucciones: ${activeTask.description}` : `. Instruções: ${activeTask.description}`) : '')); }}
                         className="text-xl font-black text-slate-950 tracking-tight cursor-pointer hover:text-indigo-700 select-none font-Outfit"
                       >
-                        {activeTask.title}
+                        {displayTitle(activeTask.title)}
                       </h4>
                       {activeTask.description && (
                         <p 
@@ -4270,7 +4270,7 @@ export default function ChildRoutine() {
                         onClick={() => { playBubble(); speakText(nextTask.title); }}
                         className="text-xl font-black text-slate-700 tracking-tight cursor-pointer hover:text-indigo-700 select-none font-Outfit"
                       >
-                        {nextTask.title}
+                        {displayTitle(nextTask.title)}
                       </h4>
                       {(() => {
                         const [nextH, nextM] = nextTask.time.split(':').map(Number);

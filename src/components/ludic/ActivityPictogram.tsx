@@ -152,6 +152,25 @@ export function hasPictogram(title: string): boolean {
   return pictogramFor(title) !== 'generico';
 }
 
+/**
+ * O titulo como a CRIANCA deve ler: sem o emoji, quando ja existe pictograma.
+ *
+ * Os titulos carregam emoji por heranca — quando o emoji ERA a ilustracao,
+ * ele fazia falta. Agora "Acordar e abrir a cortina 🌅" aparece ao lado de um
+ * desenho de sol: duas figuras para a mesma coisa, na tela cujo proposito e
+ * nao competir por atencao.
+ *
+ * Mexe so no que se mostra. O texto guardado continua intacto — e o que o
+ * responsavel escreveu, e ele reaparece inteiro no painel do adulto e no PDF.
+ */
+export function displayTitle(title: string): string {
+  if (!title || !hasPictogram(title)) return title;
+  return title
+    .replace(/[\p{Extended_Pictographic}\u{1F3FB}-\u{1F3FF}\u{FE0F}\u{200D}]/gu, '')
+    .replace(/\s{2,}/g, ' ')
+    .trim() || title;
+}
+
 // --- primitivas de desenho -------------------------------------------------
 
 const s = {
