@@ -124,65 +124,105 @@ const NINA_DAY: Slot[] = [
   { title: 'Dormir', time: '20:00', period: 'noite', category: 'AVD', duration: 20, icon: '😴' },
 ];
 
-type RoutineModel = { weekday: Slot[]; weekend: Slot[]; adherence: number };
+type RoutineModel = {
+  weekday: Slot[];
+  weekend: Slot[];
+  adherence: number;
+  /**
+   * Adesao nas ultimas 3 semanas, quando a historia da crianca e "engatou
+   * agora". Existe por causa da sugestao de nivel: sem uma virada recente no
+   * dado, a demonstracao nunca mostra o app propondo subir de nivel — que e
+   * justamente a coisa que nenhum concorrente faz.
+   */
+  recentAdherence?: number;
+};
 
 const ROUTINES: Record<string, RoutineModel> = {
   teo: { weekday: TEO_WEEKDAY, weekend: TEO_WEEKEND, adherence: 0.86 },
   bento: { weekday: BENTO_WEEKDAY, weekend: BENTO_WEEKEND, adherence: 0.78 },
-  nina: { weekday: NINA_DAY, weekend: NINA_DAY, adherence: 0.7 },
+  // A Nina e a historia de progresso: comecou irregular e engatou no ultimo
+  // mes. E ela que dispara a sugestao de sair do Foco para o Intermediario.
+  nina: { weekday: NINA_DAY, weekend: NINA_DAY, adherence: 0.62, recentAdherence: 0.95 },
 };
 
+/** Dias inteiros entre duas datas UTC (a, b), positivo quando b vem depois. */
+const daysBetween = (a: Date, b: Date) =>
+  Math.round((Date.UTC(b.getUTCFullYear(), b.getUTCMonth(), b.getUTCDate())
+    - Date.UTC(a.getUTCFullYear(), a.getUTCMonth(), a.getUTCDate())) / 86400000);
+
 /**
- * Gera a rotina do mes corrente. Dias passados vem com adesao parcial (nunca
- * 100% — rotina perfeita nao existe e um terapeuta percebe na hora); o dia de
- * hoje vem concluido so ate o horario atual; dias futuros ficam abertos.
+ * Gera a rotina do mes ANTERIOR e do mes corrente. Dias passados vem com adesao
+ * parcial (nunca 100% — rotina perfeita nao existe e um terapeuta percebe na
+ * hora); o dia de hoje vem concluido so ate o horario atual; dias futuros ficam
+ * abertos.
+ *
+ * O mes anterior existe por dois motivos: o relatorio de evolucao compara 14
+ * dias com os 14 anteriores (sem isso a coluna "antes" fica pela metade e a
+ * comparacao mente), e a sugestao de nivel olha 3 semanas para tras, que no
+ * comeco do mes caem todas no mes passado.
  */
 export function buildTasks(modelKey: string, childId: string, userUid: string, seed: number) {
   const model = ROUTINES[modelKey];
   const now = brtNow();
-  const year = now.getUTCFullYear();
-  const monthIndex = now.getUTCMonth();
-  const today = now.getUTCDate();
   const nowMinutes = now.getUTCHours() * 60 + now.getUTCMinutes();
-  const daysInMonth = new Date(Date.UTC(year, monthIndex + 1, 0)).getUTCDate();
   const rand = rng(seed);
 
   const rows: any[] = [];
 
-  for (let day = 1; day <= daysInMonth; day++) {
-    const weekday = new Date(Date.UTC(year, monthIndex, day)).getUTCDay();
-    const isWeekend = weekday === 0 || weekday === 6;
-    const slots = (isWeekend ? model.weekend : model.weekday).filter(
-      (s) => !s.weekdays || s.weekdays.includes(weekday)
-    );
+  // [mes anterior, mes corrente] — nessa ordem, para o PRNG andar no tempo.
+  const months = [
+    new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 1, 1)),
+    new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)),
+  ];
 
-    slots.forEach((slot, index) => {
-      let isCompleted = false;
-      if (day < today) {
-        isCompleted = rand() < model.adherence;
-      } else if (day === today) {
-        isCompleted = minutesOf(slot.time) + slot.duration <= nowMinutes && rand() < 0.9;
-      } else {
-        rand(); // mantem a sequencia estavel entre os dias
-      }
+  for (const monthStart of months) {
+    const year = monthStart.getUTCFullYear();
+    const monthIndex = monthStart.getUTCMonth();
+    const daysInMonth = new Date(Date.UTC(year, monthIndex + 1, 0)).getUTCDate();
 
-      rows.push({
-        title: `${slot.title} ${slot.icon}`,
-        time: slot.time,
-        period: slot.period,
-        day: String(day),
-        isCompleted,
-        order: index + 1,
-        icon: slot.icon,
-        category: slot.category,
-        duration: slot.duration,
-        description: slot.description || '',
-        childId,
-        userUid,
-        month: monthIndex + 1,
-        year,
+    for (let day = 1; day <= daysInMonth; day++) {
+      const date = new Date(Date.UTC(year, monthIndex, day));
+      const offset = daysBetween(date, now); // >0 passado, 0 hoje, <0 futuro
+      const weekday = date.getUTCDay();
+      const isWeekend = weekday === 0 || weekday === 6;
+      const slots = (isWeekend ? model.weekend : model.weekday).filter(
+        (s) => !s.weekdays || s.weekdays.includes(weekday)
+      );
+
+      // A virada de comportamento: as ultimas 3 semanas (sem contar hoje).
+      const adherence =
+        model.recentAdherence !== undefined && offset >= 1 && offset <= 21
+          ? model.recentAdherence
+          : model.adherence;
+
+      slots.forEach((slot, index) => {
+        let isCompleted = false;
+        if (offset > 0) {
+          isCompleted = rand() < adherence;
+        } else if (offset === 0) {
+          isCompleted = minutesOf(slot.time) + slot.duration <= nowMinutes && rand() < 0.9;
+        } else {
+          rand(); // mantem a sequencia estavel entre os dias
+        }
+
+        rows.push({
+          title: `${slot.title} ${slot.icon}`,
+          time: slot.time,
+          period: slot.period,
+          day: String(day),
+          isCompleted,
+          order: index + 1,
+          icon: slot.icon,
+          category: slot.category,
+          duration: slot.duration,
+          description: slot.description || '',
+          childId,
+          userUid,
+          month: monthIndex + 1,
+          year,
+        });
       });
-    });
+    }
   }
 
   return rows;
