@@ -11,7 +11,7 @@ import { useLanguage } from '../../../lib/LanguageContext';
 import { LanguageSelector } from '../../../components/LanguageSelector';
 import { getTaskCategory, TaskCategory } from '../../../lib/sensory-standards';
 import { RoutineIllustration } from '../../../components/ludic/RoutineIllustration';
-import { hasPictogram, displayTitle } from '../../../components/ludic/ActivityPictogram';
+import { hasPictogram, displayTitle, ActivityPictogram } from '../../../components/ludic/ActivityPictogram';
 import { 
   Check, 
   Star, 
@@ -4309,8 +4309,13 @@ export default function ChildRoutine() {
                 {nextTasks.length > 0 && (
                   <div className="flex items-center gap-3 py-4 border-t border-slate-100">
                     <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 min-w-[52px]">{t.routine.then}</span>
-                    <span className="text-lg select-none">{nextTasks[0].icon || '📅'}</span>
-                    <span className="text-base font-black text-slate-700 truncate">{nextTasks[0].title}</span>
+                    {/* Um simbolo so: o pictograma quando existe, o emoji
+                        quando nao. Antes saiam os dois, e ainda o emoji
+                        repetido dentro do proprio titulo. */}
+                    {hasPictogram(nextTasks[0].title)
+                      ? <ActivityPictogram title={nextTasks[0].title} size={30} />
+                      : <span className="text-lg select-none">{nextTasks[0].icon || '📅'}</span>}
+                    <span className="text-base font-black text-slate-700 truncate">{displayTitle(nextTasks[0].title)}</span>
                   </div>
                 )}
                 {/* Dia — progresso */}

@@ -23,11 +23,23 @@ const W = 412, H = 915;
 
 const CHROME = 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe';
 
+// `antes` roda na pagina depois de carregar e antes da foto — e como se chega
+// na aba certa. Sem isso o painel do adulto abre na lista de criancas com um
+// paredao de texto, que nao vende nada.
+const clicar = (texto) =>
+  `(()=>{const b=[...document.querySelectorAll('button,a')]
+     .find(x=>x.textContent.trim().startsWith(${JSON.stringify(texto)}));
+     if(b){b.click();return 'ok'}return 'nao achou: ${texto}'})()`;
+
 const TELAS = [
-  { id: '1_tela_paciente', url: '/routine', espera: 7000,
-    nota: 'A tela que a crianca ve: uma atividade, um desenho, o tempo passando.' },
-  { id: '2_painel_hoje', url: '/dashboard', espera: 7000,
+  { id: '1_tela_paciente', url: '/routine', espera: 7000, tema: 'dark',
+    nota: 'A tela da crianca: uma atividade, um desenho, o tempo passando.' },
+  { id: '2_hoje', url: '/dashboard', espera: 7000, tema: 'light',
+    antes: clicar('Hoje'), esperaDepois: 2500,
     nota: 'O dia num relance, para o adulto.' },
+  { id: '3_rotina_pronta', url: '/dashboard', espera: 7000, tema: 'light',
+    antes: clicar('Rotina'), esperaDepois: 3000,
+    nota: 'Rotina pronta por momento do dia — os dez minutos prometidos.' },
 ];
 
 function cdpSend(ws, id, method, params = {}) {
@@ -112,7 +124,18 @@ async function main() {
 
   const feitas = [];
   for (const tela of TELAS) {
+    // O painel do adulto e da marca clara (creme e verde); a tela da crianca e
+    // escura por decisao de projeto. Sem fixar isto, o Chrome sem cabeca decide
+    // sozinho e as capturas saem em temas diferentes a cada rodada.
+    await chamar('Emulation.setEmulatedMedia', {
+      features: [{ name: 'prefers-color-scheme', value: tela.tema || 'light' }],
+    });
     await irPara(tela.url, tela.espera);
+    if (tela.antes) {
+      const r = await avaliar(tela.antes);
+      if (String(r).startsWith('nao achou')) console.warn('  aviso:', r);
+      await sleep(tela.esperaDepois || 2500);
+    }
     const { data } = await chamar('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false });
     const arquivo = `${OUT}/${tela.id}.png`;
     writeFileSync(arquivo, Buffer.from(data, 'base64'));
