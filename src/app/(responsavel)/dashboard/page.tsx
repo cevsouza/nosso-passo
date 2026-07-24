@@ -26,6 +26,7 @@ import { getTaskCategory, TaskCategory } from '../../../lib/sensory-standards';
 import { ActivityPictogram } from '../../../components/ludic/ActivityPictogram';
 
 import { STARTER_BLOCKS, blockToTasks, starterLocale, StarterBlock } from '../../../lib/starter-routines';
+import { detectAndroidApp, isAndroidApp } from '../../../lib/platform';
 import {
   suggestLevel,
   parseLevelState,
@@ -1159,7 +1160,7 @@ function ParentDashboardContent() {
 
       playMarimba(180, 0.2);
 
-      setShowPaywall(true);
+      pedirUpgrade();
 
       return;
 
@@ -1233,7 +1234,7 @@ function ParentDashboardContent() {
 
     if (plan === 'free' && dayTasks.length >= 3) {
       playMarimba(180, 0.2);
-      setShowPaywall(true);
+      pedirUpgrade();
       return;
     }
 
@@ -1243,7 +1244,7 @@ function ParentDashboardContent() {
     const all = blockToTasks(block, activeDayFilter, locale);
     const payload = room === Infinity ? all : all.slice(0, room);
     if (payload.length === 0) {
-      setShowPaywall(true);
+      pedirUpgrade();
       return;
     }
 
@@ -1304,7 +1305,7 @@ function ParentDashboardContent() {
 
         playMarimba(180, 0.2);
 
-        setShowPaywall(true);
+        pedirUpgrade();
 
         return;
 
@@ -1314,7 +1315,7 @@ function ParentDashboardContent() {
 
         playMarimba(180, 0.2);
 
-        setShowPaywall(true);
+        pedirUpgrade();
 
         return;
 
@@ -2078,6 +2079,28 @@ function ParentDashboardContent() {
   const [levelBusy, setLevelBusy] = useState(false);
   const [levelHidden, setLevelHidden] = useState(false);
   const [evolutionOpen, setEvolutionOpen] = useState(false);
+
+  // Dentro do app da Play Store nao existe oferta de assinatura.
+  //
+  // A regra do Google e mais dura do que parece: nao basta tirar o pagamento
+  // por Stripe — nao pode haver link, botao NEM FRASE mandando pagar fora.
+  // Entao aqui o limite do plano gratuito continua sendo dito com todas as
+  // letras, e so a oferta some. Quem quiser assinar assina pelo site, por
+  // conta propria. Ver `lib/platform.ts`.
+  const [appAndroid, setAppAndroid] = useState(false);
+  useEffect(() => { setAppAndroid(detectAndroidApp() || isAndroidApp()); }, []);
+
+  const pedirUpgrade = () => {
+    if (appAndroid) {
+      triggerStatus(
+        locale === 'en' ? 'The free plan holds 3 activities per day.'
+          : locale === 'es' ? 'El plan gratuito permite 3 actividades por día.'
+            : 'O plano gratuito comporta 3 atividades por dia.'
+      );
+      return;
+    }
+    setShowPaywall(true);
+  };
 
   // Os cartoes PECS so existem no DOM na hora de imprimir.
   //
@@ -3844,7 +3867,7 @@ function ParentDashboardContent() {
 
       playMarimba(180, 0.2);
 
-      setShowPaywall(true);
+      pedirUpgrade();
 
       return;
 
@@ -6303,7 +6326,12 @@ function ParentDashboardContent() {
                   >
                     {/* Header Tabs */}
                     <div className="flex bg-slate-100 dark:bg-slate-800/50 p-1 rounded-xl gap-1 select-none">
-                      {(['conta', 'sensorial', 'seguranca', 'plano'] as const).map(tab => (
+                      {/* A aba "plano" e a vitrine da assinatura: fora do ar
+                          dentro do app da Play, onde nao pode haver oferta. */}
+                      {(appAndroid
+                        ? (['conta', 'sensorial', 'seguranca'] as const)
+                        : (['conta', 'sensorial', 'seguranca', 'plano'] as const)
+                      ).map(tab => (
                         <button
                           key={tab}
                           type="button"
@@ -6687,7 +6715,7 @@ function ParentDashboardContent() {
                               onClick={() => {
                                 playBubble();
                                 setShowPreferencesMenu(false);
-                                setShowPaywall(true);
+                                pedirUpgrade();
                               }}
                               className="w-full py-2.5 bg-amber-500 hover:bg-amber-600 text-white text-xs font-black uppercase rounded-xl transition-all cursor-pointer text-center font-Outfit active:scale-95"
                             >
@@ -10888,7 +10916,7 @@ function ParentDashboardContent() {
 
                   <button
 
-                    onClick={() => { playBubble(); setShowPaywall(true); }}
+                    onClick={() => { playBubble(); pedirUpgrade(); }}
 
                     className="px-6 py-3 bg-indigo-650 hover:bg-indigo-700 text-white font-extrabold text-sm rounded-xl shadow-md cursor-pointer transition-all active:scale-95"
 
@@ -13045,7 +13073,7 @@ function ParentDashboardContent() {
                       type="button"
                       onClick={() => {
                         playBubble();
-                        setShowPaywall(true);
+                        pedirUpgrade();
                       }}
                       className="px-4 py-2.5 bg-amber-500 hover:bg-amber-600 text-white text-xs font-black uppercase rounded-xl transition-all cursor-pointer shadow-md shadow-amber-100 shrink-0 self-start sm:self-center font-Outfit active:scale-95"
                     >
@@ -13551,7 +13579,7 @@ function ParentDashboardContent() {
                       const val = e.target.value;
                       if (plan === 'free' && (val === 'voice' || val === 'stories')) {
                         playMarimba(180, 0.2);
-                        setShowPaywall(true);
+                        pedirUpgrade();
                         return;
                       }
 
