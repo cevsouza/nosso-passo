@@ -27,6 +27,7 @@ import { ActivityPictogram } from '../../../components/ludic/ActivityPictogram';
 
 import { STARTER_BLOCKS, blockToTasks, starterLocale, StarterBlock } from '../../../lib/starter-routines';
 import { detectAndroidApp, isAndroidApp } from '../../../lib/platform';
+import { FREE_TASKS_PER_DAY } from '../../../lib/plans';
 import {
   suggestLevel,
   parseLevelState,
@@ -1156,7 +1157,7 @@ function ParentDashboardContent() {
 
     const activeDayTasks = tasks.filter(t => t.day === activeDayFilter);
 
-    if (plan === 'free' && activeDayTasks.length >= 3) {
+    if (plan === 'free' && activeDayTasks.length >= FREE_TASKS_PER_DAY) {
 
       playMarimba(180, 0.2);
 
@@ -1232,15 +1233,16 @@ function ParentDashboardContent() {
     if (applyingBlock) return;
     const dayTasks = tasks.filter(tk => tk.day === activeDayFilter);
 
-    if (plan === 'free' && dayTasks.length >= 3) {
+    if (plan === 'free' && dayTasks.length >= FREE_TASKS_PER_DAY) {
       playMarimba(180, 0.2);
       pedirUpgrade();
       return;
     }
 
-    // No plano gratuito o dia cabe 3 tarefas: entrega as 3 primeiras do bloco
-    // e avisa, em vez de falhar no meio.
-    const room = plan === 'free' ? Math.max(0, 3 - dayTasks.length) : Infinity;
+    // Um bloco inteiro cabe no gratuito (5 = 5). Esta conta so entra em acao
+    // quando o dia JA tem alguma atividade: entrega o que couber e avisa, em
+    // vez de falhar no meio.
+    const room = plan === 'free' ? Math.max(0, FREE_TASKS_PER_DAY - dayTasks.length) : Infinity;
     const all = blockToTasks(block, activeDayFilter, locale);
     const payload = room === Infinity ? all : all.slice(0, room);
     if (payload.length === 0) {
@@ -1266,10 +1268,10 @@ function ParentDashboardContent() {
       triggerStatus(
         truncated
           ? (locale === 'en'
-              ? `${payload.length} activities added — the free plan holds 3 per day.`
+              ? `${payload.length} activities added — the free plan holds ${FREE_TASKS_PER_DAY} per day.`
               : locale === 'es'
-                ? `${payload.length} actividades agregadas — el plan gratuito permite 3 por día.`
-                : `${payload.length} tarefas adicionadas — o plano gratuito comporta 3 por dia.`)
+                ? `${payload.length} actividades agregadas — el plan gratuito permite ${FREE_TASKS_PER_DAY} por día.`
+                : `${payload.length} tarefas adicionadas — o plano gratuito comporta ${FREE_TASKS_PER_DAY} por dia.`)
           : (locale === 'en'
               ? `${block.label[lang]} routine ready. Now delete what doesn't fit.`
               : locale === 'es'
@@ -2093,9 +2095,9 @@ function ParentDashboardContent() {
   const pedirUpgrade = () => {
     if (appAndroid) {
       triggerStatus(
-        locale === 'en' ? 'The free plan holds 3 activities per day.'
-          : locale === 'es' ? 'El plan gratuito permite 3 actividades por día.'
-            : 'O plano gratuito comporta 3 atividades por dia.'
+        locale === 'en' ? `The free plan holds ${FREE_TASKS_PER_DAY} activities per day.`
+          : locale === 'es' ? `El plan gratuito permite ${FREE_TASKS_PER_DAY} actividades por día.`
+            : `O plano gratuito comporta ${FREE_TASKS_PER_DAY} atividades por dia.`
       );
       return;
     }
@@ -3871,7 +3873,7 @@ function ParentDashboardContent() {
 
     const activeDayTasks = tasks.filter(t => t.day === activeDayFilter);
 
-    if (plan === 'free' && activeDayTasks.length >= 3) {
+    if (plan === 'free' && activeDayTasks.length >= FREE_TASKS_PER_DAY) {
 
       playMarimba(180, 0.2);
 
@@ -6700,7 +6702,7 @@ function ParentDashboardContent() {
                         <p className="text-[10px] font-semibold text-slate-450 dark:text-slate-400 leading-relaxed">
                           {plan === 'premium' 
                             ? (locale === 'en' ? 'Unrestricted access to clinical tools, consolidating PDF reports, and AI insights.' : locale === 'es' ? 'Acceso ilimitado a herramientas clínicas, informes consolidados en PDF e insights de IA.' : 'Acesso irrestrito a todas as ferramentas clínicas, relatórios consolidados em PDF e insights com inteligência artificial.')
-                            : (locale === 'en' ? 'Daily limit of 3 tasks per routine. Advanced analytics and AI insights unavailable.' : locale === 'es' ? 'Límite de 3 tareas diarias por rutina. Informes y gráficos analíticos de IA no disponibles.' : 'Limite diário de 3 tarefas por rotina. Gráficos analíticos avançados e relatórios de IA indisponíveis.')}
+                            : (locale === 'en' ? `Daily limit of ${FREE_TASKS_PER_DAY} tasks per routine. Advanced analytics and AI insights unavailable.` : locale === 'es' ? `Límite de ${FREE_TASKS_PER_DAY} tareas diarias por rutina. Informes y gráficos analíticos de IA no disponibles.` : `Limite diário de ${FREE_TASKS_PER_DAY} tarefas por rotina. Gráficos analíticos avançados e relatórios de IA indisponíveis.`)}
                         </p>
 
                         <div className="pt-2">
@@ -13140,7 +13142,7 @@ function ParentDashboardContent() {
                     <p className="text-[11px] font-medium text-slate-550 leading-relaxed max-w-md mt-1">
                       {plan === 'premium' 
                         ? 'Você tem acesso a tarefas diárias ilimitadas, todos os laudos clínicos em PDF e o painel de análise de padrões da IA.'
-                        : 'Acesso básico limitado a 3 tarefas diárias por dia e painéis analíticos bloqueados.'}
+                        : `Acesso básico limitado a ${FREE_TASKS_PER_DAY} tarefas diárias por dia e painéis analíticos bloqueados.`}
                     </p>
                   </div>
                   {plan === 'premium' ? (

@@ -4,6 +4,10 @@
 // familia chegava numa tela vazia, que e onde ela desiste. Aqui ela apaga o que
 // nao serve em vez de criar do zero.
 //
+// Cada bloco tem exatamente CINCO atividades, que e o teto do plano gratuito
+// (lib/plans.ts). Nao e coincidencia: um bloco que nao cabe no gratuito chega
+// pela metade justamente a quem esta decidindo se fica.
+//
 // Uma decisao de produto esta embutida no formato: os blocos sao POR MOMENTO DO
 // DIA, nunca um dia inteiro e nunca um mes. O erro mais comum de quem comeca e
 // montar tudo no dia 1 e abandonar no dia 3 — entao o produto so oferece um
@@ -34,9 +38,9 @@ export const STARTER_BLOCKS: StarterBlock[] = [
     icon: '🌅',
     label: { pt: 'Manhã', en: 'Morning', es: 'Mañana' },
     hint: {
-      pt: 'Acordar, se arrumar e sair de casa sem correria.',
-      en: 'Waking up, getting ready and leaving without a rush.',
-      es: 'Despertar, prepararse y salir sin prisa.',
+      pt: 'Acordar e se arrumar sem correria.',
+      en: 'Waking up and getting ready without a rush.',
+      es: 'Despertar y prepararse sin prisa.',
     },
     tasks: [
       {
@@ -58,10 +62,6 @@ export const STARTER_BLOCKS: StarterBlock[] = [
       {
         title: { pt: 'Café da manhã', en: 'Breakfast', es: 'Desayuno' },
         icon: '🥣', time: '07:45', period: 'manhã', category: 'AVD', duration: 20,
-      },
-      {
-        title: { pt: 'Pegar a mochila e sair', en: 'Grab the bag and go', es: 'Tomar la mochila y salir' },
-        icon: '🎒', time: '08:10', period: 'manhã', category: 'AVD', duration: 10,
       },
     ],
   },
@@ -90,10 +90,6 @@ export const STARTER_BLOCKS: StarterBlock[] = [
       {
         title: { pt: 'Terapia', en: 'Therapy', es: 'Terapia' },
         icon: '🧩', time: '15:00', period: 'tarde', category: 'Aprendizado', duration: 50,
-      },
-      {
-        title: { pt: 'Lanche da tarde', en: 'Afternoon snack', es: 'Merienda' },
-        icon: '🍎', time: '16:30', period: 'tarde', category: 'AVD', duration: 20,
       },
       {
         title: { pt: 'Brincar livre', en: 'Free play', es: 'Juego libre' },
@@ -126,10 +122,6 @@ export const STARTER_BLOCKS: StarterBlock[] = [
       {
         title: { pt: 'Escovar os dentes', en: 'Brush teeth', es: 'Cepillarse los dientes' },
         icon: '🪥', time: '20:25', period: 'noite', category: 'AVD', duration: 5,
-      },
-      {
-        title: { pt: 'História antes de dormir', en: 'Bedtime story', es: 'Cuento antes de dormir' },
-        icon: '📖', time: '20:35', period: 'noite', category: 'Lazer', duration: 15,
       },
       {
         title: { pt: 'Apagar a luz', en: 'Lights out', es: 'Apagar la luz' },
