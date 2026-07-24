@@ -1,6 +1,54 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '../../../lib/prisma';
 
+// Acompanhamentos: a devolutiva escrita pelo profissional e o relato dos pais.
+//
+// ⚠️ As tres rotas nao verificavam nada. Bastava conhecer um `childId` para
+// ler a devolutiva clinica sobre uma crianca, reescrever a devolutiva de um
+// terapeuta ou apagar o relato de uma familia. O `childId` circula em URL
+// (`/routine?childId=...`) e nunca foi um segredo.
+//
+// Mesma regra das demais rotas da rede de apoio: ou voce e o responsavel pela
+// crianca, ou apresenta um codigo de acesso valido para ELA.
+
+async function resolveCode(raw: string | null) {
+  if (!raw) return null;
+  const code = raw.trim();
+  const ac = await prisma.accessCode.findUnique({ where: { code } });
+  if (ac) {
+    if (ac.revoked) return null;
+    if (ac.expiresAt && ac.expiresAt.getTime() < Date.now()) return null;
+    return { childId: ac.childId, role: ac.role };
+  }
+  const child = await prisma.child.findUnique({ where: { sharingCode: code } });
+  if (child) return { childId: child.id, role: 'therapist' };
+  return null;
+}
+
+/**
+ * `needWrite` exige papel que possa escrever. A escola le e registra pelos
+ * sensory-logs, mas nao assina devolutiva clinica — isso e do terapeuta e do
+ * responsavel.
+ */
+async function autorizado(req: Request, childId: string, needWrite: boolean) {
+  const uid = req.headers.get('x-user-uid');
+  if (uid) {
+    const dono = await prisma.child.findFirst({ where: { id: childId, parentUid: uid } });
+    if (dono) return true;
+  }
+  const code = await resolveCode(req.headers.get('x-share-code'));
+  if (code && code.childId === childId) {
+    return needWrite ? code.role === 'therapist' : true;
+  }
+  return false;
+}
+
+/** O checkpoint so diz a que crianca pertence depois de buscado. */
+async function childIdDoCheckpoint(id: string) {
+  const cp = await prisma.checkpoint.findUnique({ where: { id }, select: { childId: true } });
+  return cp?.childId || null;
+}
+
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
@@ -8,6 +56,9 @@ export async function GET(req: Request) {
 
     if (!childId) {
       return NextResponse.json({ error: 'ID da criança é obrigatório' }, { status: 400 });
+    }
+    if (!(await autorizado(req, childId, false))) {
+      return NextResponse.json({ error: 'Não autorizado.' }, { status: 403 });
     }
 
     let checkpoints = await prisma.checkpoint.findMany({
@@ -51,6 +102,9 @@ export async function POST(req: Request) {
 
     if (!childId || !date) {
       return NextResponse.json({ error: 'ID da criança e data são obrigatórios' }, { status: 400 });
+    }
+    if (!(await autorizado(req, childId, true))) {
+      return NextResponse.json({ error: 'Não autorizado.' }, { status: 403 });
     }
 
     // Check if checkpoint already exists for this date and child
@@ -99,6 +153,14 @@ export async function PUT(req: Request) {
 
     if (!id) {
       return NextResponse.json({ error: 'ID do checkpoint é obrigatório' }, { status: 400 });
+    }
+
+    const childId = await childIdDoCheckpoint(id);
+    if (!childId) {
+      return NextResponse.json({ error: 'Acompanhamento não encontrado.' }, { status: 404 });
+    }
+    if (!(await autorizado(req, childId, true))) {
+      return NextResponse.json({ error: 'Não autorizado.' }, { status: 403 });
     }
 
     const updated = await prisma.checkpoint.update({

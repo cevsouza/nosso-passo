@@ -390,7 +390,9 @@ export default function TherapistPortal() {
       playMarimba(392, 0.4);
       const res = await fetch('/api/checkpoints', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        // O portal so tem o codigo; e por ele que a rota confere o vinculo
+        // com a crianca e o papel de quem escreve.
+        headers: { 'Content-Type': 'application/json', 'x-share-code': sharingCode.trim().toUpperCase() },
         body: JSON.stringify({
           childId: childData.id,
           date: newCpDate,

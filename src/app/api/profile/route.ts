@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '../../../lib/prisma';
-import { hashPassword } from '../../../lib/auth-utils';
+import { hashPassword, verifyPassword } from '../../../lib/auth-utils';
 import { ensureReferralCode, publicProfile } from '../../../lib/growth';
 
 export async function POST(req: Request) {
@@ -52,6 +52,27 @@ export async function PUT(req: Request) {
       return NextResponse.json({ error: 'UID do usuário é obrigatório' }, { status: 400 });
     }
 
+    // ⚠️ Esta rota trocava a SENHA a partir de um uid no corpo, sem conferir
+    // nada: quem descobrisse um uid tomava a conta. O uid viaja em cabecalho e
+    // mora no localStorage — nunca foi feito para ser segredo.
+    //
+    // Duas travas, sem redesenhar a autenticacao hoje:
+    //  1) o cabecalho tem de bater com o alvo, o que barra a chamada montada
+    //     so com um corpo;
+    //  2) trocar a senha exige a senha ATUAL. Assim, mesmo que um uid vaze,
+    //     ele nao vira tomada de conta.
+    if (req.headers.get('x-user-uid') !== uid) {
+      return NextResponse.json({ error: 'Não autorizado.' }, { status: 403 });
+    }
+
+    const dono = await prisma.userProfile.findUnique({
+      where: { uid },
+      select: { passwordHash: true },
+    });
+    if (!dono) {
+      return NextResponse.json({ error: 'Perfil não encontrado.' }, { status: 404 });
+    }
+
     const dataToUpdate: any = {
       childHyperfocus: updates.childHyperfocus,
       parentPinCode: updates.parentPinCode,
@@ -71,6 +92,17 @@ export async function PUT(req: Request) {
     }
 
     if (updates.password) {
+      if (String(updates.password).length < 6) {
+        return NextResponse.json(
+          { error: 'A nova senha deve conter no mínimo 6 caracteres.' },
+          { status: 400 }
+        );
+      }
+      // A conta so tem senha depois do cadastro; contas antigas com hash vazio
+      // podem definir a primeira sem apresentar a anterior.
+      if (dono.passwordHash && !verifyPassword(String(updates.currentPassword || ''), dono.passwordHash)) {
+        return NextResponse.json({ error: 'Senha atual incorreta.' }, { status: 403 });
+      }
       dataToUpdate.passwordHash = hashPassword(updates.password);
     }
 

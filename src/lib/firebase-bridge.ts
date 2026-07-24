@@ -502,13 +502,15 @@ export const firebaseBridge = {
       sensoryProfile?: 'balanced' | 'hypersensitive' | 'hyposensitive';
       timerStyle?: 'circle' | 'hourglass' | 'droplets';
       password?: string;
+      /** Exigida pelo servidor sempre que `password` for enviada. */
+      currentPassword?: string;
     }): Promise<void> => {
       const current = getLocalProfile();
       if (!current) return;
 
       const res = await safeFetch('/api/profile', {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'x-user-uid': current.uid },
         body: JSON.stringify({ uid: current.uid, updates })
       });
       const data = await res.json();
@@ -1143,7 +1145,9 @@ export const firebaseBridge = {
     },
 
     getCheckpoints: async (childId: string): Promise<Checkpoint[]> => {
-      const res = await safeFetch(`/api/checkpoints?childId=${childId}`);
+      const res = await safeFetch(`/api/checkpoints?childId=${childId}`, {
+        headers: { 'x-user-uid': getLocalProfile()?.uid || '' }
+      });
       const data = await res.json();
       if (data.error) throw new Error(data.error);
       return data;
@@ -1152,7 +1156,7 @@ export const firebaseBridge = {
     saveCheckpoint: async (id: string, updates: Partial<Checkpoint>): Promise<Checkpoint> => {
       const res = await safeFetch('/api/checkpoints', {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'x-user-uid': getLocalProfile()?.uid || '' },
         body: JSON.stringify({ id, updates })
       });
       const data = await res.json();
@@ -1163,7 +1167,7 @@ export const firebaseBridge = {
     addDailyCheckpoint: async (checkpointData: { childId: string; date: string; feedback: string; professionalName: string; professionalRole: string; notes?: string; status?: string; weekNum?: number }): Promise<Checkpoint> => {
       const res = await safeFetch('/api/checkpoints', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'x-user-uid': getLocalProfile()?.uid || '' },
         body: JSON.stringify(checkpointData)
       });
       const data = await res.json();

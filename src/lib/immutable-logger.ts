@@ -8,19 +8,34 @@ export interface AuditLog {
 
 const MOCK_LOGS_UPDATE_EVENT = 'firebase-mock-logs-update';
 
+// O uid identifica quem esta pedindo. A rota so devolve os registros DESTE
+// responsavel e assina os novos com o e-mail que ela mesma busca no banco —
+// o `responsibleEmail` que o cliente mandava era aceito sem conferencia.
+const uid = (): string => {
+  if (typeof window === 'undefined') return '';
+  try {
+    const bruto = localStorage.getItem('tea_user');
+    return bruto ? (JSON.parse(bruto).uid || '') : '';
+  } catch {
+    return '';
+  }
+};
+
 export const immutableLogger = {
   /**
    * Appends a new audit log to PostgreSQL.
    */
   logChange: async (
-    action: AuditLog['action'], 
-    details: string, 
-    responsibleEmail: string = 'pai@exemplo.com'
+    action: AuditLog['action'],
+    details: string,
+    // Mantido na assinatura porque dezenas de chamadas o passam; o servidor
+    // ignora e usa o e-mail do dono do uid.
+    _responsibleEmail?: string
   ): Promise<AuditLog> => {
     const res = await fetch('/api/logs', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action, details, responsibleEmail })
+      headers: { 'Content-Type': 'application/json', 'x-user-uid': uid() },
+      body: JSON.stringify({ action, details })
     });
     const data = await res.json();
     if (data.error) throw new Error(data.error);
@@ -37,7 +52,7 @@ export const immutableLogger = {
    * Fetches all logs sorted by newest first from PostgreSQL.
    */
   getLogs: async (): Promise<AuditLog[]> => {
-    const res = await fetch('/api/logs');
+    const res = await fetch('/api/logs', { headers: { 'x-user-uid': uid() } });
     const data = await res.json();
     if (data.error) throw new Error(data.error);
     return data;
