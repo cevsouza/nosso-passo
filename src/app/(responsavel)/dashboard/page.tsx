@@ -1532,7 +1532,7 @@ function ParentDashboardContent() {
   const [showPreferencesMenu, setShowPreferencesMenu] = useState(false);
   const [showBatteryPopover, setShowBatteryPopover] = useState(false);
   const [showDailyTrackingPopover, setShowDailyTrackingPopover] = useState(false);
-  const [activePrefTab, setActivePrefTab] = useState<'conta' | 'sensorial' | 'seguranca' | 'plano'>('conta');
+  const [activePrefTab, setActivePrefTab] = useState<'conta' | 'seguranca' | 'plano'>('conta');
   const [newPassword, setNewPassword] = useState('');
   const [theme, setTheme] = useState<'light' | 'dark' | 'system'>('system');
 
@@ -6362,9 +6362,16 @@ function ParentDashboardContent() {
               <button
                 type="button"
                 onClick={() => { playBubble(); setShowPreferencesMenu(!showPreferencesMenu); }}
-                className="flex items-center gap-1.5 px-3.5 py-2 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 hover:text-slate-900 text-xs font-black rounded-full transition-all cursor-pointer active:scale-95 font-Outfit"
+                className="flex items-center gap-1.5 px-3.5 py-2 bg-white dark:bg-slate-800 hover:bg-slate-50 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-100 hover:text-slate-900 text-xs font-black rounded-full transition-all cursor-pointer active:scale-95 font-Outfit"
               >
-                ⚙️ {locale === 'en' ? 'Preferences' : locale === 'es' ? 'Preferencias' : 'Preferências'}
+                {/* "Minha conta", nao "Preferências".
+                    Preferências e Ajustes eram sinonimos apontando para
+                    conteudos diferentes: um cuida da CONTA (e-mail, senha,
+                    idioma, plano, PIN), outro cuida da CRIANÇA (perfil,
+                    acessos, registro). Agora cada um se chama pelo que
+                    guarda, e ninguem precisa abrir os dois para descobrir
+                    onde esta a coisa. */}
+                👤 {locale === 'en' ? 'My account' : locale === 'es' ? 'Mi cuenta' : 'Minha conta'}
               </button>
               
               <AnimatePresence>
@@ -6380,9 +6387,13 @@ function ParentDashboardContent() {
                     <div className="flex bg-slate-100 dark:bg-slate-800/50 p-1 rounded-xl gap-1 select-none">
                       {/* A aba "plano" e a vitrine da assinatura: fora do ar
                           dentro do app da Play, onde nao pode haver oferta. */}
+                      {/* Sem "sensorial": ela configurava a crianca e mudou
+                          para a secao Ajustes. Aqui ficou so o que e da
+                          CONTA — e por isso o botao agora se chama
+                          "Minha conta". */}
                       {(appAndroid
-                        ? (['conta', 'sensorial', 'seguranca'] as const)
-                        : (['conta', 'sensorial', 'seguranca', 'plano'] as const)
+                        ? (['conta', 'seguranca'] as const)
+                        : (['conta', 'seguranca', 'plano'] as const)
                       ).map(tab => (
                         <button
                           key={tab}
@@ -6396,8 +6407,6 @@ function ParentDashboardContent() {
                         >
                           {tab === 'conta' 
                             ? (locale === 'en' ? '👤 Account' : locale === 'es' ? '👤 Cuenta' : '👤 Conta')
-                            : tab === 'sensorial' 
-                            ? (locale === 'en' ? '🧠 Sensory' : locale === 'es' ? '🧠 Sensorial' : '🧠 Sensor.')
                             : tab === 'seguranca' 
                             ? (locale === 'en' ? '🔒 Secur.' : locale === 'es' ? '🔒 Segur.' : '🔒 Segur.')
                             : (locale === 'en' ? '💳 Plan' : locale === 'es' ? '💳 Plan' : '💳 Plano')}
@@ -6494,172 +6503,10 @@ function ParentDashboardContent() {
                     )}
 
                     {/* Tab 2: Sensorial (Interactive Clinical/Sensory Adjustments) */}
-                    {activePrefTab === 'sensorial' && (
-                      <div className="flex flex-col gap-2.5 animate-pop max-h-72 overflow-y-auto pr-1">
-                        {activeChild ? (
-                          <>
-                            {/* Interface Complexity Level */}
-                            <div className="flex flex-col gap-1 p-3 rounded-xl bg-indigo-50/70 dark:bg-indigo-950/30 border border-indigo-200 dark:border-indigo-900">
-                              <span className="text-[11px] font-black text-indigo-600 dark:text-indigo-300 uppercase tracking-wide">
-                                {locale === 'en' ? '🎚️ Interface Level (Complexity)' : locale === 'es' ? '🎚️ Nivel de Interfaz (Complejidad)' : '🎚️ Nível de Interface (Complexidade)'}
-                              </span>
-                              <select
-                                value={interfaceMode}
-                                onChange={async (e) => {
-                                  const val = e.target.value as 'foco' | 'intermediario' | 'completo';
-                                  setInterfaceMode(val);
-                                  const updated = await firebaseBridge.auth.updateChildSettings(activeChild.id, { interfaceMode: val });
-                                  setActiveChild(updated);
-                                  triggerStatus(locale === 'en' ? 'Interface level updated!' : locale === 'es' ? '¡Nivel de interfaz actualizado!' : 'Nível de interface atualizado!');
-                                }}
-                                className="w-full px-2 py-1.5 bg-white dark:bg-slate-800/60 border border-indigo-200 dark:border-indigo-800 text-slate-700 dark:text-slate-200 text-xs font-bold rounded-lg outline-none cursor-pointer"
-                              >
-                                <option value="foco">{locale === 'en' ? 'Focus (Essential) 🎯' : locale === 'es' ? 'Enfoque (Esencial) 🎯' : 'Foco (Essencial) 🎯'}</option>
-                                <option value="intermediario">{locale === 'en' ? 'Intermediate 🌱' : locale === 'es' ? 'Intermedio 🌱' : 'Intermediário 🌱'}</option>
-                                <option value="completo">{locale === 'en' ? 'Complete (All features) 🚀' : locale === 'es' ? 'Completo (Todo) 🚀' : 'Completo (Tudo) 🚀'}</option>
-                              </select>
-                              <p className="text-[9px] font-semibold text-slate-500 dark:text-slate-400 leading-snug mt-0.5">
-                                {interfaceMode === 'foco'
-                                  ? (locale === 'en' ? 'Only the essentials: schedule, current task, timer, calm/SOS, mood and Voice (AAC). No games, shop or extras. Ideal for ASD level 3 / attention deficit.' : locale === 'es' ? 'Solo lo esencial: agenda, tarea actual, temporizador, calma/SOS, ánimo y Voz (CAA). Sin juegos, tienda ni extras. Ideal para TEA nivel 3 / déficit de atención.' : 'Só o essencial: agenda, tarefa atual, cronômetro, calma/SOS, humor e Minha Voz (CAA). Sem jogos, loja ou extras. Ideal para TEA nível 3 / déficit de atenção.')
-                                  : interfaceMode === 'intermediario'
-                                  ? (locale === 'en' ? 'Adds social stories, waiting hourglass, calming sounds, sleep mode, event simulator and star rewards. For children in development.' : locale === 'es' ? 'Agrega historias sociales, reloj de espera, sonidos calmantes, modo sueño, simulador de eventos y recompensas con estrellas. Para niños en desarrollo.' : 'Adiciona histórias sociais, ampulheta de espera, sons calmantes, modo sono, simulador de eventos e recompensas por estrelas. Para crianças em desenvolvimento.')
-                                  : (locale === 'en' ? 'All features enabled: mascot shop, My World, noise monitor, AI stories, accessories and badges. For more mature children.' : locale === 'es' ? 'Todas las funciones: tienda del mascota, Mi Mundo, monitor de ruido, historias con IA, accesorios y medallas. Para niños más maduros.' : 'Todas as funções: Loja do Mascote, Meu Mundo, monitor de ruído, histórias por IA, acessórios e medalhas. Para crianças mais maduras.')}
-                              </p>
-                            </div>
-
-                            {/* Sensory Profile */}
-                            <div className="flex flex-col gap-1">
-                              <span className="text-[8px] font-black text-slate-400 uppercase tracking-wider">
-                                {locale === 'en' ? 'Sensory Profile' : locale === 'es' ? 'Perfil Sensorial' : 'Perfil Sensorial'}
-                              </span>
-                              <select
-                                value={sensoryProfile}
-                                onChange={async (e) => {
-                                  const val = e.target.value as 'balanced' | 'hypersensitive' | 'hyposensitive';
-                                  setSensoryProfile(val);
-                                  let speed = sensorySpeed;
-                                  let visuals = sensoryVisuals;
-                                  if (val === 'hypersensitive') {
-                                    speed = 0.7;
-                                    visuals = 'minimal';
-                                    setSensorySpeed(0.7);
-                                    setSensoryVisuals('minimal');
-                                  } else if (val === 'hyposensitive') {
-                                    speed = 1.2;
-                                    visuals = 'rich';
-                                    setSensorySpeed(1.2);
-                                    setSensoryVisuals('rich');
-                                  }
-                                  const updated = await firebaseBridge.auth.updateChildSettings(activeChild.id, {
-                                    sensoryProfile: val,
-                                    sensorySpeed: speed,
-                                    sensoryVisuals: visuals
-                                  });
-                                  setActiveChild(updated);
-                                  triggerStatus(locale === 'en' ? 'Sensory profile updated!' : locale === 'es' ? '¡Perfil sensorial actualizado!' : 'Perfil sensorial atualizado!');
-                                }}
-                                className="w-full px-2 py-1.5 bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-350 text-xs font-bold rounded-lg outline-none cursor-pointer"
-                              >
-                                <option value="balanced">{locale === 'en' ? 'Balanced 🧘' : locale === 'es' ? 'Equilibrado 🧘' : 'Equilibrado 🧘'}</option>
-                                <option value="hypersensitive">{locale === 'en' ? 'Hypersensitive (Low Stim) 🔇' : locale === 'es' ? 'Hipersensible (Bajo Estímulo) 🔇' : 'Hipersensível (Baixo Estímulo) 🔇'}</option>
-                                <option value="hyposensitive">{locale === 'en' ? 'Hyposensitive (Stimulating) ⚡' : locale === 'es' ? 'Hiposensible (Estímulo Extra) ⚡' : 'Hipossensível (Estímulo Extra) ⚡'}</option>
-                              </select>
-                            </div>
-
-                            {/* Sound Style */}
-                            <div className="flex flex-col gap-1">
-                              <span className="text-[8px] font-black text-slate-400 uppercase tracking-wider">
-                                {locale === 'en' ? 'Sound Style' : locale === 'es' ? 'Estilo de Sonido' : 'Estilo de Som'}
-                              </span>
-                              <select
-                                value={sensorySound}
-                                onChange={async (e) => {
-                                  const val = e.target.value as any;
-                                  setSensorySound(val);
-                                  const updated = await firebaseBridge.auth.updateChildSettings(activeChild.id, { sensorySound: val });
-                                  setActiveChild(updated);
-                                  triggerStatus(locale === 'en' ? 'Sound updated!' : locale === 'es' ? '¡Efecto de sonido actualizado!' : 'Efeito sonoro atualizado!');
-                                }}
-                                className="w-full px-2 py-1.5 bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-355 text-xs font-bold rounded-lg outline-none cursor-pointer"
-                              >
-                                <option value="marimba">{locale === 'en' ? 'Marimba 🪵' : locale === 'es' ? 'Marimba 🪵' : 'Marimba 🪵'}</option>
-                                <option value="bubble">{locale === 'en' ? 'Bubbles 🫧' : locale === 'es' ? 'Burbujas 🫧' : 'Bolhas 🫧'}</option>
-                                <option value="silent">{locale === 'en' ? 'Silent 🔕' : locale === 'es' ? 'Silencioso 🔕' : 'Silencioso 🔕'}</option>
-                              </select>
-                            </div>
-
-                            {/* Visual Stimulation */}
-                            <div className="flex flex-col gap-1">
-                              <span className="text-[8px] font-black text-slate-400 uppercase tracking-wider">
-                                {locale === 'en' ? 'Visual Stimulation' : locale === 'es' ? 'Estímulos Visuales' : 'Filtro Visual'}
-                              </span>
-                              <select
-                                value={sensoryVisuals}
-                                onChange={async (e) => {
-                                  const val = e.target.value as any;
-                                  setSensoryVisuals(val);
-                                  const updated = await firebaseBridge.auth.updateChildSettings(activeChild.id, { sensoryVisuals: val });
-                                  setActiveChild(updated);
-                                  triggerStatus(locale === 'en' ? 'Visual stimulation updated!' : locale === 'es' ? '¡Estilo visual actualizado!' : 'Estilo visual atualizado!');
-                                }}
-                                className="w-full px-2 py-1.5 bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-355 text-xs font-bold rounded-lg outline-none cursor-pointer"
-                              >
-                                <option value="rich">{locale === 'en' ? 'Interactive / Rich ✨' : locale === 'es' ? 'Interactivo / Rico ✨' : 'Interativo / Rico ✨'}</option>
-                                <option value="minimal">{locale === 'en' ? 'Minimal / Low Stim 🧘' : locale === 'es' ? 'Minimalista / Bajo Estímulo 🧘' : 'Minimalista / Baixo Estímulo 🧘'}</option>
-                              </select>
-                            </div>
-
-                            {/* Mascot Speed */}
-                            <div className="flex flex-col gap-1">
-                              <span className="text-[8px] font-black text-slate-400 uppercase tracking-wider">
-                                {locale === 'en' ? 'Speech Speed' : locale === 'es' ? 'Velocidad de Voz' : 'Velocidade da Voz'}
-                              </span>
-                              <select
-                                value={sensorySpeed}
-                                onChange={async (e) => {
-                                  const val = parseFloat(e.target.value) as any;
-                                  setSensorySpeed(val);
-                                  const updated = await firebaseBridge.auth.updateChildSettings(activeChild.id, { sensorySpeed: val });
-                                  setActiveChild(updated);
-                                  triggerStatus(locale === 'en' ? 'Speech speed updated!' : locale === 'es' ? '¡Velocidad de habla actualizada!' : 'Velocidade de fala atualizada!');
-                                }}
-                                className="w-full px-2 py-1.5 bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-355 text-xs font-bold rounded-lg outline-none cursor-pointer"
-                              >
-                                <option value={0.7}>{locale === 'en' ? 'Slow (0.7x) 🐢' : locale === 'es' ? 'Lento (0.7x) 🐢' : 'Lento (0.7x) 🐢'}</option>
-                                <option value={1.0}>{locale === 'en' ? 'Normal (1.0x) ☕' : locale === 'es' ? 'Normal (1.0x) ☕' : 'Normal (1.0x) ☕'}</option>
-                                <option value={1.2}>{locale === 'en' ? 'Fast (1.2x) ⚡' : locale === 'es' ? 'Rápido (1.2x) ⚡' : 'Rápido (1.2x) ⚡'}</option>
-                              </select>
-                            </div>
-
-                            {/* Timer Style */}
-                            <div className="flex flex-col gap-1">
-                              <span className="text-[8px] font-black text-slate-400 uppercase tracking-wider">
-                                {locale === 'en' ? 'Timer Style' : locale === 'es' ? 'Estilo del Timer' : 'Estilo do Temporizador'}
-                              </span>
-                              <select
-                                value={timerStyle}
-                                onChange={async (e) => {
-                                  const val = e.target.value as any;
-                                  setTimerStyle(val);
-                                  const updated = await firebaseBridge.auth.updateChildSettings(activeChild.id, { timerStyle: val });
-                                  setActiveChild(updated);
-                                  triggerStatus(locale === 'en' ? 'Timer updated!' : locale === 'es' ? '¡Estilo del timer actualizado!' : 'Estilo do cronômetro atualizado!');
-                                }}
-                                className="w-full px-2 py-1.5 bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-355 text-xs font-bold rounded-lg outline-none cursor-pointer"
-                              >
-                                <option value="circle">{locale === 'en' ? 'Red Circle ⏱️' : locale === 'es' ? 'Círculo Rojo ⏱️' : 'Círculo Vermelho ⏱️'}</option>
-                                <option value="hourglass">{locale === 'en' ? 'Hourglass ⏳' : locale === 'es' ? 'Ampulheta ⏳' : 'Ampulheta ⏳'}</option>
-                                <option value="droplets">{locale === 'en' ? 'Water Droplets 💧' : locale === 'es' ? 'Gotas de Agua 💧' : 'Gotas de Água 💧'}</option>
-                              </select>
-                            </div>
-                          </>
-                        ) : (
-                          <span className="text-xs text-slate-400 font-bold leading-relaxed text-center py-4">
-                            {locale === 'en' ? 'Select or register a child to configure sensory filters.' : locale === 'es' ? 'Seleccione o registre un niño para configurar los filtros sensoriales.' : 'Selecione ou cadastre uma criança para configurar filtros sensoriais.'}
-                          </span>
-                        )}
-                      </div>
-                    )}
+                    {/* A aba Sensorial saiu daqui: ela configura a CRIANÇA (nível de
+                        interface, perfil sensorial, timer), nao a conta. Foi
+                        para a secao Ajustes, onde moram as outras coisas da
+                        crianca. */}
 
                     {/* Tab 3: Segurança */}
                     {activePrefTab === 'seguranca' && (
@@ -12894,6 +12741,184 @@ function ParentDashboardContent() {
                 transition={{ duration: 0.3 }}
                 className="grid grid-cols-1 md:grid-cols-2 gap-6 text-left"
               >
+                {/* Ajustes sensoriais da crianca — vieram do modal de conta,
+                    onde nao faziam sentido. */}
+                <div className="flex flex-col gap-6 md:col-span-2">
+                  <div className="flex items-center gap-2 px-1 pt-1">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">{locale === 'en' ? 'Screen & senses' : locale === 'es' ? 'Pantalla y sentidos' : 'Tela e sentidos'}</span>
+                    <span className="flex-1 h-px bg-slate-200"></span>
+                  </div>
+                  <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 shadow-premium">
+                    {(
+
+                      <div className="flex flex-col gap-2.5 animate-pop max-h-72 overflow-y-auto pr-1">
+                        {activeChild ? (
+                          <>
+                            {/* Interface Complexity Level */}
+                            <div className="flex flex-col gap-1 p-3 rounded-xl bg-indigo-50/70 dark:bg-indigo-950/30 border border-indigo-200 dark:border-indigo-900">
+                              <span className="text-[11px] font-black text-indigo-600 dark:text-indigo-300 uppercase tracking-wide">
+                                {locale === 'en' ? '🎚️ Interface Level (Complexity)' : locale === 'es' ? '🎚️ Nivel de Interfaz (Complejidad)' : '🎚️ Nível de Interface (Complexidade)'}
+                              </span>
+                              <select
+                                value={interfaceMode}
+                                onChange={async (e) => {
+                                  const val = e.target.value as 'foco' | 'intermediario' | 'completo';
+                                  setInterfaceMode(val);
+                                  const updated = await firebaseBridge.auth.updateChildSettings(activeChild.id, { interfaceMode: val });
+                                  setActiveChild(updated);
+                                  triggerStatus(locale === 'en' ? 'Interface level updated!' : locale === 'es' ? '¡Nivel de interfaz actualizado!' : 'Nível de interface atualizado!');
+                                }}
+                                className="w-full px-2 py-1.5 bg-white dark:bg-slate-800/60 border border-indigo-200 dark:border-indigo-800 text-slate-700 dark:text-slate-200 text-xs font-bold rounded-lg outline-none cursor-pointer"
+                              >
+                                <option value="foco">{locale === 'en' ? 'Focus (Essential) 🎯' : locale === 'es' ? 'Enfoque (Esencial) 🎯' : 'Foco (Essencial) 🎯'}</option>
+                                <option value="intermediario">{locale === 'en' ? 'Intermediate 🌱' : locale === 'es' ? 'Intermedio 🌱' : 'Intermediário 🌱'}</option>
+                                <option value="completo">{locale === 'en' ? 'Complete (All features) 🚀' : locale === 'es' ? 'Completo (Todo) 🚀' : 'Completo (Tudo) 🚀'}</option>
+                              </select>
+                              <p className="text-[9px] font-semibold text-slate-500 dark:text-slate-400 leading-snug mt-0.5">
+                                {interfaceMode === 'foco'
+                                  ? (locale === 'en' ? 'Only the essentials: schedule, current task, timer, calm/SOS, mood and Voice (AAC). No games, shop or extras. Ideal for ASD level 3 / attention deficit.' : locale === 'es' ? 'Solo lo esencial: agenda, tarea actual, temporizador, calma/SOS, ánimo y Voz (CAA). Sin juegos, tienda ni extras. Ideal para TEA nivel 3 / déficit de atención.' : 'Só o essencial: agenda, tarefa atual, cronômetro, calma/SOS, humor e Minha Voz (CAA). Sem jogos, loja ou extras. Ideal para TEA nível 3 / déficit de atenção.')
+                                  : interfaceMode === 'intermediario'
+                                  ? (locale === 'en' ? 'Adds social stories, waiting hourglass, calming sounds, sleep mode, event simulator and star rewards. For children in development.' : locale === 'es' ? 'Agrega historias sociales, reloj de espera, sonidos calmantes, modo sueño, simulador de eventos y recompensas con estrellas. Para niños en desarrollo.' : 'Adiciona histórias sociais, ampulheta de espera, sons calmantes, modo sono, simulador de eventos e recompensas por estrelas. Para crianças em desenvolvimento.')
+                                  : (locale === 'en' ? 'All features enabled: mascot shop, My World, noise monitor, AI stories, accessories and badges. For more mature children.' : locale === 'es' ? 'Todas las funciones: tienda del mascota, Mi Mundo, monitor de ruido, historias con IA, accesorios y medallas. Para niños más maduros.' : 'Todas as funções: Loja do Mascote, Meu Mundo, monitor de ruído, histórias por IA, acessórios e medalhas. Para crianças mais maduras.')}
+                              </p>
+                            </div>
+
+                            {/* Sensory Profile */}
+                            <div className="flex flex-col gap-1">
+                              <span className="text-[8px] font-black text-slate-400 uppercase tracking-wider">
+                                {locale === 'en' ? 'Sensory Profile' : locale === 'es' ? 'Perfil Sensorial' : 'Perfil Sensorial'}
+                              </span>
+                              <select
+                                value={sensoryProfile}
+                                onChange={async (e) => {
+                                  const val = e.target.value as 'balanced' | 'hypersensitive' | 'hyposensitive';
+                                  setSensoryProfile(val);
+                                  let speed = sensorySpeed;
+                                  let visuals = sensoryVisuals;
+                                  if (val === 'hypersensitive') {
+                                    speed = 0.7;
+                                    visuals = 'minimal';
+                                    setSensorySpeed(0.7);
+                                    setSensoryVisuals('minimal');
+                                  } else if (val === 'hyposensitive') {
+                                    speed = 1.2;
+                                    visuals = 'rich';
+                                    setSensorySpeed(1.2);
+                                    setSensoryVisuals('rich');
+                                  }
+                                  const updated = await firebaseBridge.auth.updateChildSettings(activeChild.id, {
+                                    sensoryProfile: val,
+                                    sensorySpeed: speed,
+                                    sensoryVisuals: visuals
+                                  });
+                                  setActiveChild(updated);
+                                  triggerStatus(locale === 'en' ? 'Sensory profile updated!' : locale === 'es' ? '¡Perfil sensorial actualizado!' : 'Perfil sensorial atualizado!');
+                                }}
+                                className="w-full px-2 py-1.5 bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-350 text-xs font-bold rounded-lg outline-none cursor-pointer"
+                              >
+                                <option value="balanced">{locale === 'en' ? 'Balanced 🧘' : locale === 'es' ? 'Equilibrado 🧘' : 'Equilibrado 🧘'}</option>
+                                <option value="hypersensitive">{locale === 'en' ? 'Hypersensitive (Low Stim) 🔇' : locale === 'es' ? 'Hipersensible (Bajo Estímulo) 🔇' : 'Hipersensível (Baixo Estímulo) 🔇'}</option>
+                                <option value="hyposensitive">{locale === 'en' ? 'Hyposensitive (Stimulating) ⚡' : locale === 'es' ? 'Hiposensible (Estímulo Extra) ⚡' : 'Hipossensível (Estímulo Extra) ⚡'}</option>
+                              </select>
+                            </div>
+
+                            {/* Sound Style */}
+                            <div className="flex flex-col gap-1">
+                              <span className="text-[8px] font-black text-slate-400 uppercase tracking-wider">
+                                {locale === 'en' ? 'Sound Style' : locale === 'es' ? 'Estilo de Sonido' : 'Estilo de Som'}
+                              </span>
+                              <select
+                                value={sensorySound}
+                                onChange={async (e) => {
+                                  const val = e.target.value as any;
+                                  setSensorySound(val);
+                                  const updated = await firebaseBridge.auth.updateChildSettings(activeChild.id, { sensorySound: val });
+                                  setActiveChild(updated);
+                                  triggerStatus(locale === 'en' ? 'Sound updated!' : locale === 'es' ? '¡Efecto de sonido actualizado!' : 'Efeito sonoro atualizado!');
+                                }}
+                                className="w-full px-2 py-1.5 bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-355 text-xs font-bold rounded-lg outline-none cursor-pointer"
+                              >
+                                <option value="marimba">{locale === 'en' ? 'Marimba 🪵' : locale === 'es' ? 'Marimba 🪵' : 'Marimba 🪵'}</option>
+                                <option value="bubble">{locale === 'en' ? 'Bubbles 🫧' : locale === 'es' ? 'Burbujas 🫧' : 'Bolhas 🫧'}</option>
+                                <option value="silent">{locale === 'en' ? 'Silent 🔕' : locale === 'es' ? 'Silencioso 🔕' : 'Silencioso 🔕'}</option>
+                              </select>
+                            </div>
+
+                            {/* Visual Stimulation */}
+                            <div className="flex flex-col gap-1">
+                              <span className="text-[8px] font-black text-slate-400 uppercase tracking-wider">
+                                {locale === 'en' ? 'Visual Stimulation' : locale === 'es' ? 'Estímulos Visuales' : 'Filtro Visual'}
+                              </span>
+                              <select
+                                value={sensoryVisuals}
+                                onChange={async (e) => {
+                                  const val = e.target.value as any;
+                                  setSensoryVisuals(val);
+                                  const updated = await firebaseBridge.auth.updateChildSettings(activeChild.id, { sensoryVisuals: val });
+                                  setActiveChild(updated);
+                                  triggerStatus(locale === 'en' ? 'Visual stimulation updated!' : locale === 'es' ? '¡Estilo visual actualizado!' : 'Estilo visual atualizado!');
+                                }}
+                                className="w-full px-2 py-1.5 bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-355 text-xs font-bold rounded-lg outline-none cursor-pointer"
+                              >
+                                <option value="rich">{locale === 'en' ? 'Interactive / Rich ✨' : locale === 'es' ? 'Interactivo / Rico ✨' : 'Interativo / Rico ✨'}</option>
+                                <option value="minimal">{locale === 'en' ? 'Minimal / Low Stim 🧘' : locale === 'es' ? 'Minimalista / Bajo Estímulo 🧘' : 'Minimalista / Baixo Estímulo 🧘'}</option>
+                              </select>
+                            </div>
+
+                            {/* Mascot Speed */}
+                            <div className="flex flex-col gap-1">
+                              <span className="text-[8px] font-black text-slate-400 uppercase tracking-wider">
+                                {locale === 'en' ? 'Speech Speed' : locale === 'es' ? 'Velocidad de Voz' : 'Velocidade da Voz'}
+                              </span>
+                              <select
+                                value={sensorySpeed}
+                                onChange={async (e) => {
+                                  const val = parseFloat(e.target.value) as any;
+                                  setSensorySpeed(val);
+                                  const updated = await firebaseBridge.auth.updateChildSettings(activeChild.id, { sensorySpeed: val });
+                                  setActiveChild(updated);
+                                  triggerStatus(locale === 'en' ? 'Speech speed updated!' : locale === 'es' ? '¡Velocidad de habla actualizada!' : 'Velocidade de fala atualizada!');
+                                }}
+                                className="w-full px-2 py-1.5 bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-355 text-xs font-bold rounded-lg outline-none cursor-pointer"
+                              >
+                                <option value={0.7}>{locale === 'en' ? 'Slow (0.7x) 🐢' : locale === 'es' ? 'Lento (0.7x) 🐢' : 'Lento (0.7x) 🐢'}</option>
+                                <option value={1.0}>{locale === 'en' ? 'Normal (1.0x) ☕' : locale === 'es' ? 'Normal (1.0x) ☕' : 'Normal (1.0x) ☕'}</option>
+                                <option value={1.2}>{locale === 'en' ? 'Fast (1.2x) ⚡' : locale === 'es' ? 'Rápido (1.2x) ⚡' : 'Rápido (1.2x) ⚡'}</option>
+                              </select>
+                            </div>
+
+                            {/* Timer Style */}
+                            <div className="flex flex-col gap-1">
+                              <span className="text-[8px] font-black text-slate-400 uppercase tracking-wider">
+                                {locale === 'en' ? 'Timer Style' : locale === 'es' ? 'Estilo del Timer' : 'Estilo do Temporizador'}
+                              </span>
+                              <select
+                                value={timerStyle}
+                                onChange={async (e) => {
+                                  const val = e.target.value as any;
+                                  setTimerStyle(val);
+                                  const updated = await firebaseBridge.auth.updateChildSettings(activeChild.id, { timerStyle: val });
+                                  setActiveChild(updated);
+                                  triggerStatus(locale === 'en' ? 'Timer updated!' : locale === 'es' ? '¡Estilo del timer actualizado!' : 'Estilo do cronômetro atualizado!');
+                                }}
+                                className="w-full px-2 py-1.5 bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-355 text-xs font-bold rounded-lg outline-none cursor-pointer"
+                              >
+                                <option value="circle">{locale === 'en' ? 'Red Circle ⏱️' : locale === 'es' ? 'Círculo Rojo ⏱️' : 'Círculo Vermelho ⏱️'}</option>
+                                <option value="hourglass">{locale === 'en' ? 'Hourglass ⏳' : locale === 'es' ? 'Ampulheta ⏳' : 'Ampulheta ⏳'}</option>
+                                <option value="droplets">{locale === 'en' ? 'Water Droplets 💧' : locale === 'es' ? 'Gotas de Agua 💧' : 'Gotas de Água 💧'}</option>
+                              </select>
+                            </div>
+                          </>
+                        ) : (
+                          <span className="text-xs text-slate-400 font-bold leading-relaxed text-center py-4">
+                            {locale === 'en' ? 'Select or register a child to configure sensory filters.' : locale === 'es' ? 'Seleccione o registre un niño para configurar los filtros sensoriales.' : 'Selecione ou cadastre uma criança para configurar filtros sensoriais.'}
+                          </span>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
                 {/* Profile Card */}
                 <div className="flex flex-col gap-6">
                   <div className="flex items-center gap-2 px-1 pt-1">
