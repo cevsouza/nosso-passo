@@ -14527,9 +14527,13 @@ function ParentDashboardContent() {
 
 
 
-      {/* Sticky Caregiver Toolbar at Bottom Right */}
+      {/* Barra flutuante do cuidador.
+          Fica fora do ar enquanto nao houver nenhuma atividade: ela cobria o
+          terceiro bloco da primeira tela, e numa conta vazia nao tem sentido —
+          "Imprimir PECS" nao imprimiria nada e "Criar Atividade" disputa com o
+          caminho guiado, que e mais facil. Volta assim que existir rotina. */}
 
-      {activeChild && (
+      {activeChild && tasks.length > 0 && (
 
         <div className="fixed bottom-6 right-6 z-40 flex flex-col sm:flex-row items-center gap-2.5 bg-white/90 backdrop-blur-md border border-slate-200/60 p-2.5 rounded-2xl shadow-lg select-none">
 
