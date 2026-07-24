@@ -2589,22 +2589,27 @@ function ParentDashboardContent() {
   // perder alguem que so queria voltar uma tela.
   const [activePanelTab, _setActivePanelTab] = useState<SecaoPainel>('hoje');
 
+  // `router.replace`, e nao `history.replaceState` cru: o roteador do Next
+  // precisa saber da mudanca, senao `useSearchParams` nao reage e as duas
+  // fontes da verdade (estado e URL) comecam a divergir. `scroll: false`
+  // porque trocar de secao nao deve jogar a pessoa para o topo.
   const setActivePanelTab = React.useCallback((s: SecaoPainel) => {
     _setActivePanelTab(s);
-    if (typeof window !== 'undefined') {
-      const u = new URL(window.location.href);
-      u.searchParams.set('p', paramDaSecao(s));
-      window.history.replaceState(null, '', u.toString());
-    }
-  }, []);
+    router.replace(`/dashboard?p=${paramDaSecao(s)}`, { scroll: false });
+  }, [router]);
 
-  // Le a URL na entrada e a cada voltar/avancar do navegador.
+  // A secao segue o `?p=` da URL — via `useSearchParams`, nao via `popstate`.
+  //
+  // Foi exatamente aqui que quebrou: os links do menu navegam com o
+  // `pushState` do Next, e **pushState nao dispara `popstate`**. Escutando so
+  // o popstate, a URL mudava e a tela ficava parada. `useSearchParams` re-roda
+  // em qualquer navegacao, inclusive voltar e avancar.
+  //
+  // (E o meu teste tinha confirmado a URL, nao o conteudo — passou sem provar
+  // nada, que e o jeito classico de um teste mentir.)
   useEffect(() => {
-    const daUrl = () => _setActivePanelTab(secaoDoParam(new URLSearchParams(window.location.search).get('p')));
-    daUrl();
-    window.addEventListener('popstate', daUrl);
-    return () => window.removeEventListener('popstate', daUrl);
-  }, []);
+    _setActivePanelTab(secaoDoParam(searchParams.get('p')));
+  }, [searchParams]);
   const [activeFeedbackSubTab, setActiveFeedbackSubTab] = useState<'checkpoints' | 'reports'>('checkpoints');
   const [activeToolsSubTab, setActiveToolsSubTab] = useState<'config' | 'logs'>('config');
 
@@ -7238,16 +7243,16 @@ function ParentDashboardContent() {
 
       {activeChild && tasks.length === 0 && (
         <div className="max-w-6xl mx-auto px-4 md:px-6 mt-6">
-          <div className="bg-emerald-50/70 border border-emerald-200 rounded-2xl p-5 sm:p-6 flex flex-col gap-4">
+          <div className="bg-emerald-50/70 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-2xl p-5 sm:p-6 flex flex-col gap-4">
             <div>
-              <h2 className="text-xl sm:text-2xl font-black text-emerald-950 font-Outfit tracking-tight">
+              <h2 className="text-xl sm:text-2xl font-black text-emerald-950 dark:text-emerald-50 font-Outfit tracking-tight">
                 {locale === 'en'
                   ? `Let's set up ${activeChild.name.split(' ')[0]}'s first stretch of the day`
                   : locale === 'es'
                   ? `Vamos a montar el primer tramo del día de ${activeChild.name.split(' ')[0]}`
                   : `Vamos montar o primeiro pedaço do dia de ${activeChild.name.split(' ')[0]}`}
               </h2>
-              <p className="text-sm text-emerald-900/80 font-medium mt-1.5 leading-relaxed max-w-2xl">
+              <p className="text-sm text-emerald-900/80 dark:text-emerald-100/90 font-medium mt-1.5 leading-relaxed max-w-2xl">
                 {locale === 'en'
                   ? 'Choose one moment. It arrives ready — then delete what does not fit your family. Tomorrow you add another one.'
                   : locale === 'es'
@@ -7272,13 +7277,13 @@ function ParentDashboardContent() {
                       setActiveDayFilter(String(new Date().getDate()));
                       handleApplyStarterBlock(block);
                     }}
-                    className="text-left bg-white border border-emerald-200 hover:border-emerald-400 rounded-xl p-4 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-wait shadow-xxs"
+                    className="text-left bg-white dark:bg-slate-800 border border-emerald-200 dark:border-emerald-800 hover:border-emerald-400 rounded-xl p-4 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-wait shadow-xxs"
                   >
                     <div className="flex items-center gap-2">
                       <span className="text-xl select-none">{block.icon}</span>
-                      <span className="text-base font-black text-slate-800 font-Outfit">{block.label[lang]}</span>
+                      <span className="text-base font-black text-slate-800 dark:text-slate-50 font-Outfit">{block.label[lang]}</span>
                     </div>
-                    <p className="text-xs text-slate-500 font-medium mt-1.5 leading-snug">{block.hint[lang]}</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-300 font-medium mt-1.5 leading-snug">{block.hint[lang]}</p>
                     <span className="inline-block mt-2.5 text-[10px] font-black uppercase tracking-wider text-emerald-700">
                       {applyingBlock === block.id
                         ? (locale === 'en' ? 'adding…' : locale === 'es' ? 'agregando…' : 'aplicando…')
@@ -7641,16 +7646,20 @@ function ParentDashboardContent() {
                                 : `Só ${pct}% das tarefas concluídas na semana passada${s.crises >= 3 ? `, com ${s.crises} crises registradas` : ''}.`);
 
                         return (
-                          <div className={`rounded-2xl p-5 border flex flex-col gap-3 ${up ? 'bg-emerald-50/70 border-emerald-200' : 'bg-amber-50/70 border-amber-200'}`}>
+                          /* As cores do TEXTO viram no tema escuro, mas o fundo
+                             claro fixo nao virava: dava fundo claro com letra
+                             clara, e a terceira linha sumia. Todo cartao meu
+                             precisa do par `dark:`. */
+                          <div className={`rounded-2xl p-5 border flex flex-col gap-3 ${up ? 'bg-emerald-50/70 border-emerald-200 dark:bg-emerald-950/40 dark:border-emerald-800' : 'bg-amber-50/70 border-amber-200 dark:bg-amber-950/40 dark:border-amber-800'}`}>
                             <div className="flex items-start gap-3">
                               <span className="text-xl select-none shrink-0 mt-0.5">{up ? '🌱' : '🍃'}</span>
                               <div className="min-w-0">
-                                <div className="text-[10px] font-black uppercase tracking-widest text-slate-500">
+                                <div className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-300">
                                   {locale === 'en' ? 'Interface level' : locale === 'es' ? 'Nivel de interfaz' : 'Nível de interface'}
                                 </div>
-                                <p className="text-sm font-black text-slate-800 font-Outfit leading-snug mt-1">{headline}</p>
-                                <p className="text-xs text-slate-600 font-medium mt-1 leading-relaxed">{evidence}</p>
-                                <p className="text-[11px] text-slate-500 mt-2 leading-relaxed">
+                                <p className="text-sm font-black text-slate-800 dark:text-slate-50 font-Outfit leading-snug mt-1">{headline}</p>
+                                <p className="text-xs text-slate-600 dark:text-slate-200 font-medium mt-1 leading-relaxed">{evidence}</p>
+                                <p className="text-[11px] text-slate-500 dark:text-slate-300 mt-2 leading-relaxed">
                                   {locale === 'en'
                                     ? 'Nothing changes until you say so — the screen only changes when you decide.'
                                     : locale === 'es'
@@ -7672,13 +7681,13 @@ function ParentDashboardContent() {
                                 type="button"
                                 disabled={levelBusy}
                                 onClick={() => { playBubble(); handleDismissLevel(s.direction); }}
-                                className="px-4 py-2 bg-white/70 hover:bg-white text-slate-600 text-xs font-black rounded-full border border-slate-300 transition-all cursor-pointer font-Outfit disabled:opacity-50"
+                                className="px-4 py-2 bg-white/70 hover:bg-white dark:bg-slate-800/80 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-100 text-xs font-black rounded-full border border-slate-300 dark:border-slate-600 transition-all cursor-pointer font-Outfit disabled:opacity-50"
                               >
                                 {locale === 'en' ? 'Not now' : locale === 'es' ? 'Ahora no' : 'Agora não'}
                               </button>
                             </div>
                             {s.dismissed >= MAX_DISMISSALS - 1 && (
-                              <p className="text-[10px] text-slate-400 leading-snug">
+                              <p className="text-[10px] text-slate-400 dark:text-slate-400 leading-snug">
                                 {locale === 'en'
                                   ? 'If you say no again, we stop suggesting this — the level is probably not the issue here.'
                                   : locale === 'es'
@@ -8179,17 +8188,17 @@ function ParentDashboardContent() {
 
                   {tasks.filter(tk => tk.day === activeDayFilter).length === 0 && (
 
-                    <div className="bg-emerald-50/60 border border-emerald-200 rounded-2xl p-5 flex flex-col gap-3">
+                    <div className="bg-emerald-50/60 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-2xl p-5 flex flex-col gap-3">
 
                       <div>
 
-                        <h4 className="text-sm font-black text-emerald-900 font-Outfit flex items-center gap-1.5">
+                        <h4 className="text-sm font-black text-emerald-900 dark:text-emerald-50 font-Outfit flex items-center gap-1.5">
 
                           ⏱️ {locale === 'en' ? 'Start with a ready-made routine' : locale === 'es' ? 'Empiece con una rutina lista' : 'Comece com uma rotina pronta'}
 
                         </h4>
 
-                        <p className="text-xs text-emerald-800/80 font-medium mt-1 leading-relaxed">
+                        <p className="text-xs text-emerald-800/80 dark:text-emerald-100/90 font-medium mt-1 leading-relaxed">
 
                           {locale === 'en'
                             ? 'Pick one moment of the day. Add it, then delete what does not fit your family. Tomorrow you add another one — building the whole day at once is what makes people give up on Wednesday.'
@@ -8219,7 +8228,7 @@ function ParentDashboardContent() {
 
                               onClick={() => { playBubble(); handleApplyStarterBlock(block); }}
 
-                              className="text-left bg-white border border-emerald-200 hover:border-emerald-400 rounded-xl p-3.5 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-wait shadow-xxs"
+                              className="text-left bg-white dark:bg-slate-800 border border-emerald-200 dark:border-emerald-800 hover:border-emerald-400 rounded-xl p-3.5 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-wait shadow-xxs"
 
                             >
 
@@ -8227,11 +8236,11 @@ function ParentDashboardContent() {
 
                                 <span className="text-lg select-none">{block.icon}</span>
 
-                                <span className="text-sm font-black text-slate-800 font-Outfit">{block.label[lang]}</span>
+                                <span className="text-sm font-black text-slate-800 dark:text-slate-50 font-Outfit">{block.label[lang]}</span>
 
                               </div>
 
-                              <p className="text-[11px] text-slate-500 font-medium mt-1 leading-snug">{block.hint[lang]}</p>
+                              <p className="text-[11px] text-slate-500 dark:text-slate-300 font-medium mt-1 leading-snug">{block.hint[lang]}</p>
 
                               <span className="inline-block mt-2 text-[10px] font-black uppercase tracking-wider text-emerald-700">
 
