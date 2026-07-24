@@ -814,6 +814,9 @@ export default function ChildRoutine() {
   const [children, setChildren] = useState<any[]>([]);
   const [activeChild, setActiveChild] = useState<any | null>(null);
   const [loadingChildren, setLoadingChildren] = useState(true);
+  // "Sem sessao" e "logado e sem criancas" chegavam aqui iguais: os dois
+  // devolvem lista vazia. Sao problemas diferentes e pedem saidas diferentes.
+  const [signedIn, setSignedIn] = useState(true);
 
   // Monitor offline status
   useEffect(() => {
@@ -1129,6 +1132,7 @@ export default function ChildRoutine() {
     const loadPortal = async () => {
       setLoadingChildren(true);
       try {
+        setSignedIn(!!firebaseBridge.auth.getCurrentUser());
         const fetchedChildren = await firebaseBridge.auth.getChildren();
         setChildren(fetchedChildren);
 
@@ -2120,12 +2124,21 @@ export default function ChildRoutine() {
             🌟
           </div>
           <div>
+            {/* Era "Quem e voce hoje?" — uma pergunta de identidade, e ainda
+                por cima com "hoje", como se amanha a crianca pudesse ser outra
+                pessoa. Numa tela feita para leitura literal, isso confunde em
+                vez de orientar. Aqui a tela pede uma ACAO concreta, e o resto
+                sai do caminho. */}
             <h1 className="text-2xl md:text-3xl font-extrabold text-slate-800 tracking-tight font-Outfit">
-              {locale === 'en' ? 'Who are you today? 🌟' : locale === 'es' ? '¿Quién eres hoy? 🌟' : 'Quem é você hoje? 🌟'}
+              {children.length === 0
+                ? (locale === 'en' ? 'Nothing here yet' : locale === 'es' ? 'Todavía no hay nada aquí' : 'Ainda não há nada aqui')
+                : (locale === 'en' ? 'Tap your name' : locale === 'es' ? 'Toca tu nombre' : 'Toque no seu nome')}
             </h1>
-            <p className="text-sm font-bold text-slate-750 mt-3 font-semibold">
-              {locale === 'en' ? 'Choose your profile to load your playful schedule!' : locale === 'es' ? '¡Elige tu perfil para cargar tu agenda lúdica!' : 'Escolha seu perfil para carregar sua agenda lúdica!'}
-            </p>
+            {children.length > 0 && (
+              <p className="text-sm font-semibold text-slate-600 mt-3">
+                {locale === 'en' ? 'To open your routine for today.' : locale === 'es' ? 'Para abrir tu rutina de hoy.' : 'Para abrir a sua rotina de hoje.'}
+              </p>
+            )}
           </div>
 
           {loadingChildren ? (
@@ -2136,18 +2149,28 @@ export default function ChildRoutine() {
               </span>
             </div>
           ) : children.length === 0 ? (
-            <div className="bg-white border border-slate-200 p-8 rounded-2xl shadow-sm text-center">
+            /* Duas saidas diferentes para dois problemas diferentes: quem
+               chegou sem sessao precisa ENTRAR; quem entrou e ainda nao tem
+               ninguem cadastrado precisa CADASTRAR. Mandar o primeiro para o
+               painel so o levava a outra tela pedindo login. */
+            <div className="bg-white border border-slate-200 p-8 rounded-2xl shadow-sm text-center max-w-sm">
               <p className="text-sm font-bold text-slate-700">
-                {locale === 'en' ? 'No children registered yet.' : locale === 'es' ? 'Ningún niño registrado aún.' : 'Nenhuma criança cadastrada ainda.'}
+                {signedIn
+                  ? (locale === 'en' ? 'No child has been registered yet.' : locale === 'es' ? 'Todavía no hay ningún niño registrado.' : 'Nenhuma criança foi cadastrada ainda.')
+                  : (locale === 'en' ? 'This screen opens from the guardian account.' : locale === 'es' ? 'Esta pantalla se abre desde la cuenta del tutor.' : 'Esta tela abre pela conta do responsável.')}
               </p>
-              <p className="text-xs text-slate-600 mt-2 font-semibold">
-                {locale === 'en' ? 'Ask your guardian to register your profile in the main panel.' : locale === 'es' ? 'Pídele a tu tutor que registre tu perfil en el panel principal.' : 'Peça ao seu responsável para cadastrar seu perfil no painel principal.'}
+              <p className="text-xs text-slate-600 mt-2 font-semibold leading-relaxed">
+                {signedIn
+                  ? (locale === 'en' ? 'Register a child in the guardian panel and the routine shows up here.' : locale === 'es' ? 'Registre un niño en el panel del tutor y la rutina aparece aquí.' : 'Cadastre uma criança no painel do responsável e a rotina aparece aqui.')
+                  : (locale === 'en' ? 'Sign in first — then this device can stay on the child’s screen.' : locale === 'es' ? 'Inicie sesión primero — después este aparato puede quedarse en la pantalla del niño.' : 'Entre com a sua conta primeiro — depois este aparelho pode ficar na tela da criança.')}
               </p>
-              <button 
-                onClick={() => router.push('/dashboard')}
+              <button
+                onClick={() => router.push(signedIn ? '/dashboard' : '/login')}
                 className="mt-5 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-black rounded-xl shadow-sm transition-all cursor-pointer border-none font-Outfit"
               >
-                {locale === 'en' ? 'Go to Guardian Panel' : locale === 'es' ? 'Ir al Panel del Tutor' : 'Ir para o Painel do Responsável'}
+                {signedIn
+                  ? (locale === 'en' ? 'Go to Guardian Panel' : locale === 'es' ? 'Ir al Panel del Tutor' : 'Ir para o Painel do Responsável')
+                  : (locale === 'en' ? 'Sign in' : locale === 'es' ? 'Iniciar sesión' : 'Entrar')}
               </button>
             </div>
           ) : (
@@ -2176,12 +2199,12 @@ export default function ChildRoutine() {
                     {child.gender === 'Feminino' ? '👧' : child.gender === 'Masculino' ? '👦' : '👶'}
                   </div>
                   <div>
-                    <h3 className="text-base font-bold text-slate-800 group-hover:text-indigo-900 transition-colors font-Outfit">{child.name}</h3>
-                    {child.diagnosis && child.diagnosis !== 'Não Informado' && (
-                      <span className="inline-block text-[10px] mt-2.5 px-3 py-1 bg-slate-200 group-hover:bg-indigo-100 group-hover:text-indigo-800 rounded-full font-black uppercase tracking-wider text-slate-750">
-                        {child.diagnosis}
-                      </span>
-                    )}
+                    {/* So o nome. O diagnostico ficava aqui, em caixa alta,
+                        debaixo do nome — na tela DA CRIANCA. Nao ajuda a
+                        escolher um nome, e ninguem precisa ler o proprio
+                        rotulo para abrir a rotina. Ele continua onde faz
+                        sentido: no perfil, no painel do adulto. */}
+                    <h3 className="text-lg font-bold text-slate-800 group-hover:text-indigo-900 transition-colors font-Outfit">{child.name}</h3>
                   </div>
                 </button>
               ))}
