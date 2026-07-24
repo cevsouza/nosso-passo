@@ -178,7 +178,12 @@ export function GlobalNav() {
           >
             <div className="absolute top-0 right-3 w-2 h-2 bg-indigo-600 rounded-full animate-ping"></div>
             <Baby className="w-5 h-5 stroke-[2px]" />
-            <span className="text-[9px] font-black font-Outfit leading-none tracking-tight">{t.common.navRoutine || 'Rotina'}</span>
+            {/* "Criança", nao "Rotina": a aba do painel tambem se chamava
+                Rotina, e as duas apareciam na mesma tela apontando para
+                lugares diferentes. Agora a barra de baixo nomeia QUEM
+                (Inicio · Responsavel · Profissional · Criança) e a aba do
+                painel nomeia O QUE. */}
+            <span className="text-[9px] font-black font-Outfit leading-none tracking-tight">{t.common.navRoutine || 'Criança'}</span>
           </Link>
         )}
       </nav>

@@ -6770,9 +6770,15 @@ function ParentDashboardContent() {
 
           <div className="flex items-center gap-3.5 flex-wrap">
 
-            <span className="text-xs font-black text-slate-450 uppercase tracking-widest font-Outfit">{t.dashboard.children}</span>
+            {/* Com uma crianca so, o seletor nao seleciona nada: e um rotulo,
+                uma ficha que ja esta marcada, e o nome repetido pela terceira
+                vez na mesma tela (ele ja aparece em "Ir para a tela de X" e em
+                "Hoje · X"). Some — e volta inteiro assim que houver duas. */}
+            {children.length > 1 && (
+              <span className="text-xs font-black text-slate-450 uppercase tracking-widest font-Outfit">{t.dashboard.children}</span>
+            )}
 
-            {children.map((child, index) => {
+            {children.length > 1 && children.map((child, index) => {
 
               const isActive = activeChild?.id === child.id;
 
@@ -6976,8 +6982,13 @@ function ParentDashboardContent() {
                   onClick={() => { playBubble(); setShowDailyTrackingPopover(!showDailyTrackingPopover); }}
                   className="flex items-center gap-2 px-4 py-2.5 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs font-black rounded-xl transition-all cursor-pointer active:scale-95 font-Outfit select-none"
                 >
+                  {/* "Registrar o dia", nao "Acompanhamento": a aba do painel
+                      ja se chamava Acompanhamento e faz outra coisa
+                      (devolutivas e relatorios). Dois botoes com o mesmo nome
+                      na mesma tela, levando a lugares diferentes. Aqui o nome
+                      passa a ser o verbo do que o botao faz. */}
                   <span>📅</span>
-                  <span>{locale === 'en' ? 'Daily Status' : locale === 'es' ? 'Acompañamiento' : 'Acompanhamento'}</span>
+                  <span>{locale === 'en' ? 'Log the day' : locale === 'es' ? 'Registrar el día' : 'Registrar o dia'}</span>
                 </button>
 
                 <AnimatePresence>
