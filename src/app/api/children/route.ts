@@ -35,7 +35,9 @@ export async function GET(req: Request) {
           sensoryVisuals: parent?.sensoryVisuals || 'rich',
           sensoryProfile: parent?.sensoryProfile || 'balanced',
           timerStyle: parent?.timerStyle || 'circle',
-          interfaceMode: 'completo',
+          // Rede de seguranca para contas antigas, criadas antes de o cadastro
+          // pedir o nome. Nasce em foco, como toda crianca nova.
+          interfaceMode: 'foco',
           parentUid: userUid,
         }
       });
@@ -84,7 +86,7 @@ export async function POST(req: Request) {
         sensoryVisuals: body.sensoryVisuals || 'rich',
         sensoryProfile: body.sensoryProfile || 'balanced',
         timerStyle: body.timerStyle || 'circle',
-        interfaceMode: body.interfaceMode || 'completo',
+        interfaceMode: body.interfaceMode || 'foco',
         rewardName: body.rewardName || '15 minutos de tablet',
         rewardCost: body.rewardCost !== undefined ? Number(body.rewardCost) : 10,
         tokens: body.tokens !== undefined ? Number(body.tokens) : 0,
@@ -93,25 +95,15 @@ export async function POST(req: Request) {
       }
     });
 
-    // Seed default routine tasks for this new child
-    const DEFAULT_SEED_TASKS = [
-      { title: 'Escovar os dentes 🪥', time: '08:00', period: 'manhã', day: '1', order: 1 },
-      { title: 'Tomar café da manhã 🍞', time: '08:30', period: 'manhã', day: '1', order: 2 },
-      { title: 'Aulas e Estudo 🏫', time: '09:00', period: 'manhã', day: '1', order: 3 },
-      { title: 'Almoço Saudável 🍲', time: '12:30', period: 'tarde', day: '1', order: 4 },
-      { title: 'Montar quebra-cabeca 🧩', time: '15:00', period: 'tarde', day: '1', order: 5 },
-      { title: 'Jantar em Família 🍽️', time: '19:00', period: 'noite', day: '1', order: 6 },
-      { title: 'Tomar Banho e Dormir 😴', time: '21:00', period: 'noite', day: '1', order: 7 },
-    ];
-
-    await prisma.task.createMany({
-      data: DEFAULT_SEED_TASKS.map(t => ({
-        ...t,
-        userUid,
-        childId: child.id,
-      }))
-    });
-
+    // Sem tarefas de brinde aqui, de proposito.
+    //
+    // Antes esta rota semeava 7 tarefas no **dia 1** e sem mes/ano — que a
+    // consulta por mes nao encontra. A familia ganhava uma rotina invisivel:
+    // o banco tinha 7 linhas e a tela da crianca continuava vazia, sem que
+    // ninguem entendesse por que.
+    //
+    // Quem oferece rotina agora e a Rotina Pronta, no painel: por momento do
+    // dia, no dia certo, escolhida pela familia e apagavel item a item.
     return NextResponse.json(child);
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });

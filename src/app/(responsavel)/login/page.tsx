@@ -22,6 +22,7 @@ export default function ParentAuth() {
   const [source, setSource] = useState('');
   const [sourceDetail, setSourceDetail] = useState('');
   const [refCode, setRefCode] = useState('');
+  const [childName, setChildName] = useState('');
 
   // Le o ?ref= do link de indicacao direto da URL, sem useSearchParams: este
   // e o unico jeito de manter a pagina estatica (useSearchParams exigiria um
@@ -58,7 +59,15 @@ export default function ParentAuth() {
               : 'Para criar a conta, confirme que você é o responsável legal e aceite os termos.'
           );
         }
+        if (!childName.trim()) {
+          throw new Error(
+            locale === 'en' ? 'Please tell us the name of the child.'
+              : locale === 'es' ? 'Indique el nombre del niño.'
+                : 'Informe o nome da criança.'
+          );
+        }
         await firebaseBridge.auth.signUp(email, password, {
+          childName: childName.trim(),
           referralSource: source,
           referralDetail: source === 'outro' ? sourceDetail : '',
           referralCode: refCode,
@@ -107,6 +116,7 @@ export default function ParentAuth() {
     setConsent(false);
     setSource('');
     setSourceDetail('');
+    setChildName('');
     // Clear passwords but keep email for convenience
     setPassword('');
   };
@@ -194,6 +204,35 @@ export default function ParentAuth() {
               className="w-full bg-white border border-slate-200 focus:border-indigo-500 rounded-xl text-slate-900 placeholder-slate-400 outline-none transition-all text-sm font-semibold focus:ring-2 focus:ring-indigo-200"
             />
           </div>
+
+          {/* O nome da crianca, aqui e nao depois.
+              Sem ele a familia chegava ao painel e encontrava "Meu Pequeno" —
+              um apelido que ela nao escolheu, no botao, no titulo, em tudo. E
+              um campo a mais que economiza uma tela inteira depois. */}
+          {isRegister && (
+            <div className="flex flex-col gap-1.5">
+              <label className="block text-[11px] font-black text-slate-700 uppercase tracking-widest pl-1 font-Outfit">
+                {locale === 'en' ? "Child's first name" : locale === 'es' ? 'Nombre del niño' : 'Nome da criança'}
+              </label>
+              <input
+                type="text"
+                required
+                maxLength={40}
+                value={childName}
+                onChange={(e) => setChildName(e.target.value)}
+                placeholder={locale === 'en' ? 'First name only' : locale === 'es' ? 'Solo el primer nombre' : 'Só o primeiro nome'}
+                style={{ padding: '0.7rem 1rem' }}
+                className="w-full bg-white border border-slate-200 focus:border-indigo-500 rounded-xl text-slate-900 placeholder-slate-400 outline-none transition-all text-sm font-semibold focus:ring-2 focus:ring-indigo-200"
+              />
+              <span className="text-[11px] text-slate-500 font-semibold pl-1">
+                {locale === 'en'
+                  ? 'It is what she sees on her own screen. You can add more children later.'
+                  : locale === 'es'
+                  ? 'Es lo que aparece en la pantalla de él. Puede agregar más niños después.'
+                  : 'É o que aparece na tela dele. Você pode cadastrar mais crianças depois.'}
+              </span>
+            </div>
+          )}
 
           {isRegister && (
             <div className="flex flex-col gap-1.5">

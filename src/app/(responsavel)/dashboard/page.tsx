@@ -2164,17 +2164,25 @@ function ParentDashboardContent() {
 
   // Onboarding help state
 
-  const [showOnboardingHelp, setShowOnboardingHelp] = useState(true);
+  // O guia clinico comeca RECOLHIDO.
+  //
+  // Ele e bom, mas era a primeira coisa que a familia via: um paredao sobre
+  // "sobrecarga cognitiva" e "lobo frontal" no lugar de "faca isto agora".
+  // Quem acabou de receber um diagnostico nao chega aqui para estudar, chega
+  // para organizar a terca-feira. O guia continua a um toque de distancia.
+  const [showOnboardingHelp, setShowOnboardingHelp] = useState(false);
 
   useEffect(() => {
 
     if (typeof window !== 'undefined') {
 
+      // Quem tinha o guia aberto antes continua com ele aberto: a chave so
+      // existe para quem ja clicou em alguma coisa.
       const stored = localStorage.getItem('showOnboardingHelp');
 
-      if (stored === 'false') {
+      if (stored === 'true') {
 
-        setShowOnboardingHelp(false);
+        setShowOnboardingHelp(true);
 
       }
 
@@ -7071,7 +7079,12 @@ function ParentDashboardContent() {
                 rel="noopener noreferrer"
                 className="px-5 py-2.5 bg-indigo-600 text-white hover:bg-indigo-755 text-xs font-black rounded-xl shadow-md transition-all active:scale-95 flex items-center gap-2 font-Outfit uppercase tracking-wider"
               >
-                <span>🚀</span> {t.dashboard.goToChildRoutine} {activeChild.name.split(' ')[0]}
+                {/* Nome inteiro quando cabe. So a primeira palavra e que
+                    produzia "Ir para Tela de Meu" nas contas antigas, cujo
+                    apelido automatico era "Meu Pequeno" — a primeira frase
+                    que a familia lia no painel, cortada no meio. */}
+                <span>🚀</span> {t.dashboard.goToChildRoutine}{' '}
+                {activeChild.name.length <= 14 ? activeChild.name : activeChild.name.split(' ')[0]}
               </a>
             </div>
 
@@ -7178,6 +7191,77 @@ function ParentDashboardContent() {
       </AnimatePresence>
 
 
+
+      {/* Primeira vez: a tela diz o que fazer AGORA.
+          Antes a familia chegava aqui e tinha de descobrir sozinha, por baixo
+          de um texto clinico, que o proximo passo era abrir a aba Rotina e
+          procurar as rotinas prontas. Aqui o proximo passo e a propria tela:
+          tres blocos, um toque, e o dia da crianca existe. Some sozinho assim
+          que houver qualquer atividade. */}
+
+      {activeChild && tasks.length === 0 && (
+        <div className="max-w-6xl mx-auto px-4 md:px-6 mt-6">
+          <div className="bg-emerald-50/70 border border-emerald-200 rounded-2xl p-5 sm:p-6 flex flex-col gap-4">
+            <div>
+              <h2 className="text-xl sm:text-2xl font-black text-emerald-950 font-Outfit tracking-tight">
+                {locale === 'en'
+                  ? `Let's set up ${activeChild.name.split(' ')[0]}'s first stretch of the day`
+                  : locale === 'es'
+                  ? `Vamos a montar el primer tramo del día de ${activeChild.name.split(' ')[0]}`
+                  : `Vamos montar o primeiro pedaço do dia de ${activeChild.name.split(' ')[0]}`}
+              </h2>
+              <p className="text-sm text-emerald-900/80 font-medium mt-1.5 leading-relaxed max-w-2xl">
+                {locale === 'en'
+                  ? 'Choose one moment. It arrives ready — then delete what does not fit your family. Tomorrow you add another one.'
+                  : locale === 'es'
+                  ? 'Elija un momento. Llega listo — después borre lo que no sirva para su familia. Mañana agrega otro.'
+                  : 'Escolha um momento. Ele vem pronto — depois apague o que não servir para a sua família. Amanhã você acrescenta outro.'}
+              </p>
+            </div>
+
+            <div className="grid sm:grid-cols-3 gap-3">
+              {STARTER_BLOCKS.map(block => {
+                const lang = starterLocale(locale);
+                return (
+                  <button
+                    key={block.id}
+                    type="button"
+                    disabled={applyingBlock !== null}
+                    onClick={() => {
+                      playBubble();
+                      // O bloco cai no dia de HOJE, nao no dia que estiver
+                      // selecionado na agenda: numa conta nova, a familia
+                      // quer ver a rotina funcionando agora.
+                      setActiveDayFilter(String(new Date().getDate()));
+                      handleApplyStarterBlock(block);
+                    }}
+                    className="text-left bg-white border border-emerald-200 hover:border-emerald-400 rounded-xl p-4 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-wait shadow-xxs"
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="text-xl select-none">{block.icon}</span>
+                      <span className="text-base font-black text-slate-800 font-Outfit">{block.label[lang]}</span>
+                    </div>
+                    <p className="text-xs text-slate-500 font-medium mt-1.5 leading-snug">{block.hint[lang]}</p>
+                    <span className="inline-block mt-2.5 text-[10px] font-black uppercase tracking-wider text-emerald-700">
+                      {applyingBlock === block.id
+                        ? (locale === 'en' ? 'adding…' : locale === 'es' ? 'agregando…' : 'aplicando…')
+                        : `${block.tasks.length} ${locale === 'en' ? 'activities' : locale === 'es' ? 'actividades' : 'tarefas'}`}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+
+            <button
+              type="button"
+              onClick={() => { playBubble(); setShowOnboardingHelp(true); localStorage.setItem('showOnboardingHelp', 'true'); }}
+              className="self-start text-xs font-black text-emerald-800 hover:text-emerald-950 bg-transparent border-none cursor-pointer underline underline-offset-2"
+            >
+              {locale === 'en' ? 'Prefer to understand the method first?' : locale === 'es' ? '¿Prefiere entender el método primero?' : 'Prefere entender o método antes?'}
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Educational Clinical Onboarding & Help Widget */}
 

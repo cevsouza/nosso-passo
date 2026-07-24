@@ -424,7 +424,7 @@ export const firebaseBridge = {
     signUp: async (
       email: string,
       password?: string,
-      growth?: { referralSource?: string; referralDetail?: string; referralCode?: string }
+      growth?: { childName?: string; referralSource?: string; referralDetail?: string; referralCode?: string }
     ): Promise<UserProfile> => {
       const res = await fetch('/api/signup', {
         method: 'POST',
