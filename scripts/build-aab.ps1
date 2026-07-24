@@ -45,6 +45,22 @@ $env:ANDROID_HOME = "$base\android_sdk"
 # 2) O bin do JDK entra porque o `jarsigner`, que assina o AAB, mora la.
 $env:PATH = "$twa;$base\jdk\bin;$env:PATH"
 
+# Localizar o bubblewrap em vez de confiar no PATH: a pasta global do npm nao
+# esta no PATH de todo mundo, e instalar um pacote global nao a acrescenta.
+$bubblewrap = (Get-Command bubblewrap.cmd -ErrorAction SilentlyContinue).Source
+if (-not $bubblewrap) {
+  $prefixo = (& npm prefix -g 2>$null)
+  if ($prefixo) { $candidato = Join-Path $prefixo 'bubblewrap.cmd' }
+  if ($candidato -and (Test-Path $candidato)) { $bubblewrap = $candidato }
+}
+if (-not $bubblewrap) {
+  $padrao = Join-Path $env:APPDATA 'npm\bubblewrap.cmd'
+  if (Test-Path $padrao) { $bubblewrap = $padrao }
+}
+if (-not $bubblewrap) {
+  throw "bubblewrap nao encontrado. Instale com: npm i -g @bubblewrap/cli"
+}
+
 $senha = Read-Host -Prompt 'Senha da chave de assinatura' -AsSecureString
 $plano = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto(
   [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($senha))
@@ -52,7 +68,7 @@ $plano = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto(
 try {
   $env:BUBBLEWRAP_KEYSTORE_PASSWORD = $plano
   $env:BUBBLEWRAP_KEY_PASSWORD      = $plano
-  bubblewrap build --skipPwaValidation
+  & $bubblewrap build --skipPwaValidation
 } finally {
   # Some da memoria do processo aconteca o que acontecer.
   $plano = $null
