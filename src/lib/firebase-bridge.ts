@@ -63,6 +63,8 @@ export interface Child {
   unexpectedChange?: string | null;
   aacCustomItems?: string | null;
   customStories?: string | null;
+  levelSuggestionState?: string | null;
+  lastActiveAt?: string | null;
 }
 
 export interface SensoryLog {
@@ -212,15 +214,123 @@ export const syncOfflineActions = async () => {
 
 };
 
+// ---------------------------------------------------------------------------
+// Cache de leitura (offline)
+// ---------------------------------------------------------------------------
+// A fila de escrita ja existia; faltava a leitura. Sem isto, abrir o app sem
+// rede devolvia uma rotina VAZIA — o que, para uma crianca no meio do dia, e
+// pior do que nao abrir: o dia dela simplesmente some da tela.
+//
+// A chave inclui a crianca de proposito. Servir a rotina do irmao seria pior
+// do que servir nada.
+
+const CACHE_PREFIX = 'np_read_cache:';
+
+const cacheKey = (url: string, headers: Record<string, string>) =>
+  `${CACHE_PREFIX}${headers['x-child-id'] || headers['x-user-uid'] || 'anon'}|${url}`;
+
+const readCache = (key: string): { at: number; body: any } | null => {
+  if (typeof window === 'undefined') return null;
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+};
+
+const writeCache = (key: string, body: any) => {
+  if (typeof window === 'undefined') return;
+  try {
+    localStorage.setItem(key, JSON.stringify({ at: Date.now(), body }));
+  } catch {
+    // cota estourada: o cache e um conforto, nunca um requisito
+  }
+};
+
+/** Quando a rotina que esta na tela foi baixada. null = nunca. */
+export const getCachedAt = (childId?: string | null): number | null => {
+  if (typeof window === 'undefined') return null;
+  const id = childId || localStorage.getItem('tea_active_child_id') || 'anon';
+  let newest: number | null = null;
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (!k || !k.startsWith(`${CACHE_PREFIX}${id}|`) || !k.includes('/api/tasks')) continue;
+      const entry = readCache(k);
+      if (entry && (newest === null || entry.at > newest)) newest = entry.at;
+    }
+  } catch {
+    return null;
+  }
+  return newest;
+};
+
+/**
+ * Aplica uma escrita offline ao snapshot em cache.
+ *
+ * Sem isto o offline mente de um jeito cruel: a crianca marca a tarefa como
+ * feita, a fila guarda a acao, e a proxima releitura devolve o cache antigo —
+ * a estrela some na frente dela. Aqui a tarefa continua marcada ate a
+ * sincronizacao acontecer de verdade.
+ */
+const patchTaskCache = (headers: Record<string, string>, method: string, body?: string) => {
+  if (typeof window === 'undefined') return;
+  const prefix = `${CACHE_PREFIX}${headers['x-child-id'] || headers['x-user-uid'] || 'anon'}|`;
+  let payload: any = {};
+  try { payload = JSON.parse(body || '{}'); } catch { return; }
+
+  const keys: string[] = [];
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && k.startsWith(prefix) && k.includes('/api/tasks')) keys.push(k);
+    }
+  } catch { return; }
+
+  for (const k of keys) {
+    const entry = readCache(k);
+    if (!entry || !Array.isArray(entry.body)) continue;
+    let list: any[] = entry.body;
+
+    if (method === 'PUT' && payload.id && payload.updates) {
+      list = list.map(t => (t.id === payload.id ? { ...t, ...payload.updates } : t));
+    } else if (method === 'POST') {
+      const incoming = Array.isArray(payload) ? payload : [payload];
+      list = [
+        ...list,
+        ...incoming.map((t: any) => ({
+          id: 'temp-' + Math.random().toString(36).substring(2, 9),
+          isCompleted: false,
+          order: list.length + 1,
+          ...t,
+        })),
+      ];
+    } else {
+      continue;
+    }
+
+    writeCache(k, list);
+  }
+};
+
 const safeFetch = async (url: string, options: RequestInit = {}): Promise<Response> => {
   const method = options.method || 'GET';
   const headers = (options.headers || {}) as Record<string, string>;
   const body = options.body as string | undefined;
 
-  if (typeof window !== 'undefined' && !navigator.onLine) {
-    if (method !== 'GET') {
-      enqueueOfflineAction(url, method, headers, body);
+  // Resposta sintetica para quando nao ha rede. Em GET, entrega o ultimo
+  // snapshot conhecido; so devolve lista vazia se realmente nunca houve um.
+  const offlineResponse = (): Response => {
+    if (method === 'GET') {
+      const cached = readCache(cacheKey(url, headers));
+      return {
+        ok: true,
+        status: 200,
+        json: async () => (cached ? cached.body : (url.includes('/api/tasks') || url.includes('/api/sensory-logs') ? [] : { success: true })),
+      } as Response;
     }
+
     return {
       ok: true,
       status: 200,
@@ -243,36 +353,36 @@ const safeFetch = async (url: string, options: RequestInit = {}): Promise<Respon
         return { success: true };
       }
     } as Response;
+  };
+
+  if (typeof window !== 'undefined' && !navigator.onLine) {
+    if (method !== 'GET') {
+      enqueueOfflineAction(url, method, headers, body);
+      if (url.includes('/api/tasks')) patchTaskCache(headers, method, body);
+    }
+    return offlineResponse();
   }
 
   try {
     const res = await fetch(url, options);
+
+    // Guarda o que voltou, para o proximo dia sem rede. Clona: o chamador
+    // ainda precisa ler o corpo.
+    if (method === 'GET' && res.ok && typeof window !== 'undefined') {
+      res.clone().json()
+        .then(data => { if (data && !data.error) writeCache(cacheKey(url, headers), data); })
+        .catch(() => {});
+    }
+
     return res;
   } catch (err) {
-    if (typeof window !== 'undefined' && method !== 'GET') {
-      enqueueOfflineAction(url, method, headers, body);
-      return {
-        ok: true,
-        status: 200,
-        json: async () => {
-          if (url.includes('/api/tasks')) {
-            if (method === 'POST') {
-              const data = JSON.parse(body || '{}');
-              return { id: 'temp-' + Math.random().toString(36).substring(2, 7), isCompleted: false, order: 1, ...data };
-            }
-            if (method === 'PUT') {
-              const data = JSON.parse(body || '{}');
-              return data.updates || data;
-            }
-            return [];
-          }
-          if (url.includes('/api/sensory-logs')) {
-            const data = JSON.parse(body || '{}');
-            return { id: 'temp-' + Math.random().toString(36).substring(2, 7), timestamp: new Date().toISOString(), ...data };
-          }
-          return { success: true };
-        }
-      } as Response;
+    if (typeof window !== 'undefined') {
+      if (method !== 'GET') {
+        enqueueOfflineAction(url, method, headers, body);
+        if (url.includes('/api/tasks')) patchTaskCache(headers, method, body);
+      }
+      // Rede caiu no meio (o navegador ainda se diz online): mesma resposta.
+      return offlineResponse();
     }
     throw err;
   }
@@ -523,6 +633,39 @@ export const firebaseBridge = {
       const data = await res.json();
       if (data.error) throw new Error(data.error);
       return data;
+    },
+
+    // ---- Insights (aderencia, sugestao de nivel, evolucao) ----
+    // Nunca deixa a tela quebrar: se a leitura falhar, o painel simplesmente
+    // nao mostra sugestao nenhuma. E um adorno informativo, nao um dado de uso.
+    getInsights: async (childId: string, days?: number): Promise<any | null> => {
+      const current = getLocalProfile();
+      if (!current) return null;
+      try {
+        const q = days ? `&days=${days}` : '';
+        const res = await fetch(`/api/insights?childId=${childId}${q}`, {
+          headers: { 'x-user-uid': current.uid }
+        });
+        if (!res.ok) return null;
+        const data = await res.json();
+        return data.error ? null : data;
+      } catch {
+        return null;
+      }
+    },
+
+    dismissLevelSuggestion: async (childId: string, direction: 'up' | 'down'): Promise<void> => {
+      const current = getLocalProfile();
+      if (!current) return;
+      try {
+        await fetch('/api/insights', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json', 'x-user-uid': current.uid },
+          body: JSON.stringify({ childId, direction })
+        });
+      } catch {
+        // silencioso de proposito: dispensar uma sugestao nunca pode virar erro
+      }
     },
 
     getActiveChild: (): Child | null => {

@@ -160,6 +160,7 @@ export async function PUT(req: Request) {
         unexpectedChange: updates.unexpectedChange,
         aacCustomItems: updates.aacCustomItems,
         customStories: updates.customStories,
+        levelSuggestionState: updates.levelSuggestionState,
       }
     });
 

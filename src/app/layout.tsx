@@ -58,6 +58,14 @@ export default function RootLayout({
             __html: `try{var t=localStorage.getItem('tea_theme')||'system';if(t==='dark'||(t==='system'&&window.matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.classList.add('dark');}}catch(e){}`,
           }}
         />
+        {/* Service worker: e o que faz o app abrir sem rede. Registra depois
+            do load para nao disputar banda com a primeira pintura, e falha em
+            silencio — sem SW o app continua funcionando, so nao offline. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('/sw.js').catch(function(){})})}`,
+          }}
+        />
         <LanguageProvider>
           {children}
         </LanguageProvider>

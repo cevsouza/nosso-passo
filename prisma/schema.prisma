@@ -68,6 +68,9 @@ model Child {
   unexpectedChange String?
   aacCustomItems  String?
   customStories   String?
+  // Sugestao de nivel de interface: {dir, mode, count, lastAt}. Guarda os
+  // "agora nao" — tres seguidos dizem que o nivel nao e o problema da familia.
+  levelSuggestionState String?
 
   parentUid       String
   parent          UserProfile @relation(fields: [parentUid], references: [uid], onDelete: Cascade)

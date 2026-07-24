@@ -1,13 +1,14 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '../../../lib/prisma';
 import { publicOrigin, qrSvg } from '../../../lib/qr';
+import { sinceVisit, evolutionReport } from '../../../lib/insights';
 
 // ---- Access resolution (role-scoped codes + legacy sharingCode) ----
 // Code may arrive via the `x-share-code` header (preferred, keeps it out of
 // URLs/logs), or the legacy `?sharingCode=` query / `sharingCode` body field.
 
 type Access =
-  | { child: any; role: string }
+  | { child: any; role: string; lastVisit: Date | null }
   | { error: string; status: number };
 
 async function resolveAccess(req: Request, bodyCode?: string): Promise<Access> {
@@ -23,14 +24,18 @@ async function resolveAccess(req: Request, bodyCode?: string): Promise<Access> {
     if (ac.expiresAt && ac.expiresAt.getTime() < Date.now()) {
       return { error: 'Código de acesso expirado.', status: 403 };
     }
+    // `ac.lastUsedAt` ainda e a visita ANTERIOR — e o unico ponto do sistema
+    // onde esse valor existe, porque a linha abaixo o sobrescreve. E dele que
+    // sai o "desde a sua ultima visita".
+    const lastVisit = ac.lastUsedAt;
     // best-effort usage stamp; never block the request on this
     prisma.accessCode.update({ where: { id: ac.id }, data: { lastUsedAt: new Date() } }).catch(() => {});
-    return { child: ac.child, role: ac.role };
+    return { child: ac.child, role: ac.role, lastVisit };
   }
 
   // 2) Legacy full-access sharingCode -> therapist role (backward compat)
   const child = await prisma.child.findUnique({ where: { sharingCode: code } });
-  if (child) return { child, role: 'therapist' };
+  if (child) return { child, role: 'therapist', lastVisit: null };
 
   return { error: 'Código de compartilhamento inválido ou inativo.', status: 404 };
 }
@@ -71,6 +76,18 @@ export async function GET(req: Request) {
     const portal = `${publicOrigin(req)}/therapist`;
     safe._portalUrl = portal;
     safe._portalQrSvg = await qrSvg(portal);
+
+    // "Desde a sua ultima visita" — o que faz o profissional voltar sozinho.
+    // Na primeira entrada nao existe "antes": cai para 14 dias e marca
+    // firstVisit, para o portal nao chamar historico velho de novidade.
+    const now = new Date();
+    const firstVisit = !access.lastVisit;
+    const ref = access.lastVisit || new Date(now.getTime() - 14 * 86400000);
+    safe._sinceVisit = {
+      ...sinceVisit(full.tasks as any, full.sensoryLogs as any, full.checkpoints as any, ref, now),
+      firstVisit,
+    };
+    safe._evolution = evolutionReport(full.tasks as any, full.sensoryLogs as any, { now, days: 14 });
 
     return NextResponse.json(safe);
   } catch (error: any) {

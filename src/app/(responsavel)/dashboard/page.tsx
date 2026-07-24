@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 
 import { motion, AnimatePresence } from 'framer-motion';
 
-import { firebaseBridge, Task, UserProfile, getOfflineQueue } from '../../../lib/firebase-bridge';
+import { firebaseBridge, Task, UserProfile, getOfflineQueue, getCachedAt } from '../../../lib/firebase-bridge';
 
 import { immutableLogger, AuditLog } from '../../../lib/immutable-logger';
 
@@ -19,8 +19,22 @@ import { LanguageSelector } from '../../../components/LanguageSelector';
 import { AccessCodesManager } from '../../../components/AccessCodesManager';
 import { ReferralCard } from '../../../components/ReferralCard';
 import { PrintFooter } from '../../../components/PrintFooter';
+import { EvolutionReportSheet } from '../../../components/EvolutionReport';
 
 import { getTaskCategory, TaskCategory } from '../../../lib/sensory-standards';
+
+import { STARTER_BLOCKS, blockToTasks, starterLocale, StarterBlock } from '../../../lib/starter-routines';
+import {
+  suggestLevel,
+  parseLevelState,
+  dismissLevelSuggestion,
+  evolutionReport,
+  topEntries,
+  LevelSuggestion,
+  EvolutionReport,
+  InterfaceMode,
+  MAX_DISMISSALS,
+} from '../../../lib/insights';
 
 import { CollieState } from '../../../components/ludic/BorderCollie';
 
@@ -1032,6 +1046,10 @@ function ParentDashboardContent() {
 
   const [offlineQueueSize, setOfflineQueueSize] = useState(0);
 
+  // Quando os dados na tela foram baixados — para o aviso de offline dizer a
+  // verdade em vez de so avisar que caiu.
+  const [cachedAt, setCachedAt] = useState<number | null>(null);
+
 
 
   // Monitor offline status
@@ -1044,13 +1062,17 @@ function ParentDashboardContent() {
 
       setOfflineQueueSize(getOfflineQueue().length);
 
-      
+      setCachedAt(getCachedAt());
+
+
 
       const handleOfflineStatus = (e: any) => {
 
         setOffline(e.detail.isOffline);
 
         setOfflineQueueSize(e.detail.queueLength || 0);
+
+        setCachedAt(getCachedAt());
 
       };
 
@@ -1194,6 +1216,73 @@ function ParentDashboardContent() {
 
     }
 
+  };
+
+
+  // Rotina pronta: um bloco (manha / tarde / noite) de uma vez so.
+  //
+  // Sempre UM momento do dia, nunca o dia inteiro. O erro mais comum de quem
+  // comeca e montar tudo de uma vez e abandonar na quarta-feira — entao o
+  // produto so oferece um pedaco, e diz isso em voz alta.
+  const [applyingBlock, setApplyingBlock] = useState<string | null>(null);
+
+  const handleApplyStarterBlock = async (block: StarterBlock) => {
+    if (applyingBlock) return;
+    const dayTasks = tasks.filter(tk => tk.day === activeDayFilter);
+
+    if (plan === 'free' && dayTasks.length >= 3) {
+      playMarimba(180, 0.2);
+      setShowPaywall(true);
+      return;
+    }
+
+    // No plano gratuito o dia cabe 3 tarefas: entrega as 3 primeiras do bloco
+    // e avisa, em vez de falhar no meio.
+    const room = plan === 'free' ? Math.max(0, 3 - dayTasks.length) : Infinity;
+    const all = blockToTasks(block, activeDayFilter, locale);
+    const payload = room === Infinity ? all : all.slice(0, room);
+    if (payload.length === 0) {
+      setShowPaywall(true);
+      return;
+    }
+
+    setApplyingBlock(block.id);
+    playMarimba(392, 0.4);
+
+    try {
+      await firebaseBridge.db.addTask(payload as any);
+
+      const lang = starterLocale(locale);
+      const dayLabel = getDayLabel(activeDayFilter, locale).replace(/ 📅| ☀️/, '');
+      await immutableLogger.logChange(
+        'ADD_TASK',
+        `Aplicou a rotina pronta "${block.label.pt}" (${payload.length} tarefas) na agenda de ${dayLabel}.`,
+        currentUser?.email
+      );
+
+      const truncated = payload.length < all.length;
+      triggerStatus(
+        truncated
+          ? (locale === 'en'
+              ? `${payload.length} activities added — the free plan holds 3 per day.`
+              : locale === 'es'
+                ? `${payload.length} actividades agregadas — el plan gratuito permite 3 por día.`
+                : `${payload.length} tarefas adicionadas — o plano gratuito comporta 3 por dia.`)
+          : (locale === 'en'
+              ? `${block.label[lang]} routine ready. Now delete what doesn't fit.`
+              : locale === 'es'
+                ? `Rutina de ${block.label[lang]} lista. Ahora borre lo que no sirva.`
+                : `Rotina da ${block.label[lang].toLowerCase()} pronta. Agora apague o que não servir.`)
+      );
+    } catch (err) {
+      triggerStatus(
+        locale === 'en' ? 'Could not apply the routine.'
+          : locale === 'es' ? 'No se pudo aplicar la rutina.'
+            : 'Não foi possível aplicar a rotina.'
+      );
+    } finally {
+      setApplyingBlock(null);
+    }
   };
 
 
@@ -1982,6 +2071,15 @@ function ParentDashboardContent() {
 
 
 
+  // Leitura do que a rotina real diz: sugestao de nivel e evolucao (antes/depois).
+  // Carrega em silencio; se falhar, o painel simplesmente nao mostra nada.
+  const [insights, setInsights] = useState<any | null>(null);
+  const [levelBusy, setLevelBusy] = useState(false);
+  const [levelHidden, setLevelHidden] = useState(false);
+  const [evolutionOpen, setEvolutionOpen] = useState(false);
+
+
+
   // Reward & Transition Timer states
 
   const [rewardName, setRewardName] = useState('15 minutos de tablet');
@@ -2435,6 +2533,22 @@ function ParentDashboardContent() {
   const [activeToolsSubTab, setActiveToolsSubTab] = useState<'config' | 'logs'>('config');
 
   const [checkpoints, setCheckpoints] = useState<any[]>([]);
+
+  // Devolutivas ja lidas. Fica no aparelho de proposito: e um aviso de leitura,
+  // nao um dado clinico — nao vale uma coluna no banco nem uma ida a rede.
+  const [seenFeedback, setSeenFeedback] = useState<string[]>(() => {
+    if (typeof window === 'undefined') return [];
+    try { return JSON.parse(localStorage.getItem('np_seen_feedback') || '[]'); } catch { return []; }
+  });
+
+  const markFeedbackSeen = (id: string) => {
+    setSeenFeedback(prev => {
+      if (prev.includes(id)) return prev;
+      const next = [...prev, id].slice(-50);
+      try { localStorage.setItem('np_seen_feedback', JSON.stringify(next)); } catch {}
+      return next;
+    });
+  };
 
   const [loadingCheckpoints, setLoadingCheckpoints] = useState(false);
 
@@ -2938,6 +3052,61 @@ function ParentDashboardContent() {
 
   }, [activeChild?.id, activePanelTab]);
 
+
+  // Insights: uma leitura por crianca, sem bloquear a tela.
+  useEffect(() => {
+    if (!activeChild?.id) { setInsights(null); return; }
+    let cancelled = false;
+    setLevelHidden(false);
+    firebaseBridge.auth.getInsights(activeChild.id).then(data => {
+      if (!cancelled) setInsights(data);
+    });
+    return () => { cancelled = true; };
+  }, [activeChild?.id]);
+
+
+  // A familia aceitou a sugestao: troca o nivel e zera o historico de recusas
+  // (o proximo ciclo comeca limpo, no nivel novo).
+  const handleAcceptLevel = async (to: 'foco' | 'intermediario' | 'completo') => {
+    if (!activeChild || levelBusy) return;
+    setLevelBusy(true);
+    try {
+      const updated = await firebaseBridge.auth.updateChildSettings(activeChild.id, {
+        interfaceMode: to,
+        levelSuggestionState: '',
+      });
+      setActiveChild(updated);
+      setInterfaceMode(to);
+      setInsights((prev: any) => prev ? { ...prev, levelSuggestion: null, interfaceMode: to } : prev);
+
+      const label = to === 'foco' ? 'Foco' : to === 'intermediario' ? 'Intermediário' : 'Completo';
+      await immutableLogger.logChange(
+        'UPDATE_PROFILE',
+        `Aceitou a sugestão do app e mudou o nível de interface de ${activeChild.name} para "${label}".`,
+        currentUser?.email
+      );
+      triggerStatus(
+        locale === 'en' ? `Level changed to ${label}.`
+          : locale === 'es' ? `Nivel cambiado a ${label}.`
+            : `Nível alterado para ${label}.`
+      );
+    } catch {
+      triggerStatus(
+        locale === 'en' ? 'Could not change the level.'
+          : locale === 'es' ? 'No se pudo cambiar el nivel.'
+            : 'Não foi possível mudar o nível.'
+      );
+    } finally {
+      setLevelBusy(false);
+    }
+  };
+
+  // "Agora nao". Some da tela e fica registrado — tres recusas param de sugerir.
+  const handleDismissLevel = async (direction: 'up' | 'down') => {
+    if (!activeChild || levelBusy) return;
+    setLevelHidden(true);
+    await firebaseBridge.auth.dismissLevelSuggestion(activeChild.id, direction);
+  };
 
 
   const startEditingCheckpoint = (cp: any) => {
@@ -6022,13 +6191,24 @@ function ParentDashboardContent() {
 
       <GlobalNav />
 
-      <main className="flex-1 min-h-screen text-slate-900 pb-16 relative">
+      {/* Com o relatorio de evolucao aberto, o papel e ele — o painel inteiro
+          sai da impressao. */}
+      <main className={`flex-1 min-h-screen text-slate-900 pb-16 relative ${evolutionOpen ? 'print:hidden' : ''}`}>
 
       {offline && (
 
         <div className="bg-amber-500 text-white py-2 px-4 text-center text-xs font-black select-none z-50 flex items-center justify-center gap-2 font-Outfit shadow-md">
 
           <span>📶 {locale === 'es' ? 'Modo Offline Activado' : locale === 'en' ? 'Offline Mode Activated' : 'Modo Offline Ativado'}</span>
+
+          {/* Honestidade: dizer de quando e a rotina na tela. Sem isso o
+              responsavel nao sabe se esta olhando o dia de hoje ou o de ontem. */}
+          {cachedAt && (
+            <span className="bg-amber-700/60 px-2 py-0.5 rounded text-[10px] font-semibold">
+              {locale === 'en' ? 'showing the routine saved at' : locale === 'es' ? 'mostrando la rutina guardada a las' : 'mostrando a rotina salva às'}{' '}
+              {new Date(cachedAt).toLocaleTimeString(locale === 'en' ? 'en-US' : locale === 'es' ? 'es-ES' : 'pt-BR', { hour: '2-digit', minute: '2-digit' })}
+            </span>
+          )}
 
           {offlineQueueSize > 0 && (
 
@@ -7240,6 +7420,139 @@ function ParentDashboardContent() {
                         </div>
                       </div>
 
+                      {/* A outra ponta do loop: o profissional escreveu, a
+                          familia precisa ver sem ir procurar numa aba. */}
+                      {(() => {
+                        const latest = checkpoints
+                          .filter(c => (c.feedback || '').trim())
+                          .sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime())[0];
+                        if (!latest) return null;
+                        const age = Date.now() - new Date(latest.createdAt || 0).getTime();
+                        if (!(age >= 0 && age < 21 * 86400000)) return null;
+                        const isNew = !seenFeedback.includes(latest.id);
+                        return (
+                          <div className={`rounded-2xl p-5 border flex flex-col gap-2 ${isNew ? 'bg-teal-50/70 border-teal-200' : 'bg-white border-slate-200'}`}>
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">
+                                {locale === 'en' ? 'From the professional' : locale === 'es' ? 'Del profesional' : 'Do profissional'}
+                              </span>
+                              {isNew && (
+                                <span className="text-[9px] font-black uppercase tracking-wider bg-teal-600 text-white px-2 py-0.5 rounded-full">
+                                  {locale === 'en' ? 'new' : locale === 'es' ? 'nuevo' : 'nova'}
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-sm text-slate-700 font-medium leading-relaxed">{latest.feedback}</p>
+                            <div className="flex items-center justify-between gap-3 flex-wrap">
+                              <span className="text-[11px] text-slate-400 font-semibold">
+                                {latest.professionalName || (locale === 'en' ? 'Professional' : locale === 'es' ? 'Profesional' : 'Profissional')}
+                                {latest.professionalRole ? ` · ${latest.professionalRole}` : ''}
+                                {latest.date ? ` · ${latest.date}` : ''}
+                              </span>
+                              {isNew && (
+                                <button
+                                  type="button"
+                                  onClick={() => { playBubble(); markFeedbackSeen(latest.id); }}
+                                  className="text-xs font-black text-teal-700 hover:text-teal-900 bg-transparent border-none cursor-pointer"
+                                >
+                                  {locale === 'en' ? 'Got it' : locale === 'es' ? 'Entendido' : 'Li'}
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })()}
+
+                      {/* Sugestao de nivel de interface.
+                          Nunca troca sozinho: quem decide e o adulto. A
+                          previsibilidade e o produto — mudar a tela da crianca
+                          sem aviso seria trair exatamente isso. */}
+                      {!levelHidden && insights?.levelSuggestion && (() => {
+                        const s = insights.levelSuggestion;
+                        const up = s.direction === 'up';
+                        const nameOf = (m: string) => m === 'foco'
+                          ? (locale === 'en' ? 'Focus' : locale === 'es' ? 'Enfoque' : 'Foco')
+                          : m === 'intermediario'
+                            ? (locale === 'en' ? 'Intermediate' : locale === 'es' ? 'Intermedio' : 'Intermediário')
+                            : (locale === 'en' ? 'Complete' : locale === 'es' ? 'Completo' : 'Completo');
+                        const first = activeChild?.name?.split(' ')[0] || (locale === 'en' ? 'your child' : locale === 'es' ? 'su hijo' : 'a criança');
+                        const pct = Math.round(s.rate * 100);
+                        const weeks = s.weeks.length;
+
+                        const headline = up
+                          ? (locale === 'en'
+                              ? `${first} has been completing almost everything in ${nameOf(s.from)} — want to try ${nameOf(s.to)}?`
+                              : locale === 'es'
+                                ? `${first} viene completando casi todo en ${nameOf(s.from)} — ¿quiere probar ${nameOf(s.to)}?`
+                                : `${first} vem concluindo quase tudo no ${nameOf(s.from)} — quer experimentar o ${nameOf(s.to)}?`)
+                          : (locale === 'en'
+                              ? `It was a hard week for ${first}. Want to simplify the screen to ${nameOf(s.to)} for a while?`
+                              : locale === 'es'
+                                ? `Fue una semana difícil para ${first}. ¿Quiere simplificar la pantalla a ${nameOf(s.to)} por un tiempo?`
+                                : `Foi uma semana difícil para ${first}. Quer simplificar a tela para o ${nameOf(s.to)} por um tempo?`);
+
+                        const evidence = up
+                          ? (locale === 'en'
+                              ? `${pct}% of activities done across the last ${weeks} weeks, with no crisis streak.`
+                              : locale === 'es'
+                                ? `${pct}% de las actividades hechas en las últimas ${weeks} semanas, sin racha de crisis.`
+                                : `${pct}% das tarefas concluídas nas últimas ${weeks} semanas, sem sequência de crises.`)
+                          : (locale === 'en'
+                              ? `Only ${pct}% of activities done last week${s.crises >= 3 ? `, with ${s.crises} crises recorded` : ''}.`
+                              : locale === 'es'
+                                ? `Solo ${pct}% de las actividades hechas la semana pasada${s.crises >= 3 ? `, con ${s.crises} crisis registradas` : ''}.`
+                                : `Só ${pct}% das tarefas concluídas na semana passada${s.crises >= 3 ? `, com ${s.crises} crises registradas` : ''}.`);
+
+                        return (
+                          <div className={`rounded-2xl p-5 border flex flex-col gap-3 ${up ? 'bg-emerald-50/70 border-emerald-200' : 'bg-amber-50/70 border-amber-200'}`}>
+                            <div className="flex items-start gap-3">
+                              <span className="text-xl select-none shrink-0 mt-0.5">{up ? '🌱' : '🍃'}</span>
+                              <div className="min-w-0">
+                                <div className="text-[10px] font-black uppercase tracking-widest text-slate-500">
+                                  {locale === 'en' ? 'Interface level' : locale === 'es' ? 'Nivel de interfaz' : 'Nível de interface'}
+                                </div>
+                                <p className="text-sm font-black text-slate-800 font-Outfit leading-snug mt-1">{headline}</p>
+                                <p className="text-xs text-slate-600 font-medium mt-1 leading-relaxed">{evidence}</p>
+                                <p className="text-[11px] text-slate-500 mt-2 leading-relaxed">
+                                  {locale === 'en'
+                                    ? 'Nothing changes until you say so — the screen only changes when you decide.'
+                                    : locale === 'es'
+                                      ? 'Nada cambia hasta que usted lo diga — la pantalla solo cambia cuando usted decide.'
+                                      : 'Nada muda até você mandar — a tela só muda quando você decidir.'}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="flex flex-wrap gap-2">
+                              <button
+                                type="button"
+                                disabled={levelBusy}
+                                onClick={() => { playBubble(); handleAcceptLevel(s.to); }}
+                                className={`px-4 py-2 text-white text-xs font-black rounded-full transition-all cursor-pointer font-Outfit shadow-sm disabled:opacity-50 ${up ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-amber-600 hover:bg-amber-700'}`}
+                              >
+                                {locale === 'en' ? `Switch to ${nameOf(s.to)}` : locale === 'es' ? `Cambiar a ${nameOf(s.to)}` : `Mudar para ${nameOf(s.to)}`}
+                              </button>
+                              <button
+                                type="button"
+                                disabled={levelBusy}
+                                onClick={() => { playBubble(); handleDismissLevel(s.direction); }}
+                                className="px-4 py-2 bg-white/70 hover:bg-white text-slate-600 text-xs font-black rounded-full border border-slate-300 transition-all cursor-pointer font-Outfit disabled:opacity-50"
+                              >
+                                {locale === 'en' ? 'Not now' : locale === 'es' ? 'Ahora no' : 'Agora não'}
+                              </button>
+                            </div>
+                            {s.dismissed >= MAX_DISMISSALS - 1 && (
+                              <p className="text-[10px] text-slate-400 leading-snug">
+                                {locale === 'en'
+                                  ? 'If you say no again, we stop suggesting this — the level is probably not the issue here.'
+                                  : locale === 'es'
+                                    ? 'Si dice que no otra vez, dejamos de sugerirlo — el nivel probablemente no sea el problema aquí.'
+                                    : 'Se você disser não de novo, paramos de sugerir — o nível provavelmente não é a questão aqui.'}
+                              </p>
+                            )}
+                          </div>
+                        );
+                      })()}
+
                       {nowTask && (
                         <div className="bg-white border border-slate-200 rounded-2xl p-5 flex items-center gap-4">
                           <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 min-w-[44px]">{locale === 'en' ? 'Now' : locale === 'es' ? 'Ahora' : 'Agora'}</span>
@@ -7251,13 +7564,34 @@ function ParentDashboardContent() {
                         </div>
                       )}
 
+                      {/* O relatorio de evolucao tambem serve a familia: e o
+                          papel que ela leva para a proxima sessao. */}
+                      {insights?.evolution && insights.evolution.current.scheduled > 0 && (
+                        <button
+                          type="button"
+                          onClick={() => { playBubble(); setEvolutionOpen(true); }}
+                          className="self-start inline-flex items-center gap-2 px-4 py-2.5 bg-white hover:bg-slate-50 border border-slate-250 text-slate-700 text-xs font-black rounded-xl cursor-pointer transition-all font-Outfit shadow-xxs"
+                        >
+                          📈 {locale === 'en' ? 'Progress report for the session' : locale === 'es' ? 'Informe de evolución para la sesión' : 'Relatório de evolução para a sessão'}
+                        </button>
+                      )}
+
                       <div className="flex flex-col">
                         <div className="flex items-center justify-between mb-1">
                           <h3 className="text-sm font-black text-slate-700 font-Outfit">{locale === 'en' ? "Today's routine" : locale === 'es' ? 'Rutina de hoy' : 'Rotina de hoje'}</h3>
                           <button onClick={() => { playBubble(); setActivePanelTab('tasks'); }} className="text-xs font-black text-indigo-700 hover:text-indigo-900 cursor-pointer bg-transparent border-none">{locale === 'en' ? 'Edit' : locale === 'es' ? 'Editar' : 'Editar'}</button>
                         </div>
                         {total === 0 ? (
-                          <p className="text-sm text-slate-400 py-8 text-center">{locale === 'en' ? 'No activities today.' : locale === 'es' ? 'Sin actividades hoy.' : 'Sem atividades para hoje.'}</p>
+                          <div className="py-8 flex flex-col items-center gap-3">
+                            <p className="text-sm text-slate-400">{locale === 'en' ? 'No activities today.' : locale === 'es' ? 'Sin actividades hoy.' : 'Sem atividades para hoje.'}</p>
+                            <button
+                              type="button"
+                              onClick={() => { playBubble(); setActiveDayFilter(todayNum); setActivePanelTab('tasks'); }}
+                              className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black rounded-full transition-all cursor-pointer font-Outfit shadow-sm"
+                            >
+                              ⏱️ {locale === 'en' ? 'Start with a ready-made routine' : locale === 'es' ? 'Empezar con una rutina lista' : 'Começar com uma rotina pronta'}
+                            </button>
+                          </div>
                         ) : dayTasks.map(task => (
                           <div key={task.id} className="flex items-center gap-3 py-3 border-t border-slate-100">
                             <span className="text-xs text-slate-400 tabular-nums w-11 shrink-0">{task.time}</span>
@@ -7700,6 +8034,87 @@ function ParentDashboardContent() {
                     ) : null;
 
                   })()}
+
+
+
+                  {/* Rotina pronta — so aparece quando o dia esta vazio, que e
+                      onde a familia desiste. Um bloco por vez, de proposito. */}
+
+                  {tasks.filter(tk => tk.day === activeDayFilter).length === 0 && (
+
+                    <div className="bg-emerald-50/60 border border-emerald-200 rounded-2xl p-5 flex flex-col gap-3">
+
+                      <div>
+
+                        <h4 className="text-sm font-black text-emerald-900 font-Outfit flex items-center gap-1.5">
+
+                          ⏱️ {locale === 'en' ? 'Start with a ready-made routine' : locale === 'es' ? 'Empiece con una rutina lista' : 'Comece com uma rotina pronta'}
+
+                        </h4>
+
+                        <p className="text-xs text-emerald-800/80 font-medium mt-1 leading-relaxed">
+
+                          {locale === 'en'
+                            ? 'Pick one moment of the day. Add it, then delete what does not fit your family. Tomorrow you add another one — building the whole day at once is what makes people give up on Wednesday.'
+                            : locale === 'es'
+                              ? 'Elija un momento del día. Agréguelo y borre lo que no sirva para su familia. Mañana agrega otro — montar el día entero de una vez es lo que hace abandonar el miércoles.'
+                              : 'Escolha um momento do dia. Aplique e apague o que não servir para a sua família. Amanhã você acrescenta outro — montar o dia inteiro de uma vez é o que faz desistir na quarta-feira.'}
+
+                        </p>
+
+                      </div>
+
+                      <div className="grid sm:grid-cols-3 gap-2.5">
+
+                        {STARTER_BLOCKS.map(block => {
+
+                          const lang = starterLocale(locale);
+
+                          return (
+
+                            <button
+
+                              key={block.id}
+
+                              type="button"
+
+                              disabled={applyingBlock !== null}
+
+                              onClick={() => { playBubble(); handleApplyStarterBlock(block); }}
+
+                              className="text-left bg-white border border-emerald-200 hover:border-emerald-400 rounded-xl p-3.5 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-wait shadow-xxs"
+
+                            >
+
+                              <div className="flex items-center gap-2">
+
+                                <span className="text-lg select-none">{block.icon}</span>
+
+                                <span className="text-sm font-black text-slate-800 font-Outfit">{block.label[lang]}</span>
+
+                              </div>
+
+                              <p className="text-[11px] text-slate-500 font-medium mt-1 leading-snug">{block.hint[lang]}</p>
+
+                              <span className="inline-block mt-2 text-[10px] font-black uppercase tracking-wider text-emerald-700">
+
+                                {applyingBlock === block.id
+                                  ? (locale === 'en' ? 'adding…' : locale === 'es' ? 'agregando…' : 'aplicando…')
+                                  : `${block.tasks.length} ${locale === 'en' ? 'activities' : locale === 'es' ? 'actividades' : 'tarefas'}`}
+
+                              </span>
+
+                            </button>
+
+                          );
+
+                        })}
+
+                      </div>
+
+                    </div>
+
+                  )}
 
 
 
@@ -15531,6 +15946,39 @@ function ParentDashboardContent() {
       </div>
 
     </main>
+
+      {/* Relatorio de evolucao para levar a sessao. Mesma folha que o
+          profissional ve no portal — e o mesmo calculo, na mesma lib. */}
+      {evolutionOpen && insights?.evolution && (
+        <div className="fixed inset-0 z-[60] bg-slate-900/60 overflow-y-auto p-4 md:p-8 print:static print:bg-white print:p-0 print:overflow-visible">
+          <div className="max-w-[860px] mx-auto flex flex-col gap-3">
+            <div className="flex justify-end gap-2 print:hidden">
+              <button
+                onClick={() => { playBubble(); window.print(); }}
+                className="px-4 py-2.5 bg-teal-600 hover:bg-teal-700 text-white text-xs font-black rounded-xl cursor-pointer active:scale-95 transition-all font-Outfit"
+              >
+                🖨️ {locale === 'en' ? 'Print' : locale === 'es' ? 'Imprimir' : 'Imprimir'}
+              </button>
+              <button
+                onClick={() => { playBubble(); setEvolutionOpen(false); }}
+                className="px-4 py-2.5 bg-white hover:bg-slate-100 text-slate-700 text-xs font-black rounded-xl cursor-pointer active:scale-95 transition-all font-Outfit"
+              >
+                {locale === 'en' ? 'Close' : locale === 'es' ? 'Cerrar' : 'Fechar'}
+              </button>
+            </div>
+            <div className="bg-white rounded-2xl shadow-lg print:shadow-none print:rounded-none">
+              <EvolutionReportSheet
+                childName={activeChild?.name || insights.childName || ''}
+                data={insights.evolution}
+                locale={locale}
+              />
+              <div className="px-8 pb-6">
+                <PrintFooter variant="familia" />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
   </div>
 

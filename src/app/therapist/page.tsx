@@ -31,6 +31,7 @@ import { SensoryHeatmap } from '../../components/SensoryHeatmap';
 import { GlobalNav } from '../../components/GlobalNav';
 import { DEMO_CODES } from '../../lib/demo-credentials';
 import { PrintFooter } from '../../components/PrintFooter';
+import { EvolutionReportSheet } from '../../components/EvolutionReport';
 
 export default function TherapistPortal() {
   const { t, locale } = useLanguage();
@@ -102,6 +103,10 @@ export default function TherapistPortal() {
   const [taskDescription, setTaskDescription] = useState('');
   const [savingTask, setSavingTask] = useState(false);
   const [taskError, setTaskError] = useState('');
+
+  // Relatorio de evolucao: pergunta diferente da do PDF clinico, entao tela
+  // propria. Uma pagina, para ir junto na pasta da sessao.
+  const [evolutionOpen, setEvolutionOpen] = useState(false);
 
   const handleVerify = async (e?: React.FormEvent, codeToUse?: string) => {
     if (e) e.preventDefault();
@@ -550,7 +555,7 @@ export default function TherapistPortal() {
         </div>
       ) : (
         /* Therapist Dashboard View */
-        <div className="max-w-6xl mx-auto flex flex-col gap-6">
+        <div className={`max-w-6xl mx-auto flex flex-col gap-6 ${evolutionOpen ? 'print:hidden' : ''}`}>
           
           {/* Header Card */}
           <div className="bg-white border border-slate-250 rounded-2xl p-6 shadow-premium flex flex-col md:flex-row md:items-center justify-between gap-4 relative overflow-hidden">
@@ -587,13 +592,22 @@ export default function TherapistPortal() {
 
             <div className="flex gap-2 items-center self-start md:self-center">
               <LanguageSelector />
+              {childData._evolution && (
+                <button
+                  onClick={() => { playBubble(); setEvolutionOpen(true); }}
+                  className="px-4 py-2.5 bg-white hover:bg-slate-50 border border-slate-250 text-slate-700 text-xs font-black rounded-xl cursor-pointer active:scale-95 transition-all font-Outfit"
+                >
+                  {locale === 'en' ? '📈 Progress report' : locale === 'es' ? '📈 Informe de evolución' : '📈 Relatório de evolução'}
+                </button>
+              )}
+
               <button
                 onClick={() => { playBubble(); window.print(); }}
                 className="px-4 py-2.5 bg-teal-50 hover:bg-teal-100 border border-teal-200 text-teal-700 text-xs font-black rounded-xl cursor-pointer active:scale-95 transition-all font-Outfit"
               >
                 {locale === 'en' ? '🖨️ Export Clinical PDF' : locale === 'es' ? '🖨️ Exportar PDF Clínico' : '🖨️ Exportar PDF Clínico'}
               </button>
-              
+
               <button
                 onClick={() => { playBubble(); setChildData(null); setSharingCode(''); }}
                 className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 border border-slate-250 text-slate-600 text-xs font-black rounded-xl cursor-pointer active:scale-95 transition-all font-Outfit"
@@ -659,6 +673,99 @@ export default function TherapistPortal() {
               </button>
             </div>
           )}
+
+          {/* Desde a sua ultima visita.
+              O portal so vira canal se o profissional voltar sozinho — e ele
+              so volta se a primeira tela responder "mudou alguma coisa?" sem
+              ele precisar procurar. Quando nao mudou nada, dizemos isso: e
+              informacao, e mentir aqui queima a confianca de vez. */}
+          {childData._sinceVisit && (() => {
+            const sv = childData._sinceVisit;
+            const first = (childData.name || '').split(' ')[0];
+            const pct = Math.round(sv.rate * 100);
+
+            const title = sv.firstVisit
+              ? (locale === 'en' ? `The last 14 days of ${first}` : locale === 'es' ? `Los últimos 14 días de ${first}` : `Os últimos 14 dias de ${first}`)
+              : (locale === 'en' ? 'Since your last visit' : locale === 'es' ? 'Desde su última visita' : 'Desde a sua última visita');
+
+            const when = sv.firstVisit
+              ? ''
+              : sv.daysAway === 0
+                ? (locale === 'en' ? 'earlier today' : locale === 'es' ? 'hoy mismo' : 'ainda hoje')
+                : sv.daysAway === 1
+                  ? (locale === 'en' ? 'yesterday' : locale === 'es' ? 'ayer' : 'ontem')
+                  : (locale === 'en' ? `${sv.daysAway} days ago` : locale === 'es' ? `hace ${sv.daysAway} días` : `há ${sv.daysAway} dias`);
+
+            const items: { n: number | string; label: string; tone?: 'bad' }[] = [
+              { n: `${pct}%`, label: locale === 'en' ? 'of the routine done' : locale === 'es' ? 'de la rutina hecha' : 'da rotina cumprida' },
+              { n: sv.newLogs, label: locale === 'en' ? 'new records' : locale === 'es' ? 'registros nuevos' : 'registros novos' },
+              { n: sv.newCrises, label: locale === 'en' ? 'crises' : locale === 'es' ? 'crisis' : 'crises', tone: sv.newCrises > 0 ? 'bad' : undefined },
+              { n: sv.newCheckpoints, label: locale === 'en' ? 'new sessions' : locale === 'es' ? 'sesiones nuevas' : 'sessões novas' },
+            ];
+
+            return (
+              <div className="bg-white border border-slate-200 rounded-2xl p-5 flex flex-col gap-4 print:hidden">
+                <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+                  <h3 className="text-base font-black text-slate-900 font-Outfit">{title}</h3>
+                  {when && <span className="text-xs text-slate-400 font-semibold">({locale === 'en' ? 'you were here' : locale === 'es' ? 'estuvo aquí' : 'você esteve aqui'} {when})</span>}
+                </div>
+
+                {sv.quiet ? (
+                  <p className="text-sm text-slate-500 font-medium leading-relaxed">
+                    {locale === 'en'
+                      ? 'Nothing was recorded in this period. No routine completed, no logs, no sessions — that is worth asking the family about.'
+                      : locale === 'es'
+                        ? 'No se registró nada en este período. Ninguna rutina completada, ningún registro, ninguna sesión — vale preguntarle a la familia.'
+                        : 'Nada foi registrado neste período. Nenhuma rotina cumprida, nenhum registro, nenhuma sessão — vale perguntar à família.'}
+                  </p>
+                ) : (
+                  <>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                      {items.map((it, i) => (
+                        <div key={i} className="bg-slate-50 border border-slate-200 rounded-xl p-3.5">
+                          <div className={`text-2xl font-black font-Outfit tabular-nums ${it.tone === 'bad' ? 'text-rose-600' : 'text-teal-700'}`}>{it.n}</div>
+                          <div className="text-[10px] font-black uppercase tracking-wider text-slate-400 mt-0.5 leading-tight">{it.label}</div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {sv.topTriggers.length > 0 && (
+                      <p className="text-xs text-slate-600 font-medium">
+                        <span className="font-black text-slate-700">{locale === 'en' ? 'Most frequent trigger:' : locale === 'es' ? 'Disparador más frecuente:' : 'Gatilho mais frequente:'}</span>{' '}
+                        {sv.topTriggers[0].key} ({sv.topTriggers[0].count}×)
+                      </p>
+                    )}
+
+                    {childData._evolution && (() => {
+                      const d = childData._evolution.delta;
+                      const parts: string[] = [];
+                      if (d.rate !== 0) {
+                        parts.push(locale === 'en'
+                          ? `adherence ${d.rate > 0 ? 'up' : 'down'} ${Math.abs(d.rate)} points`
+                          : locale === 'es'
+                            ? `adherencia ${d.rate > 0 ? 'subió' : 'bajó'} ${Math.abs(d.rate)} puntos`
+                            : `aderência ${d.rate > 0 ? 'subiu' : 'caiu'} ${Math.abs(d.rate)} pontos`);
+                      }
+                      if (d.crises !== 0) {
+                        parts.push(locale === 'en'
+                          ? `${Math.abs(d.crises)} ${d.crises > 0 ? 'more' : 'fewer'} crises`
+                          : locale === 'es'
+                            ? `${Math.abs(d.crises)} crisis ${d.crises > 0 ? 'más' : 'menos'}`
+                            : `${Math.abs(d.crises)} ${d.crises > 0 ? 'crises a mais' : 'crises a menos'}`);
+                      }
+                      if (parts.length === 0) return null;
+                      return (
+                        <p className="text-xs text-slate-500 font-medium border-t border-slate-100 pt-3">
+                          {locale === 'en' ? 'Against the previous 14 days: ' : locale === 'es' ? 'Contra los 14 días anteriores: ' : 'Contra os 14 dias anteriores: '}
+                          {parts.join(locale === 'en' ? ', ' : ', ')}.
+                        </p>
+                      );
+                    })()}
+                  </>
+                )}
+              </div>
+            );
+          })()}
 
           {/* Sticky Tab Bar Container for Therapist Portal */}
           <div className="sticky top-[130px] md:top-[80px] z-20 bg-[#f2f0fc]/95 backdrop-blur-md py-3 -mx-2 px-2 print:hidden">
@@ -1965,6 +2072,45 @@ export default function TherapistPortal() {
               url={childData?._portalUrl}
             />
 
+          </div>
+        </div>
+      )}
+
+      {/* Relatorio de evolucao — sobreposicao propria, para poder imprimir
+          sozinho. E o papel que vai na pasta da sessao: uma pagina que
+          responde "o que mudou desde a ultima vez?". */}
+      {evolutionOpen && childData?._evolution && (
+        <div className="fixed inset-0 z-50 bg-slate-900/60 overflow-y-auto p-4 md:p-8 print:static print:bg-white print:p-0 print:overflow-visible">
+          <div className="max-w-[860px] mx-auto flex flex-col gap-3">
+            <div className="flex justify-end gap-2 print:hidden">
+              <button
+                onClick={() => { playBubble(); window.print(); }}
+                className="px-4 py-2.5 bg-teal-600 hover:bg-teal-700 text-white text-xs font-black rounded-xl cursor-pointer active:scale-95 transition-all font-Outfit"
+              >
+                {locale === 'en' ? '🖨️ Print' : locale === 'es' ? '🖨️ Imprimir' : '🖨️ Imprimir'}
+              </button>
+              <button
+                onClick={() => { playBubble(); setEvolutionOpen(false); }}
+                className="px-4 py-2.5 bg-white hover:bg-slate-100 text-slate-700 text-xs font-black rounded-xl cursor-pointer active:scale-95 transition-all font-Outfit"
+              >
+                {locale === 'en' ? 'Close' : locale === 'es' ? 'Cerrar' : 'Fechar'}
+              </button>
+            </div>
+            <div className="bg-white rounded-2xl shadow-premium print:shadow-none print:rounded-none">
+              <EvolutionReportSheet
+                childName={childData.name}
+                data={childData._evolution}
+                locale={locale}
+                professionalName={profName || undefined}
+              />
+              <div className="px-8 pb-6 print:px-8">
+                <PrintFooter
+                  variant="profissional"
+                  qrSvg={childData?._portalQrSvg}
+                  url={childData?._portalUrl}
+                />
+              </div>
+            </div>
           </div>
         </div>
       )}
