@@ -216,6 +216,25 @@ const getDaysOfCurrentMonth = () => {
 
 const DAYS_OF_MONTH = getDaysOfCurrentMonth();
 
+// A forma de um dia em tres bolinhas: manha, tarde, noite.
+//
+// E a linguagem visual das visoes Semanal e Mensal. Em vez de despejar cada
+// tarefa (a Semanal antes mostrava a lista inteira de 7 dias de uma vez), o
+// responsavel ve de relance o QUE ESTA COBERTO: "as noites do Vito estao todas
+// vazias este mes" salta aos olhos. Planejar e enxergar o buraco, nao ler tudo.
+const CoberturaDia: React.FC<{ tasks: { period?: string }[]; size?: 'sm' | 'md' }> = ({ tasks, size = 'md' }) => {
+  const tem = (p: string) => tasks.some((t) => t.period === p);
+  const d = size === 'sm' ? 'w-1.5 h-1.5' : 'w-2 h-2';
+  const dot = (on: boolean, cor: string) => `${d} rounded-full ${on ? cor : 'bg-slate-200 dark:bg-slate-700'}`;
+  return (
+    <div className="flex items-center gap-1" title="Manhã · Tarde · Noite" aria-hidden="true">
+      <span className={dot(tem('manhã'), 'bg-amber-400')} />
+      <span className={dot(tem('tarde'), 'bg-sky-400')} />
+      <span className={dot(tem('noite'), 'bg-indigo-500')} />
+    </div>
+  );
+};
+
 
 
 const getDayLabel = (dayKey: string, locale: string = 'pt') => {
@@ -7905,7 +7924,16 @@ function ParentDashboardContent() {
 
                     </div>
 
-
+                    {/* Legenda das bolinhas — sem ela o significado so aparece
+                        no hover, que nao existe no celular. */}
+                    {scheduleViewMode !== 'daily' && (
+                      <div className="flex items-center gap-4 text-[10px] font-bold text-slate-500 dark:text-slate-400 mt-1 select-none">
+                        <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-amber-400" /> {locale === 'en' ? 'Morning' : locale === 'es' ? 'Mañana' : 'Manhã'}</span>
+                        <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-sky-400" /> {locale === 'en' ? 'Afternoon' : locale === 'es' ? 'Tarde' : 'Tarde'}</span>
+                        <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-indigo-500" /> {locale === 'en' ? 'Evening' : locale === 'es' ? 'Noche' : 'Noite'}</span>
+                        <span className="text-slate-400 dark:text-slate-500">· {locale === 'en' ? 'tap a day to edit' : locale === 'es' ? 'toque un día para editar' : 'toque num dia para editar'}</span>
+                      </div>
+                    )}
 
                     {scheduleViewMode === 'daily' && (
 
@@ -9383,461 +9411,71 @@ function ParentDashboardContent() {
                   {/* Weekly View Block */}
 
                   {scheduleViewMode === 'weekly' && (
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-
+                    <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2.5">
                       {weekDays.map(dayNum => {
-
                         const day = DAYS_OF_MONTH.find(d => d.key === String(dayNum));
-
                         if (!day) return null;
-
                         const dayTasks = tasks.filter(t => t.day === day.key);
-
-                        const completedTasks = dayTasks.filter(t => t.isCompleted);
-
                         const isToday = day.key === activeDayFilter;
-
-                        const progressPercent = dayTasks.length > 0 ? Math.round((completedTasks.length / dayTasks.length) * 100) : 0;
-
-
-
                         return (
-
-                          <div 
-
+                          <button
                             key={day.key}
-
-                            className={`flex flex-col justify-between p-4.5 rounded-3xl border transition-all shadow-xxs hover:shadow-sm ${
-
-                              isToday 
-
-                                ? 'border-indigo-400 bg-indigo-50/15' 
-
-                                : 'border-slate-200 bg-white hover:border-slate-300'
-
+                            type="button"
+                            onClick={() => { playBubble(); setActiveDayFilter(day.key); setScheduleViewMode('daily'); }}
+                            className={`flex flex-col items-start gap-2.5 p-3.5 rounded-2xl border text-left transition-all cursor-pointer active:scale-95 ${
+                              isToday
+                                ? 'border-indigo-400 bg-indigo-50/40 dark:bg-indigo-950/30'
+                                : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-slate-300'
                             }`}
-
                           >
-
                             <div>
-
-                              {/* Header of the Day Card */}
-
-                              <div className="flex justify-between items-start mb-3">
-
-                                <div>
-
-                                  <span className={`text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md ${
-
-                                    isToday ? 'bg-indigo-650 text-white' : 'bg-slate-100 text-slate-655'
-
-                                  }`}>
-
-                                    {day.weekdayShort}
-
-                                  </span>
-
-                                  <h4 className="font-extrabold text-slate-800 text-sm mt-1 font-Outfit">
-
-                                    {day.label}
-
-                                  </h4>
-
-                                </div>
-
-                                <div className="text-right">
-
-                                  <span className="text-[10px] font-bold text-slate-450 block">
-
-                                    {completedTasks.length}/{dayTasks.length} Feitas
-
-                                  </span>
-
-                                  {dayTasks.length > 0 && (
-
-                                    <span className={`text-[9px] font-extrabold px-1.5 py-0.5 rounded-full border ${
-
-                                      progressPercent === 100 
-
-                                        ? 'bg-emerald-50 text-emerald-600 border-emerald-200' 
-
-                                        : 'bg-indigo-50 text-indigo-600 border-indigo-200'
-
-                                    }`}>
-
-                                      {progressPercent}%
-
-                                    </span>
-
-                                  )}
-
-                                </div>
-
-                              </div>
-
-
-
-                              {/* Progress Bar */}
-
-                              {dayTasks.length > 0 && (
-
-                                <div className="w-full bg-slate-105 rounded-full h-1.5 mb-4 overflow-hidden border border-slate-200/50">
-
-                                  <div 
-
-                                    className={`h-full rounded-full ${progressPercent === 100 ? 'bg-emerald-500' : 'bg-indigo-650'}`}
-
-                                    style={{ width: `${progressPercent}%` }}
-
-                                  />
-
-                                </div>
-
-                              )}
-
-
-
-                              {/* Tasks Mini List */}
-
-                              <div className="flex flex-col gap-2.5 max-h-[220px] overflow-y-auto pr-1 scrollbar-thin mb-4">
-
-                                {dayTasks.length === 0 ? (
-
-                                  <p className="text-[11px] text-slate-400 font-semibold italic text-center py-4 bg-slate-50/50 border border-dashed border-slate-150 rounded-xl">
-
-                                    Sem atividades.
-
-                                  </p>
-
-                                ) : (
-
-                                  dayTasks
-
-                                    .sort((a, b) => a.time.localeCompare(b.time))
-
-                                    .map(t => {
-
-                                      const taskCat = getTaskCategory(t.title);
-
-                                      return (
-
-                                        <div 
-
-                                          key={t.id} 
-
-                                          className="flex items-center justify-between p-2 bg-slate-50/50 border border-slate-150 rounded-xl hover:bg-slate-50 transition-all border-l-4"
-
-                                          style={{ borderLeftColor: 
-
-                                            taskCat.gradient.includes('teal') ? '#0d9488' : 
-
-                                            taskCat.gradient.includes('amber') || taskCat.gradient.includes('orange') ? '#ea580c' : 
-
-                                            taskCat.gradient.includes('sky') || taskCat.gradient.includes('blue') ? '#0284c7' : 
-
-                                            taskCat.gradient.includes('indigo') ? '#26716a' : 
-
-                                            taskCat.gradient.includes('violet') ? '#2f8f86' : 
-
-                                            taskCat.gradient.includes('emerald') ? '#059669' : 
-
-                                            '#db2777' 
-
-                                          }}
-
-                                        >
-
-                                          <div className="flex items-center gap-2 min-w-0">
-
-                                            <div className="w-6 h-6 bg-white border border-slate-200 text-slate-700 rounded-lg flex items-center justify-center text-xs shrink-0 overflow-hidden select-none">
-
-                                              {t.customIcon ? (
-
-                                                <img src={t.customIcon} alt="" className="w-full h-full object-cover" />
-
-                                              ) : (
-
-                                                t.icon || '📅'
-
-                                              )}
-
-                                            </div>
-
-                                            <div className="min-w-0">
-
-                                              <p className="text-xxs font-black text-slate-450">{t.time}</p>
-
-                                              <p className="text-xs font-bold text-slate-700 truncate max-w-[110px]">{t.title}</p>
-
-                                            </div>
-
-                                          </div>
-
-                                          <span className={`text-[9px] font-black px-1.5 py-0.5 rounded-md shrink-0 ${
-
-                                            t.isCompleted 
-
-                                              ? 'bg-emerald-50 text-emerald-600 border border-emerald-250' 
-
-                                              : 'bg-amber-50 text-amber-600 border-amber-250'
-
-                                          }`}>
-
-                                            {t.isCompleted ? '✓' : '•'}
-
-                                          </span>
-
-                                        </div>
-
-                                      );
-
-                                    })
-
-                                )}
-
-                              </div>
-
+                              <div className="text-[10px] font-black uppercase tracking-wider text-slate-400">{day.weekdayShort}</div>
+                              <div className="text-xl font-black text-slate-800 dark:text-slate-100 font-Outfit leading-none mt-0.5">{day.key}</div>
                             </div>
-
-
-
-                            {/* Action button */}
-
-                            <button
-
-                              type="button"
-
-                              onClick={() => {
-
-                                playBubble();
-
-                                setActiveDayFilter(day.key);
-
-                                setScheduleViewMode('daily');
-
-                              }}
-
-                              className="w-full py-2 bg-indigo-50 hover:bg-indigo-150 text-indigo-700 text-xs font-black rounded-2xl border border-indigo-200 transition-all active:scale-95 cursor-pointer text-center mt-2 font-Outfit"
-
-                            >
-
-                              Ver Detalhes
-
-                            </button>
-
-                          </div>
-
+                            <CoberturaDia tasks={dayTasks} />
+                            <div className="text-[11px] font-bold text-slate-500 dark:text-slate-300">
+                              {dayTasks.length === 0
+                                ? (locale === 'en' ? 'Free' : locale === 'es' ? 'Libre' : 'Livre')
+                                : `${dayTasks.length} ${locale === 'en' ? 'activities' : locale === 'es' ? 'actividades' : 'atividades'}`}
+                            </div>
+                          </button>
                         );
-
                       })}
-
                     </div>
-
                   )}
-
-
 
                   {/* Monthly View Block */}
 
                   {scheduleViewMode === 'monthly' && (
-
-                    <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-7 gap-3.5">
-
+                    <div className="grid grid-cols-4 sm:grid-cols-6 lg:grid-cols-7 gap-2">
                       {DAYS_OF_MONTH.map(day => {
-
                         const dayTasks = tasks.filter(t => t.day === day.key);
-
-                        const completedTasks = dayTasks.filter(t => t.isCompleted);
-
                         const isSelected = day.key === activeDayFilter;
-
-                        const progressPercent = dayTasks.length > 0 ? Math.round((completedTasks.length / dayTasks.length) * 100) : 0;
-
-                        const taskPreview = dayTasks.slice(0, 2);
-
-
-
+                        const vazio = dayTasks.length === 0;
                         return (
-
                           <button
-
                             key={day.key}
-
                             type="button"
-
-                            onClick={() => {
-
-                              playBubble();
-
-                              setActiveDayFilter(day.key);
-
-                              setScheduleViewMode('daily');
-
-                            }}
-
-                            className={`flex flex-col items-center justify-between p-3.5 rounded-2xl border transition-all text-left cursor-pointer active:scale-95 group h-32 ${
-
-                              isSelected 
-
-                                ? 'border-indigo-400 bg-indigo-50/15 shadow-sm' 
-
-                                : 'border-slate-150 bg-white hover:border-slate-300 hover:shadow-sm'
-
+                            onClick={() => { playBubble(); setActiveDayFilter(day.key); setScheduleViewMode('daily'); }}
+                            className={`flex flex-col justify-between aspect-square p-2.5 rounded-xl border text-left transition-all cursor-pointer active:scale-95 ${
+                              isSelected
+                                ? 'border-indigo-400 bg-indigo-50/40 dark:bg-indigo-950/30'
+                                : vazio
+                                  ? 'border-slate-150 dark:border-slate-800 bg-slate-50/40 dark:bg-slate-900/40 hover:border-slate-300'
+                                  : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-slate-300'
                             }`}
-
                           >
-
-                            {/* Day Number and Completion Rate */}
-
-                            <div className="flex justify-between items-start w-full">
-
-                              <div className="flex flex-col">
-
-                                <span className={`text-sm font-black font-Outfit ${isSelected ? 'text-indigo-650' : 'text-slate-800'}`}>
-
-                                  Dia {day.key}
-
-                                </span>
-
-                                <span className="text-[8px] font-bold text-slate-450 uppercase">{day.weekdayShort}</span>
-
-                              </div>
-
-                              {dayTasks.length > 0 ? (
-
-                                <span className={`text-[9px] font-extrabold px-1.5 py-0.5 rounded-full border shrink-0 ${
-
-                                  progressPercent === 100 
-
-                                    ? 'bg-emerald-50 text-emerald-600 border-emerald-150' 
-
-                                    : 'bg-indigo-50 text-indigo-600 border-indigo-150'
-
-                                }`}>
-
-                                  {progressPercent}%
-
-                                </span>
-
-                              ) : (
-
-                                <span className="text-[8px] font-bold text-slate-400 uppercase tracking-wider shrink-0 select-none">
-
-                                  Livre
-
-                                </span>
-
-                              )}
-
+                            <div className="w-full flex items-baseline justify-between">
+                              <span className={`text-sm font-black font-Outfit ${isSelected ? 'text-indigo-600 dark:text-indigo-300' : 'text-slate-800 dark:text-slate-100'}`}>{day.key}</span>
+                              <span className="text-[8px] font-bold text-slate-400 uppercase">{day.weekdayShort}</span>
                             </div>
-
-
-
-                            {/* Task Emojis Preview */}
-
-                            <div className="flex gap-1.5 my-2.5 items-center justify-center w-full">
-
-                              {dayTasks.length === 0 ? (
-
-                                <span className="text-xs text-slate-350 select-none">🧸</span>
-
-                              ) : (
-
-                                <>
-
-                                  {taskPreview.map(t => (
-
-                                    <div 
-
-                                      key={t.id} 
-
-                                      title={t.title}
-
-                                      className="w-7 h-7 bg-slate-50 border border-slate-205 text-slate-700 rounded-lg flex items-center justify-center text-sm shadow-xxs overflow-hidden select-none shrink-0"
-
-                                    >
-
-                                      {t.customIcon ? (
-
-                                        <img src={t.customIcon} alt="" className="w-full h-full object-cover" />
-
-                                      ) : (
-
-                                        t.icon || '📅'
-
-                                      )}
-
-                                    </div>
-
-                                  ))}
-
-                                  {dayTasks.length > 2 && (
-
-                                    <span className="text-[9px] font-black text-slate-450 bg-slate-100 border border-slate-200/80 w-5 h-5 rounded-full flex items-center justify-center shrink-0">
-
-                                      +{(dayTasks.length - 2)}
-
-                                    </span>
-
-                                  )}
-
-                                </>
-
-                              )}
-
-                            </div>
-
-
-
-                            {/* Bottom Task count and progress bar */}
-
-                            <div className="w-full">
-
-                              {dayTasks.length > 0 ? (
-
-                                <div className="flex flex-col gap-1 w-full">
-
-                                  <span className="text-[9px] text-slate-450 font-bold block truncate">
-
-                                    {completedTasks.length}/{dayTasks.length} feitas
-
-                                  </span>
-
-                                  <div className="w-full bg-slate-100 rounded-full h-1 overflow-hidden">
-
-                                    <div 
-
-                                      className={`h-full rounded-full ${progressPercent === 100 ? 'bg-emerald-500' : 'bg-indigo-650'}`}
-
-                                      style={{ width: `${progressPercent}%` }}
-
-                                    />
-
-                                  </div>
-
-                                </div>
-
-                              ) : (
-
-                                <span className="text-[9px] text-slate-400 italic block font-semibold text-center select-none">
-
-                                  Sem tarefas
-
-                                </span>
-
-                              )}
-
-                            </div>
-
+                            {vazio
+                              ? <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider select-none">{locale === 'en' ? 'Free' : locale === 'es' ? 'Libre' : 'Livre'}</span>
+                              : <CoberturaDia tasks={dayTasks} size="sm" />}
                           </button>
-
                         );
-
                       })}
-
                     </div>
-
                   )}
 
                 {/* GLOBAL CALENDAR REPLICATION & UNEXPECTED CHANGES */}
