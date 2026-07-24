@@ -1856,9 +1856,19 @@ export default function ChildRoutine() {
           setActiveChild(updatedChild);
           firebaseBridge.auth.setActiveChild(updatedChild);
 
-          if (showRewardSpend && updatedChild.tokens !== undefined && updatedChild.rewardCost !== undefined && updatedChild.tokens >= updatedChild.rewardCost) {
+          // A meta comemora UMA vez, na virada — e nao abre janela nenhuma.
+          //
+          // A condicao aqui era so `tokens >= rewardCost`, e como as estrelas
+          // continuam subindo depois da meta, toda tarefa concluida reabria o
+          // pop-up: 10 abria, 11 abria de novo, 12 de novo, ate a crianca
+          // trocar o premio. Agora compara com o valor ANTERIOR, entao o
+          // instante de chegar na meta acontece uma vez so. O resgate espera
+          // quieto na linha "Estrelas", e vira janela quando ela tocar.
+          const antes = activeChild.tokens || 0;
+          const depois = updatedChild.tokens || 0;
+          const meta = updatedChild.rewardCost ?? 10;
+          if (showRewardSpend && antes < meta && depois >= meta) {
             playCelebration();
-            setShowRewardModal(true);
           }
         }
 
@@ -4326,6 +4336,44 @@ export default function ChildRoutine() {
                     <span className="block h-full bg-indigo-600 rounded-full transition-all duration-500" style={{ width: `${todayTasks.length ? Math.round((completedTasks.length / todayTasks.length) * 100) : 0}%` }}></span>
                   </span>
                 </div>
+
+                {/* Estrelas — no lugar do pop-up.
+                    Antes o premio abria uma janela por cima da tela SEMPRE que
+                    as estrelas passavam da meta: 10 abria, 11 abria de novo, 12
+                    de novo, ate a crianca trocar. Interromper uma crianca no
+                    meio de uma transicao e exatamente o que este app existe
+                    para evitar.
+                    Agora o premio espera aqui, quieto, na mesma lista onde ela
+                    ja le "Depois" e "Dia" — e vira janela so quando ELA toca. */}
+                {showRewardSpend && activeChild && (() => {
+                  const estrelas = activeChild.tokens || 0;
+                  const meta = activeChild.rewardCost || 10;
+                  const pronto = estrelas >= meta;
+                  return (
+                    <button
+                      type="button"
+                      disabled={!pronto}
+                      onClick={() => { if (pronto) { playBubble(); setShowRewardModal(true); } }}
+                      className={`w-full flex items-center gap-3 py-4 border-t border-slate-100 text-left bg-transparent border-x-0 border-b-0 ${
+                        pronto ? 'cursor-pointer' : 'cursor-default'
+                      }`}
+                    >
+                      <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 min-w-[52px]">
+                        {locale === 'en' ? 'Stars' : locale === 'es' ? 'Estrellas' : 'Estrelas'}
+                      </span>
+                      <span className="text-sm font-black text-slate-500 tabular-nums">{estrelas} / {meta}</span>
+                      {pronto ? (
+                        <span className="ml-auto text-xs font-black text-amber-700 bg-amber-50 border border-amber-200 px-3 py-1.5 rounded-full">
+                          🎁 {locale === 'en' ? 'Prize ready' : locale === 'es' ? 'Premio listo' : 'Prêmio pronto'}
+                        </span>
+                      ) : (
+                        <span className="flex-1 h-2 rounded-full bg-slate-200 overflow-hidden ml-1">
+                          <span className="block h-full bg-amber-400 rounded-full transition-all duration-500" style={{ width: `${Math.min(100, Math.round((estrelas / meta) * 100))}%` }}></span>
+                        </span>
+                      )}
+                    </button>
+                  );
+                })()}
               </div>
             )}
 
