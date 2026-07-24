@@ -8152,9 +8152,14 @@ function ParentDashboardContent() {
 
 
 
-                  {/* Presets Dropdown select for 1-click add */}
+                  {/* Atalho de presets — agora SO aparece com o formulario aberto.
+                      Antes era um bloco permanente ao lado do formulario: dois
+                      lugares fixos para adicionar a mesma tarefa. Agora a tela
+                      em repouso tem um caminho so ("Adicionar Tarefa"); ao abrir,
+                      vem o atalho rapido E os campos completos juntos. */}
 
-                  <div className="flex flex-col gap-2 border-b border-slate-100 pb-5">
+                  {formOpen && (
+                  <div className="flex flex-col gap-2 border-b border-slate-100 dark:border-slate-700 pb-5">
 
                     <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-1 select-none">
 
@@ -8199,6 +8204,7 @@ function ParentDashboardContent() {
                     </select>
 
                   </div>
+                  )}
 
 
 
@@ -14214,87 +14220,13 @@ function ParentDashboardContent() {
 
 
 
-      {/* Barra flutuante do cuidador.
-          Fica fora do ar enquanto nao houver nenhuma atividade: ela cobria o
-          terceiro bloco da primeira tela, e numa conta vazia nao tem sentido —
-          "Imprimir PECS" nao imprimiria nada e "Criar Atividade" disputa com o
-          caminho guiado, que e mais facil. Volta assim que existir rotina. */}
-
-      {activeChild && tasks.length > 0 && (
-
-        <div className="fixed bottom-6 right-6 z-40 flex flex-col sm:flex-row items-center gap-2.5 bg-white/90 backdrop-blur-md border border-slate-200/60 p-2.5 rounded-2xl shadow-lg select-none">
-
-          <button
-
-            onClick={() => {
-
-              playBubble();
-
-              setFormOpen(true);
-
-              const formEl = document.getElementById('add-task-form-anchor');
-
-              if (formEl) {
-
-                formEl.scrollIntoView({ behavior: 'smooth' });
-
-              }
-
-            }}
-
-            className="flex items-center gap-1.5 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-black rounded-xl active:scale-95 transition-all cursor-pointer font-Outfit"
-
-            title={locale === 'en' ? 'Create new activity' : locale === 'es' ? 'Crear nueva actividad' : 'Criar nova atividade'}
-
-          >
-
-            <Plus className="w-4 h-4" /> {locale === 'en' ? 'Create Activity' : locale === 'es' ? 'Crear Actividad' : 'Criar Atividade'}
-
-          </button>
-
-          <button
-
-            onClick={() => {
-
-              playBubble();
-
-              printPecsCards();
-
-            }}
-
-            className="flex items-center gap-1.5 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 text-xs font-black rounded-xl active:scale-95 transition-all cursor-pointer font-Outfit"
-
-            title={t.dashboard.printPecsCards}
-
-          >
-
-            🖨️ {locale === 'en' ? 'Print PECS' : locale === 'es' ? 'Imprimir PECS' : 'Imprimir PECS'}
-
-          </button>
-
-          <button
-
-            onClick={() => {
-
-              playBubble();
-
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-
-            }}
-
-            className="w-10 h-10 bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-600 rounded-xl active:scale-95 transition-all cursor-pointer flex items-center justify-center font-black shrink-0"
-
-            title={locale === 'en' ? 'Back to top' : locale === 'es' ? 'Volver arriba' : 'Voltar ao Topo'}
-
-          >
-
-            ▲
-
-          </button>
-
-        </div>
-
-      )}
+      {/* A barra flutuante do cuidador foi REMOVIDA.
+          Ela flutuava "Criar Atividade" + "Imprimir PECS" por cima de todas as
+          telas — e ambos ja existem dentro da secao Rotina, que e onde se
+          edita (na captura do usuario ela ainda tapava o cartao de Mudanca
+          Inesperada). Repetir botao de acao em barra fixa e o que faz um app
+          parecer cheio. Hoje MOSTRA, Rotina EDITA. O ▲ voltar-ao-topo saiu
+          junto: o celular ja tem rolagem nativa. */}
 
 
 
