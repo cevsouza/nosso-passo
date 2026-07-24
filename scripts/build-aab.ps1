@@ -1,87 +1,99 @@
-# Compila o AAB do Nosso Passo para a Play Store.
+# Compila e assina o AAB do Nosso Passo para a Play Store.
 #
-#   powershell -File scripts\build-aab.ps1
+#   powershell -ExecutionPolicy Bypass -File scripts\build-aab.ps1
 #
-# Pede a senha da chave na hora e NAO a guarda em lugar nenhum: ela vive na
-# memoria do processo e some quando ele termina. Nunca coloque a senha dentro
-# deste arquivo, nem numa variavel de ambiente permanente.
+# Faz as duas etapas na mao, sem passar pelo bubblewrap:
+#   1. gradlew bundleRelease  -> AAB nao assinado
+#   2. jarsigner              -> AAB assinado
 #
-# Pre-requisitos, ja instalados em %USERPROFILE%\.bubblewrap:
-#   jdk\           JDK 17
-#   android_sdk\   plataformas android-34 e android-36, build-tools 34.0.0 e 36.0.0
+# E o mesmo que o `bubblewrap build` faz, com uma diferenca que importa: TODOS
+# os caminhos aqui sao absolutos e conferidos antes de comecar. O bubblewrap
+# depende da pasta global do npm estar no PATH, o que nao acontece em toda
+# maquina — e instalar um pacote global nao a acrescenta.
 #
-# A chave de assinatura NAO esta versionada e nao deve estar. Se ainda nao
-# existir, crie uma unica vez (a senha e sua, escolhida por voce):
+# A senha e pedida na hora e vai para o jarsigner por VARIAVEL DE AMBIENTE
+# (-storepass:env), nunca pela linha de comando: argumento de processo e
+# visivel para qualquer programa que liste os processos da maquina.
 #
-#   $env:JAVA_HOME = "$env:USERPROFILE\.bubblewrap\jdk"
-#   & "$env:JAVA_HOME\bin\keytool.exe" -genkeypair -v `
-#       -keystore twa\android-keystore.jks -alias nossopasso `
-#       -keyalg RSA -keysize 2048 -validity 10000
-#
-# Guarde o .jks e a senha num cofre, COM COPIA. Perdidos, nao ha atualizacao do
-# app nunca mais sob o pacote br.com.nossopasso.app.
+# Pre-requisitos:
+#   %USERPROFILE%\.bubblewrap\jdk           JDK 17
+#   %USERPROFILE%\.bubblewrap\android_sdk   plataformas android-34 e 36
+#   twa\android-keystore.jks                sua chave (scripts\criar-chave.ps1)
 
 $ErrorActionPreference = 'Stop'
 
 $raiz = Split-Path -Parent $PSScriptRoot
 $twa  = Join-Path $raiz 'twa'
-$base = "$env:USERPROFILE\.bubblewrap"
+$base = Join-Path $env:USERPROFILE '.bubblewrap'
 
-if (-not (Test-Path "$base\jdk\bin\java.exe")) { throw "JDK nao encontrado em $base\jdk" }
-if (-not (Test-Path "$twa\gradlew.bat"))       { throw "Projeto Android ausente. Rode: cd twa; bubblewrap update" }
+$jdk       = Join-Path $base 'jdk'
+$sdk       = Join-Path $base 'android_sdk'
+$jarsigner = Join-Path $jdk 'bin\jarsigner.exe'
+$gradlew   = Join-Path $twa 'gradlew.bat'
+$chave     = Join-Path $twa 'android-keystore.jks'
+$naoAssin  = Join-Path $twa 'app\build\outputs\bundle\release\app-release.aab'
+$assinado  = Join-Path $twa 'app-release-bundle.aab'
 
-$chave = Join-Path $twa 'android-keystore.jks'
-if (-not (Test-Path $chave)) {
-  throw "Chave de assinatura nao encontrada em $chave. Veja o cabecalho deste arquivo para criar."
+# Conferir tudo ANTES de pedir a senha: se faltar alguma coisa, o erro aparece
+# sem custar a digitacao.
+$faltando = @()
+if (-not (Test-Path $jdk))       { $faltando += "JDK em $jdk" }
+if (-not (Test-Path $sdk))       { $faltando += "Android SDK em $sdk" }
+if (-not (Test-Path $jarsigner)) { $faltando += "jarsigner em $jarsigner" }
+if (-not (Test-Path $gradlew))   { $faltando += "projeto Android em $twa (rode: cd twa; bubblewrap update)" }
+if (-not (Test-Path $chave))     { $faltando += "chave em $chave (rode: scripts\criar-chave.ps1)" }
+if ($faltando.Count -gt 0) {
+  Write-Output ""
+  Write-Output "Faltando:"
+  $faltando | ForEach-Object { Write-Output "  - $_" }
+  throw "Pre-requisitos ausentes."
 }
 
-Set-Location $twa
-$env:JAVA_HOME    = "$base\jdk"
-$env:ANDROID_HOME = "$base\android_sdk"
+$env:JAVA_HOME    = $jdk
+$env:ANDROID_HOME = $sdk
 
-# 1) O diretorio do projeto entra no PATH porque o bubblewrap chama
-#    `gradlew.bat` sem caminho, e o cmd nao procura no diretorio atual quando
-#    NoDefaultCurrentDirectoryInExePath=1 (o caso de alguns ambientes).
-# 2) O bin do JDK entra porque o `jarsigner`, que assina o AAB, mora la.
-$env:PATH = "$twa;$base\jdk\bin;$env:PATH"
-
-# Localizar o bubblewrap em vez de confiar no PATH: a pasta global do npm nao
-# esta no PATH de todo mundo, e instalar um pacote global nao a acrescenta.
-$bubblewrap = (Get-Command bubblewrap.cmd -ErrorAction SilentlyContinue).Source
-if (-not $bubblewrap) {
-  $prefixo = (& npm prefix -g 2>$null)
-  if ($prefixo) { $candidato = Join-Path $prefixo 'bubblewrap.cmd' }
-  if ($candidato -and (Test-Path $candidato)) { $bubblewrap = $candidato }
-}
-if (-not $bubblewrap) {
-  $padrao = Join-Path $env:APPDATA 'npm\bubblewrap.cmd'
-  if (Test-Path $padrao) { $bubblewrap = $padrao }
-}
-if (-not $bubblewrap) {
-  throw "bubblewrap nao encontrado. Instale com: npm i -g @bubblewrap/cli"
+Write-Output ""
+Write-Output "1/2  Compilando o AAB..."
+Push-Location $twa
+try {
+  # Chamado por caminho absoluto de proposito: o cmd nao procura no diretorio
+  # atual quando NoDefaultCurrentDirectoryInExePath=1, e ai um `gradlew.bat`
+  # solto falha com "nao e reconhecido" mesmo estando ali.
+  & cmd /c "`"$gradlew`" bundleRelease --quiet"
+  if ($LASTEXITCODE -ne 0) { throw "gradle falhou (codigo $LASTEXITCODE)" }
+} finally {
+  Pop-Location
 }
 
-$senha = Read-Host -Prompt 'Senha da chave de assinatura' -AsSecureString
-$plano = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto(
-  [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($senha))
+if (-not (Test-Path $naoAssin)) { throw "o gradle terminou sem gerar $naoAssin" }
+Write-Output ("     AAB nao assinado: {0} KB" -f [math]::Round((Get-Item $naoAssin).Length / 1KB))
+
+Write-Output ""
+Write-Output "2/2  Assinando..."
+$senha = Read-Host -Prompt '     Senha da chave' -AsSecureString
+$bstr  = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($senha)
 
 try {
-  $env:BUBBLEWRAP_KEYSTORE_PASSWORD = $plano
-  $env:BUBBLEWRAP_KEY_PASSWORD      = $plano
-  & $bubblewrap build --skipPwaValidation
+  $env:NP_STOREPASS = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($bstr)
+  if (Test-Path $assinado) { Remove-Item $assinado -Force }
+
+  & $jarsigner -sigalg SHA256withRSA -digestalg SHA-256 `
+      -keystore $chave `
+      -storepass:env NP_STOREPASS -keypass:env NP_STOREPASS `
+      -signedjar $assinado $naoAssin nossopasso
+
+  if ($LASTEXITCODE -ne 0) { throw "jarsigner falhou (codigo $LASTEXITCODE). Senha errada?" }
 } finally {
-  # Some da memoria do processo aconteca o que acontecer.
-  $plano = $null
-  Remove-Item Env:BUBBLEWRAP_KEYSTORE_PASSWORD -ErrorAction SilentlyContinue
-  Remove-Item Env:BUBBLEWRAP_KEY_PASSWORD -ErrorAction SilentlyContinue
+  # A senha some da memoria do processo aconteca o que acontecer.
+  [System.Runtime.InteropServices.Marshal]::ZeroFreeBSTR($bstr)
+  Remove-Item Env:NP_STOREPASS -ErrorAction SilentlyContinue
   [System.GC]::Collect()
 }
 
-$aab = Join-Path $twa 'app-release-bundle.aab'
-if (Test-Path $aab) {
-  Write-Output ""
-  Write-Output ("AAB pronto: {0}  ({1} KB)" -f $aab, [math]::Round((Get-Item $aab).Length / 1KB))
-  Write-Output "Suba este arquivo no Play Console, em Teste fechado."
-} else {
-  throw "A compilacao terminou sem gerar o AAB."
-}
+if (-not (Test-Path $assinado)) { throw "a assinatura terminou sem gerar o arquivo." }
+
+Write-Output ""
+Write-Output ("AAB assinado: {0}" -f $assinado)
+Write-Output ("              {0} KB" -f [math]::Round((Get-Item $assinado).Length / 1KB))
+Write-Output ""
+Write-Output "Suba este arquivo no Play Console, em Teste fechado."
