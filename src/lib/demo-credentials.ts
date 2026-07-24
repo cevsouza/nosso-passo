@@ -9,7 +9,7 @@
 // pelo endpoint /api/demo/reset.
 
 export const DEMO_UID = 'demo-teacolher';
-export const DEMO_EMAIL = 'demo@teacolher.online';
+export const DEMO_EMAIL = 'demo@nossopasso.com.br';
 export const DEMO_PASSWORD = 'demo2026';
 export const DEMO_PIN = '1234';
 

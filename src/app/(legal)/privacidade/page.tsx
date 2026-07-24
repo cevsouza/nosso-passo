@@ -7,7 +7,7 @@ export const metadata: Metadata = {
     'Como o Nosso Passo trata dados pessoais de crianças e adolescentes, em conformidade com a LGPD (Lei 13.709/2018).',
 };
 
-const CONTATO = 'contato@teacolher.online';
+const CONTATO = 'contato@nossopasso.com.br';
 const ATUALIZADO = '19 de julho de 2026';
 
 export default function PrivacidadePage() {
@@ -33,7 +33,7 @@ export default function PrivacidadePage() {
 
       <h2>1. Quem é o controlador dos dados</h2>
       <p>
-        O controlador é o responsável pela operação do Nosso Passo, disponível em teacolher.online.
+        O controlador é o responsável pela operação do Nosso Passo, disponível em nossopasso.com.br.
         Contato do encarregado pelo tratamento de dados (DPO), para qualquer solicitação prevista
         nesta política: <a href={`mailto:${CONTATO}`}>{CONTATO}</a>.
       </p>
@@ -57,7 +57,7 @@ export default function PrivacidadePage() {
       <ul>
         <li>Nome ou apelido, data de nascimento e gênero (todos opcionais, exceto o nome).</li>
         <li>
-          <strong>Diagnóstico informado</strong> (ex.: TEA Nível 1) e tema de interesse/hiperfoco.
+          <strong>Diagnóstico informado</strong> (ex.: TEA Nível 1).
         </li>
         <li>Tarefas, horários, rotina, conclusões e recompensas.</li>
         <li>

@@ -43,7 +43,7 @@ export function PrintFooter(props: Props) {
   const url =
     props.variant === 'familia'
       ? familia?.link
-      : props.url || 'teacolher.online/therapist';
+      : props.url || 'nossopasso.com.br/therapist';
 
   // Sem QR o rodape ainda vale: a marca no papel e metade da alavanca.
   const dias = familia?.diasPorIndicacao ?? 30;

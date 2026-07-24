@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   description: 'Condições de uso do Nosso Passo, aplicativo de rotina visual para crianças autistas.',
 };
 
-const CONTATO = 'contato@teacolher.online';
+const CONTATO = 'contato@nossopasso.com.br';
 const ATUALIZADO = '19 de julho de 2026';
 
 export default function TermosPage() {
@@ -16,7 +16,7 @@ export default function TermosPage() {
       <p className="legal-meta">Última atualização: {ATUALIZADO}</p>
 
       <p>
-        Estes termos regem o uso do Nosso Passo, disponível em teacolher.online. Ao criar uma conta,
+        Estes termos regem o uso do Nosso Passo, disponível em nossopasso.com.br. Ao criar uma conta,
         você concorda com eles. Leia com atenção — especialmente os itens 2 e 7.
       </p>
 

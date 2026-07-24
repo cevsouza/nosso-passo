@@ -37,7 +37,7 @@ export function ReferralCard() {
 
   if (!status?.code) return null;
 
-  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://teacolher.online';
+  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://nossopasso.com.br';
   const link = `${origin}/login?ref=${status.code}`;
 
   const convite =

@@ -32,6 +32,6 @@ export function publicOrigin(req: Request) {
     const proto = req.headers.get('x-forwarded-proto') || url.protocol.replace(':', '');
     return `${proto}://${host}`;
   } catch {
-    return 'https://teacolher.online';
+    return 'https://nossopasso.com.br';
   }
 }
