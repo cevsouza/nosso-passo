@@ -59,5 +59,11 @@ next-env.d.ts
 # guarda a chave definitiva e a sua vira apenas chave de upload, substituivel.
 *.jks
 *.keystore
-android-keystore.jks
+*.aab
+*.apk
+
+# A pasta /twa/ inteira fica fora do repositorio. Ela e 100% regeneravel a
+# partir de twa-manifest.json (`cd twa && bubblewrap update`), guarda o
+# wrapper do Gradle e — o que decide a questao — e onde mora a chave de
+# assinatura. Versionar a pasta e um jeito de vazar a chave por descuido.
 /twa/
