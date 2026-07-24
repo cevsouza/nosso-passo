@@ -11,6 +11,7 @@ import { useLanguage } from '../../../lib/LanguageContext';
 import { LanguageSelector } from '../../../components/LanguageSelector';
 import { getTaskCategory, TaskCategory } from '../../../lib/sensory-standards';
 import { RoutineIllustration } from '../../../components/ludic/RoutineIllustration';
+import { hasPictogram } from '../../../components/ludic/ActivityPictogram';
 import { 
   Check, 
   Star, 
@@ -3742,14 +3743,14 @@ export default function ChildRoutine() {
                     <div className="flex flex-col items-center gap-4 sm:gap-6 w-full">
                       <div className="flex flex-col items-center gap-2">
                       <div className="relative">
-                        <RoutineIllustration category={activeTask.title} size={isNarrow ? 88 : 120} hyperfocus={childHyperfocus} />
-                        {(activeTask.customIcon || activeTask.icon) && (
+                        <RoutineIllustration category={activeTask.title} size={isNarrow ? 88 : 120} customIcon={activeTask.customIcon} />
+                        {/* O emoji so aparece quando o desenho NAO veio do texto.
+                            Com o pictograma certo no centro, o selo no canto era
+                            a mesma informacao duas vezes — ruido puro numa tela
+                            que existe para ser calma. */}
+                        {!activeTask.customIcon && !hasPictogram(activeTask.title) && activeTask.icon && (
                           <div className="absolute top-0 right-0 w-14 h-14 bg-white border-4 border-indigo-100 text-slate-700 rounded-2xl flex items-center justify-center text-4xl shadow-md overflow-hidden select-none transform rotate-12">
-                            {activeTask.customIcon ? (
-                              <img src={activeTask.customIcon} alt="PECS" className="w-full h-full object-cover" />
-                            ) : (
-                              activeTask.icon
-                            )}
+                            {activeTask.icon}
                           </div>
                         )}
                       </div>
@@ -4191,14 +4192,10 @@ export default function ChildRoutine() {
                         {t.routine.first}
                       </div>
                       <div className="mt-4 relative">
-                        <RoutineIllustration category={activeTask.title} size={isNarrow ? 84 : 110} hyperfocus={childHyperfocus} />
-                        {(activeTask.customIcon || activeTask.icon) && (
+                        <RoutineIllustration category={activeTask.title} size={isNarrow ? 84 : 110} customIcon={activeTask.customIcon} />
+                        {!activeTask.customIcon && !hasPictogram(activeTask.title) && activeTask.icon && (
                           <div className="absolute top-0 right-0 w-10 h-10 bg-white border-2 border-indigo-105 text-slate-700 rounded-xl flex items-center justify-center text-2xl shadow overflow-hidden select-none">
-                            {activeTask.customIcon ? (
-                              <img src={activeTask.customIcon} alt="PECS" className="w-full h-full object-cover" />
-                            ) : (
-                              activeTask.icon
-                            )}
+                            {activeTask.icon}
                           </div>
                         )}
                       </div>

@@ -23,6 +23,8 @@ import { EvolutionReportSheet } from '../../../components/EvolutionReport';
 
 import { getTaskCategory, TaskCategory } from '../../../lib/sensory-standards';
 
+import { ActivityPictogram } from '../../../components/ludic/ActivityPictogram';
+
 import { STARTER_BLOCKS, blockToTasks, starterLocale, StarterBlock } from '../../../lib/starter-routines';
 import {
   suggestLevel,
@@ -40,7 +42,6 @@ import { CollieState } from '../../../components/ludic/BorderCollie';
 
 import { HyperfocusMascot } from '../../../components/ludic/HyperfocusMascot';
 
-import { RoutineIllustration } from '../../../components/ludic/RoutineIllustration';
 
 import { 
 
@@ -15930,7 +15931,15 @@ function ParentDashboardContent() {
 
             <div key={task.id} className="pecs-card">
 
-              <span className="pecs-card-icon">{task.icon || '📅'}</span>
+              {/* Mesmo desenho que a crianca ve no aparelho. O cartao na
+                  geladeira e a tela precisam mostrar o MESMO simbolo — dois
+                  simbolos para a mesma tarefa e uma coisa a mais para
+                  aprender, nao uma a menos. */}
+              {task.customIcon ? (
+                <img src={task.customIcon} alt="" className="pecs-card-photo" />
+              ) : (
+                <ActivityPictogram title={task.title} size={132} />
+              )}
 
               <h3 className="pecs-card-title">{task.title}</h3>
 
