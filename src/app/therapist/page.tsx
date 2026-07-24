@@ -696,11 +696,18 @@ export default function TherapistPortal() {
                   ? (locale === 'en' ? 'yesterday' : locale === 'es' ? 'ayer' : 'ontem')
                   : (locale === 'en' ? `${sv.daysAway} days ago` : locale === 'es' ? `hace ${sv.daysAway} días` : `há ${sv.daysAway} dias`);
 
+            // Na primeira visita nada e "novo" — e so o historico existente.
+            // Chamar de novidade seria mentir logo no primeiro contato.
+            const nw = (pt: string, en: string, es: string, ptN: string, enN: string, esN: string) =>
+              sv.firstVisit
+                ? (locale === 'en' ? en : locale === 'es' ? es : pt)
+                : (locale === 'en' ? enN : locale === 'es' ? esN : ptN);
+
             const items: { n: number | string; label: string; tone?: 'bad' }[] = [
               { n: `${pct}%`, label: locale === 'en' ? 'of the routine done' : locale === 'es' ? 'de la rutina hecha' : 'da rotina cumprida' },
-              { n: sv.newLogs, label: locale === 'en' ? 'new records' : locale === 'es' ? 'registros nuevos' : 'registros novos' },
+              { n: sv.newLogs, label: nw('registros', 'records', 'registros', 'registros novos', 'new records', 'registros nuevos') },
               { n: sv.newCrises, label: locale === 'en' ? 'crises' : locale === 'es' ? 'crisis' : 'crises', tone: sv.newCrises > 0 ? 'bad' : undefined },
-              { n: sv.newCheckpoints, label: locale === 'en' ? 'new sessions' : locale === 'es' ? 'sesiones nuevas' : 'sessões novas' },
+              { n: sv.newCheckpoints, label: nw('sessões', 'sessions', 'sesiones', 'sessões novas', 'new sessions', 'sesiones nuevas') },
             ];
 
             return (
@@ -712,11 +719,19 @@ export default function TherapistPortal() {
 
                 {sv.quiet ? (
                   <p className="text-sm text-slate-500 font-medium leading-relaxed">
-                    {locale === 'en'
-                      ? 'Nothing was recorded in this period. No routine completed, no logs, no sessions — that is worth asking the family about.'
-                      : locale === 'es'
-                        ? 'No se registró nada en este período. Ninguna rutina completada, ningún registro, ninguna sesión — vale preguntarle a la familia.'
-                        : 'Nada foi registrado neste período. Nenhuma rotina cumprida, nenhum registro, nenhuma sessão — vale perguntar à família.'}
+                    {/* Silencio de uma semana e um sinal clinico; silencio de
+                        cinco minutos e so o relogio. Nao confundir os dois. */}
+                    {sv.daysAway === 0
+                      ? (locale === 'en'
+                          ? 'Nothing new since you were here earlier today.'
+                          : locale === 'es'
+                            ? 'Nada nuevo desde que estuvo aquí hoy.'
+                            : 'Nada de novo desde que você esteve aqui hoje.')
+                      : (locale === 'en'
+                          ? 'Nothing was recorded in this period. No routine completed, no logs, no sessions — that is worth asking the family about.'
+                          : locale === 'es'
+                            ? 'No se registró nada en este período. Ninguna rutina completada, ningún registro, ninguna sesión — vale preguntarle a la familia.'
+                            : 'Nada foi registrado neste período. Nenhuma rotina cumprida, nenhum registro, nenhuma sessão — vale perguntar à família.')}
                   </p>
                 ) : (
                   <>
@@ -740,18 +755,20 @@ export default function TherapistPortal() {
                       const d = childData._evolution.delta;
                       const parts: string[] = [];
                       if (d.rate !== 0) {
+                        const p = Math.abs(d.rate);
                         parts.push(locale === 'en'
-                          ? `adherence ${d.rate > 0 ? 'up' : 'down'} ${Math.abs(d.rate)} points`
+                          ? `adherence ${d.rate > 0 ? 'up' : 'down'} ${p} ${p === 1 ? 'point' : 'points'}`
                           : locale === 'es'
-                            ? `adherencia ${d.rate > 0 ? 'subió' : 'bajó'} ${Math.abs(d.rate)} puntos`
-                            : `aderência ${d.rate > 0 ? 'subiu' : 'caiu'} ${Math.abs(d.rate)} pontos`);
+                            ? `adherencia ${d.rate > 0 ? 'subió' : 'bajó'} ${p} ${p === 1 ? 'punto' : 'puntos'}`
+                            : `aderência ${d.rate > 0 ? 'subiu' : 'caiu'} ${p} ${p === 1 ? 'ponto' : 'pontos'}`);
                       }
                       if (d.crises !== 0) {
+                        const n = Math.abs(d.crises);
                         parts.push(locale === 'en'
-                          ? `${Math.abs(d.crises)} ${d.crises > 0 ? 'more' : 'fewer'} crises`
+                          ? `${n} ${d.crises > 0 ? 'more' : 'fewer'} ${n === 1 ? 'crisis' : 'crises'}`
                           : locale === 'es'
-                            ? `${Math.abs(d.crises)} crisis ${d.crises > 0 ? 'más' : 'menos'}`
-                            : `${Math.abs(d.crises)} ${d.crises > 0 ? 'crises a mais' : 'crises a menos'}`);
+                            ? `${n} crisis ${d.crises > 0 ? 'más' : 'menos'}`
+                            : `${n} ${n === 1 ? 'crise' : 'crises'} a ${d.crises > 0 ? 'mais' : 'menos'}`);
                       }
                       if (parts.length === 0) return null;
                       return (

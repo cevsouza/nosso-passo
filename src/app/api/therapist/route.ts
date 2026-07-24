@@ -28,8 +28,18 @@ async function resolveAccess(req: Request, bodyCode?: string): Promise<Access> {
     // onde esse valor existe, porque a linha abaixo o sobrescreve. E dele que
     // sai o "desde a sua ultima visita".
     const lastVisit = ac.lastUsedAt;
-    // best-effort usage stamp; never block the request on this
-    prisma.accessCode.update({ where: { id: ac.id }, data: { lastUsedAt: new Date() } }).catch(() => {});
+
+    // Uma VISITA nao e um carregamento de pagina. Sem esta janela, o
+    // profissional que da F5 (ou abre uma segunda aba) apaga a propria
+    // referencia e passa a ver "nada de novo" — que e justamente o oposto do
+    // que a tela existe para dizer. Dentro de SESSION_WINDOW o carimbo fica
+    // parado e ele continua vendo o mesmo recorte.
+    const SESSION_WINDOW_MS = 4 * 60 * 60 * 1000;
+    const sameSession = lastVisit && Date.now() - lastVisit.getTime() < SESSION_WINDOW_MS;
+    if (!sameSession) {
+      // best-effort usage stamp; never block the request on this
+      prisma.accessCode.update({ where: { id: ac.id }, data: { lastUsedAt: new Date() } }).catch(() => {});
+    }
     return { child: ac.child, role: ac.role, lastVisit };
   }
 
