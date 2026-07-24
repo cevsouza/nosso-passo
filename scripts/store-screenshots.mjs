@@ -28,22 +28,15 @@ const CHROME = 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe';
 // `antes` roda na pagina depois de carregar e antes da foto — e como se chega
 // na aba certa. Sem isso o painel do adulto abre na lista de criancas com um
 // paredao de texto, que nao vende nada.
-// Clique por `data-tab`, nao por texto. O rotulo da aba e "🏠 Hoje" (o emoji
-// vem antes) e "Rotina" tambem existe na barra de baixo, que leva para outra
-// pagina — casar por texto pegava o botao errado em silencio e a captura saia
-// de uma tela que nao era a pedida.
-const aba = (nome) =>
-  `(()=>{const b=document.querySelector('[data-tab="${nome}"]');
-     if(b){b.click();return 'ok'}return 'nao achou: ${nome}'})()`;
+// A secao do painel agora vem da URL — nao ha mais fileira de abas para
+// clicar. Basta pedir a pagina certa.
 
 const TELAS = [
   { id: '1_tela_paciente', url: '/routine', espera: 7000, tema: 'dark',
     nota: 'A tela da crianca: uma atividade, um desenho, o tempo passando.' },
-  { id: '2_hoje', url: '/dashboard', espera: 7000, tema: 'light',
-    antes: aba('hoje'), esperaDepois: 2500,
+  { id: '2_hoje', url: '/dashboard?p=hoje', espera: 8000, tema: 'light',
     nota: 'O dia num relance, para o adulto.' },
-  { id: '3_rotina_pronta', url: '/dashboard', espera: 7000, tema: 'light',
-    antes: aba('tasks'), esperaDepois: 3000,
+  { id: '3_rotina_pronta', url: '/dashboard?p=rotina', espera: 8000, tema: 'light',
     nota: 'Rotina pronta por momento do dia — os dez minutos prometidos.' },
 ];
 

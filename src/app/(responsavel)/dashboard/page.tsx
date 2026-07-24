@@ -28,6 +28,7 @@ import { ActivityPictogram } from '../../../components/ludic/ActivityPictogram';
 import { STARTER_BLOCKS, blockToTasks, starterLocale, StarterBlock } from '../../../lib/starter-routines';
 import { detectAndroidApp, isAndroidApp } from '../../../lib/platform';
 import { FREE_TASKS_PER_DAY } from '../../../lib/plans';
+import { SecaoPainel, secaoDoParam, paramDaSecao, rotuloSecao } from '../../../lib/painel-secoes';
 import {
   suggestLevel,
   parseLevelState,
@@ -2580,7 +2581,30 @@ function ParentDashboardContent() {
 
   };
 
-  const [activePanelTab, setActivePanelTab] = useState<'hoje' | 'tasks' | 'feedback' | 'tools'>('hoje');
+  // A secao do painel mora na URL (`?p=`), nao so no estado do componente.
+  //
+  // Duas consequencias que importam: a barra de baixo consegue trocar de
+  // secao (ela e outro componente), e o **botao voltar do navegador passa a
+  // funcionar** — antes ele saia do painel inteiro, o que e um jeito rapido de
+  // perder alguem que so queria voltar uma tela.
+  const [activePanelTab, _setActivePanelTab] = useState<SecaoPainel>('hoje');
+
+  const setActivePanelTab = React.useCallback((s: SecaoPainel) => {
+    _setActivePanelTab(s);
+    if (typeof window !== 'undefined') {
+      const u = new URL(window.location.href);
+      u.searchParams.set('p', paramDaSecao(s));
+      window.history.replaceState(null, '', u.toString());
+    }
+  }, []);
+
+  // Le a URL na entrada e a cada voltar/avancar do navegador.
+  useEffect(() => {
+    const daUrl = () => _setActivePanelTab(secaoDoParam(new URLSearchParams(window.location.search).get('p')));
+    daUrl();
+    window.addEventListener('popstate', daUrl);
+    return () => window.removeEventListener('popstate', daUrl);
+  }, []);
   const [activeFeedbackSubTab, setActiveFeedbackSubTab] = useState<'checkpoints' | 'reports'>('checkpoints');
   const [activeToolsSubTab, setActiveToolsSubTab] = useState<'config' | 'logs'>('config');
 
@@ -7413,59 +7437,24 @@ function ParentDashboardContent() {
 
           
 
-          {/* Sticky Tab Bar Container for Desktop/Tablet landscape navigation */}
+          {/* A fileira de abas saiu daqui: virou a barra de baixo.
+              Eram quatro navegacoes empilhadas para dizer onde voce esta —
+              barra do site, cabecalho, abas e sub-abas. A secao agora vem da
+              URL, entao a barra de baixo troca de secao e o voltar funciona.
 
-          <div className="sticky top-[130px] md:top-[80px] z-20 bg-[#f8fafc]/95 backdrop-blur-md py-3 -mx-2 px-2">
-            <div className="bg-slate-100 border border-slate-200 p-1 rounded-xl flex gap-1 overflow-x-auto scrollbar-none">
-              <button
-                data-tab="hoje"
-                onClick={() => { playBubble(); setActivePanelTab('hoje'); }}
-                className={`flex-1 py-2.5 text-xs font-black rounded-xl transition-all flex items-center justify-center gap-2 shrink-0 font-Outfit cursor-pointer select-none active:scale-95 ${
-                  activePanelTab === 'hoje'
-                    ? 'grad-primary text-white shadow-sm border border-transparent scale-100'
-                    : 'text-slate-655 hover:text-slate-900 hover:bg-white/40 border border-transparent'
-                }`}
-              >
-                <span className="text-sm">🏠</span> {locale === 'es' ? 'Hoy' : locale === 'en' ? 'Today' : 'Hoje'}
-              </button>
-
-              <button
-                data-tab="tasks"
-                onClick={() => { playBubble(); setActivePanelTab('tasks'); }}
-                className={`flex-1 py-2.5 text-xs font-black rounded-xl transition-all flex items-center justify-center gap-2 shrink-0 font-Outfit cursor-pointer select-none active:scale-95 ${
-                  activePanelTab === 'tasks'
-                    ? 'grad-primary text-white shadow-sm border border-transparent scale-100'
-                    : 'text-slate-655 hover:text-slate-900 hover:bg-white/40 border border-transparent'
-                }`}
-              >
-                <ListTodo className="w-4.5 h-4.5" /> {locale === 'es' ? 'Rutina' : locale === 'en' ? 'Routine' : 'Rotina'}
-              </button>
-
-              <button
-                data-tab="feedback"
-                onClick={() => { playBubble(); setActivePanelTab('feedback'); }}
-                className={`flex-1 py-2.5 text-xs font-black rounded-xl transition-all flex items-center justify-center gap-2 shrink-0 font-Outfit cursor-pointer select-none active:scale-95 ${
-                  activePanelTab === 'feedback' 
-                    ? 'grad-primary text-white shadow-sm border border-transparent scale-100' 
-                    : 'text-slate-655 hover:text-slate-900 hover:bg-white/40 border border-transparent'
-                }`}
-              >
-                <span className="text-sm">📈</span> {locale === 'es' ? 'Seguimiento' : locale === 'en' ? 'Progress' : 'Acompanhamento'}
-              </button>
-
-              <button
-                data-tab="tools"
-                onClick={() => { playBubble(); setActivePanelTab('tools'); }}
-                className={`flex-1 py-2.5 text-xs font-black rounded-xl transition-all flex items-center justify-center gap-2 shrink-0 font-Outfit cursor-pointer select-none active:scale-95 ${
-                  activePanelTab === 'tools' 
-                    ? 'grad-primary text-white shadow-sm border border-transparent scale-100' 
-                    : 'text-slate-655 hover:text-slate-900 hover:bg-white/40 border border-transparent'
-                }`}
-              >
-                <Settings className="w-4.5 h-4.5" /> {locale === 'es' ? 'Ajustes' : locale === 'en' ? 'Settings' : 'Config'}
-              </button>
+              No lugar delas, um titulo. Sem a fileira marcada, a tela precisa
+              dizer em palavras onde voce esta — a marcacao na barra de baixo
+              e discreta demais para ser a unica pista. */}
+          {activePanelTab !== 'hoje' && (
+            <div className="flex items-baseline gap-2.5 flex-wrap">
+              <h2 className="text-2xl font-black text-slate-900 tracking-tight font-Outfit">
+                {rotuloSecao(activePanelTab, locale)}
+              </h2>
+              {activeChild && (
+                <span className="text-sm font-semibold text-slate-400">· {activeChild.name.split(' ')[0]}</span>
+              )}
             </div>
-          </div>
+          )}
 
           {/* Sub-tab menus for Feedback and Tools */}
           {activePanelTab === 'feedback' && (
