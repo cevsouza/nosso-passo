@@ -51,3 +51,13 @@ next-env.d.ts
 /scratch/
 
 
+
+# Assinatura Android (TWA) — NUNCA versionar.
+# A chave e PERMANENTE: perdida ou vazada, nao ha como publicar atualizacao do
+# app nunca mais sob o mesmo pacote. Guarde o .jks e a senha num cofre, fora do
+# repositorio, com copia. Inscreva-se no Play App Signing: com ele o Google
+# guarda a chave definitiva e a sua vira apenas chave de upload, substituivel.
+*.jks
+*.keystore
+android-keystore.jks
+/twa/

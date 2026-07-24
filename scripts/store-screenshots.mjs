@@ -12,7 +12,9 @@
 // Nenhuma tela de crianca real vai para a loja.
 
 import { spawn } from 'node:child_process';
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { setTimeout as sleep } from 'node:timers/promises';
 
 const BASE = 'https://nossopasso.com.br';
@@ -26,19 +28,22 @@ const CHROME = 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe';
 // `antes` roda na pagina depois de carregar e antes da foto — e como se chega
 // na aba certa. Sem isso o painel do adulto abre na lista de criancas com um
 // paredao de texto, que nao vende nada.
-const clicar = (texto) =>
-  `(()=>{const b=[...document.querySelectorAll('button,a')]
-     .find(x=>x.textContent.trim().startsWith(${JSON.stringify(texto)}));
-     if(b){b.click();return 'ok'}return 'nao achou: ${texto}'})()`;
+// Clique por `data-tab`, nao por texto. O rotulo da aba e "🏠 Hoje" (o emoji
+// vem antes) e "Rotina" tambem existe na barra de baixo, que leva para outra
+// pagina — casar por texto pegava o botao errado em silencio e a captura saia
+// de uma tela que nao era a pedida.
+const aba = (nome) =>
+  `(()=>{const b=document.querySelector('[data-tab="${nome}"]');
+     if(b){b.click();return 'ok'}return 'nao achou: ${nome}'})()`;
 
 const TELAS = [
   { id: '1_tela_paciente', url: '/routine', espera: 7000, tema: 'dark',
     nota: 'A tela da crianca: uma atividade, um desenho, o tempo passando.' },
   { id: '2_hoje', url: '/dashboard', espera: 7000, tema: 'light',
-    antes: clicar('Hoje'), esperaDepois: 2500,
+    antes: aba('hoje'), esperaDepois: 2500,
     nota: 'O dia num relance, para o adulto.' },
   { id: '3_rotina_pronta', url: '/dashboard', espera: 7000, tema: 'light',
-    antes: clicar('Rotina'), esperaDepois: 3000,
+    antes: aba('tasks'), esperaDepois: 3000,
     nota: 'Rotina pronta por momento do dia — os dez minutos prometidos.' },
 ];
 
@@ -54,7 +59,10 @@ async function main() {
     `--remote-debugging-port=${PORT}`,
     '--disable-gpu',
     '--no-first-run',
-    '--user-data-dir=' + OUT + '/_perfil',
+    // Perfil no temporario do sistema, nunca na pasta de saida: a saida pode
+    // estar no Google Drive, e o Drive sincroniza o perfil inteiro do Chrome
+    // enquanto ele escreve — o que trava o navegador e enche a nuvem de lixo.
+    '--user-data-dir=' + mkdtempSync(join(tmpdir(), 'np-shot-')),
     `--window-size=${W},${H}`,
     'about:blank',
   ], { stdio: 'ignore' });

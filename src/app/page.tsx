@@ -1,6 +1,9 @@
 "use client";
-import React from 'react';
+import React, { useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { firebaseBridge } from '../lib/firebase-bridge';
+import { detectAndroidApp, isAndroidApp } from '../lib/platform';
 import { motion } from 'framer-motion';
 import { playBubble, playMarimba } from '../lib/audio-synth';
 import { Gamepad2, Users, Stethoscope, Heart, ArrowRight, Check } from 'lucide-react';
@@ -119,6 +122,20 @@ const localDict = {
 
 export default function Home() {
   const { locale, t } = useLanguage();
+  const router = useRouter();
+
+  // No app da Play Store esta pagina e a porta de entrada de quem acabou de
+  // instalar — precisa mesmo mostrar a proposta. Mas quem JA tem conta abre o
+  // app todo dia, e cair na pagina de vendas toda vez seria irritante: ele quer
+  // a rotina, nao o discurso.
+  //
+  // O desvio vale so dentro do app. Na web, quem digita nossopasso.com.br
+  // logado continua vendo o site — a pagina tambem serve para ele mostrar o
+  // produto para outra pessoa.
+  useEffect(() => {
+    if (!detectAndroidApp() && !isAndroidApp()) return;
+    if (firebaseBridge.auth.getCurrentUser()) router.replace('/dashboard');
+  }, [router]);
 
   const curLang = (locale === 'en' || locale === 'es' ? locale : 'pt') as 'pt' | 'es' | 'en';
   const info = localDict[curLang];

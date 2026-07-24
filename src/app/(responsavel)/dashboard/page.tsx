@@ -7321,6 +7321,7 @@ function ParentDashboardContent() {
           <div className="sticky top-[130px] md:top-[80px] z-20 bg-[#f8fafc]/95 backdrop-blur-md py-3 -mx-2 px-2">
             <div className="bg-slate-100 border border-slate-200 p-1 rounded-xl flex gap-1 overflow-x-auto scrollbar-none">
               <button
+                data-tab="hoje"
                 onClick={() => { playBubble(); setActivePanelTab('hoje'); }}
                 className={`flex-1 py-2.5 text-xs font-black rounded-xl transition-all flex items-center justify-center gap-2 shrink-0 font-Outfit cursor-pointer select-none active:scale-95 ${
                   activePanelTab === 'hoje'
@@ -7332,6 +7333,7 @@ function ParentDashboardContent() {
               </button>
 
               <button
+                data-tab="tasks"
                 onClick={() => { playBubble(); setActivePanelTab('tasks'); }}
                 className={`flex-1 py-2.5 text-xs font-black rounded-xl transition-all flex items-center justify-center gap-2 shrink-0 font-Outfit cursor-pointer select-none active:scale-95 ${
                   activePanelTab === 'tasks'
@@ -7343,6 +7345,7 @@ function ParentDashboardContent() {
               </button>
 
               <button
+                data-tab="feedback"
                 onClick={() => { playBubble(); setActivePanelTab('feedback'); }}
                 className={`flex-1 py-2.5 text-xs font-black rounded-xl transition-all flex items-center justify-center gap-2 shrink-0 font-Outfit cursor-pointer select-none active:scale-95 ${
                   activePanelTab === 'feedback' 
@@ -7354,6 +7357,7 @@ function ParentDashboardContent() {
               </button>
 
               <button
+                data-tab="tools"
                 onClick={() => { playBubble(); setActivePanelTab('tools'); }}
                 className={`flex-1 py-2.5 text-xs font-black rounded-xl transition-all flex items-center justify-center gap-2 shrink-0 font-Outfit cursor-pointer select-none active:scale-95 ${
                   activePanelTab === 'tools' 

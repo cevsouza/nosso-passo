@@ -25,7 +25,10 @@ import { NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
 
-const PACKAGE_NAME = process.env.TWA_PACKAGE_NAME || 'br.com.nossopasso.twa';
+// ATENCAO: o nome do pacote e PERMANENTE. Depois do primeiro envio a Play nao
+// deixa trocar — mudar significa publicar outro app, do zero, sem os usuarios
+// nem as avaliacoes do primeiro. Este e o valor definitivo.
+const PACKAGE_NAME = process.env.TWA_PACKAGE_NAME || 'br.com.nossopasso.app';
 
 function fingerprints(): string[] {
   return (process.env.TWA_SHA256_FINGERPRINT || '')
