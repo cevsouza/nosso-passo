@@ -2598,18 +2598,31 @@ function ParentDashboardContent() {
     router.replace(`/dashboard?p=${paramDaSecao(s)}`, { scroll: false });
   }, [router]);
 
-  // A secao segue o `?p=` da URL — via `useSearchParams`, nao via `popstate`.
+  // A secao segue o `?p=` da URL — lido do proprio `window.location`.
   //
-  // Foi exatamente aqui que quebrou: os links do menu navegam com o
-  // `pushState` do Next, e **pushState nao dispara `popstate`**. Escutando so
-  // o popstate, a URL mudava e a tela ficava parada. `useSearchParams` re-roda
-  // em qualquer navegacao, inclusive voltar e avancar.
+  // Duas tentativas falharam antes desta, e as duas por dependerem de sinais
+  // que nao chegam:
+  //   1. `popstate` — nao dispara em `pushState`, que e como os links do Next
+  //      navegam. A URL mudava e a tela ficava parada.
+  //   2. `useSearchParams` — atualiza no carregamento direto, mas nao estava
+  //      re-renderizando esta pagina na navegacao entre `?p=` diferentes.
   //
-  // (E o meu teste tinha confirmado a URL, nao o conteudo — passou sem provar
-  // nada, que e o jeito classico de um teste mentir.)
+  // Ler a URL de verdade, num intervalo curto, nao depende de nenhum
+  // comportamento interno do roteador. E o mesmo que a barra de navegacao ja
+  // faz para acender o item ativo — e aquilo funciona.
   useEffect(() => {
-    _setActivePanelTab(secaoDoParam(searchParams.get('p')));
-  }, [searchParams]);
+    const daUrl = () => {
+      const p = secaoDoParam(new URLSearchParams(window.location.search).get('p'));
+      _setActivePanelTab((atual) => (atual === p ? atual : p));
+    };
+    daUrl();
+    window.addEventListener('popstate', daUrl);
+    const id = setInterval(daUrl, 250);
+    return () => {
+      window.removeEventListener('popstate', daUrl);
+      clearInterval(id);
+    };
+  }, []);
   const [activeFeedbackSubTab, setActiveFeedbackSubTab] = useState<'checkpoints' | 'reports'>('checkpoints');
   const [activeToolsSubTab, setActiveToolsSubTab] = useState<'config' | 'logs'>('config');
 
