@@ -2088,12 +2088,13 @@ function ParentDashboardContent() {
 
   const printPecsCards = () => {
     setPrintingPecs(true);
-    // dois quadros: um para o React montar a grade, outro para o layout
-    // assentar antes do dialogo de impressao congelar a pagina
-    requestAnimationFrame(() => requestAnimationFrame(() => {
-      window.print();
-      setPrintingPecs(false);
-    }));
+    // setTimeout, e nao requestAnimationFrame: rAF NAO dispara em aba oculta.
+    // Com rAF, quem clicasse e trocasse de aba na hora ficaria com a grade
+    // inteira montada e sem impressao nenhuma — o pior dos dois mundos. O
+    // timeout roda de qualquer jeito e ainda da tempo do React montar.
+    setTimeout(() => {
+      try { window.print(); } finally { setPrintingPecs(false); }
+    }, 80);
   };
 
 
