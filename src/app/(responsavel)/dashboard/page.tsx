@@ -9591,11 +9591,19 @@ function ParentDashboardContent() {
                     </div>
                   )}
 
-                {/* GLOBAL CALENDAR REPLICATION & UNEXPECTED CHANGES */}
-
+                {/* Modelo de Agenda e Mudanca Inesperada: RECOLHIDOS.
+                    Sao uteis mas ninguem usa todo dia — ficavam sempre abertos
+                    empurrando a rotina do dia para baixo. Agora vivem num "Mais
+                    opcoes" fechado; o localizador do assistente leva direto a
+                    eles quando o pai procura ("modelo", "mudanca inesperada"). */}
                 {activeChild && (
+                  <details className="group rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/30 overflow-hidden">
+                    <summary className="flex items-center gap-2 px-5 py-3.5 cursor-pointer select-none list-none text-sm font-black text-slate-700 dark:text-slate-200 hover:bg-slate-100/50 dark:hover:bg-slate-800/50">
+                      <span className="transition-transform group-open:rotate-90 text-slate-400">▸</span>
+                      {locale === 'en' ? 'More options: schedule template & unexpected change' : locale === 'es' ? 'Más opciones: modelo de agenda y cambio inesperado' : 'Mais opções: modelo de agenda e mudança inesperada'}
+                    </summary>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-5 pt-1">
 
                     {/* Template Replication */}
 
@@ -9854,6 +9862,7 @@ function ParentDashboardContent() {
                     </div>
 
                   </div>
+                  </details>
 
                 )}
 
