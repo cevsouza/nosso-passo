@@ -12501,14 +12501,19 @@ function ParentDashboardContent() {
                 transition={{ duration: 0.3 }}
                 className="grid grid-cols-1 md:grid-cols-2 gap-6 text-left"
               >
-                {/* Ajustes sensoriais da crianca — vieram do modal de conta,
-                    onde nao faziam sentido. */}
-                <div className="flex flex-col gap-6 md:col-span-2">
-                  <div className="flex items-center gap-2 px-1 pt-1">
+                {/* Ajustes sensoriais da crianca — RECOLHIDOS por padrao.
+                    Sao 4 seletores (nivel, perfil sensorial, som, visual) que a
+                    familia define uma vez e quase nunca revisita, mas ocupavam a
+                    tela inteira sempre abertos. O resumo mostra o nivel atual; o
+                    localizador leva direto aqui ("nivel", "sensorial"). */}
+                <details className="flex flex-col gap-6 md:col-span-2 group">
+                  <summary className="flex items-center gap-2 px-1 pt-1 cursor-pointer select-none list-none">
+                    <span className="transition-transform group-open:rotate-90 text-slate-400 text-xs">▸</span>
                     <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">{locale === 'en' ? 'Screen & senses' : locale === 'es' ? 'Pantalla y sentidos' : 'Tela e sentidos'}</span>
-                    <span className="flex-1 h-px bg-slate-200"></span>
-                  </div>
-                  <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 shadow-premium">
+                    <span className="text-[10px] font-bold text-indigo-500 dark:text-indigo-300 normal-case tracking-normal">· {interfaceMode === 'foco' ? (locale === 'en' ? 'Focus' : locale === 'es' ? 'Enfoque' : 'Foco') : interfaceMode === 'intermediario' ? (locale === 'en' ? 'Intermediate' : locale === 'es' ? 'Intermedio' : 'Intermediário') : (locale === 'en' ? 'Complete' : locale === 'es' ? 'Completo' : 'Completo')}</span>
+                    <span className="flex-1 h-px bg-slate-200 dark:bg-slate-700"></span>
+                  </summary>
+                  <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 shadow-premium mt-3">
                     {(
 
                       <div className="flex flex-col gap-2.5 animate-pop max-h-72 overflow-y-auto pr-1">
@@ -12677,7 +12682,7 @@ function ParentDashboardContent() {
                       </div>
                     )}
                   </div>
-                </div>
+                </details>
 
                 {/* Profile Card */}
                 <div className="flex flex-col gap-6">
