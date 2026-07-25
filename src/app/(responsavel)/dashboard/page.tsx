@@ -30,6 +30,7 @@ import { detectAndroidApp, isAndroidApp } from '../../../lib/platform';
 import { FREE_TASKS_PER_DAY } from '../../../lib/plans';
 import { SecaoPainel, secaoDoParam, paramDaSecao, rotuloSecao } from '../../../lib/painel-secoes';
 import { proximoPasso } from '../../../lib/assistente';
+import { buscarFuncoes, Funcao } from '../../../lib/mapa-funcoes';
 import {
   suggestLevel,
   parseLevelState,
@@ -2115,6 +2116,10 @@ function ParentDashboardContent() {
     try { localStorage.setItem('np_assist_open', n ? '1' : '0'); } catch {}
     return n;
   });
+
+  // O assistente tambem LOCALIZA: "onde fica o codigo do terapeuta?" leva la.
+  // E o que permite tirar o secundario da tela sem esconde-lo de verdade.
+  const [buscaFuncao, setBuscaFuncao] = useState('');
 
   // Dentro do app da Play Store nao existe oferta de assinatura.
   //
@@ -6756,17 +6761,10 @@ function ParentDashboardContent() {
 
                     <div className="text-left flex flex-col justify-center">
 
-                      <span className="leading-none text-xxs font-black">{child.name}</span>
-
-                      {child.diagnosis && child.diagnosis !== 'Não Informado' && (
-
-                        <span className={`text-[8px] font-black uppercase tracking-wider mt-0.5 ${isActive ? 'text-indigo-100' : 'text-slate-400'}`}>
-
-                          {locale === 'en' ? (child.diagnosis === 'Não Informado' ? 'Not Informed' : child.diagnosis) : locale === 'es' ? (child.diagnosis === 'Não Informado' ? 'No Informado' : child.diagnosis) : child.diagnosis}
-
-                        </span>
-
-                      )}
+                      {/* So o nome no seletor. O diagnostico e clinico e nao
+                          pertence a home diaria — ele vive no perfil (Ajustes)
+                          e no relatorio. Tira-lo encolhe cada chip pela metade. */}
+                      <span className="leading-none text-xs font-black">{child.name.split(' ')[0]}</span>
 
                     </div>
 
@@ -7375,6 +7373,18 @@ function ParentDashboardContent() {
 
                   const irRotina = () => { playBubble(); setActiveDayFilter(hojeN); setActivePanelTab('tasks'); };
 
+                  // Leva o responsavel ate a funcao que ele procurou.
+                  const irParaFuncao = (f: Funcao) => {
+                    playBubble();
+                    setBuscaFuncao('');
+                    if (f.destino === 'crianca') { window.open(`/routine?childId=${activeChild.id}`, '_blank', 'noopener'); return; }
+                    if (f.destino === 'conta') { setShowPreferencesMenu(true); setActivePrefTab(f.id === 'plano' ? 'plano' : 'conta'); return; }
+                    if (f.destino === 'popover') { if (f.alvo === 'registrar-dia') setShowDailyTrackingPopover(true); return; }
+                    if (f.destino === 'secao') { setActivePanelTab((f.alvo || 'hoje') as SecaoPainel); }
+                  };
+                  const resultadosBusca = buscaFuncao.trim().length >= 2 ? buscarFuncoes(buscaFuncao) : [];
+                  const lang3 = (locale === 'en' || locale === 'es') ? locale : 'pt';
+
                   // Cabecalho compacto: emoji + uma frase. O corpo muda por passo.
                   const T = {
                     montarTit: locale === 'en' ? `Set up ${primeiroNome}'s day` : locale === 'es' ? `Arme el día de ${primeiroNome}` : `Monte o dia de ${primeiroNome}`,
@@ -7515,6 +7525,44 @@ function ParentDashboardContent() {
                         </div>
                       )}
 
+                      {/* Localizador: "onde fica X?". O que sustenta esconder o
+                          secundario — a funcao fica a uma pergunta de distancia. */}
+                      <div className="pt-1 border-t border-slate-200/60 dark:border-slate-700/60">
+                        <label className="block text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-1.5">
+                          {locale === 'en' ? 'Looking for something?' : locale === 'es' ? '¿Busca algo?' : 'Procurando algo?'}
+                        </label>
+                        <input
+                          type="text"
+                          value={buscaFuncao}
+                          onChange={(e) => setBuscaFuncao(e.target.value)}
+                          placeholder={locale === 'en' ? 'e.g. therapist code, print, dark theme' : locale === 'es' ? 'ej. código del terapeuta, imprimir, tema oscuro' : 'ex: código do terapeuta, imprimir, tema escuro'}
+                          className="w-full px-3 py-2 bg-white dark:bg-slate-800 dark:text-slate-100 dark:placeholder-slate-500 border border-slate-300 dark:border-slate-600 rounded-xl text-sm font-semibold outline-none focus:border-indigo-500 transition-all"
+                        />
+                        {resultadosBusca.length > 0 && (
+                          <div className="mt-2 flex flex-col gap-1.5">
+                            {resultadosBusca.map((f) => (
+                              <button
+                                key={f.id}
+                                type="button"
+                                onClick={() => irParaFuncao(f)}
+                                className="text-left w-full flex items-center gap-2 px-3 py-2 bg-white/70 dark:bg-slate-800/70 hover:bg-white dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 rounded-xl transition-all cursor-pointer group/f"
+                              >
+                                <div className="min-w-0 flex-1">
+                                  <div className="text-sm font-black text-slate-800 dark:text-slate-100 truncate">{f.nome[lang3]}</div>
+                                  <div className="text-[11px] text-slate-500 dark:text-slate-400 font-medium truncate">{f.dica[lang3]}</div>
+                                </div>
+                                <span className="shrink-0 text-indigo-600 dark:text-indigo-300 text-xs font-black group-hover/f:translate-x-0.5 transition-transform">→</span>
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                        {buscaFuncao.trim().length >= 2 && resultadosBusca.length === 0 && (
+                          <p className="mt-2 text-xs text-slate-500 dark:text-slate-400 font-medium">
+                            {locale === 'en' ? 'Nothing found — try another word.' : locale === 'es' ? 'Nada encontrado — pruebe otra palabra.' : 'Nada encontrado — tente outra palavra.'}
+                          </p>
+                        )}
+                      </div>
+
                       {/* "Como funciona" — sempre disponivel, recolhido. O guia
                           persistente que o usuario pediu: os 4 passos do app. */}
                       <details className="group mt-0.5">
@@ -7553,11 +7601,10 @@ function ParentDashboardContent() {
                     : '—';
                   return (
                     <>
-                      <div>
-                        <h2 className="text-2xl font-black font-Outfit text-slate-900 tracking-tight">{locale === 'en' ? 'Today' : locale === 'es' ? 'Hoy' : 'Hoje'}{activeChild ? ` · ${activeChild.name.split(' ')[0]}` : ''}</h2>
-                        <p className="text-sm text-slate-500 font-medium mt-0.5">{locale === 'en' ? "The day's routine at a glance." : locale === 'es' ? 'La rutina del día de un vistazo.' : 'A rotina do dia num relance.'}</p>
-                      </div>
-
+                      {/* O titulo "Hoje · X / num relance" saiu: era a terceira
+                          vez que "Hoje" e o nome apareciam na mesma tela (a
+                          barra de baixo ja diz "Hoje", o assistente ja nomeia a
+                          crianca). As estatisticas falam por si. */}
                       <div className="grid grid-cols-3 gap-3">
                         <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4">
                           <div className="text-[10px] font-black uppercase tracking-wider text-slate-400">{locale === 'en' ? 'Done' : locale === 'es' ? 'Hechas' : 'Feitas'}</div>
@@ -7584,9 +7631,9 @@ function ParentDashboardContent() {
                         if (!(age >= 0 && age < 21 * 86400000)) return null;
                         const isNew = !seenFeedback.includes(latest.id);
                         return (
-                          <div className={`rounded-2xl p-5 border flex flex-col gap-2 ${isNew ? 'bg-teal-50/70 border-teal-200' : 'bg-white border-slate-200'}`}>
+                          <div className={`rounded-2xl p-5 border flex flex-col gap-2 ${isNew ? 'bg-teal-50/70 dark:bg-teal-950/40 border-teal-200 dark:border-teal-800' : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700'}`}>
                             <div className="flex items-center gap-2 flex-wrap">
-                              <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">
+                              <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-300">
                                 {locale === 'en' ? 'From the professional' : locale === 'es' ? 'Del profesional' : 'Do profissional'}
                               </span>
                               {isNew && (
@@ -7595,9 +7642,9 @@ function ParentDashboardContent() {
                                 </span>
                               )}
                             </div>
-                            <p className="text-sm text-slate-700 font-medium leading-relaxed">{latest.feedback}</p>
+                            <p className="text-sm text-slate-700 dark:text-slate-100 font-medium leading-relaxed">{latest.feedback}</p>
                             <div className="flex items-center justify-between gap-3 flex-wrap">
-                              <span className="text-[11px] text-slate-400 font-semibold">
+                              <span className="text-[11px] text-slate-400 dark:text-slate-400 font-semibold">
                                 {latest.professionalName || (locale === 'en' ? 'Professional' : locale === 'es' ? 'Profesional' : 'Profissional')}
                                 {latest.professionalRole ? ` · ${latest.professionalRole}` : ''}
                                 {latest.date ? ` · ${latest.date}` : ''}
