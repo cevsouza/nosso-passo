@@ -63,6 +63,7 @@ model Child {
   audioAlert2     String?
   monthlyTemplate String?
   lastActiveAt    DateTime?  // ultima tarefa concluida: a metrica de uso real
+  lastResetDate   String    @default("") // data local (do aparelho) do ultimo reset diario; guarda o reset no servidor, nao no localStorage do navegador
   emergencyFirstThen Boolean @default(false)
   behaviorDictionary String?
   unexpectedChange String?
@@ -108,6 +109,7 @@ model Task {
   category    String   @default("AVD") // 'AVD' | 'Aprendizado' | 'Lazer'
   duration    Int      @default(30)
   description String   @default("")
+  steps       String   @default("") // JSON de passos "como fazer" [{emoji,text}]; "" = usa a biblioteca
   childId     String?
   child       Child?   @relation(fields: [childId], references: [id], onDelete: Cascade)
   userUid     String

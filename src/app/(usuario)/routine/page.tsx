@@ -1226,27 +1226,19 @@ export default function ChildRoutine() {
     return () => clearInterval(interval);
   }, [activeChild?.id, activeChild]);
 
-  // Automatic Daily Reset on new day detection
+  // Reset diario das conclusoes — decidido no SERVIDOR, por crianca.
+  //
+  // Antes a decisao "ja resetou hoje?" vivia no localStorage do navegador. Um
+  // navegador/aparelho novo (sem a chave) sempre achava que era um novo dia e
+  // chamava o reset, zerando o progresso do dia no banco compartilhado — a
+  // crianca "voltava ao inicio" ao abrir de outro lugar. Agora o cliente so
+  // pede; o servidor reseta no maximo uma vez por dia local (guarda a data na
+  // crianca). O progresso do dia sobrevive a troca de navegador/aparelho.
   useEffect(() => {
     if (!activeChild?.id) return;
-    
-    const checkAndResetDailyCompletions = async () => {
-      try {
-        const todayStr = new Date().toLocaleDateString('pt-BR');
-        const storageKey = `tea_last_opened_date_${activeChild.id}`;
-        const lastOpenedDate = localStorage.getItem(storageKey);
-        
-        if (lastOpenedDate !== todayStr) {
-          console.log(`[AutoReset] Novo dia detectado! Antigo: ${lastOpenedDate}, Novo: ${todayStr}. Resetando conclusões.`);
-          await firebaseBridge.db.resetCompletions();
-          localStorage.setItem(storageKey, todayStr);
-        }
-      } catch (err) {
-        console.error('Erro ao verificar ou resetar tarefas diárias:', err);
-      }
-    };
-    
-    checkAndResetDailyCompletions();
+    firebaseBridge.db.resetCompletions().catch((err) => {
+      console.error('Erro ao verificar/resetar tarefas diárias:', err);
+    });
   }, [activeChild?.id]);
 
   // Speak unexpected change on load
@@ -3776,7 +3768,7 @@ export default function ChildRoutine() {
                     {/* Task illustration */}
                     <div className="flex flex-col items-center gap-4 sm:gap-6 w-full">
                       <div className="flex flex-col items-center gap-2">
-                      <div className={`relative ${celebratingTaskId === activeTask.id ? '' : 'np-breathe'}`}>
+                      <div className="relative">
                         <RoutineIllustration category={activeTask.title} size={isNarrow ? 88 : 120} customIcon={activeTask.customIcon} />
                         {/* O emoji so aparece quando o desenho NAO veio do texto.
                             Com o pictograma certo no centro, o selo no canto era
@@ -4243,7 +4235,7 @@ export default function ChildRoutine() {
                       <div className="absolute top-3 left-3 bg-indigo-600 text-white text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full select-none font-Outfit">
                         {t.routine.first}
                       </div>
-                      <div className={`mt-4 relative ${celebratingTaskId === activeTask.id ? '' : 'np-breathe'}`}>
+                      <div className="mt-4 relative">
                         <RoutineIllustration category={activeTask.title} size={isNarrow ? 84 : 110} customIcon={activeTask.customIcon} />
                         {!activeTask.customIcon && !hasPictogram(activeTask.title) && activeTask.icon && (
                           <div className="absolute top-0 right-0 w-10 h-10 bg-white border-2 border-indigo-105 text-slate-700 rounded-xl flex items-center justify-center text-2xl shadow overflow-hidden select-none">

@@ -136,6 +136,11 @@ export async function PUT(req: Request) {
     if (body.resetCompletions) {
       const month = body.month !== undefined && body.month !== null ? Number(body.month) : null;
       const year = body.year !== undefined && body.year !== null ? Number(body.year) : null;
+      // Data LOCAL do aparelho (o "hoje" da familia, no fuso deles). O cliente
+      // envia; o servidor decide. Sem isto, cada navegador decidia sozinho pelo
+      // localStorage — e um navegador novo (sem a chave) sempre achava que era
+      // um novo dia e zerava o progresso do dia no banco compartilhado.
+      const localDate = typeof body.localDate === 'string' ? body.localDate : null;
 
       const updateFilter: any = {};
       if (childId) {
@@ -149,6 +154,28 @@ export async function PUT(req: Request) {
         updateFilter.year = year;
       }
 
+      // Guarda o reset no BANCO, por crianca: reseta no maximo uma vez por dia
+      // local, independente de quantos navegadores/aparelhos abrirem o app.
+      if (childId && localDate) {
+        const child = await prisma.child.findUnique({ where: { id: childId } });
+        if (child && child.lastResetDate === localDate) {
+          // Ja resetou hoje: NAO mexe nas conclusoes (preserva o progresso).
+          const tasks = await prisma.task.findMany({
+            where: updateFilter,
+            orderBy: [{ day: 'asc' }, { time: 'asc' }],
+          });
+          return NextResponse.json({ reset: false, tasks });
+        }
+        await prisma.task.updateMany({ where: updateFilter, data: { isCompleted: false } });
+        await prisma.child.update({ where: { id: childId }, data: { lastResetDate: localDate } });
+        const tasks = await prisma.task.findMany({
+          where: updateFilter,
+          orderBy: [{ day: 'asc' }, { time: 'asc' }],
+        });
+        return NextResponse.json({ reset: true, tasks });
+      }
+
+      // Sem crianca/data: comportamento antigo (ex.: reset manual em lote).
       await prisma.task.updateMany({
         where: updateFilter,
         data: { isCompleted: false },

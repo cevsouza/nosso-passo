@@ -1001,10 +1001,14 @@ export const firebaseBridge = {
 
       const { month: targetMonth, year: targetYear } = getTargetMonthYear(month, year);
 
+      // Data local do aparelho: o servidor guarda o reset por dia (nao o
+      // navegador), para o progresso do dia sobreviver a troca de aparelho.
+      const localDate = typeof window !== 'undefined' ? new Date().toLocaleDateString('pt-BR') : '';
+
       const res = await safeFetch('/api/tasks', {
         method: 'PUT',
         headers,
-        body: JSON.stringify({ resetCompletions: true, month: targetMonth, year: targetYear })
+        body: JSON.stringify({ resetCompletions: true, month: targetMonth, year: targetYear, localDate })
       });
       const data = await res.json();
       if (data.error) throw new Error(data.error);
