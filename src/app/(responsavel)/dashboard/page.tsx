@@ -2103,6 +2103,19 @@ function ParentDashboardContent() {
   const [levelHidden, setLevelHidden] = useState(false);
   const [evolutionOpen, setEvolutionOpen] = useState(false);
 
+  // O Assistente e um card RETRATIL. No celular ele tomava mais de 30% da tela;
+  // agora fica numa barra de uma linha por padrao e abre num toque. A escolha
+  // do usuario e lembrada, para nao brigar com ele todo dia.
+  const [assistOpen, setAssistOpen] = useState(false);
+  useEffect(() => {
+    if (typeof window !== 'undefined') setAssistOpen(localStorage.getItem('np_assist_open') === '1');
+  }, []);
+  const toggleAssist = () => setAssistOpen(v => {
+    const n = !v;
+    try { localStorage.setItem('np_assist_open', n ? '1' : '0'); } catch {}
+    return n;
+  });
+
   // Dentro do app da Play Store nao existe oferta de assinatura.
   //
   // A regra do Google e mais dura do que parece: nao basta tirar o pagamento
@@ -7389,18 +7402,56 @@ function ParentDashboardContent() {
                   const titulo = passo === 'montar' ? T.montarTit : passo === 'abrir' ? T.abrirTit : passo === 'progresso' ? T.progTit : passo === 'registrar' ? T.regTit : T.emdiaTit;
                   const sub = passo === 'montar' ? T.montarSub : passo === 'abrir' ? T.abrirSub : passo === 'progresso' ? T.progSub : passo === 'registrar' ? T.regSub : T.emdiaSub;
 
+                  // Acao primaria acessivel JA na barra compacta, sem abrir:
+                  // abrir a tela e registrar o dia sao um toque so. "Montar"
+                  // nao ganha atalho aqui porque a acao dele SAO os blocos, que
+                  // vivem no corpo — a barra so convida a expandir.
+                  const acaoCompacta =
+                    passo === 'abrir' ? (
+                      <a
+                        href={`/routine?childId=${activeChild.id}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => { e.stopPropagation(); playBubble(); playMarimba(392, 0.3); }}
+                        className="shrink-0 px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black rounded-lg transition-all active:scale-95 font-Outfit"
+                      >
+                        🚀 {locale === 'en' ? 'Open' : locale === 'es' ? 'Abrir' : 'Abrir'}
+                      </a>
+                    ) : passo === 'registrar' ? (
+                      <button
+                        type="button"
+                        onClick={(e) => { e.stopPropagation(); playBubble(); setShowDailyTrackingPopover(true); }}
+                        className="shrink-0 px-3.5 py-1.5 bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-black rounded-lg transition-all active:scale-95 cursor-pointer font-Outfit"
+                      >
+                        📅 {locale === 'en' ? 'Log' : locale === 'es' ? 'Registrar' : 'Registrar'}
+                      </button>
+                    ) : null;
+
                   return (
-                    <div className={`bg-gradient-to-br ${tint} border rounded-2xl p-5 sm:p-6 flex flex-col gap-4`}>
-                      <div className="flex items-start gap-3">
-                        <span className="text-3xl select-none leading-none mt-0.5">{emoji}</span>
-                        <div className="min-w-0">
-                          <div className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">
+                    <div className={`bg-gradient-to-br ${tint} border rounded-2xl overflow-hidden`}>
+                      {/* Barra compacta — sempre visivel, uma linha. Clicar
+                          nela abre/fecha o corpo. */}
+                      <button
+                        type="button"
+                        onClick={toggleAssist}
+                        className="w-full flex items-center gap-2.5 px-4 py-3 text-left cursor-pointer bg-transparent border-none"
+                        aria-expanded={assistOpen}
+                      >
+                        <span className="text-xl select-none leading-none shrink-0">{emoji}</span>
+                        <div className="min-w-0 flex-1">
+                          <div className="text-[9px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 leading-none">
                             {locale === 'en' ? 'Assistant' : locale === 'es' ? 'Asistente' : 'Assistente'}
                           </div>
-                          <h2 className="text-lg sm:text-xl font-black text-slate-900 dark:text-slate-50 font-Outfit tracking-tight leading-tight mt-0.5">{titulo}</h2>
-                          <p className="text-sm text-slate-600 dark:text-slate-300 font-medium mt-1 leading-relaxed max-w-2xl">{sub}</p>
+                          <div className="text-sm font-black text-slate-900 dark:text-slate-50 font-Outfit tracking-tight truncate mt-0.5">{titulo}</div>
                         </div>
-                      </div>
+                        {acaoCompacta}
+                        <span className={`shrink-0 text-slate-400 dark:text-slate-500 transition-transform ${assistOpen ? 'rotate-180' : ''}`}>▾</span>
+                      </button>
+
+                      {/* Corpo — so quando aberto */}
+                      {assistOpen && (
+                      <div className="px-4 pb-5 sm:px-5 flex flex-col gap-4">
+                        <p className="text-sm text-slate-600 dark:text-slate-300 font-medium leading-relaxed max-w-2xl">{sub}</p>
 
                       {/* Corpo por passo */}
                       {passo === 'montar' && (
@@ -7484,6 +7535,8 @@ function ParentDashboardContent() {
                           ))}
                         </ol>
                       </details>
+                      </div>
+                      )}
                     </div>
                   );
                 })()}
