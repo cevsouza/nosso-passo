@@ -3775,7 +3775,7 @@ export default function ChildRoutine() {
                     {/* Task illustration */}
                     <div className="flex flex-col items-center gap-4 sm:gap-6 w-full">
                       <div className="flex flex-col items-center gap-2">
-                      <div className="relative">
+                      <div className={`relative ${celebratingTaskId === activeTask.id ? '' : 'np-breathe'}`}>
                         <RoutineIllustration category={activeTask.title} size={isNarrow ? 88 : 120} customIcon={activeTask.customIcon} />
                         {/* O emoji so aparece quando o desenho NAO veio do texto.
                             Com o pictograma certo no centro, o selo no canto era
@@ -3784,6 +3784,16 @@ export default function ChildRoutine() {
                         {!activeTask.customIcon && !hasPictogram(activeTask.title) && activeTask.icon && (
                           <div className="absolute top-0 right-0 w-14 h-14 bg-white border-4 border-indigo-100 text-slate-700 rounded-2xl flex items-center justify-center text-4xl shadow-md overflow-hidden select-none transform rotate-12">
                             {activeTask.icon}
+                          </div>
+                        )}
+                        {/* Comemoracao de conclusao: um check calmo surge sobre a
+                            atividade e volta ao repouso. Sob movimento reduzido,
+                            aparece estatico (classe np-complete-badge). */}
+                        {celebratingTaskId === activeTask.id && (
+                          <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
+                            <span className="np-complete-badge w-20 h-20 rounded-full bg-[#2f8f86] shadow-lg flex items-center justify-center">
+                              <svg viewBox="0 0 24 24" className="w-11 h-11" fill="none" stroke="#ffffff" strokeWidth={3} strokeLinecap="round" strokeLinejoin="round"><path d="M4 12.5l5 5L20 6.5" /></svg>
+                            </span>
                           </div>
                         )}
                       </div>
@@ -4220,15 +4230,22 @@ export default function ChildRoutine() {
                 {activeTask ? (() => {
                   const category = getTaskCategory(activeTask.title);
                   return (
-                    <div className={`bg-white border-4 border-indigo-600 rounded-[32px] p-6 shadow-premium flex flex-col items-center text-center gap-4 relative overflow-hidden transition-all duration-300 ${category.shadow}`}>
+                    <motion.div key={activeTask.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.35, ease: 'easeOut' }} className={`bg-white border-4 border-indigo-600 rounded-[32px] p-6 shadow-premium flex flex-col items-center text-center gap-4 relative overflow-hidden transition-all duration-300 ${category.shadow}`}>
                       <div className="absolute top-3 left-3 bg-indigo-600 text-white text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full select-none font-Outfit">
                         {t.routine.first}
                       </div>
-                      <div className="mt-4 relative">
+                      <div className={`mt-4 relative ${celebratingTaskId === activeTask.id ? '' : 'np-breathe'}`}>
                         <RoutineIllustration category={activeTask.title} size={isNarrow ? 84 : 110} customIcon={activeTask.customIcon} />
                         {!activeTask.customIcon && !hasPictogram(activeTask.title) && activeTask.icon && (
                           <div className="absolute top-0 right-0 w-10 h-10 bg-white border-2 border-indigo-105 text-slate-700 rounded-xl flex items-center justify-center text-2xl shadow overflow-hidden select-none">
                             {activeTask.icon}
+                          </div>
+                        )}
+                        {celebratingTaskId === activeTask.id && (
+                          <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
+                            <span className="np-complete-badge w-16 h-16 rounded-full bg-[#2f8f86] shadow-lg flex items-center justify-center">
+                              <svg viewBox="0 0 24 24" className="w-9 h-9" fill="none" stroke="#ffffff" strokeWidth={3} strokeLinecap="round" strokeLinejoin="round"><path d="M4 12.5l5 5L20 6.5" /></svg>
+                            </span>
                           </div>
                         )}
                       </div>
@@ -4248,7 +4265,7 @@ export default function ChildRoutine() {
                         </p>
                       )}
                       <span className="text-[9px] font-black text-slate-400 uppercase tracking-wide">⏱️ {locale === 'en' ? 'Est. Time:' : locale === 'es' ? 'Previsto:' : 'Previsão:'} {activeTask.time}</span>
-                    </div>
+                    </motion.div>
                   );
                 })() : (
                   <div className="bg-white border-4 border-dashed border-slate-300 rounded-[32px] p-6 shadow-premium flex flex-col items-center text-center justify-center gap-3 relative min-h-[200px]">

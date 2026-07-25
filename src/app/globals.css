@@ -744,3 +744,28 @@ h1, h2, h3, h4, h5, h6 {
 .np-splash-stone:nth-child(2) { animation-delay: 220ms; }
 .np-splash-stone:nth-child(3) { animation-delay: 380ms; }
 .np-splash-stone:nth-child(4) { animation-delay: 540ms; }
+
+/* ==== Micro-animacoes da tela do paciente ====
+   So a tarefa ATUAL respira (ancora o olhar em "e esta agora"); as outras ficam
+   paradas. Lento e sutil de proposito — nao e "dinamico", e um respiro. O check
+   de conclusao surge uma vez e volta ao repouso. Tudo cessa sob
+   prefers-reduced-motion (regra global acima zera animation/transition). */
+@keyframes np-breathe {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.025); }
+}
+.np-breathe {
+  animation: np-breathe 4.5s ease-in-out infinite;
+  transform-origin: center;
+  will-change: transform;
+}
+@keyframes np-complete-pop {
+  0%   { opacity: 0; transform: scale(0.4); }
+  55%  { opacity: 1; transform: scale(1.06); }
+  100% { opacity: 1; transform: scale(1); }
+}
+.np-complete-badge {
+  /* Estado base visivel: sob movimento reduzido, aparece estatico (sem pop). */
+  opacity: 1;
+  animation: np-complete-pop 520ms cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
