@@ -34,7 +34,9 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: "#2f8f86",
-  colorScheme: "light dark",
+  // O esquema real e declarado via CSS (:root=light, .dark=dark). Fixar "light"
+  // aqui impede o dark forcado do navegador (Samsung Internet) na visao clara.
+  colorScheme: "light",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,

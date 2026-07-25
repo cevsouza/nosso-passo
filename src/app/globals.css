@@ -141,6 +141,10 @@
 }
 
 :root {
+  /* Declara o esquema REAL da pagina (nao "light dark"). Sem isto, o modo escuro
+     forcado do Samsung Internet/Chrome Android escurece a pagina clara por cima.
+     Em light dizemos "light" e o navegador nao aplica o dark algoritmico. */
+  color-scheme: light;
   /* Semantic tokens — playful lavender & blue, high-legibility */
   --bg-color: #f5f2ec;
   --text-primary: #213330;
@@ -179,6 +183,7 @@
 }
 
 .dark {
+  color-scheme: dark;
   --bg-color: #16161f;
   --text-primary: #ececfa;
   --text-secondary: #aeaed0;
