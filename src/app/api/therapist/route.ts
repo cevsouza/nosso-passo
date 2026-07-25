@@ -134,6 +134,7 @@ export async function POST(req: Request) {
           category: taskData.category || 'AVD',
           duration: taskData.duration !== undefined ? Number(taskData.duration) : 30,
           description: taskData.description || '',
+          steps: taskData.steps || '',
           childId: child.id,
           userUid: child.parentUid,
         },
@@ -225,6 +226,7 @@ export async function PUT(req: Request) {
       if (updates.category !== undefined) updateData.category = updates.category;
       if (updates.duration !== undefined) updateData.duration = Number(updates.duration);
       if (updates.description !== undefined) updateData.description = updates.description;
+      if (updates.steps !== undefined) updateData.steps = updates.steps;
 
       const updatedTask = await prisma.task.update({ where: { id: taskId }, data: updateData });
       return NextResponse.json(updatedTask);

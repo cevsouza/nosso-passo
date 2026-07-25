@@ -18,7 +18,17 @@ const casos: [string, string | null][] = [
   ['Pentear o cabelo', 'Pegue a escova'],
   ['Café da manhã', 'Sente à mesa'],
   ['Almoço', 'Sente à mesa'],
+  ['Jantar em Família', 'Sente à mesa'],
   ['Hora de dormir', 'Vista o pijama'],
+  // Novos triviais/recorrentes:
+  ['Acordar e abrir a cortina', 'Abra a cortina'],
+  // Colisao classica: "arrumar a cama" NAO pode virar "dormir" (ambos tem cama).
+  ['Arrumar a cama', 'Estique o lençol'],
+  ['Guardar os brinquedos', 'Pegue a caixa'],
+  ['Fazer a lição', 'Pegue o material'],
+  ['Tarefa da escola', 'Pegue o material'],
+  ['Lavar o rosto', 'Abra a torneira'],
+  ['Tomar remédio', 'Chame um adulto'],
   // Sem correspondencia: a maioria das atividades nao tem passo-a-passo.
   ['Tempo do metrô', null],
   ['Fonoaudiologia', null],

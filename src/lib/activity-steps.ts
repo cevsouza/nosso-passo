@@ -118,6 +118,61 @@ const LIBRARY: StepEntry[] = [
     ],
   },
   {
+    match: ['acordar', 'levantar', 'despertar'],
+    steps: [
+      { emoji: '☀️', pt: 'Abra a cortina', en: 'Open the curtain', es: 'Abre la cortina' },
+      { emoji: '🛏️', pt: 'Levante da cama', en: 'Get out of bed', es: 'Levántate de la cama' },
+      { emoji: '🩴', pt: 'Calce o chinelo', en: 'Put on your slippers', es: 'Ponte las pantuflas' },
+      { emoji: '💧', pt: 'Lave o rosto', en: 'Wash your face', es: 'Lávate la cara' },
+    ],
+  },
+  {
+    // "arrumar a cama" ANTES de dormir: senao "cama" cairia no sono.
+    match: ['arrumar a cama', 'fazer a cama', 'arrumar a caminha'],
+    steps: [
+      { emoji: '🛏️', pt: 'Estique o lençol', en: 'Straighten the sheet', es: 'Estira la sábana' },
+      { emoji: '🧸', pt: 'Ajeite o travesseiro', en: 'Fix the pillow', es: 'Acomoda la almohada' },
+      { emoji: '🛌', pt: 'Puxe a coberta', en: 'Pull up the blanket', es: 'Sube la manta' },
+    ],
+  },
+  {
+    match: ['guardar os brinquedo', 'guardar brinquedo', 'arrumar os brinquedo', 'brinquedo'],
+    steps: [
+      { emoji: '🧺', pt: 'Pegue a caixa', en: 'Get the box', es: 'Toma la caja' },
+      { emoji: '🧸', pt: 'Junte os brinquedos', en: 'Gather the toys', es: 'Junta los juguetes' },
+      { emoji: '📦', pt: 'Guarde cada um no lugar', en: 'Put each one in its place', es: 'Guarda cada uno en su lugar' },
+    ],
+  },
+  {
+    match: ['licao', 'dever de casa', 'tarefa da escola', 'tarefa de casa', 'estudar', 'fazer a licao'],
+    steps: [
+      { emoji: '📚', pt: 'Pegue o material', en: 'Get your materials', es: 'Toma tu material' },
+      { emoji: '🪑', pt: 'Sente à mesa', en: 'Sit at the table', es: 'Siéntate a la mesa' },
+      { emoji: '✏️', pt: 'Faça uma tarefa por vez', en: 'Do one task at a time', es: 'Haz una tarea a la vez' },
+      { emoji: '✅', pt: 'Guarde o material', en: 'Put your materials away', es: 'Guarda el material' },
+    ],
+  },
+  {
+    match: ['lavar o rosto', 'rosto'],
+    steps: [
+      { emoji: '🚰', pt: 'Abra a torneira', en: 'Turn on the tap', es: 'Abre el grifo' },
+      { emoji: '💧', pt: 'Molhe o rosto', en: 'Wet your face', es: 'Mójate la cara' },
+      { emoji: '🧼', pt: 'Passe sabonete', en: 'Use soap', es: 'Usa jabón' },
+      { emoji: '💧', pt: 'Enxágue', en: 'Rinse', es: 'Enjuaga' },
+      { emoji: '🧻', pt: 'Seque o rosto', en: 'Dry your face', es: 'Sécate la cara' },
+    ],
+  },
+  {
+    // Remedio com SUPERVISAO: o primeiro passo e sempre chamar o adulto. Nunca
+    // sugerir dose ou a crianca tomar sozinha — a linha vermelha do produto.
+    match: ['remedio', 'tomar remedio', 'medicacao'],
+    steps: [
+      { emoji: '🧑', pt: 'Chame um adulto', en: 'Ask an adult', es: 'Llama a un adulto' },
+      { emoji: '🥤', pt: 'Pegue um copo de água', en: 'Get a glass of water', es: 'Toma un vaso de agua' },
+      { emoji: '💊', pt: 'Tome o remédio com o adulto', en: 'Take the medicine with the adult', es: 'Toma el remedio con el adulto' },
+    ],
+  },
+  {
     match: ['dormir', 'deitar', 'cama', 'hora de dormir', 'sono'],
     steps: [
       { emoji: '👚', pt: 'Vista o pijama', en: 'Put on pajamas', es: 'Ponte el pijama' },

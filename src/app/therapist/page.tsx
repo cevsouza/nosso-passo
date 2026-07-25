@@ -31,6 +31,8 @@ import { SensoryHeatmap } from '../../components/SensoryHeatmap';
 import { GlobalNav } from '../../components/GlobalNav';
 import { DEMO_CODES } from '../../lib/demo-credentials';
 import { PrintFooter } from '../../components/PrintFooter';
+import StepsEditor, { serializeSteps } from '../../components/StepsEditor';
+import { parseCustomSteps, CustomStep } from '../../components/ludic/ActivitySteps';
 import { EvolutionReportSheet } from '../../components/EvolutionReport';
 
 export default function TherapistPortal() {
@@ -101,6 +103,7 @@ export default function TherapistPortal() {
   const [taskIcon, setTaskIcon] = useState('📅');
   const [taskCustomIcon, setTaskCustomIcon] = useState('');
   const [taskDescription, setTaskDescription] = useState('');
+  const [taskSteps, setTaskSteps] = useState<CustomStep[]>([]);
   const [savingTask, setSavingTask] = useState(false);
   const [taskError, setTaskError] = useState('');
 
@@ -154,6 +157,7 @@ export default function TherapistPortal() {
     setTaskIcon('📅');
     setTaskCustomIcon('');
     setTaskDescription('');
+    setTaskSteps([]);
     setTaskError('');
   };
 
@@ -169,6 +173,7 @@ export default function TherapistPortal() {
     setTaskIcon(task.icon || '📅');
     setTaskCustomIcon(task.customIcon || '');
     setTaskDescription(task.description || '');
+    setTaskSteps(parseCustomSteps(task.steps) || []);
     setTaskFormOpen(true);
   };
 
@@ -207,7 +212,8 @@ export default function TherapistPortal() {
               category: taskCategory,
               icon: taskIcon,
               customIcon: taskCustomIcon.trim() || null,
-              description: taskDescription.trim()
+              description: taskDescription.trim(),
+              steps: serializeSteps(taskSteps)
             }
           })
         });
@@ -245,7 +251,8 @@ export default function TherapistPortal() {
               category: taskCategory,
               icon: taskIcon,
               customIcon: taskCustomIcon.trim() || null,
-              description: taskDescription.trim()
+              description: taskDescription.trim(),
+              steps: serializeSteps(taskSteps)
             }
           })
         });
@@ -1369,6 +1376,10 @@ export default function TherapistPortal() {
                             placeholder={locale === 'en' ? 'Describe step-by-step instructions for the child or sensory guidelines...' : locale === 'es' ? 'Describa instrucciones paso a paso para el niño o pautas sensoriales...' : 'Descreva instruções passo a passo para a criança ou orientações sensoriais...'}
                             className="w-full p-3 bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:bg-white rounded-xl text-xs font-semibold outline-none h-18 resize-none transition-all"
                           />
+                        </div>
+
+                        <div className="md:col-span-2">
+                          <StepsEditor steps={taskSteps} setSteps={setTaskSteps} title={taskTitle} locale={locale} onBubble={playBubble} />
                         </div>
 
                         {taskError && (
