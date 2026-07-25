@@ -560,11 +560,10 @@ export default function TherapistPortal() {
         <div className={`max-w-6xl mx-auto flex flex-col gap-6 ${evolutionOpen ? 'print:hidden' : ''}`}>
           
           {/* Header Card */}
-          <div className="bg-white border border-slate-250 rounded-2xl p-6 shadow-premium flex flex-col md:flex-row md:items-center justify-between gap-4 relative overflow-hidden">
-            <div className="absolute top-0 inset-x-0 h-1 grad-primary"></div>
-            
-            <div className="flex items-center gap-4">
-              <div className="w-16 h-16 grad-primary text-white rounded-2xl flex items-center justify-center text-3xl shadow-md select-none font-Outfit">
+          <div className="bg-white border border-slate-250 rounded-2xl p-4 md:p-5 shadow-premium flex flex-col md:flex-row md:items-center justify-between gap-4 relative overflow-hidden">
+
+            <div className="flex items-center gap-3.5">
+              <div className="w-12 h-12 grad-primary text-white rounded-2xl flex items-center justify-center text-2xl shadow-md select-none font-Outfit shrink-0">
                 {childData.gender === 'Feminino' ? '👧' : childData.gender === 'Masculino' ? '👦' : '👶'}
               </div>
               <div className="text-left">
@@ -592,29 +591,32 @@ export default function TherapistPortal() {
               </div>
             </div>
 
-            <div className="flex gap-2 items-center self-start md:self-center">
+            <div className="flex gap-2 items-center flex-wrap justify-start md:justify-end self-start md:self-center shrink-0">
               <LanguageSelector />
               {childData._evolution && (
                 <button
                   onClick={() => { playBubble(); setEvolutionOpen(true); }}
-                  className="px-4 py-2.5 bg-white hover:bg-slate-50 border border-slate-250 text-slate-700 text-xs font-black rounded-xl cursor-pointer active:scale-95 transition-all font-Outfit"
+                  title={locale === 'en' ? 'Progress report' : locale === 'es' ? 'Informe de evolución' : 'Relatório de evolução'}
+                  className="px-3 py-2 bg-white hover:bg-slate-50 border border-slate-250 text-slate-700 text-[11px] font-black rounded-lg cursor-pointer active:scale-95 transition-all font-Outfit"
                 >
-                  {locale === 'en' ? '📈 Progress report' : locale === 'es' ? '📈 Informe de evolución' : '📈 Relatório de evolução'}
+                  {locale === 'en' ? '📈 Report' : locale === 'es' ? '📈 Informe' : '📈 Relatório'}
                 </button>
               )}
 
               <button
                 onClick={() => { playBubble(); window.print(); }}
-                className="px-4 py-2.5 bg-teal-50 hover:bg-teal-100 border border-teal-200 text-teal-700 text-xs font-black rounded-xl cursor-pointer active:scale-95 transition-all font-Outfit"
+                title={locale === 'en' ? 'Export Clinical PDF' : locale === 'es' ? 'Exportar PDF Clínico' : 'Exportar PDF Clínico'}
+                className="px-3 py-2 bg-teal-50 hover:bg-teal-100 border border-teal-200 text-teal-700 text-[11px] font-black rounded-lg cursor-pointer active:scale-95 transition-all font-Outfit"
               >
-                {locale === 'en' ? '🖨️ Export Clinical PDF' : locale === 'es' ? '🖨️ Exportar PDF Clínico' : '🖨️ Exportar PDF Clínico'}
+                {locale === 'en' ? '🖨️ PDF' : locale === 'es' ? '🖨️ PDF' : '🖨️ PDF'}
               </button>
 
               <button
                 onClick={() => { playBubble(); setChildData(null); setSharingCode(''); }}
-                className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 border border-slate-250 text-slate-600 text-xs font-black rounded-xl cursor-pointer active:scale-95 transition-all font-Outfit"
+                title={locale === 'en' ? 'Exit Chart' : locale === 'es' ? 'Salir del Historial' : 'Sair do Prontuário'}
+                className="px-3 py-2 bg-slate-100 hover:bg-slate-200 border border-slate-250 text-slate-600 text-[11px] font-black rounded-lg cursor-pointer active:scale-95 transition-all font-Outfit"
               >
-                {locale === 'en' ? '🔒 Exit Chart' : locale === 'es' ? '🔒 Salir del Historial' : '🔒 Sair do Prontuário'}
+                {locale === 'en' ? '🔒 Exit' : locale === 'es' ? '🔒 Salir' : '🔒 Sair'}
               </button>
             </div>
           </div>
@@ -1401,23 +1403,24 @@ export default function TherapistPortal() {
             </div>
             <div className="lg:col-span-4 flex flex-col gap-6">
                 {/* Presets Manager Card */}
-                <div className="bg-white border border-slate-200 p-6 rounded-2xl shadow-premium flex flex-col gap-4 text-left">
-                  <div className="flex items-center gap-2 text-teal-650">
-                    <Brain className="w-5 h-5 text-indigo-500" />
-                    <h3 className="font-black text-slate-900 text-md font-Outfit">
+                <details className="group bg-white border border-slate-200 rounded-2xl shadow-premium text-left">
+                  <summary className="list-none [&::-webkit-details-marker]:hidden cursor-pointer flex items-center gap-2 text-teal-650 p-6">
+                    <Brain className="w-5 h-5 text-indigo-500 shrink-0" />
+                    <h3 className="font-black text-slate-900 text-md font-Outfit flex-1">
                       {locale === 'en' ? 'Prescribe Therapeutic Presets' : locale === 'es' ? 'Prescribir Ajustes Terapéuticos' : 'Prescrever Presets Terapêuticos'}
                     </h3>
-                  </div>
-                  
-                  <p className="text-[10px] text-slate-500 font-semibold leading-relaxed">
-                    {locale === 'en' 
-                      ? 'Choose one of the models below based on clinical methodologies and add the activities instantly to the patient\'s routine.' 
-                      : locale === 'es' 
-                      ? 'Elija uno de los modelos a continuación basados en metodologías clínicas y agregue las actividades instantáneamente a la rutina del paciente.' 
+                    <span className="text-teal-600 text-sm transition-transform group-open:rotate-90 shrink-0">▸</span>
+                  </summary>
+
+                  <p className="text-[10px] text-slate-500 font-semibold leading-relaxed px-6">
+                    {locale === 'en'
+                      ? 'Choose one of the models below based on clinical methodologies and add the activities instantly to the patient\'s routine.'
+                      : locale === 'es'
+                      ? 'Elija uno de los modelos a continuación basados en metodologías clínicas y agregue las actividades instantáneamente a la rutina del paciente.'
                       : 'Escolha um dos modelos abaixo baseados em metodologias clínicas e adicione as atividades instantaneamente à rotina do paciente.'}
                   </p>
 
-                  <div className="flex flex-col gap-3">
+                  <div className="flex flex-col gap-3 px-6 pb-6 pt-3">
                     {[
                       {
                         title: locale === 'en' ? 'ABA Behavioral Intervention 🧩' : locale === 'es' ? 'Intervención Conductual ABA 🧩' : 'Intervenção Comportamental ABA 🧩',
@@ -1486,147 +1489,112 @@ export default function TherapistPortal() {
                       </div>
                     ))}
                   </div>
-                </div>
+                </details>
 
             </div>
           </div>
 
           {/* Analysis & Diary Tab Content */}
           <div className={activeTab === 'analysis' ? "w-full flex flex-col gap-6" : "hidden print:flex print:flex-col print:gap-6 print:w-full"}>
-          {/* Clinical Correlation & AI Banner */}
-          <div className="grad-soft border border-slate-200 p-4.5 rounded-2xl text-left shadow-sm flex items-start gap-3.5">
-            <div className="w-10 h-10 bg-teal-100 text-teal-700 rounded-xl flex items-center justify-center text-xl shrink-0 shadow-inner border border-teal-150">
-              🧠
-            </div>
-            <div>
-              <h4 className="text-xs font-black text-teal-950 font-Outfit">{locale === 'en' ? 'Smart Clinical Synchronization' : locale === 'es' ? 'Sincronización Clínica Inteligente' : 'Sincronização Clínica Inteligente'}</h4>
-              <p className="text-[10.5px] text-teal-900 leading-relaxed font-semibold mt-0.5">
-                {locale === 'en' 
-                  ? 'Clinical checkpoints registered on this platform cross-reference data in real time with the mediator\'s school notes and routine logs entered by the family. Our correlation AI analyzes these three sources to predict stress peaks, meltdowns, and determine the patient\'s Sensory Adherence.' 
-                  : locale === 'es' 
-                  ? 'Los puntos de control clínicos registrados en esta plataforma cruzan datos en tiempo real con las notas escolares del mediador y los registros de rutina introducidos por la familia. Nuestra IA de correlación analiza estas tres fuentes para predecir picos de estrés, meltdowns y determinar la Adherencia Sensorial del paciente.' 
-                  : 'Os checkpoints clínicos registrados nesta plataforma cruzam dados em tempo real com as anotações escolares do mediador e os registros de rotina inseridos pela família. Nossa IA de correlação analisa essas três fontes para prever picos de estresse, meltdowns e determinar a Aderência Sensorial do paciente.'}
-              </p>
-            </div>
-          </div>
+          {/* Clinical Correlation & AI Banner — recolhido: é contexto, não dado do dia */}
+          <details className="group grad-soft border border-slate-200 rounded-2xl text-left shadow-sm">
+            <summary className="list-none [&::-webkit-details-marker]:hidden cursor-pointer flex items-center gap-3 p-4">
+              <div className="w-9 h-9 bg-teal-100 text-teal-700 rounded-xl flex items-center justify-center text-lg shrink-0 shadow-inner border border-teal-150">
+                🧠
+              </div>
+              <h4 className="text-xs font-black text-teal-950 font-Outfit flex-1">{locale === 'en' ? 'How the AI cross-references the data' : locale === 'es' ? 'Cómo la IA cruza los datos' : 'Como a IA cruza os dados (escola · família · clínica)'}</h4>
+              <span className="text-teal-700 text-sm transition-transform group-open:rotate-90 shrink-0">▸</span>
+            </summary>
+            <p className="text-[10.5px] text-teal-900 leading-relaxed font-semibold px-4 pb-4 -mt-1">
+              {locale === 'en'
+                ? 'Clinical checkpoints registered on this platform cross-reference data in real time with the mediator\'s school notes and routine logs entered by the family. Our correlation AI analyzes these three sources to predict stress peaks, meltdowns, and determine the patient\'s Sensory Adherence.'
+                : locale === 'es'
+                ? 'Los puntos de control clínicos registrados en esta plataforma cruzan datos en tiempo real con las notas escolares del mediador y los registros de rutina introducidos por la familia. Nuestra IA de correlación analiza estas tres fuentes para predecir picos de estrés, meltdowns y determinar la Adherencia Sensorial del paciente.'
+                : 'Os checkpoints clínicos registrados nesta plataforma cruzam dados em tempo real com as anotações escolares do mediador e os registros de rotina inseridos pela família. Nossa IA de correlação analisa essas três fontes para prever picos de estresse, meltdowns e determinar a Aderência Sensorial do paciente.'}
+            </p>
+          </details>
 
 
-          {/* Metrics Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-5">
-            
+          {/* Metrics Grid — os 4 indicadores do mês, compactos e lado a lado */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+
             {/* compliance card */}
-            <div className="bg-white border border-slate-200 p-5 rounded-2xl shadow-xxs flex flex-col justify-between gap-4">
-              <div className="flex justify-between items-start">
+            <div className="bg-white border border-slate-200 p-4 rounded-2xl shadow-xxs flex flex-col justify-between gap-3">
+              <div className="flex justify-between items-start gap-2">
                 <div className="text-left">
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block font-Outfit">
-                    {locale === 'en' ? 'Routine Adherence' : locale === 'es' ? 'Adherencia a la Rutina' : 'Aderência à Rotina'}
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider block font-Outfit leading-tight">
+                    {locale === 'en' ? 'Routine Adherence' : locale === 'es' ? 'Adherencia' : 'Aderência'}
                   </span>
                   <span className="text-3xl font-black text-slate-900 tracking-tight mt-1 block font-Outfit">{complianceRate}%</span>
                 </div>
-                <div className="w-10 h-10 bg-indigo-50 border border-indigo-100 text-indigo-700 rounded-xl flex items-center justify-center shadow-xxs">
-                  <Activity className="w-5 h-5" />
+                <div className="w-9 h-9 bg-indigo-50 border border-indigo-100 text-indigo-700 rounded-xl flex items-center justify-center shadow-xxs shrink-0">
+                  <Activity className="w-4.5 h-4.5" />
                 </div>
               </div>
-              <div className="text-left">
-                <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden mb-1.5">
-                  <div 
-                    className={`h-full rounded-full ${complianceRate >= 80 ? 'bg-emerald-500' : complianceRate >= 50 ? 'bg-amber-500' : 'bg-red-500'}`} 
-                    style={{ width: `${complianceRate}%` }} 
-                  />
-                </div>
-                <span className="text-[9px] text-slate-450 font-bold">
-                  {locale === 'en' 
-                    ? `Calculated over ${totalTasksElapsed} tasks of the ${elapsedDays} elapsed days of the month.` 
-                    : locale === 'es' 
-                    ? `Calculado sobre ${totalTasksElapsed} tareas de los ${elapsedDays} días transcurridos del mes.` 
-                    : `Calculado sobre ${totalTasksElapsed} tarefas dos ${elapsedDays} dias decorridos do mês.`}
-                </span>
+              <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                <div
+                  className={`h-full rounded-full ${complianceRate >= 80 ? 'bg-emerald-500' : complianceRate >= 50 ? 'bg-amber-500' : 'bg-red-500'}`}
+                  style={{ width: `${complianceRate}%` }}
+                />
               </div>
             </div>
 
             {/* stability card */}
-            <div className="bg-white border border-slate-200 p-5 rounded-2xl shadow-xxs flex flex-col justify-between gap-4">
-              <div className="flex justify-between items-start">
+            <div className="bg-white border border-slate-200 p-4 rounded-2xl shadow-xxs flex flex-col justify-between gap-3">
+              <div className="flex justify-between items-start gap-2">
                 <div className="text-left">
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block font-Outfit">
-                    {locale === 'en' ? 'Emotional Stability' : locale === 'es' ? 'Estabilidad Emocional' : 'Estabilidade Emocional'}
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider block font-Outfit leading-tight">
+                    {locale === 'en' ? 'Emotional Stability' : locale === 'es' ? 'Estabilidad' : 'Estabilidade'}
                   </span>
                   <span className="text-3xl font-black text-slate-900 tracking-tight mt-1 block font-Outfit">{stabilityRate}%</span>
                 </div>
-                <div className="w-10 h-10 bg-teal-50 border border-teal-100 text-teal-700 rounded-xl flex items-center justify-center shadow-xxs">
-                  <Smile className="w-5 h-5" />
+                <div className="w-9 h-9 bg-teal-50 border border-teal-100 text-teal-700 rounded-xl flex items-center justify-center shadow-xxs shrink-0">
+                  <Smile className="w-4.5 h-4.5" />
                 </div>
               </div>
-              <div className="text-left">
-                <span className="text-xs font-black text-teal-800 bg-teal-50 border border-teal-100 px-2 py-0.5 rounded-md inline-block mb-1 font-Outfit">
-                  {stabilityRate >= 80 
-                    ? (locale === 'en' ? 'Excellent' : locale === 'es' ? 'Excelente' : 'Excelente') 
-                    : stabilityRate >= 50 
-                    ? (locale === 'en' ? 'Stable' : locale === 'es' ? 'Estable' : 'Estável') 
-                    : (locale === 'en' ? 'Attention Needed' : locale === 'es' ? 'Atención Necesaria' : 'Atenção Necessária')}
-                </span>
-                <p className="text-[9px] text-slate-450 font-bold mt-0.5 leading-snug">
-                  {locale === 'en' 
-                    ? 'Average of regulated mood (Happy/Calm) in the emotional diary logs.' 
-                    : locale === 'es' 
-                    ? 'Promedio de humor regulado (Feliz/Calmo) en los registros del diario emocional.' 
-                    : 'Média de humor regulado (Feliz/Calmo) nos registros do diário emocional.'}
-                </p>
-              </div>
+              <span className="text-[11px] font-black text-teal-800 bg-teal-50 border border-teal-100 px-2 py-0.5 rounded-md self-start font-Outfit">
+                {stabilityRate >= 80
+                  ? (locale === 'en' ? 'Excellent' : locale === 'es' ? 'Excelente' : 'Excelente')
+                  : stabilityRate >= 50
+                  ? (locale === 'en' ? 'Stable' : locale === 'es' ? 'Estable' : 'Estável')
+                  : (locale === 'en' ? 'Attention' : locale === 'es' ? 'Atención' : 'Atenção')}
+              </span>
             </div>
 
             {/* crises card */}
-            <div className="bg-white border border-slate-200 p-5 rounded-2xl shadow-xxs flex flex-col justify-between gap-4">
-              <div className="flex justify-between items-start">
+            <div className="bg-white border border-slate-200 p-4 rounded-2xl shadow-xxs flex flex-col justify-between gap-3">
+              <div className="flex justify-between items-start gap-2">
                 <div className="text-left">
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block font-Outfit">
-                    {locale === 'en' ? 'Crisis Frequency' : locale === 'es' ? 'Frecuencia de Crisis' : 'Frequência de Crises'}
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider block font-Outfit leading-tight">
+                    {locale === 'en' ? 'Crisis Frequency' : locale === 'es' ? 'Crisis' : 'Crises'}
                   </span>
                   <span className="text-3xl font-black text-slate-900 tracking-tight mt-1 block font-Outfit">{crisesCount}</span>
                 </div>
-                <div className="w-10 h-10 bg-red-50 border border-red-100 text-red-700 rounded-xl flex items-center justify-center shadow-xxs">
-                  <AlertTriangle className="w-5 h-5" />
+                <div className="w-9 h-9 bg-red-50 border border-red-100 text-red-700 rounded-xl flex items-center justify-center shadow-xxs shrink-0">
+                  <AlertTriangle className="w-4.5 h-4.5" />
                 </div>
               </div>
-              <div className="text-left">
-                <span className={`text-xs font-black px-2 py-0.5 rounded-md inline-block mb-1 font-Outfit ${
-                  crisesCount === 0 ? 'bg-emerald-50 text-emerald-800 border border-emerald-100' : 'bg-red-50 text-red-800 border border-red-100'
-                }`}>
-                  {crisesCount === 0 
-                    ? (locale === 'en' ? 'Under Control' : locale === 'es' ? 'Bajo Control' : 'Sob Controle') 
-                    : (locale === 'en' ? `${crisesCount} Recent Meltdown(s)` : locale === 'es' ? `${crisesCount} Meltdown(s) Reciente(s)` : `${crisesCount} Meltdown(s) Recente(s)`)}
-                </span>
-                <p className="text-[9px] text-slate-450 font-bold mt-0.5 leading-snug">
-                  {locale === 'en' 
-                    ? 'Total count of crises and severe sensory overloads this month.' 
-                    : locale === 'es' 
-                    ? 'Recuento total de crisis y sobrecargas sensoriales graves este mes.' 
-                    : 'Contagem total de crises e sobrecargas sensoriais graves neste mês.'}
-                </p>
-              </div>
+              <span className={`text-[11px] font-black px-2 py-0.5 rounded-md self-start font-Outfit ${
+                crisesCount === 0 ? 'bg-emerald-50 text-emerald-800 border border-emerald-100' : 'bg-red-50 text-red-800 border border-red-100'
+              }`}>
+                {crisesCount === 0
+                  ? (locale === 'en' ? 'Under Control' : locale === 'es' ? 'Bajo Control' : 'Sob Controle')
+                  : (locale === 'en' ? `${crisesCount} meltdown(s)` : locale === 'es' ? `${crisesCount} meltdown(s)` : `${crisesCount} meltdown(s)`)}
+              </span>
             </div>
 
             {/* top trigger card */}
-            <div className="bg-white border border-slate-200 p-5 rounded-2xl shadow-xxs flex flex-col justify-between gap-4">
-              <div className="flex justify-between items-start">
+            <div className="bg-white border border-slate-200 p-4 rounded-2xl shadow-xxs flex flex-col justify-between gap-3">
+              <div className="flex justify-between items-start gap-2">
                 <div className="text-left">
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block font-Outfit">
-                    {locale === 'en' ? 'Most Frequent Trigger' : locale === 'es' ? 'Gatillo Más Frecuente' : 'Gatilho Mais Frequente'}
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider block font-Outfit leading-tight">
+                    {locale === 'en' ? 'Top Trigger' : locale === 'es' ? 'Gatillo' : 'Gatilho'}
                   </span>
                   <span className="text-lg font-black text-slate-900 tracking-tight mt-1 block font-Outfit leading-tight">{topTrigger}</span>
                 </div>
-                <div className="w-10 h-10 bg-amber-50 border border-amber-100 text-amber-700 rounded-xl flex items-center justify-center shadow-xxs">
-                  <Brain className="w-5 h-5" />
+                <div className="w-9 h-9 bg-amber-50 border border-amber-100 text-amber-700 rounded-xl flex items-center justify-center shadow-xxs shrink-0">
+                  <Brain className="w-4.5 h-4.5" />
                 </div>
-              </div>
-              <div className="text-left">
-                <span className="text-[9px] text-slate-450 font-bold leading-normal block">
-                  {locale === 'en' 
-                    ? 'Identified from environmental analysis filled in regulation logs.' 
-                    : locale === 'es' 
-                    ? 'Identificado a partir del análisis ambiental completado en los registros de regulación.' 
-                    : 'Identificado a partir das análises ambientais preenchidas nos registros de regulação.'}
-                </span>
               </div>
             </div>
 
@@ -1751,15 +1719,16 @@ export default function TherapistPortal() {
 
               {/* Patient Behavior Dictionary / Guia de Sinais */}
               {childData && (
-                <div className="bg-white border border-slate-200 p-5 rounded-2xl shadow-premium flex flex-col gap-4 text-left">
-                  <div className="flex items-center gap-2 text-indigo-650">
+                <details className="group bg-white border border-slate-200 rounded-2xl shadow-premium text-left">
+                  <summary className="list-none [&::-webkit-details-marker]:hidden cursor-pointer flex items-center gap-2 text-indigo-650 p-5">
                     <span className="text-xl">📖</span>
-                    <h3 className="font-black text-slate-900 text-md font-Outfit">
+                    <h3 className="font-black text-slate-900 text-md font-Outfit flex-1">
                       {locale === 'en' ? 'Behavioral Dictionary (Signs)' : locale === 'es' ? 'Diccionario de Comportamiento (Señales)' : 'Dicionário Comportamental (Sinais)'}
                     </h3>
-                  </div>
-                  
-                  <div className="flex flex-col gap-3 max-h-[300px] overflow-y-auto pr-1">
+                    <span className="text-indigo-400 text-sm transition-transform group-open:rotate-90 shrink-0">▸</span>
+                  </summary>
+
+                  <div className="flex flex-col gap-3 max-h-[300px] overflow-y-auto pr-1 px-5 pb-5">
                     {(() => {
                       let behaviorList = [];
                       try {
@@ -1791,20 +1760,21 @@ export default function TherapistPortal() {
                       ));
                     })()}
                   </div>
-                </div>
+                </details>
               )}
 
 
               {/* Sensory Log / Crises History */}
-              <div className="bg-white border border-slate-200 p-5 rounded-2xl shadow-premium flex flex-col gap-4">
-                <div className="flex items-center gap-2 text-red-650">
-                  <AlertTriangle className="w-5 h-5" />
-                  <h3 className="font-black text-slate-900 text-md font-Outfit">
+              <details className="group bg-white border border-slate-200 rounded-2xl shadow-premium" open>
+                <summary className="list-none [&::-webkit-details-marker]:hidden cursor-pointer flex items-center gap-2 text-red-650 p-5">
+                  <AlertTriangle className="w-5 h-5 shrink-0" />
+                  <h3 className="font-black text-slate-900 text-md font-Outfit flex-1 text-left">
                     {locale === 'en' ? 'Sensory Diary & Crises' : locale === 'es' ? 'Diario Sensorial y Crisis' : 'Diário Sensorial & Crises'}
                   </h3>
-                </div>
-                
-                <div className="flex flex-col gap-3 max-h-[450px] overflow-y-auto pr-1">
+                  <span className="text-red-400 text-sm transition-transform group-open:rotate-90 shrink-0">▸</span>
+                </summary>
+
+                <div className="flex flex-col gap-3 max-h-[450px] overflow-y-auto pr-1 px-5 pb-5">
                   {sensoryLogs.length === 0 ? (
                     <p className="text-slate-400 text-xs italic text-center py-4">
                       {locale === 'en' ? 'No behavioral or sensory records added.' : locale === 'es' ? 'No se han agregado registros de comportamiento o sensoriales.' : 'Nenhum registro comportamental ou sensorial adicionado.'}
@@ -1871,7 +1841,7 @@ export default function TherapistPortal() {
                     })
                   )}
                 </div>
-              </div>
+              </details>
 
               </div>
             </div>
