@@ -1131,11 +1131,14 @@ function ParentDashboardContent() {
 
   const [activeSidebarTool, setActiveSidebarTool] = useState<'none' | 'aac' | 'stories' | 'dictionary' | 'voice'>('none');
 
+  // Tudo nasce FECHADO em Ajustes. E a secao de "configura uma vez": a familia
+  // abre o que precisa e o resto fica fora do caminho. O localizador do
+  // assistente leva direto a cada funcao.
   const [sidebarCollapsedStates, setSidebarCollapsedStates] = useState<Record<string, boolean>>({
 
-    profile: false,
+    profile: true,
 
-    monitoring: false,
+    monitoring: true,
 
     tools: true,
 
@@ -2241,15 +2244,15 @@ function ParentDashboardContent() {
 
     dailyStatus: true,       // Default collapsed
 
-    profile: false,           // Default collapsed
+    profile: true,            // Nasce FECHADO: configura-se uma vez
 
-    voiceRecorder: false,     // Default collapsed
+    voiceRecorder: true,      // Default collapsed
 
-    aacEditor: false,         // Default collapsed
+    aacEditor: true,          // Default collapsed
 
-    storiesEditor: false,     // Default collapsed
+    storiesEditor: true,      // Default collapsed
 
-    dictionary: false,        // Default collapsed
+    dictionary: true,         // Default collapsed
 
     quickActions: true,       // Advanced — collapsed by default
 
