@@ -11,6 +11,7 @@ export interface Task {
   category?: 'AVD' | 'Aprendizado' | 'Lazer';
   duration?: number;
   description?: string;
+  steps?: string; // JSON de passos "como fazer" [{emoji,text}]; "" = usa a biblioteca
   month?: number | null;
   year?: number | null;
 }

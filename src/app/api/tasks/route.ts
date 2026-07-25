@@ -92,6 +92,7 @@ export async function POST(req: Request) {
             category: t.category || "AVD",
             duration: t.duration !== undefined ? Number(t.duration) : 30,
             description: t.description || "",
+            steps: t.steps || "",
             userUid,
             childId: childId || null,
             month: t.month !== undefined && t.month !== null ? Number(t.month) : defaultMonth,
@@ -114,6 +115,7 @@ export async function POST(req: Request) {
           category: taskData.category || "AVD",
           duration: taskData.duration !== undefined ? Number(taskData.duration) : 30,
           description: taskData.description || "",
+          steps: taskData.steps || "",
           userUid,
           childId: childId || null,
           month: taskData.month !== undefined && taskData.month !== null ? Number(taskData.month) : defaultMonth,
@@ -222,6 +224,7 @@ export async function PUT(req: Request) {
             category: t.category || "AVD",
             duration: t.duration !== undefined ? Number(t.duration) : 30,
             description: t.description || "",
+            steps: t.steps || "",
             userUid,
             childId: childId || null,
             month: t.month !== undefined && t.month !== null ? Number(t.month) : (month || (new Date().getMonth() + 1)),
@@ -257,6 +260,7 @@ export async function PUT(req: Request) {
       updateData.duration = Number(updates.duration);
     }
     if (updates.description !== undefined && updates.description !== null) updateData.description = updates.description;
+    if (updates.steps !== undefined && updates.steps !== null) updateData.steps = updates.steps;
 
     const updated = await prisma.task.update({
       where: { id },

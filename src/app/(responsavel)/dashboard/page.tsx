@@ -24,6 +24,8 @@ import { EvolutionReportSheet } from '../../../components/EvolutionReport';
 import { getTaskCategory, TaskCategory } from '../../../lib/sensory-standards';
 
 import { ActivityPictogram } from '../../../components/ludic/ActivityPictogram';
+import { parseCustomSteps, CustomStep } from '../../../components/ludic/ActivitySteps';
+import { stepsForActivity, stepText } from '../../../lib/activity-steps';
 
 import { STARTER_BLOCKS, blockToTasks, starterLocale, StarterBlock } from '../../../lib/starter-routines';
 import { detectAndroidApp, isAndroidApp } from '../../../lib/platform';
@@ -2056,6 +2058,80 @@ function ParentDashboardContent() {
 
   const [taskDescription, setTaskDescription] = useState('');
 
+  // Passo a passo "como fazer" (opcional): sobrepoe a biblioteca pronta.
+  const [taskSteps, setTaskSteps] = useState<CustomStep[]>([]);
+  const serializeSteps = (steps: CustomStep[]): string => {
+    const clean = steps
+      .map(s => ({ emoji: (s.emoji || '').trim(), text: (s.text || '').trim() }))
+      .filter(s => s.text.length > 0);
+    return clean.length ? JSON.stringify(clean) : '';
+  };
+  // Editor de passos "como fazer": reaproveitado pelo form de adicionar e de
+  // editar. Se a atividade tem modelo na biblioteca, oferece "usar modelo".
+  const renderStepsEditor = (
+    steps: CustomStep[],
+    setSteps: React.Dispatch<React.SetStateAction<CustomStep[]>>,
+    activityTitle: string,
+  ) => {
+    const lib = stepsForActivity(activityTitle);
+    const update = (i: number, patch: Partial<CustomStep>) =>
+      setSteps(prev => prev.map((s, idx) => (idx === i ? { ...s, ...patch } : s)));
+    const remove = (i: number) => setSteps(prev => prev.filter((_, idx) => idx !== i));
+    const move = (i: number, dir: -1 | 1) =>
+      setSteps(prev => {
+        const j = i + dir;
+        if (j < 0 || j >= prev.length) return prev;
+        const next = [...prev];
+        [next[i], next[j]] = [next[j], next[i]];
+        return next;
+      });
+    return (
+      <div className="flex flex-col gap-2">
+        <div className="flex items-center justify-between gap-2">
+          <label className="text-[11px] font-black text-slate-500 uppercase tracking-wide font-Outfit">
+            {locale === 'en' ? 'How-to steps (optional)' : locale === 'es' ? 'Pasos: cómo hacerlo (opcional)' : 'Passo a passo: como fazer (opcional)'}
+          </label>
+          {steps.length === 0 && lib && (
+            <button
+              type="button"
+              onClick={() => { playBubble(); setSteps(lib.map(s => ({ emoji: s.emoji, text: stepText(s, locale) }))); }}
+              className="text-[11px] font-black text-teal-700 hover:text-teal-900 hover:underline cursor-pointer bg-transparent border-none outline-none shrink-0"
+            >
+              {locale === 'en' ? '✨ Use template' : locale === 'es' ? '✨ Usar modelo' : '✨ Usar modelo pronto'}
+            </button>
+          )}
+        </div>
+        {steps.map((s, i) => (
+          <div key={i} className="flex items-center gap-1.5">
+            <input
+              value={s.emoji || ''}
+              onChange={e => update(i, { emoji: e.target.value })}
+              placeholder="🙂"
+              maxLength={2}
+              className="w-10 text-center px-1 py-2 bg-slate-50 border border-slate-200 rounded-lg text-base outline-none focus:border-indigo-400"
+            />
+            <input
+              value={s.text}
+              onChange={e => update(i, { text: e.target.value })}
+              placeholder={locale === 'en' ? 'Step...' : locale === 'es' ? 'Paso...' : 'Passo...'}
+              className="flex-1 min-w-0 px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-semibold text-slate-700 outline-none focus:border-indigo-400"
+            />
+            <button type="button" onClick={() => move(i, -1)} disabled={i === 0} title="Subir" className="w-7 h-8 shrink-0 rounded-lg bg-slate-100 border border-slate-200 text-slate-500 disabled:opacity-30 cursor-pointer text-xs">↑</button>
+            <button type="button" onClick={() => move(i, 1)} disabled={i === steps.length - 1} title="Descer" className="w-7 h-8 shrink-0 rounded-lg bg-slate-100 border border-slate-200 text-slate-500 disabled:opacity-30 cursor-pointer text-xs">↓</button>
+            <button type="button" onClick={() => remove(i)} title="Remover" className="w-7 h-8 shrink-0 rounded-lg bg-rose-50 border border-rose-150 text-rose-500 cursor-pointer text-xs">✕</button>
+          </div>
+        ))}
+        <button
+          type="button"
+          onClick={() => { playBubble(); setSteps(prev => [...prev, { emoji: '', text: '' }]); }}
+          className="self-start text-xs font-black text-indigo-650 hover:text-indigo-800 cursor-pointer bg-transparent border border-dashed border-indigo-200 rounded-lg px-3 py-1.5"
+        >
+          {locale === 'en' ? '+ Add step' : locale === 'es' ? '+ Agregar paso' : '+ Adicionar passo'}
+        </button>
+      </div>
+    );
+  };
+
   const [recurrenceMode, setRecurrenceMode] = useState<'single' | 'weekday' | 'monthly'>('single');
 
 
@@ -2077,6 +2153,8 @@ function ParentDashboardContent() {
   const [editTaskCategory, setEditTaskCategory] = useState<'AVD' | 'Aprendizado' | 'Lazer'>('AVD');
 
   const [editTaskIcon, setEditTaskIcon] = useState('📅');
+
+  const [editTaskSteps, setEditTaskSteps] = useState<CustomStep[]>([]);
 
   const [hyperfocus, setHyperfocus] = useState('');
 
@@ -4014,7 +4092,9 @@ function ParentDashboardContent() {
 
         duration: taskDuration,
 
-        description: taskDescription.trim()
+        description: taskDescription.trim(),
+
+        steps: serializeSteps(taskSteps)
 
       }));
 
@@ -4100,7 +4180,9 @@ function ParentDashboardContent() {
 
       setTaskDescription('');
 
-      
+      setTaskSteps([]);
+
+
 
       const successMsg = recurrenceMode === 'single' 
 
@@ -4194,7 +4276,9 @@ function ParentDashboardContent() {
 
         icon: editTaskIcon,
 
-        customIcon: editTaskCustomIcon.trim() || undefined
+        customIcon: editTaskCustomIcon.trim() || undefined,
+
+        steps: serializeSteps(editTaskSteps)
 
       });
 
@@ -8645,6 +8729,12 @@ function ParentDashboardContent() {
 
                                 />
 
+                                <div className="mt-3">
+
+                                  {renderStepsEditor(taskSteps, setTaskSteps, title)}
+
+                                </div>
+
                               </div>
 
                             </div>
@@ -9089,6 +9179,12 @@ function ParentDashboardContent() {
 
                                           />
 
+                                          <div className="mt-3">
+
+                                            {renderStepsEditor(editTaskSteps, setEditTaskSteps, editTaskTitle)}
+
+                                          </div>
+
                                         </div>
 
                                       </div>
@@ -9480,6 +9576,8 @@ function ParentDashboardContent() {
                                                   setEditTaskCategory(task.category as any || 'AVD');
 
                                                   setEditTaskIcon(task.icon || '📅');
+
+                                                  setEditTaskSteps(parseCustomSteps((task as any).steps) || []);
 
                                                 }}
 
