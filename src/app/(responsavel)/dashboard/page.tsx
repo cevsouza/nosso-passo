@@ -7217,9 +7217,19 @@ function ParentDashboardContent() {
 
           {/* Sub-tab menus for Feedback and Tools */}
           {activePanelTab === 'feedback' && (
-            <div className="mb-5">
-              <AccessCodesManager childId={activeChild?.id} locale={(locale === 'en' || locale === 'es') ? locale : 'pt'} />
-            </div>
+            /* Codigos de acesso RECOLHIDOS: convidar terapeuta/escola e setup,
+               feito uma vez — nao pode liderar o Acompanhar, cujo conteudo real
+               sao as devolutivas e o relatorio. O localizador leva direto aqui
+               ("codigo do terapeuta"). */
+            <details className="group mb-5 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/30 overflow-hidden">
+              <summary className="flex items-center gap-2 px-5 py-3.5 cursor-pointer select-none list-none text-sm font-black text-slate-700 dark:text-slate-200 hover:bg-slate-100/50 dark:hover:bg-slate-800/50">
+                <span className="transition-transform group-open:rotate-90 text-slate-400">▸</span>
+                🔑 {locale === 'en' ? 'Access codes (therapist & school)' : locale === 'es' ? 'Códigos de acceso (terapeuta y escuela)' : 'Códigos de acesso (terapeuta e escola)'}
+              </summary>
+              <div className="p-3 pt-0">
+                <AccessCodesManager childId={activeChild?.id} locale={(locale === 'en' || locale === 'es') ? locale : 'pt'} />
+              </div>
+            </details>
           )}
 
           {activePanelTab === 'feedback' && (
@@ -7922,9 +7932,17 @@ function ParentDashboardContent() {
 
                 
 
-                {/* Wrapped Days Calendar Grid Selector */}
+                {/* Calendario RETRATIL. A grade de dias e uma parede de numeros;
+                    a maioria edita "hoje", entao ela nasce fechada com o dia
+                    ativo no resumo. Abre num toque para trocar de dia. */}
+                <details className="group border border-slate-200 dark:border-slate-700 rounded-2xl bg-white dark:bg-slate-800 overflow-hidden">
+                  <summary className="flex items-center gap-2 px-4 py-3 cursor-pointer select-none list-none text-sm font-black text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/50">
+                    <span className="transition-transform group-open:rotate-90 text-slate-400">▸</span>
+                    📅 {locale === 'en' ? 'Day' : locale === 'es' ? 'Día' : 'Dia'} {activeDayFilter}
+                    <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500">· {locale === 'en' ? 'change day' : locale === 'es' ? 'cambiar día' : 'trocar de dia'}</span>
+                  </summary>
 
-                <div className="flex flex-wrap gap-2 pb-3 max-h-36 overflow-y-auto pr-1 scrollbar-thin border-b border-slate-100 select-none">
+                <div className="flex flex-wrap gap-2 p-4 pt-1 max-h-36 overflow-y-auto pr-1 scrollbar-thin select-none">
 
                   {DAYS_OF_MONTH.map(day => (
 
@@ -7955,6 +7973,7 @@ function ParentDashboardContent() {
                   ))}
 
                 </div>
+                </details>
 
 
 
