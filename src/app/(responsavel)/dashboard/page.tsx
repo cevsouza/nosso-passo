@@ -1558,7 +1558,7 @@ function ParentDashboardContent() {
   const [showDailyTrackingPopover, setShowDailyTrackingPopover] = useState(false);
   const [activePrefTab, setActivePrefTab] = useState<'conta' | 'seguranca' | 'plano'>('conta');
   const [newPassword, setNewPassword] = useState('');
-  const [theme, setTheme] = useState<'light' | 'dark' | 'system'>('system');
+  const [theme, setTheme] = useState<'light' | 'dark' | 'system'>('light');
 
   // Resolve a preference to the actual .dark class (system follows the OS).
   const applyTheme = React.useCallback((t: 'light' | 'dark' | 'system') => {
@@ -1569,12 +1569,12 @@ function ParentDashboardContent() {
   // Load saved preference and keep in sync with the OS while on "system".
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    const saved = (localStorage.getItem('tea_theme') || 'system') as 'light' | 'dark' | 'system';
+    const saved = (localStorage.getItem('tea_theme') || 'light') as 'light' | 'dark' | 'system';
     setTheme(saved);
     applyTheme(saved);
     const mq = window.matchMedia('(prefers-color-scheme: dark)');
     const onChange = () => {
-      if ((localStorage.getItem('tea_theme') || 'system') === 'system') applyTheme('system');
+      if ((localStorage.getItem('tea_theme') || 'light') === 'system') applyTheme('system');
     };
     mq.addEventListener('change', onChange);
     return () => mq.removeEventListener('change', onChange);

@@ -55,7 +55,7 @@ export default function RootLayout({
             is no light flash on load. */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `try{var t=localStorage.getItem('tea_theme')||'system';if(t==='dark'||(t==='system'&&window.matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.classList.add('dark');}}catch(e){}`,
+            __html: `try{var t=localStorage.getItem('tea_theme')||'light';if(t==='dark'||(t==='system'&&window.matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.classList.add('dark');}}catch(e){}`,
           }}
         />
         {/* Service worker: e o que faz o app abrir sem rede. Registra depois
