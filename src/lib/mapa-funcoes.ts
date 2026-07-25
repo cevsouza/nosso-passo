@@ -183,7 +183,15 @@ export function buscarFuncoes(consulta: string, limite = 4): Funcao[] {
     let pts = 0;
     for (const s of f.sinonimos) {
       const sn = normaliza(s);
-      if (q.includes(sn) || sn.includes(q)) pts += 3;
+      // Pesos por forca do casamento, do mais forte ao mais fraco:
+      //   exato ("imprimir" == sinonimo "imprimir")      -> 5
+      //   a consulta CONTEM o sinonimo inteiro           -> 3
+      //   o sinonimo contem a consulta (prefixo/pedaco)  -> 2
+      // Sem isso, "imprimir" empatava "imprimir cartoes" com "imprimir
+      // relatorio" e a ordem da lista decidia — o mais literal tem de vencer.
+      if (sn === q) pts += 5;
+      else if (q.includes(sn)) pts += 3;
+      else if (sn.includes(q)) pts += 2;
     }
     for (const t of termos) {
       if (alvo.includes(t)) pts += 1;

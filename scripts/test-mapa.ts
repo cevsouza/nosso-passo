@@ -20,6 +20,10 @@ const casos: [string, string][] = [
   ['cadastrar outro filho', 'cadastrar-crianca'],
   ['abrir a tela da criança', 'abrir-crianca'],
   ['ver a semana', 'semana-mes'],
+  // Ambiguas: uma palavra que casa varias funcoes. A mais literal deve vencer.
+  ['imprimir', 'imprimir-pecs'],
+  ['codigo', 'codigo-terapeuta'],
+  ['relatorio', 'relatorio'],
 ];
 
 let ok = 0; const falhas: string[] = [];

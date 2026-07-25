@@ -6824,108 +6824,35 @@ function ParentDashboardContent() {
 
                         <div className="flex flex-wrap items-center gap-3">
 
-              {/* Emotional Battery Widget */}
-              <div ref={batteryPopoverRef} className="relative z-40">
-                <button
-                  type="button"
-                  onClick={() => { playBubble(); setShowBatteryPopover(!showBatteryPopover); }}
-                  className={`flex items-center gap-2 px-4 py-2.5 border rounded-xl text-xs font-black transition-all cursor-pointer active:scale-95 font-Outfit select-none ${
-                    activeChild.emotionalBattery === 'green'
-                      ? 'bg-emerald-50 hover:bg-emerald-100/60 border-emerald-250 text-emerald-700'
-                      : activeChild.emotionalBattery === 'yellow'
-                      ? 'bg-yellow-50 hover:bg-yellow-100/60 border-yellow-250 text-yellow-800'
-                      : 'bg-red-50 hover:bg-red-100/60 border-red-200 text-red-700 animate-pulse'
-                  }`}
-                >
-                  <span>{activeChild.emotionalBattery === 'green' ? '🔋 100%' : activeChild.emotionalBattery === 'yellow' ? '⚡ 50%' : '🪫 10%'}</span>
-                  <span>{activeChild.emotionalBattery === 'green' ? t.dashboard.emotionalBatteryStatusGreen : activeChild.emotionalBattery === 'yellow' ? t.dashboard.emotionalBatteryStatusYellow : t.dashboard.emotionalBatteryStatusRed}</span>
-                </button>
+              {/* Card de bateria removido: era so um mostrador de
+                  status, e o humor ja aparece no card "Humor". */}
 
-                <AnimatePresence>
-                  {showBatteryPopover && (
-                    <motion.div
-                      initial={{ opacity: 0, y: -10, scale: 0.95 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                      transition={{ type: "spring", stiffness: 350, damping: 25 }}
-                      className="absolute top-12 right-0 md:left-0 md:right-auto w-72 bg-white border border-slate-200 rounded-2xl shadow-lg p-4 flex flex-col gap-3 z-50 text-left"
-                    >
-                      <div className="flex items-center gap-2 text-indigo-650">
-                        <span className="text-base">🔋</span>
-                        <h3 className="font-bold text-slate-800 text-xs font-Outfit uppercase tracking-wider">{t.dashboard.emotionalBatteryTitle}</h3>
-                      </div>
-                      
-                      <div className="flex items-center justify-center py-2 bg-slate-50 border border-slate-150 rounded-xl">
-                        <span className="text-2xl">
-                          {activeChild.emotionalBattery === 'green' ? '🔋' : activeChild.emotionalBattery === 'yellow' ? '⚡' : '🪫'}
-                        </span>
-                        <span className="text-lg font-black text-slate-800 ml-2 font-Outfit">
-                          {activeChild.emotionalBattery === 'green' ? '100%' : activeChild.emotionalBattery === 'yellow' ? '50%' : '10%'}
-                        </span>
-                      </div>
-
-                      <div className={`p-3 rounded-xl border text-xxs font-semibold leading-relaxed flex flex-col gap-1.5 ${
-                        activeChild.emotionalBattery === 'red'
-                          ? 'bg-red-50 border-red-200 text-red-800'
-                          : activeChild.emotionalBattery === 'yellow'
-                          ? 'bg-yellow-50 border-yellow-250 text-yellow-800'
-                          : 'bg-emerald-50 border-emerald-250 text-emerald-800'
-                      }`}>
-                        <span className="font-black font-Outfit uppercase text-[9px] tracking-widest flex items-center gap-1">
-                          ⚠️ {activeChild.emotionalBattery === 'red' 
-                                ? t.dashboard.emotionalBatteryAlertTitleRed 
-                                : activeChild.emotionalBattery === 'yellow' 
-                                ? t.dashboard.emotionalBatteryAlertTitleYellow 
-                                : (locale === 'en' ? 'Optimal Charge' : locale === 'es' ? 'Carga Óptima' : 'Carga Ideal')}
-                        </span>
-                        <p>
-                          {activeChild.emotionalBattery === 'red' 
-                            ? t.dashboard.emotionalBatteryAlertDescRed.replace('{name}', activeChild.name.split(' ')[0])
-                            : activeChild.emotionalBattery === 'yellow' 
-                            ? t.dashboard.emotionalBatteryAlertDescYellow.replace('{name}', activeChild.name.split(' ')[0])
-                            : (locale === 'en' 
-                                ? `${activeChild.name.split(' ')[0]} is emotionally regulated and ready for activities.` 
-                                : locale === 'es'
-                                ? `${activeChild.name.split(' ')[0]} está regulado emocionalmente y listo para las actividades.`
-                                : `${activeChild.name.split(' ')[0]} está regulado emocionalmente e pronto para as atividades.`)}
-                        </p>
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-
-              {/* Daily Tracking / Acompanhamento Diário Widget */}
-              <div ref={dailyTrackingPopoverRef} className="relative z-40">
-                <button
-                  type="button"
-                  onClick={() => { playBubble(); setShowDailyTrackingPopover(!showDailyTrackingPopover); }}
-                  className="flex items-center gap-2 px-4 py-2.5 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs font-black rounded-xl transition-all cursor-pointer active:scale-95 font-Outfit select-none"
-                >
-                  {/* "Registrar o dia", nao "Acompanhamento": a aba do painel
-                      ja se chamava Acompanhamento e faz outra coisa
-                      (devolutivas e relatorios). Dois botoes com o mesmo nome
-                      na mesma tela, levando a lugares diferentes. Aqui o nome
-                      passa a ser o verbo do que o botao faz. */}
-                  <span>📅</span>
-                  <span>{locale === 'en' ? 'Log the day' : locale === 'es' ? 'Registrar el día' : 'Registrar o dia'}</span>
-                </button>
-
+              {/* "Registrar o dia" virou MODAL CENTRADO.
+                  Perdeu o botao do header (abre pelo Assistente e pelo
+                  localizador), entao nao pode mais se ancorar nele — como
+                  dropdown ele apareceria colado num ponto que nao existe mais.
+                  Modal centrado nao depende de ancora e fica melhor no celular. */}
+              <div ref={dailyTrackingPopoverRef}>
                 <AnimatePresence>
                   {showDailyTrackingPopover && (
+                    <div
+                      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm"
+                      onClick={() => setShowDailyTrackingPopover(false)}
+                    >
                     <motion.div
-                      initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                      initial={{ opacity: 0, y: 10, scale: 0.97 }}
                       animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                      exit={{ opacity: 0, y: 10, scale: 0.97 }}
                       transition={{ type: "spring", stiffness: 350, damping: 25 }}
-                      className="absolute top-12 right-0 w-80 bg-white border border-slate-200 rounded-2xl shadow-lg p-4 flex flex-col gap-3.5 z-50 text-left"
+                      onClick={(e) => e.stopPropagation()}
+                      className="w-full max-w-sm bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-2xl p-4 flex flex-col gap-3.5 text-left max-h-[80vh] overflow-y-auto"
                     >
                       <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2 text-indigo-655">
+                        <div className="flex items-center gap-2 text-indigo-655 dark:text-indigo-300">
                           <span className="text-base">📅</span>
-                          <h3 className="font-bold text-slate-800 text-xs font-Outfit uppercase tracking-wider">{t.dashboard.dailyTrackingTitle}</h3>
+                          <h3 className="font-bold text-slate-800 dark:text-slate-100 text-xs font-Outfit uppercase tracking-wider">{t.dashboard.dailyTrackingTitle}</h3>
                         </div>
-                        <span className="text-[9px] font-black text-slate-400 uppercase">{t.dashboard.dailyTrackingSubtitle}</span>
+                        <button type="button" onClick={() => setShowDailyTrackingPopover(false)} className="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 text-lg font-black cursor-pointer bg-transparent border-none leading-none" aria-label="Fechar">✕</button>
                       </div>
 
                       <div className="flex flex-col gap-2 max-h-[320px] overflow-y-auto pr-1 animate-none">
@@ -6953,8 +6880,8 @@ function ParentDashboardContent() {
                             );
 
                             return (
-                              <div key={isoDate} className="flex items-center justify-between p-2.5 bg-slate-50 border border-slate-150 rounded-xl hover:bg-slate-100/50 transition-all text-xxs font-semibold">
-                                <span className="font-bold text-slate-700 capitalize w-20">{dayName}</span>
+                              <div key={isoDate} className="flex items-center justify-between p-2.5 bg-slate-50 dark:bg-slate-900/50 border border-slate-150 dark:border-slate-700 rounded-xl hover:bg-slate-100/50 dark:hover:bg-slate-700/50 transition-all text-xxs font-semibold">
+                                <span className="font-bold text-slate-700 dark:text-slate-200 capitalize w-20">{dayName}</span>
                                 
                                 <div className="flex items-center gap-3">
                                   {/* School badge */}
@@ -7002,6 +6929,7 @@ function ParentDashboardContent() {
                         })()}
                       </div>
                     </motion.div>
+                    </div>
                   )}
                 </AnimatePresence>
               </div>
