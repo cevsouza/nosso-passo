@@ -12,6 +12,7 @@ import { LanguageSelector } from '../../../components/LanguageSelector';
 import { getTaskCategory, TaskCategory } from '../../../lib/sensory-standards';
 import { RoutineIllustration } from '../../../components/ludic/RoutineIllustration';
 import { hasPictogram, displayTitle, ActivityPictogram } from '../../../components/ludic/ActivityPictogram';
+import ActivitySteps from '../../../components/ludic/ActivitySteps';
 import { 
   Check, 
   Star, 
@@ -3824,6 +3825,14 @@ export default function ChildRoutine() {
                           </p>
                         </div>
                       )}
+
+                      {/* Passo a passo "como fazer" — so aparece nas AVDs que tem
+                          (dentes, banho, maos...). Cada passo toca para ouvir. */}
+                      <ActivitySteps
+                        title={activeTask.title}
+                        locale={locale}
+                        onSpeak={(txt) => { playBubble(); speakText(txt); }}
+                      />
                     </div>
 
                     {/* Visual timer — kept subtle (predictability), no chrome */}

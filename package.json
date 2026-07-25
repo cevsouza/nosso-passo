@@ -13,7 +13,8 @@
     "store:graphics": "tsx scripts/store-graphics.mjs \"G:/Meu Drive/micro projetos/NOSSO PASSO/5_MARKETING/PLAY_STORE_ARTES\"",
     "store:screenshots": "node scripts/store-screenshots.mjs \"G:/Meu Drive/micro projetos/NOSSO PASSO/5_MARKETING/PLAY_STORE_ARTES\"",
     "test:assistente": "tsx scripts/test-assistente.ts",
-    "test:mapa": "tsx scripts/test-mapa.ts"
+    "test:mapa": "tsx scripts/test-mapa.ts",
+    "test:steps": "tsx scripts/test-activity-steps.ts"
   },
   "dependencies": {
     "@libsql/client": "^0.17.3",
