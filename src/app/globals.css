@@ -723,17 +723,16 @@ h1, h2, h3, h4, h5, h6 {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--bg-color);
+  /* Verde da marca preenchendo a tela (independente do tema — e a marca, nao a
+     paleta da UI). Continuo com o splash nativo do PWA (background_color igual). */
+  background: #2f8f86;
   pointer-events: none;
   animation: np-splash-fade 360ms ease-out forwards;
   animation-delay: 1000ms;
 }
 .np-splash-tile {
-  width: 132px;
-  height: 132px;
-  border-radius: 34px;
-  background: #2f8f86;
-  box-shadow: 0 18px 40px -18px rgba(47, 143, 134, 0.55);
+  width: 216px;
+  height: 216px;
 }
 .np-splash-stone {
   opacity: 0;
