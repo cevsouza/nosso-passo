@@ -14,7 +14,9 @@
 //
 // Trocar CACHE invalida tudo. Faca isso quando o shell mudar de verdade.
 
-const CACHE = 'nosso-passo-v1';
+// v2: força os clientes instalados a descartar o shell antigo (aquele cujo
+// script de tema ainda seguia o dark do sistema) e buscar o HTML novo.
+const CACHE = 'nosso-passo-v2';
 
 const SHELL = [
   '/',
