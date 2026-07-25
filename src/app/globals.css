@@ -296,6 +296,9 @@
 /* Light accent hex tints (landing) -> dark */
 .dark .bg-\[\#e2f1ef\] { background-color: #14332f; }
 .dark .bg-\[\#f2f0fc\] { background-color: #1e1e38; }
+/* A barra de abas do portal usa o modificador de opacidade (/95), que gera
+   outra classe — sem esta regra a barra fica lavanda claro no dark. */
+.dark .bg-\[\#f2f0fc\]\/95 { background-color: rgba(22, 22, 31, 0.95); }
 
 /* Accent borders (tint cards, active nav item) -> dark tints of the hue */
 .dark .border-indigo-100, .dark .border-indigo-150, .dark .border-indigo-200, .dark .border-indigo-250 { border-color: #33336a; }

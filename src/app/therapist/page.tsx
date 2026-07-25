@@ -1604,13 +1604,14 @@ export default function TherapistPortal() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
               <div className="lg:col-span-8 flex flex-col gap-6">
                 {/* Visual Analytics Card */}
-                <div className="bg-white border border-slate-200 p-6 rounded-2xl shadow-premium flex flex-col gap-4 text-left">
-                  <div className="flex items-center gap-2 text-teal-650">
-                    <TrendingUp className="w-5 h-5 text-teal-600" />
-                    <h3 className="font-black text-slate-900 text-md font-Outfit">
+                <details className="group bg-white border border-slate-200 p-6 rounded-2xl shadow-premium flex flex-col gap-4 text-left">
+                  <summary className="list-none [&::-webkit-details-marker]:hidden cursor-pointer flex items-center gap-2 text-teal-650">
+                    <TrendingUp className="w-5 h-5 text-teal-600 shrink-0" />
+                    <h3 className="font-black text-slate-900 text-md font-Outfit flex-1">
                       {locale === 'en' ? 'Adherence & Success Metrics' : locale === 'es' ? 'Métricas de Adherencia y Éxito' : 'Métricas de Aderência e Sucesso'}
                     </h3>
-                  </div>
+                    <span className="text-teal-600 text-sm transition-transform group-open:rotate-90 shrink-0">▸</span>
+                  </summary>
 
                   {/* 1. Category Success Rates */}
                   <div className="flex flex-col gap-3">
@@ -1699,21 +1700,22 @@ export default function TherapistPortal() {
                       );
                     })()}
                   </div>
-                </div>
+                </details>
 
               </div>
               <div className="lg:col-span-4 flex flex-col gap-6 text-left">
               {/* Sensory Heatmap */}
               {sensoryLogs.length > 0 && (
-                <div className="bg-white border border-slate-200 p-5 rounded-2xl shadow-premium flex flex-col gap-4">
-                  <div className="flex items-center gap-2 text-indigo-650">
-                    <Map className="w-5 h-5 text-indigo-500" />
-                    <h3 className="font-black text-slate-900 text-md font-Outfit">
+                <details className="group bg-white border border-slate-200 p-5 rounded-2xl shadow-premium flex flex-col gap-4">
+                  <summary className="list-none [&::-webkit-details-marker]:hidden cursor-pointer flex items-center gap-2 text-indigo-650">
+                    <Map className="w-5 h-5 text-indigo-500 shrink-0" />
+                    <h3 className="font-black text-slate-900 text-md font-Outfit flex-1 text-left">
                       {locale === 'en' ? 'Sensory Heatmap' : locale === 'es' ? 'Mapa de Calor Sensorial' : 'Mapa de Calor Sensorial'}
                     </h3>
-                  </div>
+                    <span className="text-indigo-400 text-sm transition-transform group-open:rotate-90 shrink-0">▸</span>
+                  </summary>
                   <SensoryHeatmap logs={sensoryLogs} />
-                </div>
+                </details>
               )}
 
 
