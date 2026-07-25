@@ -14,6 +14,7 @@ import { RoutineIllustration } from '../../../components/ludic/RoutineIllustrati
 import { hasPictogram, displayTitle, ActivityPictogram } from '../../../components/ludic/ActivityPictogram';
 import ActivitySteps, { parseCustomSteps } from '../../../components/ludic/ActivitySteps';
 import { deriveHint, activityWantsWeather, hintText, WeatherReading } from '../../../lib/weather';
+import { deriveInternalHint, internalHintText } from '../../../lib/internal-context';
 import { 
   Check, 
   Star, 
@@ -1337,6 +1338,51 @@ export default function ChildRoutine() {
   // ha aviso de fato — frio/chuva/sol). Reforco calmo, tocavel para ouvir.
   const weatherHint = deriveHint(weather);
   const showWeatherHint = !!activeTask && !!weatherHint && weatherHint.kind !== 'none' && activityWantsWeather(activeTask.title);
+  // Ambiente interno: bateria emocional + hora. Empurraozinho gentil, em toda
+  // atividade (o estado da crianca importa para qualquer uma). Verde/dia = nada.
+  const internalHint = deriveInternalHint({ battery: activeChild?.emotionalBattery, hour: new Date().getHours() });
+  const showInternalHint = !!activeTask && !!internalHint && internalHint.kind !== 'none';
+
+  // Chips de contexto (tempo + interno) da atividade atual — reaproveitados no
+  // card "Agora" e no board First-Then. Cada um toca para ouvir.
+  const contextChips = () => (
+    <>
+      {showWeatherHint && weatherHint && (
+        <button
+          type="button"
+          onClick={() => { playBubble(); speakText(hintText(weatherHint, locale)); }}
+          title={locale === 'en' ? 'Tap to hear' : locale === 'es' ? 'Toca para oír' : 'Toque para ouvir'}
+          className={`mt-1 flex items-center gap-2 px-3.5 py-2.5 rounded-2xl border text-sm font-black cursor-pointer active:scale-[0.99] transition-all font-Outfit select-none ${
+            weatherHint.kind === 'rain'
+              ? 'bg-sky-50 dark:bg-sky-950/40 border-sky-200 dark:border-sky-800 text-sky-800 dark:text-sky-200'
+              : weatherHint.kind === 'cold'
+              ? 'bg-indigo-50 dark:bg-indigo-950/40 border-indigo-200 dark:border-indigo-800 text-indigo-800 dark:text-indigo-200'
+              : 'bg-amber-50 dark:bg-amber-950/40 border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-200'
+          }`}
+        >
+          <span className="text-xl shrink-0">{weatherHint.emoji}</span>
+          <span>{hintText(weatherHint, locale)}</span>
+        </button>
+      )}
+      {showInternalHint && internalHint && (
+        <button
+          type="button"
+          onClick={() => { playBubble(); speakText(internalHintText(internalHint, locale)); }}
+          title={locale === 'en' ? 'Tap to hear' : locale === 'es' ? 'Toca para oír' : 'Toque para ouvir'}
+          className={`mt-1 flex items-center gap-2 px-3.5 py-2.5 rounded-2xl border text-sm font-black cursor-pointer active:scale-[0.99] transition-all font-Outfit select-none ${
+            internalHint.kind === 'overload'
+              ? 'bg-rose-50 dark:bg-rose-950/40 border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-200'
+              : internalHint.kind === 'tired'
+              ? 'bg-teal-50 dark:bg-teal-950/40 border-teal-200 dark:border-teal-800 text-teal-800 dark:text-teal-200'
+              : 'bg-slate-100 dark:bg-white/5 border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-200'
+          }`}
+        >
+          <span className="text-xl shrink-0">{internalHint.emoji}</span>
+          <span>{internalHintText(internalHint, locale)}</span>
+        </button>
+      )}
+    </>
+  );
   
   // Next two tasks in line
   const remainingTasks = todayTasks.filter(t => !t.isCompleted && t.id !== activeTask?.id);
@@ -3872,23 +3918,7 @@ export default function ChildRoutine() {
                         onSpeak={(txt) => { playBubble(); speakText(txt); }}
                       />
 
-                      {showWeatherHint && weatherHint && (
-                        <button
-                          type="button"
-                          onClick={() => { playBubble(); speakText(hintText(weatherHint, locale)); }}
-                          title={locale === 'en' ? 'Tap to hear' : locale === 'es' ? 'Toca para oír' : 'Toque para ouvir'}
-                          className={`mt-1 flex items-center gap-2 px-3.5 py-2.5 rounded-2xl border text-sm font-black cursor-pointer active:scale-[0.99] transition-all font-Outfit select-none ${
-                            weatherHint.kind === 'rain'
-                              ? 'bg-sky-50 dark:bg-sky-950/40 border-sky-200 dark:border-sky-800 text-sky-800 dark:text-sky-200'
-                              : weatherHint.kind === 'cold'
-                              ? 'bg-indigo-50 dark:bg-indigo-950/40 border-indigo-200 dark:border-indigo-800 text-indigo-800 dark:text-indigo-200'
-                              : 'bg-amber-50 dark:bg-amber-950/40 border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-200'
-                          }`}
-                        >
-                          <span className="text-xl shrink-0">{weatherHint.emoji}</span>
-                          <span>{hintText(weatherHint, locale)}</span>
-                        </button>
-                      )}
+                      {contextChips()}
                     </div>
 
                     {/* Visual timer — kept subtle (predictability), no chrome */}
@@ -4330,6 +4360,7 @@ export default function ChildRoutine() {
                         </p>
                       )}
                       <span className="text-[9px] font-black text-slate-400 uppercase tracking-wide">⏱️ {locale === 'en' ? 'Est. Time:' : locale === 'es' ? 'Previsto:' : 'Previsão:'} {activeTask.time}</span>
+                      {contextChips()}
                     </motion.div>
                   );
                 })() : (
