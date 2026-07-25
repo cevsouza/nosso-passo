@@ -789,15 +789,15 @@ export default function TherapistPortal() {
           })()}
 
           {/* Sticky Tab Bar Container for Therapist Portal */}
-          <div className="sticky top-[130px] md:top-[80px] z-20 bg-[#f2f0fc]/95 backdrop-blur-md py-3 -mx-2 px-2 print:hidden">
-            <div className="bg-slate-100/80 p-1.5 rounded-2xl flex shadow-inner gap-1 overflow-x-auto scrollbar-none">
+          <div className="sticky top-[130px] md:top-[80px] z-20 bg-slate-50/90 dark:bg-[#16161f]/90 backdrop-blur-md py-3 -mx-2 px-2 print:hidden">
+            <div className="bg-slate-100 dark:bg-white/5 p-1.5 rounded-2xl flex gap-1 overflow-x-auto scrollbar-none border border-slate-200/60 dark:border-white/10">
               <button
                 type="button"
                 onClick={() => { playBubble(); setActiveTab('checkpoints'); }}
                 className={`flex-1 py-2.5 text-xs font-black rounded-xl transition-all flex items-center justify-center gap-2 shrink-0 font-Outfit cursor-pointer select-none active:scale-95 border-none outline-none ${
                   activeTab === 'checkpoints'
-                    ? 'bg-white text-teal-950 shadow-sm border border-slate-200/50 scale-100'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-white/40'
+                    ? 'bg-white dark:bg-white/10 text-teal-950 dark:text-teal-300 shadow-sm border border-slate-200/50 dark:border-white/10 scale-100'
+                    : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-white/40 dark:hover:bg-white/5'
                 }`}
               >
                 <ClipboardCheck className="w-4.5 h-4.5" />
@@ -809,8 +809,8 @@ export default function TherapistPortal() {
                 onClick={() => { playBubble(); setActiveTab('routine'); }}
                 className={`flex-1 py-2.5 text-xs font-black rounded-xl transition-all flex items-center justify-center gap-2 shrink-0 font-Outfit cursor-pointer select-none active:scale-95 border-none outline-none ${
                   activeTab === 'routine'
-                    ? 'bg-white text-teal-950 shadow-sm border border-slate-200/50 scale-100'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-white/40'
+                    ? 'bg-white dark:bg-white/10 text-teal-950 dark:text-teal-300 shadow-sm border border-slate-200/50 dark:border-white/10 scale-100'
+                    : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-white/40 dark:hover:bg-white/5'
                 }`}
               >
                 <Calendar className="w-4.5 h-4.5" />
@@ -822,8 +822,8 @@ export default function TherapistPortal() {
                 onClick={() => { playBubble(); setActiveTab('analysis'); }}
                 className={`flex-1 py-2.5 text-xs font-black rounded-xl transition-all flex items-center justify-center gap-2 shrink-0 font-Outfit cursor-pointer select-none active:scale-95 border-none outline-none ${
                   activeTab === 'analysis'
-                    ? 'bg-white text-teal-950 shadow-sm border border-slate-200/50 scale-100'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-white/40'
+                    ? 'bg-white dark:bg-white/10 text-teal-950 dark:text-teal-300 shadow-sm border border-slate-200/50 dark:border-white/10 scale-100'
+                    : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-white/40 dark:hover:bg-white/5'
                 }`}
               >
                 <TrendingUp className="w-4.5 h-4.5" />
@@ -1601,8 +1601,8 @@ export default function TherapistPortal() {
           </div>
 
 
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-              <div className="lg:col-span-8 flex flex-col gap-6">
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-4">
                 {/* Visual Analytics Card */}
                 <details className="group bg-white border border-slate-200 p-6 rounded-2xl shadow-premium flex flex-col gap-4 text-left">
                   <summary className="list-none [&::-webkit-details-marker]:hidden cursor-pointer flex items-center gap-2 text-teal-650">
@@ -1703,7 +1703,7 @@ export default function TherapistPortal() {
                 </details>
 
               </div>
-              <div className="lg:col-span-4 flex flex-col gap-6 text-left">
+              <div className="flex flex-col gap-4 text-left">
               {/* Sensory Heatmap */}
               {sensoryLogs.length > 0 && (
                 <details className="group bg-white border border-slate-200 p-5 rounded-2xl shadow-premium flex flex-col gap-4">
