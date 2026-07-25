@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Plus_Jakarta_Sans, Manrope } from "next/font/google";
 import { LanguageProvider } from "@/lib/LanguageContext";
+import PathSplash from "@/components/PathSplash";
 import "./globals.css";
 
 // Body / UI text — warm humanist sans.
@@ -68,6 +69,7 @@ export default function RootLayout({
             __html: `if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('/sw.js').catch(function(){})})}`,
           }}
         />
+        <PathSplash />
         <LanguageProvider>
           {children}
         </LanguageProvider>

@@ -702,3 +702,46 @@ h1, h2, h3, h4, h5, h6 {
   margin: 1.25rem 0;
 }
 .legal-prose .legal-callout p:last-child { margin-bottom: 0; }
+
+/* ==== Splash de abertura: as pedras do caminho assentando ====
+   Momento de marca no cold start. Calmo de proposito — as pedras assentam
+   (fade + leve subida), sem mola nem quique, coerente com a paleta calma.
+   O container inteiro some depois; nunca bloqueia o toque (pointer-events:none).
+   Sob prefers-reduced-motion nao renderiza (o componente nem monta). */
+@keyframes np-stone-settle {
+  from { opacity: 0; transform: translateY(7px) scale(0.55); }
+  60%  { opacity: 1; }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes np-splash-fade {
+  to { opacity: 0; visibility: hidden; }
+}
+.np-splash {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-color);
+  pointer-events: none;
+  animation: np-splash-fade 360ms ease-out forwards;
+  animation-delay: 1000ms;
+}
+.np-splash-tile {
+  width: 132px;
+  height: 132px;
+  border-radius: 34px;
+  background: #2f8f86;
+  box-shadow: 0 18px 40px -18px rgba(47, 143, 134, 0.55);
+}
+.np-splash-stone {
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: np-stone-settle 440ms cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+}
+.np-splash-stone:nth-child(1) { animation-delay: 60ms; }
+.np-splash-stone:nth-child(2) { animation-delay: 220ms; }
+.np-splash-stone:nth-child(3) { animation-delay: 380ms; }
+.np-splash-stone:nth-child(4) { animation-delay: 540ms; }
