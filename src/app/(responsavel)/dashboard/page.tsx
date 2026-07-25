@@ -29,6 +29,7 @@ import { STARTER_BLOCKS, blockToTasks, starterLocale, StarterBlock } from '../..
 import { detectAndroidApp, isAndroidApp } from '../../../lib/platform';
 import { FREE_TASKS_PER_DAY } from '../../../lib/plans';
 import { SecaoPainel, secaoDoParam, paramDaSecao, rotuloSecao } from '../../../lib/painel-secoes';
+import { proximoPasso } from '../../../lib/assistente';
 import {
   suggestLevel,
   parseLevelState,
@@ -7113,76 +7114,8 @@ function ParentDashboardContent() {
 
 
 
-      {/* Primeira vez: a tela diz o que fazer AGORA.
-          Antes a familia chegava aqui e tinha de descobrir sozinha, por baixo
-          de um texto clinico, que o proximo passo era abrir a aba Rotina e
-          procurar as rotinas prontas. Aqui o proximo passo e a propria tela:
-          tres blocos, um toque, e o dia da crianca existe. Some sozinho assim
-          que houver qualquer atividade. */}
-
-      {activeChild && tasks.length === 0 && (
-        <div className="max-w-6xl mx-auto px-4 md:px-6 mt-6">
-          <div className="bg-emerald-50/70 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-2xl p-5 sm:p-6 flex flex-col gap-4">
-            <div>
-              <h2 className="text-xl sm:text-2xl font-black text-emerald-950 dark:text-emerald-50 font-Outfit tracking-tight">
-                {locale === 'en'
-                  ? `Let's set up ${activeChild.name.split(' ')[0]}'s first stretch of the day`
-                  : locale === 'es'
-                  ? `Vamos a montar el primer tramo del día de ${activeChild.name.split(' ')[0]}`
-                  : `Vamos montar o primeiro pedaço do dia de ${activeChild.name.split(' ')[0]}`}
-              </h2>
-              <p className="text-sm text-emerald-900/80 dark:text-emerald-100/90 font-medium mt-1.5 leading-relaxed max-w-2xl">
-                {locale === 'en'
-                  ? 'Choose one moment. It arrives ready — then delete what does not fit your family. Tomorrow you add another one.'
-                  : locale === 'es'
-                  ? 'Elija un momento. Llega listo — después borre lo que no sirva para su familia. Mañana agrega otro.'
-                  : 'Escolha um momento. Ele vem pronto — depois apague o que não servir para a sua família. Amanhã você acrescenta outro.'}
-              </p>
-            </div>
-
-            <div className="grid sm:grid-cols-3 gap-3">
-              {STARTER_BLOCKS.map(block => {
-                const lang = starterLocale(locale);
-                return (
-                  <button
-                    key={block.id}
-                    type="button"
-                    disabled={applyingBlock !== null}
-                    onClick={() => {
-                      playBubble();
-                      // O bloco cai no dia de HOJE, nao no dia que estiver
-                      // selecionado na agenda: numa conta nova, a familia
-                      // quer ver a rotina funcionando agora.
-                      setActiveDayFilter(String(new Date().getDate()));
-                      handleApplyStarterBlock(block);
-                    }}
-                    className="text-left bg-white dark:bg-slate-800 border border-emerald-200 dark:border-emerald-800 hover:border-emerald-400 rounded-xl p-4 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-wait shadow-xxs"
-                  >
-                    <div className="flex items-center gap-2">
-                      <span className="text-xl select-none">{block.icon}</span>
-                      <span className="text-base font-black text-slate-800 dark:text-slate-50 font-Outfit">{block.label[lang]}</span>
-                    </div>
-                    <p className="text-xs text-slate-500 dark:text-slate-300 font-medium mt-1.5 leading-snug">{block.hint[lang]}</p>
-                    <span className="inline-block mt-2.5 text-[10px] font-black uppercase tracking-wider text-emerald-700">
-                      {applyingBlock === block.id
-                        ? (locale === 'en' ? 'adding…' : locale === 'es' ? 'agregando…' : 'aplicando…')
-                        : `${block.tasks.length} ${locale === 'en' ? 'activities' : locale === 'es' ? 'actividades' : 'tarefas'}`}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-
-            <button
-              type="button"
-              onClick={() => { playBubble(); setShowOnboardingHelp(true); localStorage.setItem('showOnboardingHelp', 'true'); }}
-              className="self-start text-xs font-black text-emerald-800 hover:text-emerald-950 bg-transparent border-none cursor-pointer underline underline-offset-2"
-            >
-              {locale === 'en' ? 'Prefer to understand the method first?' : locale === 'es' ? '¿Prefiere entender el método primero?' : 'Prefere entender o método antes?'}
-            </button>
-          </div>
-        </div>
-      )}
+      {/* O card de "primeira vez" virou o Assistente do Dia, que mora no
+          topo da secao Hoje e vale para TODO dia, nao so o primeiro. */}
 
       {/* Educational Clinical Onboarding & Help Widget */}
 
@@ -7409,6 +7342,152 @@ function ParentDashboardContent() {
                 exit={{ opacity: 0 }}
                 className="flex flex-col gap-6"
               >
+                {/* ======================= ASSISTENTE DO DIA =======================
+                    O guia persistente: um passo de cada vez, do primeiro uso ao
+                    dia a dia. A logica de qual passo vive em lib/assistente.ts;
+                    aqui so o visual e as acoes. E a PRIMEIRA coisa da tela — a
+                    acao em evidencia, como o usuario pediu. */}
+                {activeChild && (() => {
+                  const hojeN = new Date().getDate().toString();
+                  const dt = tasks.filter(t => t.day === hojeN);
+                  const feitas = dt.filter(t => t.isCompleted).length;
+                  const primeiroNome = activeChild.name.split(' ')[0];
+                  const passo = proximoPasso({
+                    temCrianca: true,
+                    totalHoje: dt.length,
+                    feitasHoje: feitas,
+                    hora: new Date().getHours(),
+                    abriuTelaHoje: false,
+                  });
+
+                  const irRotina = () => { playBubble(); setActiveDayFilter(hojeN); setActivePanelTab('tasks'); };
+
+                  // Cabecalho compacto: emoji + uma frase. O corpo muda por passo.
+                  const T = {
+                    montarTit: locale === 'en' ? `Set up ${primeiroNome}'s day` : locale === 'es' ? `Arme el día de ${primeiroNome}` : `Monte o dia de ${primeiroNome}`,
+                    montarSub: locale === 'en' ? 'Pick one moment. It comes ready — delete what does not fit. Tomorrow you add another.' : locale === 'es' ? 'Elija un momento. Llega listo — borre lo que no sirva. Mañana agrega otro.' : 'Escolha um momento. Vem pronto — apague o que não servir. Amanhã você acrescenta outro.',
+                    abrirTit: locale === 'en' ? `${primeiroNome}'s routine is ready` : locale === 'es' ? `La rutina de ${primeiroNome} está lista` : `A rotina de ${primeiroNome} está pronta`,
+                    abrirSub: locale === 'en' ? 'Hand the device to the child and open their screen.' : locale === 'es' ? 'Entregue el aparato al niño y abra su pantalla.' : 'Entregue o aparelho e abra a tela dele para começar.',
+                    abrirBtn: locale === 'en' ? `Open ${primeiroNome}'s screen` : locale === 'es' ? `Abrir la pantalla de ${primeiroNome}` : `Abrir a tela de ${primeiroNome}`,
+                    progTit: locale === 'en' ? `${primeiroNome} is on the routine` : locale === 'es' ? `${primeiroNome} está en la rutina` : `${primeiroNome} está na rotina`,
+                    progSub: locale === 'en' ? `${feitas} of ${dt.length} done today. Nothing to do now — the child leads.` : locale === 'es' ? `${feitas} de ${dt.length} hechas hoy. Nada que hacer ahora — el niño lleva.` : `${feitas} de ${dt.length} feitas hoje. Nada a fazer agora — a criança conduz.`,
+                    regTit: locale === 'en' ? `${primeiroNome} finished the day! 🎉` : locale === 'es' ? `¡${primeiroNome} terminó el día! 🎉` : `${primeiroNome} terminou o dia! 🎉`,
+                    regSub: locale === 'en' ? 'Log how it went — it feeds the therapist follow-up.' : locale === 'es' ? 'Registre cómo fue — alimenta el seguimiento del terapeuta.' : 'Registre como foi — alimenta o acompanhamento do terapeuta.',
+                    regBtn: locale === 'en' ? 'Log the day' : locale === 'es' ? 'Registrar el día' : 'Registrar o dia',
+                    emdiaTit: locale === 'en' ? 'All set for today' : locale === 'es' ? 'Todo listo por hoy' : 'Tudo em dia por hoje',
+                    emdiaSub: locale === 'en' ? `${primeiroNome}'s routine is set and on track. Nothing needed from you now.` : locale === 'es' ? `La rutina de ${primeiroNome} está lista y en marcha. Nada necesario ahora.` : `A rotina de ${primeiroNome} está montada e em dia. Nada precisa de você agora.`,
+                    verRotina: locale === 'en' ? "See today's routine" : locale === 'es' ? 'Ver la rutina de hoy' : 'Ver a rotina de hoje',
+                    comoFunciona: locale === 'en' ? 'How the app works' : locale === 'es' ? 'Cómo funciona la app' : 'Como o app funciona',
+                  };
+
+                  const tint =
+                    passo === 'montar' || passo === 'abrir' ? 'from-emerald-50/80 to-teal-50/50 dark:from-emerald-950/40 dark:to-teal-950/30 border-emerald-200 dark:border-emerald-800'
+                    : passo === 'registrar' ? 'from-amber-50/80 to-orange-50/50 dark:from-amber-950/40 dark:to-orange-950/30 border-amber-200 dark:border-amber-800'
+                    : 'from-indigo-50/70 to-slate-50/50 dark:from-indigo-950/30 dark:to-slate-900/40 border-indigo-200 dark:border-indigo-800';
+
+                  const emoji = passo === 'montar' ? '🧩' : passo === 'abrir' ? '🚀' : passo === 'progresso' ? '🌱' : passo === 'registrar' ? '🌙' : passo === 'cadastrar' ? '👶' : '☀️';
+                  const titulo = passo === 'montar' ? T.montarTit : passo === 'abrir' ? T.abrirTit : passo === 'progresso' ? T.progTit : passo === 'registrar' ? T.regTit : T.emdiaTit;
+                  const sub = passo === 'montar' ? T.montarSub : passo === 'abrir' ? T.abrirSub : passo === 'progresso' ? T.progSub : passo === 'registrar' ? T.regSub : T.emdiaSub;
+
+                  return (
+                    <div className={`bg-gradient-to-br ${tint} border rounded-2xl p-5 sm:p-6 flex flex-col gap-4`}>
+                      <div className="flex items-start gap-3">
+                        <span className="text-3xl select-none leading-none mt-0.5">{emoji}</span>
+                        <div className="min-w-0">
+                          <div className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">
+                            {locale === 'en' ? 'Assistant' : locale === 'es' ? 'Asistente' : 'Assistente'}
+                          </div>
+                          <h2 className="text-lg sm:text-xl font-black text-slate-900 dark:text-slate-50 font-Outfit tracking-tight leading-tight mt-0.5">{titulo}</h2>
+                          <p className="text-sm text-slate-600 dark:text-slate-300 font-medium mt-1 leading-relaxed max-w-2xl">{sub}</p>
+                        </div>
+                      </div>
+
+                      {/* Corpo por passo */}
+                      {passo === 'montar' && (
+                        <div className="grid sm:grid-cols-3 gap-3">
+                          {STARTER_BLOCKS.map(block => {
+                            const lang = starterLocale(locale);
+                            return (
+                              <button
+                                key={block.id}
+                                type="button"
+                                disabled={applyingBlock !== null}
+                                onClick={() => { playBubble(); setActiveDayFilter(hojeN); handleApplyStarterBlock(block); }}
+                                className="text-left bg-white dark:bg-slate-800 border border-emerald-200 dark:border-emerald-800 hover:border-emerald-400 rounded-xl p-4 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-wait shadow-xxs"
+                              >
+                                <div className="flex items-center gap-2">
+                                  <span className="text-xl select-none">{block.icon}</span>
+                                  <span className="text-base font-black text-slate-800 dark:text-slate-50 font-Outfit">{block.label[lang]}</span>
+                                </div>
+                                <p className="text-xs text-slate-500 dark:text-slate-300 font-medium mt-1.5 leading-snug">{block.hint[lang]}</p>
+                                <span className="inline-block mt-2.5 text-[10px] font-black uppercase tracking-wider text-emerald-700 dark:text-emerald-300">
+                                  {applyingBlock === block.id
+                                    ? (locale === 'en' ? 'adding…' : locale === 'es' ? 'agregando…' : 'aplicando…')
+                                    : `${block.tasks.length} ${locale === 'en' ? 'activities' : locale === 'es' ? 'actividades' : 'tarefas'}`}
+                                </span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      )}
+
+                      {passo === 'abrir' && (
+                        <div className="flex flex-wrap items-center gap-2.5">
+                          <a
+                            href={`/routine?childId=${activeChild.id}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={() => { playBubble(); playMarimba(392, 0.3); }}
+                            className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-black rounded-xl shadow-sm transition-all active:scale-95 flex items-center gap-2 font-Outfit"
+                          >
+                            🚀 {T.abrirBtn}
+                          </a>
+                          <button type="button" onClick={irRotina} className="px-4 py-2.5 bg-white/70 dark:bg-slate-800/70 hover:bg-white dark:hover:bg-slate-700 text-slate-600 dark:text-slate-200 text-sm font-black rounded-xl border border-slate-300 dark:border-slate-600 transition-all cursor-pointer font-Outfit">
+                            {T.verRotina}
+                          </button>
+                        </div>
+                      )}
+
+                      {passo === 'registrar' && (
+                        <div className="flex flex-wrap items-center gap-2.5">
+                          <button type="button" onClick={() => { playBubble(); setShowDailyTrackingPopover(true); }} className="px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-slate-950 text-sm font-black rounded-xl shadow-sm transition-all active:scale-95 cursor-pointer font-Outfit">
+                            📅 {T.regBtn}
+                          </button>
+                        </div>
+                      )}
+
+                      {(passo === 'progresso' || passo === 'em-dia') && (
+                        <div className="flex flex-wrap items-center gap-2.5">
+                          <button type="button" onClick={irRotina} className="px-4 py-2.5 bg-white/70 dark:bg-slate-800/70 hover:bg-white dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-sm font-black rounded-xl border border-slate-300 dark:border-slate-600 transition-all cursor-pointer font-Outfit">
+                            {T.verRotina}
+                          </button>
+                        </div>
+                      )}
+
+                      {/* "Como funciona" — sempre disponivel, recolhido. O guia
+                          persistente que o usuario pediu: os 4 passos do app. */}
+                      <details className="group mt-0.5">
+                        <summary className="text-xs font-black text-slate-500 dark:text-slate-400 cursor-pointer select-none list-none flex items-center gap-1.5 hover:text-slate-700 dark:hover:text-slate-200">
+                          <span className="transition-transform group-open:rotate-90">▸</span> {T.comoFunciona}
+                        </summary>
+                        <ol className="mt-3 flex flex-col gap-2 text-sm text-slate-600 dark:text-slate-300 font-medium pl-1">
+                          {[
+                            locale === 'en' ? 'Build the day’s routine (a ready block is one tap).' : locale === 'es' ? 'Arme la rutina del día (un bloque listo es un toque).' : 'Monte a rotina do dia (um bloco pronto é um toque).',
+                            locale === 'en' ? 'Open the child’s screen and hand over the device.' : locale === 'es' ? 'Abra la pantalla del niño y entregue el aparato.' : 'Abra a tela da criança e entregue o aparelho.',
+                            locale === 'en' ? 'The child taps each activity as they do it.' : locale === 'es' ? 'El niño toca cada actividad al hacerla.' : 'A criança toca cada atividade conforme faz.',
+                            locale === 'en' ? 'At night, log how it went — the therapist follows along.' : locale === 'es' ? 'De noche, registre cómo fue — el terapeuta sigue.' : 'À noite, registre como foi — o terapeuta acompanha.',
+                          ].map((txt, i) => (
+                            <li key={i} className="flex items-start gap-2.5">
+                              <span className="shrink-0 w-5 h-5 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-200 text-[10px] font-black flex items-center justify-center mt-0.5">{i + 1}</span>
+                              <span>{txt}</span>
+                            </li>
+                          ))}
+                        </ol>
+                      </details>
+                    </div>
+                  );
+                })()}
+
                 {(() => {
                   const todayNum = new Date().getDate().toString();
                   const dayTasks = tasks.filter(t => t.day === todayNum).sort((a, b) => a.time.localeCompare(b.time));
