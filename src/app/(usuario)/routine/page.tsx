@@ -13,6 +13,7 @@ import { getTaskCategory, TaskCategory } from '../../../lib/sensory-standards';
 import { RoutineIllustration } from '../../../components/ludic/RoutineIllustration';
 import { hasPictogram, displayTitle, ActivityPictogram } from '../../../components/ludic/ActivityPictogram';
 import ActivitySteps, { parseCustomSteps } from '../../../components/ludic/ActivitySteps';
+import { deriveHint, activityWantsWeather, hintText, WeatherReading } from '../../../lib/weather';
 import { 
   Check, 
   Star, 
@@ -740,6 +741,7 @@ export default function ChildRoutine() {
   const [currentYear, setCurrentYear] = useState(() => new Date().getFullYear().toString());
   const [collieState, setCollieState] = useState<CollieState>('idle');
   const [celebratingTaskId, setCelebratingTaskId] = useState<string | null>(null);
+  const [weather, setWeather] = useState<WeatherReading | null>(null);
   const [childHyperfocus, setChildHyperfocus] = useState('');
   
   // Wait Timer states
@@ -1241,6 +1243,45 @@ export default function ChildRoutine() {
     });
   }, [activeChild?.id]);
 
+  // Tempo (ambiente externo) — reforco, nunca requisito.
+  //
+  // Privacidade: o GPS so serve para consultar a Open-Meteo (gratis, sem chave).
+  // As COORDENADAS nunca sao guardadas — o cache guarda so a previsao derivada,
+  // por ~2h. Offline ou permissao negada: nao mostra aviso, e so isso.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      const cached = JSON.parse(localStorage.getItem('np_weather_v1') || 'null');
+      if (cached?.reading && Date.now() - (cached.ts || 0) < 2 * 60 * 60 * 1000) {
+        setWeather(cached.reading);
+        return; // cache fresco: nao repede o GPS
+      }
+    } catch {}
+    if (!navigator.geolocation || !navigator.onLine) return;
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        try {
+          const { latitude, longitude } = pos.coords;
+          const url = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,weather_code&daily=precipitation_probability_max&timezone=auto&forecast_days=1`;
+          const r = await fetch(url);
+          const j = await r.json();
+          const reading: WeatherReading = {
+            tempC: Number(j?.current?.temperature_2m),
+            code: Number(j?.current?.weather_code ?? 0),
+            precipProb: Number(j?.daily?.precipitation_probability_max?.[0] ?? 0),
+          };
+          if (!Number.isNaN(reading.tempC)) {
+            setWeather(reading);
+            // Guarda APENAS a previsao — nunca as coordenadas.
+            localStorage.setItem('np_weather_v1', JSON.stringify({ ts: Date.now(), reading }));
+          }
+        } catch {}
+      },
+      () => {}, // negado/erro: segue sem aviso
+      { timeout: 8000, maximumAge: 60 * 60 * 1000 },
+    );
+  }, [activeChild?.id]);
+
   // Speak unexpected change on load
   useEffect(() => {
     if (activeChild?.unexpectedChange) {
@@ -1292,6 +1333,10 @@ export default function ChildRoutine() {
 
   // Find active task (first uncompleted task of today)
   const activeTask = todayTasks.find(t => !t.isCompleted);
+  // Aviso do tempo para a atividade atual (so em atividades de sair, e so quando
+  // ha aviso de fato — frio/chuva/sol). Reforco calmo, tocavel para ouvir.
+  const weatherHint = deriveHint(weather);
+  const showWeatherHint = !!activeTask && !!weatherHint && weatherHint.kind !== 'none' && activityWantsWeather(activeTask.title);
   
   // Next two tasks in line
   const remainingTasks = todayTasks.filter(t => !t.isCompleted && t.id !== activeTask?.id);
@@ -3826,6 +3871,24 @@ export default function ChildRoutine() {
                         custom={parseCustomSteps((activeTask as any).steps)}
                         onSpeak={(txt) => { playBubble(); speakText(txt); }}
                       />
+
+                      {showWeatherHint && weatherHint && (
+                        <button
+                          type="button"
+                          onClick={() => { playBubble(); speakText(hintText(weatherHint, locale)); }}
+                          title={locale === 'en' ? 'Tap to hear' : locale === 'es' ? 'Toca para oír' : 'Toque para ouvir'}
+                          className={`mt-1 flex items-center gap-2 px-3.5 py-2.5 rounded-2xl border text-sm font-black cursor-pointer active:scale-[0.99] transition-all font-Outfit select-none ${
+                            weatherHint.kind === 'rain'
+                              ? 'bg-sky-50 dark:bg-sky-950/40 border-sky-200 dark:border-sky-800 text-sky-800 dark:text-sky-200'
+                              : weatherHint.kind === 'cold'
+                              ? 'bg-indigo-50 dark:bg-indigo-950/40 border-indigo-200 dark:border-indigo-800 text-indigo-800 dark:text-indigo-200'
+                              : 'bg-amber-50 dark:bg-amber-950/40 border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-200'
+                          }`}
+                        >
+                          <span className="text-xl shrink-0">{weatherHint.emoji}</span>
+                          <span>{hintText(weatherHint, locale)}</span>
+                        </button>
+                      )}
                     </div>
 
                     {/* Visual timer — kept subtle (predictability), no chrome */}

@@ -51,11 +51,25 @@ export default function ActivitySteps({
 
   if (!rows || rows.length === 0) return null;
 
+  // Le a lista INTEIRA, itemizada e em voz alta — a crianca pode ainda nao ler.
+  const stepWord = locale === 'en' ? 'Step' : locale === 'es' ? 'Paso' : 'Passo';
+  const speakAll = () => onSpeak(rows.map((s, i) => `${stepWord} ${i + 1}. ${s.text}`).join('. '));
+
   return (
     <div className="mt-1 w-full max-w-md flex flex-col gap-1.5">
-      <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-center font-Outfit">
-        {locale === 'en' ? 'How to do it' : locale === 'es' ? 'Cómo hacerlo' : 'Como fazer'}
-      </span>
+      <div className="flex items-center justify-center gap-2">
+        <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 font-Outfit">
+          {locale === 'en' ? 'How to do it' : locale === 'es' ? 'Cómo hacerlo' : 'Como fazer'}
+        </span>
+        <button
+          type="button"
+          onClick={speakAll}
+          title={locale === 'en' ? 'Listen to the steps' : locale === 'es' ? 'Escuchar los pasos' : 'Ouvir os passos'}
+          className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-indigo-50 hover:bg-indigo-100 dark:bg-white/10 dark:hover:bg-white/15 border border-indigo-150 dark:border-white/10 text-indigo-700 dark:text-indigo-300 text-[11px] font-black cursor-pointer active:scale-95 transition-all font-Outfit"
+        >
+          ▶ {locale === 'en' ? 'Listen' : locale === 'es' ? 'Escuchar' : 'Ouvir'}
+        </button>
+      </div>
       <ol className="flex flex-col gap-1.5">
         {rows.map((s, i) => (
           <li key={i}>
