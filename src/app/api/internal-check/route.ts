@@ -19,10 +19,25 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 export async function GET(req: Request) {
-  const token = new URL(req.url).searchParams.get('token');
+  const url = new URL(req.url);
+  const token = url.searchParams.get('token');
   const expected = process.env.INTERNAL_CHECK_TOKEN;
   if (!expected || token !== expected) {
     return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
+  }
+
+  // Gatilho de teste: confirma que o alerta por e-mail realmente sai (chave
+  // Resend + ALERT_EMAIL + remetente), ANTES de um incidente real. Nao mexe no
+  // estado de saude.
+  if (url.searchParams.get('test')) {
+    const emailed = await sendAlertEmail(
+      '✅ Nosso Passo: teste do vigia interno',
+      `Se você recebeu este e-mail, o alerta do vigia interno está funcionando.\n\nQuando: ${new Date().toISOString()}`,
+    );
+    return NextResponse.json(
+      { test: true, emailed },
+      { status: 200, headers: { 'Cache-Control': 'no-store, max-age=0' } },
+    );
   }
 
   // 1) Check profundo: conexao + leitura de tabelas reais.
