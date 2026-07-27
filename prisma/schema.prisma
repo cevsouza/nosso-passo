@@ -119,6 +119,16 @@ model Task {
   createdAt   DateTime @default(now())
 }
 
+// Estado do vigia interno (uma linha, id fixo 'health'). Guarda a ultima saude
+// conhecida para a maquina anti-spam so alertar na virada.
+model MonitorState {
+  id        String   @id
+  state     String   @default("healthy") // 'healthy' | 'unhealthy'
+  detail    String   @default("")
+  since     DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 model Checkpoint {
   id               String   @id @default(cuid())
   weekNum          Int      // 1, 2, 3, 4
