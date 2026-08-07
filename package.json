@@ -20,34 +20,34 @@
     "test:monitor": "tsx scripts/test-monitor-state.ts"
   },
   "dependencies": {
-    "@libsql/client": "^0.17.3",
-    "@prisma/adapter-better-sqlite3": "^6.2.1",
-    "@prisma/adapter-libsql": "^6.2.1",
-    "@prisma/client": "^6.2.1",
-    "@stripe/stripe-js": "^9.8.0",
-    "better-sqlite3": "^12.9.0",
-    "firebase": "^12.13.0",
-    "framer-motion": "^12.40.0",
-    "lucide-react": "^1.17.0",
+    "@libsql/client": "^0.17.4",
+    "@prisma/adapter-better-sqlite3": "^7.9.1",
+    "@prisma/adapter-libsql": "^7.9.1",
+    "@prisma/client": "^7.9.1",
+    "@stripe/stripe-js": "^9.12.1",
+    "better-sqlite3": "^13.0.2",
+    "firebase": "^12.17.0",
+    "framer-motion": "^12.43.0",
+    "lucide-react": "^1.28.0",
     "next": "^16.3.0",
     "qrcode": "^1.5.4",
-    "react": "19.2.4",
-    "react-dom": "19.2.4",
-    "stripe": "^22.2.1"
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "stripe": "^22.4.0"
   },
   "devDependencies": {
-    "@stripe/cli": "^1.42.14",
+    "@stripe/cli": "^1.45.0",
     "@tailwindcss/postcss": "^4",
-    "@types/node": "^20",
+    "@types/node": "^26",
     "@types/qrcode": "^1.5.6",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "dotenv": "^17.4.2",
-    "eslint": "^9",
-    "eslint-config-next": "16.2.4",
-    "prisma": "^6.2.1",
+    "eslint": "^10",
+    "eslint-config-next": "16.3.0",
+    "prisma": "^7.9.1",
     "tailwindcss": "^4",
-    "tsx": "^4.23.1",
-    "typescript": "^5"
+    "tsx": "^4.23.5",
+    "typescript": "^7"
   }
 }
